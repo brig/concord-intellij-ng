@@ -1,11 +1,27 @@
-<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M32.0845 7.94025V4H24.0203V7.9896H16.029V4H7.91553V7.94025H4V36H16.0044V32.0045C16.0058 30.9457 16.4274 29.9308 17.1766 29.1826C17.9258 28.4345 18.9412 28.0143 20 28.0143C21.0588 28.0143 22.0743 28.4345 22.8234 29.1826C23.5726 29.9308 23.9942 30.9457 23.9956 32.0045V36H36V7.94025H32.0845Z"
-          fill="url(#paint0_linear)"/>
-    <defs>
-        <linearGradient id="paint0_linear" x1="2.94192" y1="4.89955" x2="37.7772" y2="39.7345" gradientUnits="userSpaceOnUse">
-            <stop offset="0.15937" stop-color="#3BEA62"/>
-            <stop offset="0.5404" stop-color="#3C99CC"/>
-            <stop offset="0.93739" stop-color="#6B57FF"/>
-        </linearGradient>
-    </defs>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="306px" height="63px" viewBox="0 0 306 63" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>concord</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="concord" transform="translate(2.000000, 2.000000)">
+            <g id="Group" transform="translate(0.000000, 2.000000)">
+                <g>
+                    <g stroke-width="3">
+                        <path d="M6,7.5 L36,7.5" id="Shape" stroke="#CCCCCC"></path>
+                        <path d="M36,29.5 L56,29.5" id="Shape" stroke="#CCCCCC"></path>
+                        <polyline id="Shape" stroke="#CCCCCC" points="20.5 9 20.5 29.5 35.5 29.5 35.5 51"></polyline>
+                        <circle id="Oval" stroke="#D1E9F6" fill="#FFFFFF" fill-rule="nonzero" cx="6.7" cy="6.4" r="6.4"></circle>
+                        <path d="M36,51.5 L56,51.5" id="Shape" stroke="#CCCCCC"></path>
+                    </g>
+                    <rect id="Rectangle-path" stroke="#094E8E" stroke-width="3" fill="#FFFFFF" fill-rule="nonzero" x="29.7" y="0.4" width="11.9" height="11.9"></rect>
+                    <rect id="Rectangle-path" stroke="#094E8E" stroke-width="3" fill="#FFFFFF" fill-rule="nonzero" x="50.4" y="22.7" width="11.9" height="11.9"></rect>
+                    <rect id="Rectangle-path" stroke="#137DC1" stroke-width="2.99997123" fill="#FFFFFF" fill-rule="nonzero" transform="translate(35.903820, 28.632650) rotate(45.000000) translate(-35.903820, -28.632650) " x="29.9538771" y="22.6827071" width="11.8998859" height="11.8998859"></rect>
+                    <rect id="Rectangle-path" stroke="#094E8E" stroke-width="3" fill="#FFFFFF" fill-rule="nonzero" x="29.7" y="44.9" width="11.9" height="11.9"></rect>
+                </g>
+                <circle id="Oval" stroke="#2F2951" stroke-width="3" fill="#FFFFFF" fill-rule="nonzero" cx="56.4" cy="50.9" r="6.4"></circle>
+            </g>
+        </g>
+    </g>
 </svg>

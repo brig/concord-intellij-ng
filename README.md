@@ -1,12 +1,17 @@
-# Intellij Plugin for Concord
+# IntelliJ Plugin for Concord
 
 ![Build](https://github.com/brig/test-plugin/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
 
 <!-- Plugin description -->
-Intellij plugin for [concord](https://github.com/walmartlabs/concord) 
+IntelliJ plugin for [Concord](https://github.com/walmartlabs/concord) 
+
+Helps writing and working with concord flows.
 <!-- Plugin description end -->
+
+## Features
+* Autocomplete concord yaml fields
 
 ## Installation
 
