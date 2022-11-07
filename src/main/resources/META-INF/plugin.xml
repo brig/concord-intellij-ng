@@ -1,7 +1,7 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>brig.concord.intellij</id>
-    <name>concord-plugin</name>
+    <name>Concord</name>
     <vendor>brig</vendor>
 
     <depends>com.intellij.modules.platform</depends>
