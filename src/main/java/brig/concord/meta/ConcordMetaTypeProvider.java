@@ -1,13 +1,13 @@
 package brig.concord.meta;
 
 import brig.concord.psi.ConcordFile;
+import brig.concord.psi.YamlDebugUtil;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFileSystemItem;
-import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -21,13 +21,12 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Service
 public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
 
-    private static final Key<CachedValue<MetaTypeProxy>> VALUE_META_TYPE = new Key<>("VALUE_META_TYPE");
-    private static final Key<CachedValue<MetaTypeProxy>> KEY_VALUE_META_TYPE = new Key<>("KEY_VALUE_META_TYPE");
-    private static final Key<CachedValue<MetaTypeProxy>> META_TYPE_PROXY = new Key<>("META_TYPE_PROXY");
+    private static final Logger LOG = Logger.getInstance(ConcordMetaTypeProvider.class);
 
     private static final ModificationTracker YAML_MODIFICATION_TRACKER = ModificationTracker.NEVER_CHANGED;
 
@@ -66,13 +65,33 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     @Nullable
     @Override
     public MetaTypeProxy getMetaTypeProxy(@NotNull PsiElement element) {
-        return CachedValuesManager.getCachedValue(element, META_TYPE_PROXY, () ->
-                new CachedValueProvider.Result<>(super.getMetaTypeProxy(element), element.getContainingFile()));
+        debug(() -> " >> computing meta type proxy for : " + YamlDebugUtil.getDebugInfo(element));
+        MetaTypeProxy computed = super.getMetaTypeProxy(element);
+        debug(() -> " << finished for : " + YamlDebugUtil.getDebugInfo(element) +
+                ", result: " + (computed == null ? "<null>" : computed));
+        return computed;
+    }
+
+    @Nullable
+    public MetaTypeProxy getValueMetaType(@NotNull YAMLValue typedValue) {
+        debug(() -> " >> computing value meta type for : " + YamlDebugUtil.getDebugInfo(typedValue));
+        MetaTypeProxy result = super.getValueMetaType(typedValue);
+        debug(() -> " << finished for : " + YamlDebugUtil.getDebugInfo(typedValue) +
+                ", result: " + (result == null ? "<null>" : result));
+        return result;
     }
 
     @Nullable
     @Override
     public YAMLValue getMetaOwner(@NotNull PsiElement psi) {
-        return PsiTreeUtil.getParentOfType(psi, YAMLValue.class, false);
+        debug(() -> " >> getting meta owner for : " + YamlDebugUtil.getDebugInfo(psi));
+        YAMLValue result = PsiTreeUtil.getParentOfType(psi, YAMLValue.class, false);
+        debug(() -> " << finished for : " + YamlDebugUtil.getDebugInfo(psi) +
+                ", result: " + (result == null ? "<null>" : result));
+        return result;
+    }
+
+    private static void debug(Supplier<String> textSupplier) {
+        LOG.warn(textSupplier.get());
     }
 }

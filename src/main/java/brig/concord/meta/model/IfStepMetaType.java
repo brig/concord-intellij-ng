@@ -1,0 +1,30 @@
+package brig.concord.meta.model;
+
+import org.jetbrains.yaml.meta.model.YamlMetaType;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
+public class IfStepMetaType extends StepMetaType {
+
+    private static final IfStepMetaType INSTANCE = new IfStepMetaType();
+
+    public static IfStepMetaType getInstance() {
+        return INSTANCE;
+    }
+
+    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
+            "if", ExpressionMetaType::getInstance,
+            "then", StepsMetaType::getInstance,
+            "else", StepsMetaType::getInstance);
+
+    protected IfStepMetaType() {
+        super("If", "if", Set.of("if", "then"));
+    }
+
+    @Override
+    public Map<String, Supplier<YamlMetaType>> getFeatures() {
+        return features;
+    }
+}

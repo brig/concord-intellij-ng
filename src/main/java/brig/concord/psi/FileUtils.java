@@ -43,6 +43,7 @@ public final class FileUtils {
                 }
             }
         }
+        System.out.println(">>> files:" + virtualFiles.size());
         return result;
     }
 }

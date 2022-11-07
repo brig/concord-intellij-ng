@@ -1,8 +1,11 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
+import org.jetbrains.yaml.meta.model.YamlMetaType;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 public abstract class StepMetaType extends ConcordMetaType {
 
@@ -24,4 +27,7 @@ public abstract class StepMetaType extends ConcordMetaType {
     protected Set<String> getRequiredFields() {
         return requiredFeatures;
     }
+
+    @Override
+    protected abstract Map<String, Supplier<YamlMetaType>> getFeatures();
 }

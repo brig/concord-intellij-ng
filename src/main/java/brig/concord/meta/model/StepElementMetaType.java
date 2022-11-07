@@ -16,7 +16,9 @@ public class StepElementMetaType extends YamlAnyOfType {
 
     private static final List<StepMetaType> steps = List.of(
             TaskStepMetaType.getInstance(),
-            CallStepMetaType.getInstance()
+            CallStepMetaType.getInstance(),
+            LogStepMetaType.getInstance(),
+            IfStepMetaType.getInstance()
     );
 
     private static final StepElementMetaType INSTANCE = new StepElementMetaType();
@@ -31,11 +33,10 @@ public class StepElementMetaType extends YamlAnyOfType {
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-//        StepMetaType stepMeta = findStepMeta(existingFields);
-//        if (stepMeta == null) {
-//            return Collections.emptyList();
-//        }
-//        return stepMeta.computeMissingFields(existingFields);
+        StepMetaType meta = findStepMeta(Set.of(name));
+        if (meta == null) {
+            return null;
+        }
 
         return new Field(name, new Field.MetaTypeSupplier() {
 
@@ -73,7 +74,7 @@ public class StepElementMetaType extends YamlAnyOfType {
 
     @Override
     public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
-        StepMetaType stepMeta = findStepMeta(existingFields);
+        StepMetaType stepMeta = identifyStepMeta(existingFields);
         if (stepMeta == null) {
             return Collections.emptyList();
         }
@@ -84,7 +85,7 @@ public class StepElementMetaType extends YamlAnyOfType {
     public @NotNull List<Field> computeKeyCompletions(@Nullable YAMLMapping existingMapping) {
         StepMetaType stepMeta = Optional.ofNullable(existingMapping)
                         .map(YamlPsiUtils::keys)
-                        .map(this::findStepMeta)
+                        .map(this::identifyStepMeta)
                 .orElse(null);
 
         if (stepMeta != null) {
@@ -103,7 +104,7 @@ public class StepElementMetaType extends YamlAnyOfType {
         return new LinkedList<>(result);
     }
 
-    private StepMetaType findStepMeta(Set<String> existingKeys) {
+    private StepMetaType identifyStepMeta(Set<String> existingKeys) {
         for (StepMetaType step : steps) {
             if (existingKeys.contains(step.getIdentity())) {
                 return step;
@@ -111,5 +112,29 @@ public class StepElementMetaType extends YamlAnyOfType {
         }
 
         return null;
+    }
+
+    private StepMetaType findStepMeta(Set<String> existingKeys) {
+        StepMetaType result = identifyStepMeta(existingKeys);
+        if (result != null) {
+            return result;
+        }
+
+        int maxMatches = 0;
+        for (StepMetaType s : steps) {
+            int matches = 0;
+            Set<String> features = s.getFeatures().keySet();
+            for (String k : existingKeys) {
+                if (features.contains(k)) {
+                    matches++;
+                }
+            }
+            if (matches > maxMatches) {
+                maxMatches = matches;
+                result = s;
+            }
+        }
+
+        return result;
     }
 }
