@@ -1,18 +1,40 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.brig.testplugin</id>
-    <name>test-plugin</name>
+    <id>brig.concord.intellij</id>
+    <name>concord-plugin</name>
     <vendor>brig</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.brig.testplugin.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.brig.testplugin.services.MyProjectService"/>
+        <lang.parserDefinition language="yaml" order="first"
+                               implementationClass="brig.concord.YamlConcordParserDefinition"/>
+
+        <fileType name="Concord File" implementationClass="brig.concord.ConcordFileType"
+                  fieldName="INSTANCE" language="Concord"
+                  extensions="concord.yml" patterns="*.concord.yml;concord.yml;*.concord.yaml;concord.yaml"/>
+
+        <lang.parserDefinition language="Concord" implementationClass="brig.concord.ConcordParserDefinition"/>
+
+        <lang.findUsagesProvider language="yaml" order="before yamlFindUsagesProvider"
+                                 implementationClass="brig.concord.FindUsageProvider"/>
+
+        <psi.referenceContributor language="yaml" implementation="brig.concord.ConcordYamlReferenceContributor"/>
+        <completion.contributor implementationClass="brig.concord.completion.ConcordCompletions"
+                                order="first" language="yaml"/>
+
+        <!-- inspections -->
+        <localInspection displayName="Unknown keys" groupPath="OMT" language="Concord"
+                         enabledByDefault="true" level="ERROR" groupName="Structure"
+                         implementationClass="brig.concord.inspection.UnknownKeysInspection"/>
+        <localInspection displayName="Missing keys" groupPath="OMT" language="Concord"
+                         enabledByDefault="true" level="ERROR" groupName="Structure"
+                         implementationClass="brig.concord.inspection.MissingKeysInspection"/>
+        <localInspection displayName="Scalar values" groupPath="OMT" language="Concord"
+                         enabledByDefault="true" level="ERROR" groupName="Structure"
+                         implementationClass="brig.concord.inspection.ValueInspection"/>
+
     </extensions>
 
-    <applicationListeners>
-        <listener class="com.github.brig.testplugin.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
 </idea-plugin>

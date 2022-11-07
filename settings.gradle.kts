@@ -1,1 +1,1 @@
-rootProject.name = "test-plugin"
+rootProject.name = "concord-intellij-plugin"
