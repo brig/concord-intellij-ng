@@ -8,7 +8,8 @@ import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
 public class ConcordYamlReferenceContributor extends PsiReferenceContributor {
-    private PatternCondition<PsiElement> keyValues = new PatternCondition<>("YAMLConcordKeyValueImpl") {
+
+    private final PatternCondition<PsiElement> keyValues = new PatternCondition<>("YAMLConcordKeyValueImpl") {
         @Override
         public boolean accepts(@NotNull PsiElement element,
                                ProcessingContext context) {

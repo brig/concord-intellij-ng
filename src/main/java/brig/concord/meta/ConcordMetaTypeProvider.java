@@ -92,6 +92,8 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     }
 
     private static void debug(Supplier<String> textSupplier) {
-        LOG.warn(textSupplier.get());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(textSupplier.get());
+        }
     }
 }

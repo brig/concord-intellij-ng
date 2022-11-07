@@ -21,7 +21,7 @@ public class ConcordCompletions extends CompletionContributor {
     private static final HashMap<PsiElement, CompletionParameters> completionParametersHashMap = new HashMap<>();
 
     public ConcordCompletions() {
-        extend(CompletionType.BASIC, psiElement(), new OMTKeyCompletion());
+        extend(CompletionType.BASIC, psiElement(), new KeyCompletion());
     }
 
     public static CompletionParameters getCompletionParameters(PsiElement element) {
@@ -40,7 +40,8 @@ public class ConcordCompletions extends CompletionContributor {
         completionParametersHashMap.remove(parameters.getPosition());
     }
 
-    static class OMTKeyCompletion extends YamlMetaTypeCompletionProviderBase {
+    static class KeyCompletion extends YamlMetaTypeCompletionProviderBase {
+
         @Override
         protected @Nullable YamlMetaTypeProvider getMetaTypeProvider(@NotNull CompletionParameters params) {
             return ConcordMetaTypeProvider.getInstance(params.getPosition().getProject());

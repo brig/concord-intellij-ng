@@ -31,20 +31,6 @@ public class FindUsageProvider extends YAMLFindUsagesProvider implements FindUsa
     @Override
     public @Nls @NotNull String getDescriptiveName(@NotNull PsiElement element) {
         System.out.println("<<<< getDescriptiveName");
-
-//        if (element instanceof YAMLConcordKeyValueImpl) {
-//            final YamlMetaType metaType = getMetaValueType(element);
-//            if (metaType instanceof OMTModelItemMetaType) {
-//                return metaType.getTypeName();
-//            }
-//            return ((YAMLKeyValue) element).getKeyText();
-//        } else if (element instanceof YAMLConcordPlainTextImpl) {
-//            final YamlMetaType metaType = getMetaType(element);
-//            if (metaType instanceof OMTNamedVariableMetaType) {
-//                return ((OMTNamedVariableMetaType) metaType).getName((YAMLValue) element);
-//            }
-//        }
-
         return super.getDescriptiveName(element);
     }
 
@@ -59,16 +45,4 @@ public class FindUsageProvider extends YAMLFindUsagesProvider implements FindUsa
 
         return super.getNodeText(element, useFullName);
     }
-
-//        private YamlMetaType getMetaType(PsiElement element) {
-//            return OMTMetaTypeProvider.getInstance(element.getProject()).getResolvedMetaType(element);
-//        }
-//
-//        private YamlMetaType getMetaValueType(PsiElement element) {
-//            if (element instanceof YAMLKeyValue) {
-//                return OMTMetaTypeProvider.getInstance(element.getProject())
-//                        .getResolvedKeyValueMetaTypeMeta((YAMLKeyValue) element);
-//            }
-//            return getMetaType(element);
-//        }
 }

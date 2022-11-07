@@ -26,7 +26,7 @@ public class YAMLConcordPlainTextImpl extends YAMLPlainTextImpl implements PsiNa
 
 //    private PsiNamedElement getDelegate() {
 //        if (delegate == null) {
-//            delegate = OMTYamlDelegateFactory.createDelegate(this);
+//            delegate = ConcordYamlDelegateFactory.createDelegate(this);
 //        }
 //        return delegate;
 //    }

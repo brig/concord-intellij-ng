@@ -23,12 +23,11 @@ public class ConcordYamlDelegateFactory {
     }
 
     public static @Nullable PsiNamedElement createDelegate(YAMLPsiElement psiElement) {
-        PsiNamedElement omtYamlDelegate = DELEGATE.get(psiElement);
-        if (omtYamlDelegate != null) {
-            return omtYamlDelegate;
+        PsiNamedElement yamlDelegate = DELEGATE.get(psiElement);
+        if (yamlDelegate != null) {
+            return yamlDelegate;
         }
 
-        // create delegate by meta-type information:
         PsiNamedElement delegate = null;
         if (psiElement instanceof YAMLKeyValue) {
             delegate = createKeyValueDelegate((YAMLKeyValue) psiElement);
@@ -46,46 +45,12 @@ public class ConcordYamlDelegateFactory {
     private static PsiNamedElement createKeyValueDelegate(YAMLKeyValue keyValue) {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(keyValue.getProject());
         YamlMetaType valueMetaType = instance.getResolvedKeyValueMetaTypeMeta(keyValue);
-//        if (valueMetaType instanceof OMTModelItemMetaType) {
-//            return new OMTYamlModelItemDelegate(keyValue);
-//        } else if (valueMetaType instanceof OMTIriMetaType) {
-//            return new OMTYamlPrefixIriDelegate(keyValue);
-//        } else if (valueMetaType instanceof OMTImportMemberMetaType) {
-//            return new OMTYamlImportPathDelegate(keyValue);
-//        } else if (valueMetaType instanceof OMTDeclaredModuleMetaType) {
-//            return new OMTYamlDeclaredModuleDelegate(keyValue);
-//        } else if (valueMetaType instanceof OMTDeclaredInterfaceMetaType) {
-//            return new OMTYamlDeclaredInterfaceDelegate(keyValue);
-//        }
         return null;
     }
 
     private static PsiNamedElement createPlainTextDelegate(YAMLPlainTextImpl yamlPlainText) {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(yamlPlainText.getProject());
         YamlMetaType metaType = instance.getResolvedMetaType(yamlPlainText);
-//        if (metaType instanceof OMTParamMetaType) {
-//            return new OMTYamlParameterDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTBindingParameterMetaType) {
-//            return new OMTYamlBindingParameterDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTBaseParameterMetaType) {
-//            return new OMTYamlBaseParameterDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTNamedVariableMetaType) {
-//            return new OMTYamlVariableDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTImportMemberMetaType) {
-//            return new OMTYamlImportMemberDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTImportedMemberRefMetaType) {
-//            return new OMTYamlImportedMemberRefDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTPayloadQueryReferenceMetaType) {
-//            return new OMTYamlPayloadQueryReferenceDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTOntologyPrefixMetaType) {
-//            return new OMTYamlOntologyPrefixDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTParamTypeMetaType) {
-//            return new OMTYamlParamTypeDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTFileReferenceMetaType) {
-//            return new OMTYamlFileReferenceDelegate(yamlPlainText);
-//        } else if (metaType instanceof OMTGraphShapeHandlerMemberMetaType) {
-//            return new OMTYamlGraphShapeHandlerMemberDelegate(yamlPlainText);
-//        }
         return null;
     }
 
