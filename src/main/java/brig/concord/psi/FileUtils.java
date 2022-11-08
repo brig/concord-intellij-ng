@@ -67,7 +67,6 @@ public final class FileUtils {
 //                }
 //            }
 //        }
-        System.out.println(">>> files:" + result.size());
         return result;
     }
 }

@@ -1,6 +1,7 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordAnyMapMetaType;
+import org.jetbrains.yaml.meta.model.YamlBooleanType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.meta.model.YamlStringType;
 
@@ -8,31 +9,28 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class CallStepMetaType extends StepMetaType {
+public class ExprStepMetaType extends StepMetaType {
 
-    private static final CallStepMetaType INSTANCE = new CallStepMetaType();
+    private static final ExprStepMetaType INSTANCE = new ExprStepMetaType();
 
-    public static CallStepMetaType getInstance() {
+    public static ExprStepMetaType getInstance() {
         return INSTANCE;
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "call", CallMetaType::getInstance,
+            "expr", YamlStringType::getInstance,
             "name", YamlStringType::getInstance,
-            "in", InParamsMetaType::getInstance,
-            "out", CallOutParamsMetaType::getInstance,
+            "out", ExprOutParamsMetaType::getInstance,
             "meta", ConcordAnyMapMetaType::getInstance,
-//            "loop", ,
-            "retry", RetryMetaType::getInstance,
             "error", StepsMetaType::getInstance
     );
 
-    protected CallStepMetaType() {
-        super("Call", "call", Set.of("call"));
+    protected ExprStepMetaType() {
+        super("Expr", "expr", Set.of("expr"));
     }
 
     @Override
-    public Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 }
