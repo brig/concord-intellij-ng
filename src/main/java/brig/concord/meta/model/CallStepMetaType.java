@@ -17,7 +17,7 @@ public class CallStepMetaType extends StepMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "call", CallMetaType::getInstance,
-            "in", ConcordAnyMapMetaType::getInstance
+            "in", InParamsMetaType::getInstance
     );
 
     protected CallStepMetaType() {

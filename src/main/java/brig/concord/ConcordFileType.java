@@ -29,7 +29,7 @@ public class ConcordFileType extends LanguageFileType {
     @NotNull
     @Override
     public String getDefaultExtension() {
-        return "concord.yml";
+        return "concord.yaml";
     }
 
     @Nullable

@@ -52,8 +52,11 @@ public class ConcordCompletions extends CompletionContributor {
                                       @NotNull ProcessingContext context,
                                       @NotNull CompletionResultSet result) {
             ConcordCompletions.registerCompletionParameters(params);
-            super.addCompletions(params, context, result);
-            ConcordCompletions.removeCompletionParameters(params);
+            try {
+                super.addCompletions(params, context, result);
+            } finally {
+                ConcordCompletions.removeCompletionParameters(params);
+            }
         }
 
     }

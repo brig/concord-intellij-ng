@@ -16,6 +16,7 @@ import org.jetbrains.yaml.meta.model.YamlStringType;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -48,19 +49,9 @@ public class CallMetaType extends YamlStringType {
         }
 
         return processDefinition.flowNames().stream()
+                .sorted()
                 .map(name -> LookupElementBuilder.create(name)
                         .withPresentableText(name))
                 .collect(Collectors.toList());
-
-//        return FilenameIndex.getAllFilesByExt(insertedScalar.getProject(), "concord.yml")
-//                .stream()
-//                .map(virtualFile -> {
-//                    return LookupElementBuilder.create("pathToFile")
-//                            .withLookupString(virtualFile.getName())
-//                            .withLookupString(virtualFile.getNameWithoutExtension())
-//                            .withPresentableText(virtualFile.getName())
-//                            .withTypeText("presentableFolderName");
-//                })
-//                .collect(Collectors.toList());
     }
 }

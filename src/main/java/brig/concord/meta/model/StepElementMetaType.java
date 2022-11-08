@@ -18,7 +18,10 @@ public class StepElementMetaType extends YamlAnyOfType {
             TaskStepMetaType.getInstance(),
             CallStepMetaType.getInstance(),
             LogStepMetaType.getInstance(),
-            IfStepMetaType.getInstance()
+            IfStepMetaType.getInstance(),
+            ReturnStepMetaType.getInstance(),
+            ExitStepMetaType.getInstance(),
+            CheckpointStepMetaType.getInstance()
     );
 
     private static final StepElementMetaType INSTANCE = new StepElementMetaType();

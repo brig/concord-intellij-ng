@@ -40,6 +40,6 @@ public class ProcessDefinitionProvider {
         }
 
         Path rootYamlPath = rootDoc.getContainingFile().getVirtualFile().toNioPath();
-        return new ProcessDefinition(rootYamlPath, rootDoc, currentDoc);
+        return new ProcessDefinition(rootYamlPath, rootDoc);
     }
 }

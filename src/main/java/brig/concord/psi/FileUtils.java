@@ -7,14 +7,15 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
+import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.containers.CollectionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public final class FileUtils {
 
@@ -27,13 +28,22 @@ public final class FileUtils {
     }
 
     public static List<PsiFile> findFiles(Project project, List<PathMatcher> patterns) {
-        List<PsiFile> result = new ArrayList<>();
 
-        Collection<VirtualFile> virtualFiles = FileTypeIndex.getFiles(ConcordFileType.INSTANCE, GlobalSearchScope.projectScope(project));
-        for (VirtualFile virtualFile : virtualFiles) {
+        Set<String> names = CollectionFactory.createSmallMemoryFootprintSet();
+        FilenameIndex.processAllFileNames((String s) -> {
+            for (String ext : ConcordFile.PROJECT_ROOT_FILE_NAMES) {
+                if (s.endsWith(ext)) {
+                    names.add(s);
+                }
+            }
+            return true;
+        }, GlobalSearchScope.projectScope(project), null);
+
+        List<PsiFile> result = new ArrayList<>();
+        FilenameIndex.processFilesByNames(names, false, GlobalSearchScope.projectScope(project), null, virtualFile -> {
             Path path = virtualFile.getFileSystem().getNioPath(virtualFile);
             if (path == null || path.toString().contains("/target/")) {
-                continue;
+                return true;
             }
 
             if (patterns.stream().anyMatch(m -> m.matches(path))) {
@@ -42,8 +52,25 @@ public final class FileUtils {
                     result.add(psiFile);
                 }
             }
-        }
-        System.out.println(">>> files:" + virtualFiles.size());
+            return true;
+        });
+
+
+//        Collection<VirtualFile> virtualFiles = FileTypeIndex.getFiles(ConcordFileType.INSTANCE, GlobalSearchScope.projectScope(project));
+//        for (VirtualFile virtualFile : virtualFiles) {
+//            Path path = virtualFile.getFileSystem().getNioPath(virtualFile);
+//            if (path == null || path.toString().contains("/target/")) {
+//                continue;
+//            }
+//
+//            if (patterns.stream().anyMatch(m -> m.matches(path))) {
+//                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+//                if (psiFile != null) {
+//                    result.add(psiFile);
+//                }
+//            }
+//        }
+        System.out.println(">>> files:" + result.size());
         return result;
     }
 }

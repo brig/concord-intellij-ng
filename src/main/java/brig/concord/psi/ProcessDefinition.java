@@ -1,5 +1,6 @@
 package brig.concord.psi;
 
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.*;
@@ -19,12 +20,10 @@ public class ProcessDefinition {
 
     private final Path rootYamlPath;
     private final YAMLDocument rootDoc;
-    private final YAMLDocument doc;
 
-    public ProcessDefinition(Path rootYamlPath, YAMLDocument rootDoc, YAMLDocument doc) {
+    public ProcessDefinition(Path rootYamlPath, YAMLDocument rootDoc) {
         this.rootYamlPath = rootYamlPath.getParent();
         this.rootDoc = rootDoc;
-        this.doc = doc;
     }
 
     @Nullable
@@ -32,10 +31,18 @@ public class ProcessDefinition {
         return YamlPsiUtils.get(rootDoc, YAMLSequence.class, "resources", name);
     }
 
+    @Nullable
+    public PsiElement flow(String name) {
+        return allDefinitions().stream()
+                .map(d -> flow(d, name))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
     public Set<String> flowNames() {
         Set<String> result = new HashSet<>();
         allDefinitions().forEach(c -> result.addAll(flowNames(c)));
-        result.addAll(flowNames(doc));
         return result;
     }
 
@@ -47,13 +54,17 @@ public class ProcessDefinition {
         return YamlPsiUtils.keys(flows);
     }
 
+    private static PsiElement flow(PsiElement root, String name) {
+        return YamlPsiUtils.get(root, YAMLPsiElement.class, "flows", name);
+    }
+
     public List<YAMLDocument> allDefinitions() {
         List<PathMatcher> resources = resourcePatterns("concord");
         return Stream.concat(
-                        FileUtils.findFiles(doc.getProject(), resources).stream()
+                        FileUtils.findFiles(rootDoc.getProject(), resources).stream() // TODO: sort
                                 .map(e -> PsiTreeUtil.getChildOfType(e, YAMLDocument.class))
                                 .filter(Objects::nonNull),
-                        Stream.of(doc))
+                        Stream.of(rootDoc))
                 .collect(Collectors.toList());
     }
 

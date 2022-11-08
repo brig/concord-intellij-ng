@@ -1,6 +1,8 @@
 package brig.concord.psi.impl.delegate;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
+import brig.concord.meta.model.CallMetaType;
+import brig.concord.meta.model.StepElementMetaType;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.Key;
@@ -45,12 +47,18 @@ public class ConcordYamlDelegateFactory {
     private static PsiNamedElement createKeyValueDelegate(YAMLKeyValue keyValue) {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(keyValue.getProject());
         YamlMetaType valueMetaType = instance.getResolvedKeyValueMetaTypeMeta(keyValue);
+        if (valueMetaType instanceof CallMetaType) {
+            return new YamlFlowCallDelegate(keyValue);
+        }
         return null;
     }
 
     private static PsiNamedElement createPlainTextDelegate(YAMLPlainTextImpl yamlPlainText) {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(yamlPlainText.getProject());
         YamlMetaType metaType = instance.getResolvedMetaType(yamlPlainText);
+        if (metaType instanceof CallMetaType) {
+            return null;
+        }
         return null;
     }
 
