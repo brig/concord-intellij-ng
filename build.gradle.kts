@@ -26,7 +26,7 @@ repositories {
 // Set the JVM language level used to compile sources and generate files - Java 11 is required since 2020.3
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(11))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -55,6 +55,10 @@ qodana {
 }
 
 tasks {
+    buildSearchableOptions {
+        enabled = false
+    }
+
     wrapper {
         gradleVersion = properties("gradleVersion")
     }

@@ -1,16 +1,13 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.CollectionFactory;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
