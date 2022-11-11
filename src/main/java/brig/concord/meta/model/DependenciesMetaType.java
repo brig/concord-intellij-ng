@@ -13,5 +13,4 @@ public class DependenciesMetaType extends YamlArrayType {
     private DependenciesMetaType() {
         super(DependencyMetaType.getInstance());
     }
-
 }

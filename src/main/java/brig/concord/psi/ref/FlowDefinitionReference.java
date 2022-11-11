@@ -29,4 +29,11 @@ public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLKeyValue>
 
         return PsiElementResolveResult.createResults(flowDef);
     }
+
+    @Override
+    public boolean isReferenceTo(@NotNull PsiElement element) {
+        return super.isReferenceTo(element);
+    }
+
+
 }

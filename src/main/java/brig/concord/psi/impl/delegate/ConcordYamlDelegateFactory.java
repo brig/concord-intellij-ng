@@ -2,7 +2,6 @@ package brig.concord.psi.impl.delegate;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.CallMetaType;
-import brig.concord.meta.model.StepElementMetaType;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.Key;

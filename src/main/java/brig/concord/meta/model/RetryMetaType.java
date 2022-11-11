@@ -2,13 +2,14 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordAnyMapMetaType;
 import brig.concord.meta.ConcordMetaType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlAnyOfType;
+import org.jetbrains.yaml.meta.model.YamlIntegerType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlNumberType;
 
-import java.time.Duration;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class RetryMetaType extends ConcordMetaType {
@@ -45,7 +46,8 @@ public class RetryMetaType extends ConcordMetaType {
         }
 
         protected TimesType() {
-            super("times [int|expression]", List.of(ExpressionMetaType.getInstance(), YamlNumberType.getInstance(false)));
+            super("times", List.of(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false)));
+            setDisplayName("[int|expression]");
         }
     }
 
@@ -58,7 +60,8 @@ public class RetryMetaType extends ConcordMetaType {
         }
 
         protected DelayType() {
-            super("delay [int|expression]", List.of(ExpressionMetaType.getInstance(), YamlNumberType.getInstance(false)));
+            super("delay", List.of(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false)));
+            setDisplayName("[int|expression]");
         }
     }
 }

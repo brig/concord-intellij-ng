@@ -1,7 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
-import org.jetbrains.yaml.meta.model.YamlBooleanType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.meta.model.YamlStringType;
 
@@ -21,7 +19,7 @@ public class ExprStepMetaType extends StepMetaType {
             "expr", YamlStringType::getInstance,
             "name", YamlStringType::getInstance,
             "out", ExprOutParamsMetaType::getInstance,
-            "meta", ConcordAnyMapMetaType::getInstance,
+            "meta", StepMetaMetaType::getInstance,
             "error", StepsMetaType::getInstance
     );
 

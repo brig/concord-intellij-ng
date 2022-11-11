@@ -1,9 +1,6 @@
 package brig.concord.meta;
 
-import brig.concord.meta.model.ConfigurationMetaType;
-import brig.concord.meta.model.FlowsMetaType;
-import brig.concord.meta.model.ImportsMetaType;
-import brig.concord.meta.model.TriggersMetaType;
+import brig.concord.meta.model.*;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
@@ -26,12 +23,12 @@ public class ConcordFileMetaType extends ConcordMetaType {
     protected static final Map<String, Supplier<YamlMetaType>> features = new HashMap<>();
 
     static {
-        features.put("resources", ConcordAnyMapMetaType::getInstance); // TODO: types
+        features.put("resources", ResourcesMetaType::getInstance);
         features.put("configuration", ConfigurationMetaType::getInstance);
         features.put("publicFlows", ConcordStringArrayMetaType::getInstance);
-        features.put("forms", ConcordAnyMapMetaType::getInstance); // TODO: types
-        features.put("imports", ImportsMetaType::getInstance); // TODO: types
-        features.put("profiles", ConcordAnyMapMetaType::getInstance); // TODO: types
+        features.put("forms", FormsMetaType::getInstance);
+        features.put("imports", ImportsMetaType::getInstance);
+        features.put("profiles", ProfilesMetaType::getInstance);
         features.put("flows", FlowsMetaType::getInstance);
         features.put("triggers", TriggersMetaType::getInstance); // TODO: types
     }

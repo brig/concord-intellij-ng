@@ -17,7 +17,8 @@ public class IfStepMetaType extends StepMetaType {
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "if", ExpressionMetaType::getInstance,
             "then", StepsMetaType::getInstance,
-            "else", StepsMetaType::getInstance);
+            "else", StepsMetaType::getInstance,
+            "meta", StepMetaMetaType::getInstance);
 
     protected IfStepMetaType() {
         super("If", "if", Set.of("if", "then"));

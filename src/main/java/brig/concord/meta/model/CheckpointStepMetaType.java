@@ -16,7 +16,8 @@ public class CheckpointStepMetaType extends StepMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "checkpoint", YamlStringType::getInstance);
+            "checkpoint", YamlStringType::getInstance,
+            "meta", StepMetaMetaType::getInstance);
 
     protected CheckpointStepMetaType() {
         super("Checkpoint", "checkpoint", Set.of("checkpoint"));

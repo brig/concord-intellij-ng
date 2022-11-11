@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import org.jetbrains.yaml.meta.model.YamlAnyScalarType;
 import org.jetbrains.yaml.meta.model.YamlArrayType;
 
 public class ImportsMetaType extends YamlArrayType {
@@ -12,6 +11,6 @@ public class ImportsMetaType extends YamlArrayType {
     }
 
     public ImportsMetaType() {
-        super(YamlAnyScalarType.getInstance());
+        super(ImportElementMetaType.getInstance());
     }
 }

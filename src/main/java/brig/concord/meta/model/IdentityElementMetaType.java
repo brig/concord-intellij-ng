@@ -1,9 +1,6 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordMetaTypeProvider;
-import brig.concord.psi.YamlDebugUtil;
 import brig.concord.psi.YamlPsiUtils;
-import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -15,42 +12,19 @@ import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.*;
 
-public class StepElementMetaType extends YamlAnyOfType {
+public class IdentityElementMetaType extends YamlAnyOfType {
 
-    private static final Logger LOG = Logger.getInstance(StepElementMetaType.class);
+    private final List<IdentityMetaType> entries;
 
-    private static final List<StepMetaType> steps = List.of(
-            TaskStepMetaType.getInstance(),
-            CallStepMetaType.getInstance(),
-            LogStepMetaType.getInstance(),
-            IfStepMetaType.getInstance(),
-            ReturnStepMetaType.getInstance(),
-            ExitStepMetaType.getInstance(),
-            CheckpointStepMetaType.getInstance(),
-            SetStepMetaType.getInstance(),
-            ThrowStepMetaType.getInstance(),
-            SuspendStepMetaType.getInstance(),
-            ExprStepMetaType.getInstance(),
-            ParallelStepMetaType.getInstance(),
-            ScriptStepMetaType.getInstance(),
-            SwitchStepMetaType.getInstance(),
-            TryStepMetaType.getInstance(),
-            BlockStepMetaType.getInstance()
-    );
+    protected IdentityElementMetaType(String typeName, List<IdentityMetaType> entries) {
+        super(typeName, List.copyOf(entries));
 
-    private static final StepElementMetaType INSTANCE = new StepElementMetaType();
-
-    public static StepElementMetaType getInstance() {
-        return INSTANCE;
-    }
-
-    protected StepElementMetaType() {
-        super("Steps", List.copyOf(steps));
+        this.entries = entries;
     }
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        StepMetaType meta = findStepMeta(Set.of(name));
+        IdentityMetaType meta = findEntry(Set.of(name));
         if (meta == null) {
             return null;
         }
@@ -59,20 +33,18 @@ public class StepElementMetaType extends YamlAnyOfType {
 
             @Override
             public @NotNull YamlMetaType getMainType() {
-                return StepElementMetaType.getInstance();
+                return IdentityElementMetaType.this;
             }
 
             @Override
             public @Nullable YamlMetaType getSpecializedType(@NotNull YAMLValue element) {
-                LOG.warn(" >> getSpecializedType for : " + YamlDebugUtil.getDebugInfo(element));
-
                 YAMLMapping m = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, false);
                 if (m == null) {
                     return null;
                 }
 
-                StepMetaType stepMeta = findStepMeta(YamlPsiUtils.keys(m));
-                if (stepMeta == null) {
+                IdentityMetaType meta = findEntry(YamlPsiUtils.keys(m));
+                if (meta == null) {
                     return null;
                 }
 
@@ -81,9 +53,8 @@ public class StepElementMetaType extends YamlAnyOfType {
                     return null;
                 }
 
-                Field field = stepMeta.findFeatureByName(kv.getKeyText());
+                Field field = meta.findFeatureByName(kv.getKeyText());
                 if (field != null) {
-                    LOG.warn(" >> getSpecializedType for : " + YamlDebugUtil.getDebugInfo(element) + " -> " + field);
                     return field.getDefaultType();
                 }
 
@@ -94,7 +65,7 @@ public class StepElementMetaType extends YamlAnyOfType {
 
     @Override
     public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
-        StepMetaType stepMeta = identifyStepMeta(existingFields);
+        IdentityMetaType stepMeta = identifyEntry(existingFields);
         if (stepMeta == null) {
             return Collections.emptyList();
         }
@@ -103,9 +74,9 @@ public class StepElementMetaType extends YamlAnyOfType {
 
     @Override
     public @NotNull List<Field> computeKeyCompletions(@Nullable YAMLMapping existingMapping) {
-        StepMetaType stepMeta = Optional.ofNullable(existingMapping)
+        IdentityMetaType stepMeta = Optional.ofNullable(existingMapping)
                         .map(YamlPsiUtils::keys)
-                        .map(this::identifyStepMeta)
+                        .map(this::identifyEntry)
                 .orElse(null);
 
         if (stepMeta != null) {
@@ -114,18 +85,18 @@ public class StepElementMetaType extends YamlAnyOfType {
 
         Set<String> processedNames = new HashSet<>();
         LinkedHashSet<Field> result = new LinkedHashSet<>();
-        for (StepMetaType step : steps) {
-            String identity = step.getIdentity();
+        for (IdentityMetaType e : entries) {
+            String identity = e.getIdentity();
             if (!processedNames.contains(identity)) {
                 processedNames.add(identity);
-                result.add(step.findFeatureByName(identity));
+                result.add(e.findFeatureByName(identity));
             }
         }
         return new LinkedList<>(result);
     }
 
-    private StepMetaType identifyStepMeta(Set<String> existingKeys) {
-        for (StepMetaType step : steps) {
+    private IdentityMetaType identifyEntry(Set<String> existingKeys) {
+        for (IdentityMetaType step : entries) {
             if (existingKeys.contains(step.getIdentity())) {
                 return step;
             }
@@ -134,14 +105,14 @@ public class StepElementMetaType extends YamlAnyOfType {
         return null;
     }
 
-    private StepMetaType findStepMeta(Set<String> existingKeys) {
-        StepMetaType result = identifyStepMeta(existingKeys);
+    private IdentityMetaType findEntry(Set<String> existingKeys) {
+        IdentityMetaType result = identifyEntry(existingKeys);
         if (result != null) {
             return result;
         }
 
         int maxMatches = 0;
-        for (StepMetaType s : steps) {
+        for (IdentityMetaType s : entries) {
             int matches = 0;
             Set<String> features = s.getFeatures().keySet();
             for (String k : existingKeys) {

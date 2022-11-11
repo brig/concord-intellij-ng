@@ -8,8 +8,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFileSystemItem;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -92,8 +90,8 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     }
 
     private static void debug(Supplier<String> textSupplier) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(textSupplier.get());
-        }
+//        if (LOG.isDebugEnabled()) {
+            LOG.warn(textSupplier.get());
+//        }
     }
 }

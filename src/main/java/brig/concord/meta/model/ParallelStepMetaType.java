@@ -1,9 +1,6 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
-import org.jetbrains.yaml.meta.model.YamlBooleanType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,9 +16,8 @@ public class ParallelStepMetaType extends StepMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "parallel", StepsMetaType::getInstance,
-            "name", YamlStringType::getInstance,
             "out", ParallelOutParamsMetaType::getInstance,
-            "meta", ConcordAnyMapMetaType::getInstance
+            "meta", StepMetaMetaType::getInstance
     );
 
     protected ParallelStepMetaType() {

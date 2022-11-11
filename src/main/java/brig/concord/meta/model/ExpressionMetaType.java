@@ -6,7 +6,6 @@ import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlScalarType;
 import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.regex.Pattern;
 

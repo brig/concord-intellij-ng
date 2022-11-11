@@ -16,7 +16,6 @@ import org.jetbrains.yaml.meta.model.YamlStringType;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

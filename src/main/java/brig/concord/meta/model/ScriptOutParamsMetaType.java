@@ -1,7 +1,6 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordAnyMapMetaType;
-import brig.concord.meta.ConcordStringArrayMetaType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -10,16 +9,16 @@ import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.List;
 
-public class CallOutParamsMetaType extends YamlAnyOfType {
+public class ScriptOutParamsMetaType extends YamlAnyOfType {
 
-    private static final CallOutParamsMetaType INSTANCE = new CallOutParamsMetaType();
+    private static final ScriptOutParamsMetaType INSTANCE = new ScriptOutParamsMetaType();
 
-    public static CallOutParamsMetaType getInstance() {
+    public static ScriptOutParamsMetaType getInstance() {
         return INSTANCE;
     }
 
-    protected CallOutParamsMetaType() {
-        super("out params [object|array|string]", List.of(YamlStringType.getInstance(), ConcordAnyMapMetaType.getInstance(), ConcordStringArrayMetaType.getInstance()));
+    protected ScriptOutParamsMetaType() {
+        super("out params [object|string]", List.of(YamlStringType.getInstance(), ConcordAnyMapMetaType.getInstance()));
     }
 
     @Override

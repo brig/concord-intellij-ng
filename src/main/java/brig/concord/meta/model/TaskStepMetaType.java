@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
 import org.jetbrains.yaml.meta.model.YamlBooleanType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.meta.model.YamlStringType;
@@ -23,9 +22,9 @@ public class TaskStepMetaType extends StepMetaType {
             "in", InParamsMetaType::getInstance,
             "out", TaskOutParamsMetaType::getInstance,
             "ignoreErrors", YamlBooleanType::getSharedInstance,
-//            "loop", , // TODO: type
+            "loop", LoopMetaType::getInstance,
             "retry", RetryMetaType::getInstance,
-            "meta", ConcordAnyMapMetaType::getInstance,
+            "meta", StepMetaMetaType::getInstance,
             "error", StepsMetaType::getInstance
     );
 
