@@ -1,0 +1,77 @@
+package brig.concord.meta.model;
+
+import brig.concord.meta.ConcordAnyMapMetaType;
+import brig.concord.meta.ConcordMapMetaType;
+import com.intellij.codeInsight.lookup.LookupElement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.meta.model.*;
+import org.jetbrains.yaml.psi.YAMLScalar;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
+
+public class FormStepMetaType extends StepMetaType {
+
+    private static final FormStepMetaType INSTANCE = new FormStepMetaType();
+
+    public static FormStepMetaType getInstance() {
+        return INSTANCE;
+    }
+
+    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
+            "form", YamlStringType::getInstance, // TODO: type for search
+            "yield", YamlBooleanType::getSharedInstance,
+            "saveSubmittedBy", YamlBooleanType::getSharedInstance,
+            "runAs", ConcordAnyMapMetaType::getInstance,
+            "values", ConcordAnyMapMetaType::getInstance,
+            "fields", FieldsType::getInstance
+    );
+
+    protected FormStepMetaType() {
+        super("Form", "form", Set.of("form"));
+    }
+
+    @Override
+    public Map<String, Supplier<YamlMetaType>> getFeatures() {
+        return features;
+    }
+
+    @Override
+    public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
+        return super.getValueLookups(insertedScalar, completionContext);
+    }
+
+    private static class FieldWrapper extends ConcordMapMetaType {
+
+        private static final FieldWrapper INSTANCE = new FieldWrapper();
+
+        public static FieldWrapper getInstance() {
+            return INSTANCE;
+        }
+
+        protected FieldWrapper() {
+            super("Form call field");
+        }
+
+        @Override
+        protected YamlMetaType getMapEntryType(String name) {
+            return FormFieldMetaType.getInstance();
+        }
+    }
+
+    private static class FieldsType extends YamlAnyOfType {
+
+        private static final FieldsType INSTANCE = new FieldsType();
+
+        public static FieldsType getInstance() {
+            return INSTANCE;
+        }
+
+        protected FieldsType() {
+            super("Form call fields", List.of(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance())));
+        }
+    }
+}

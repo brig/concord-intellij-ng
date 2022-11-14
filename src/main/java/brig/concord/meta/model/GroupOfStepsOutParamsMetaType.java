@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordStringArrayMetaType;
 import org.jetbrains.yaml.meta.model.YamlAnyOfType;
 import org.jetbrains.yaml.meta.model.YamlStringType;
 
@@ -15,6 +14,6 @@ public class GroupOfStepsOutParamsMetaType extends YamlAnyOfType {
     }
 
     protected GroupOfStepsOutParamsMetaType() {
-        super("out params [array|string]", List.of(YamlStringType.getInstance(), ConcordStringArrayMetaType.getInstance()));
+        super("out params [array|string]", List.of(YamlStringType.getInstance(), StringArrayMetaType.getInstance()));
     }
 }

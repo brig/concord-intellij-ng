@@ -1,4 +1,4 @@
-package brig.concord.meta;
+package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
@@ -10,11 +10,11 @@ import org.jetbrains.yaml.psi.YAMLScalar;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class ConcordRegexpMetaType extends YamlStringType {
+public class RegexpMetaType extends YamlStringType {
 
-    private static final ConcordRegexpMetaType INSTANCE = new ConcordRegexpMetaType();
+    private static final RegexpMetaType INSTANCE = new RegexpMetaType();
 
-    public static ConcordRegexpMetaType getInstance() {
+    public static RegexpMetaType getInstance() {
         return INSTANCE;
     }
 

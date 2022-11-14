@@ -44,11 +44,8 @@ public class ConcordYamlDelegateFactory {
     }
 
     private static PsiNamedElement createKeyValueDelegate(YAMLKeyValue keyValue) {
-        ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(keyValue.getProject());
-        YamlMetaType valueMetaType = instance.getResolvedKeyValueMetaTypeMeta(keyValue);
-        if (valueMetaType instanceof CallMetaType) {
-            return new YamlFlowCallDelegate(keyValue);
-        }
+//        ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(keyValue.getProject());
+//        YamlMetaType valueMetaType = instance.getResolvedKeyValueMetaTypeMeta(keyValue);
         return null;
     }
 
@@ -56,7 +53,7 @@ public class ConcordYamlDelegateFactory {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(yamlPlainText.getProject());
         YamlMetaType metaType = instance.getResolvedMetaType(yamlPlainText);
         if (metaType instanceof CallMetaType) {
-            return null;
+            return new YamlFlowCallDelegate(yamlPlainText);
         }
         return null;
     }

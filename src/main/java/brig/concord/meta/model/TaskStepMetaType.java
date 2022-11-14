@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class TaskStepMetaType extends StepMetaType {
+public class TaskStepMetaType extends IdentityMetaType {
 
     private static final TaskStepMetaType INSTANCE = new TaskStepMetaType();
 

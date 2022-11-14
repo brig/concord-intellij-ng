@@ -63,11 +63,7 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     @Nullable
     @Override
     public MetaTypeProxy getMetaTypeProxy(@NotNull PsiElement element) {
-        debug(() -> " >> computing meta type proxy for : " + YamlDebugUtil.getDebugInfo(element));
-        MetaTypeProxy computed = super.getMetaTypeProxy(element);
-        debug(() -> " << finished for : " + YamlDebugUtil.getDebugInfo(element) +
-                ", result: " + (computed == null ? "<null>" : computed));
-        return computed;
+        return super.getMetaTypeProxy(element);
     }
 
     @Nullable
@@ -75,7 +71,7 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
         debug(() -> " >> computing value meta type for : " + YamlDebugUtil.getDebugInfo(typedValue));
         MetaTypeProxy result = super.getValueMetaType(typedValue);
         debug(() -> " << finished for : " + YamlDebugUtil.getDebugInfo(typedValue) +
-                ", result: " + (result == null ? "<null>" : result));
+                ", result: " + (result == null ? "<null>" : result + " " + result.getMetaType().getClass()));
         return result;
     }
 

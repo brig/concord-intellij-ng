@@ -1,0 +1,8 @@
+- indexes for *.concord.yaml search
+- grammar for 'return' step
+- grammar for custom triggers
+- resolve imports
+- resolve tasks
+- validate tasks input params
+- validate flows input params
+- validate script dependencies

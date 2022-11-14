@@ -1,7 +1,6 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.ConcordStringArrayMetaType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
 import java.util.Map;
@@ -12,7 +11,7 @@ public class ResourcesMetaType extends ConcordMetaType {
     private static final ResourcesMetaType INSTANCE = new ResourcesMetaType();
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "concord", ConcordStringArrayMetaType::getInstance
+            "concord", StringArrayMetaType::getInstance
     );
 
     public static ResourcesMetaType getInstance() {

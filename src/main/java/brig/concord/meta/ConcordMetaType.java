@@ -3,9 +3,8 @@ package brig.concord.meta;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLMapping;
+import org.jetbrains.yaml.meta.model.*;
+import org.jetbrains.yaml.psi.*;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -39,6 +38,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
         }
         return features.keySet()
                 .stream()
+                .sorted()
                 .map(this::findFeatureByName)
                 .collect(Collectors.toList());
     }
@@ -52,6 +52,47 @@ public abstract class ConcordMetaType extends YamlMetaType {
         if (metaType == null) {
             return null;
         }
+
+        if (metaType instanceof YamlAnyOfType) {
+            return new Field(name, metaType) {
+                @Override
+                public @NotNull Field resolveToSpecializedField(@NotNull YAMLValue element) {
+                    YamlMetaType result = metaType;
+
+                    YamlAnyOfType anyType = (YamlAnyOfType)metaType;
+                    if (element instanceof YAMLScalar) {
+                        result = findScalarType(element, anyType);
+                    } else if (element instanceof YAMLSequenceItem) {
+                        result = findArrayType(anyType);
+                    }
+                    return new Field(name, result != null ? result : metaType);
+                }
+
+                private static YamlMetaType findScalarType(YAMLValue element, YamlAnyOfType anyType) {
+                    YamlMetaType deafult = null;
+                    for (YamlMetaType t : anyType.getSubTypes()) {
+                        if (t instanceof YamlIntegerType) {
+                            if (element.getText().matches("[0-9]+")) {
+                                return t;
+                            }
+                        } else if (t instanceof YamlScalarType) {
+                            deafult = t;
+                        }
+                    }
+                    return deafult;
+                }
+
+                private static YamlMetaType findArrayType(YamlAnyOfType anyType) {
+                    for (YamlMetaType t : anyType.getSubTypes()) {
+                        if (t instanceof YamlArrayType) {
+                            return t;
+                        }
+                    }
+                    return null;
+                }
+            };
+        }
+
         return new Field(name, metaType);
     }
 

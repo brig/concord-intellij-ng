@@ -1,6 +1,9 @@
 package brig.concord.meta.model;
 
+import brig.concord.ConcordBundle;
 import brig.concord.psi.YamlPsiUtils;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -8,11 +11,12 @@ import org.jetbrains.yaml.meta.model.YamlAnyOfType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
+import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.*;
 
-public class IdentityElementMetaType extends YamlAnyOfType {
+public abstract class IdentityElementMetaType extends YamlAnyOfType {
 
     private final List<IdentityMetaType> entries;
 
@@ -74,13 +78,13 @@ public class IdentityElementMetaType extends YamlAnyOfType {
 
     @Override
     public @NotNull List<Field> computeKeyCompletions(@Nullable YAMLMapping existingMapping) {
-        IdentityMetaType stepMeta = Optional.ofNullable(existingMapping)
+        IdentityMetaType meta = Optional.ofNullable(existingMapping)
                         .map(YamlPsiUtils::keys)
                         .map(this::identifyEntry)
                 .orElse(null);
 
-        if (stepMeta != null) {
-            return stepMeta.computeKeyCompletions(existingMapping);
+        if (meta != null) {
+            return meta.computeKeyCompletions(existingMapping);
         }
 
         Set<String> processedNames = new HashSet<>();
@@ -93,6 +97,19 @@ public class IdentityElementMetaType extends YamlAnyOfType {
             }
         }
         return new LinkedList<>(result);
+    }
+
+    @Override
+    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
+        if (value instanceof YAMLScalar) {
+            String text = value.getText();
+            IdentityMetaType e = findEntry(Set.of(text));
+            if (e == null) {
+                problemsHolder.registerProblem(value, ConcordBundle.message("IdentityElement.notfound.error.scalar.value"), ProblemHighlightType.ERROR);
+            }
+        } else {
+            super.validateValue(value, problemsHolder);
+        }
     }
 
     private IdentityMetaType identifyEntry(Set<String> existingKeys) {

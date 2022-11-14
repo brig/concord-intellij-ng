@@ -5,13 +5,12 @@ import brig.concord.psi.ProcessDefinitionProvider;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLScalar;
 
-public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLKeyValue> implements PsiPolyVariantReference {
+public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLScalar> implements PsiPolyVariantReference {
 
-    public FlowDefinitionReference(@NotNull YAMLKeyValue element,
-                                   @NotNull TextRange textRange) {
-        super(element, textRange, false);
+    public FlowDefinitionReference(YAMLScalar element) {
+        super(element, TextRange.allOf(element.getText()), false);
     }
 
     @Override
@@ -21,7 +20,7 @@ public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLKeyValue>
             return ResolveResult.EMPTY_ARRAY;
         }
 
-        String flowName = getElement().getValueText();
+        String flowName = getElement().getTextValue();
         PsiElement flowDef = process.flow(flowName);
         if (flowDef == null) {
             return ResolveResult.EMPTY_ARRAY;
@@ -29,11 +28,5 @@ public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLKeyValue>
 
         return PsiElementResolveResult.createResults(flowDef);
     }
-
-    @Override
-    public boolean isReferenceTo(@NotNull PsiElement element) {
-        return super.isReferenceTo(element);
-    }
-
-
 }
+

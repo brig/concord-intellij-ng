@@ -1,7 +1,6 @@
 package brig.concord.meta;
 
 import brig.concord.meta.model.*;
-import com.intellij.psi.PsiElement;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
 import java.util.HashMap;
@@ -17,7 +16,7 @@ public class ConcordFileMetaType extends ConcordMetaType {
     }
 
     protected ConcordFileMetaType() {
-        super("ConcordFile");
+        super("Concord File");
     }
 
     protected static final Map<String, Supplier<YamlMetaType>> features = new HashMap<>();
@@ -25,20 +24,16 @@ public class ConcordFileMetaType extends ConcordMetaType {
     static {
         features.put("resources", ResourcesMetaType::getInstance);
         features.put("configuration", ConfigurationMetaType::getInstance);
-        features.put("publicFlows", ConcordStringArrayMetaType::getInstance);
+        features.put("publicFlows", StringArrayMetaType::getInstance);
         features.put("forms", FormsMetaType::getInstance);
         features.put("imports", ImportsMetaType::getInstance);
         features.put("profiles", ProfilesMetaType::getInstance);
         features.put("flows", FlowsMetaType::getInstance);
-        features.put("triggers", TriggersMetaType::getInstance); // TODO: types
+        features.put("triggers", TriggersMetaType::getInstance);
     }
 
     @Override
     protected Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
-    }
-
-    private String getFilename(PsiElement element) {
-        return element.getContainingFile().getName();
     }
 }

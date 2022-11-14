@@ -1,8 +1,12 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMapMetaType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.meta.model.Field;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -16,9 +20,8 @@ public class SwitchStepMetaType extends StepMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "switch", SwitchEntryType::getInstance,
-            "default", StepsMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance);
+            "switch", ExpressionMetaType::getInstance,
+            "default", StepsMetaType::getInstance);
 
     protected SwitchStepMetaType() {
         super("Switch", "switch", Set.of("switch"));
@@ -26,24 +29,20 @@ public class SwitchStepMetaType extends StepMetaType {
 
     @Override
     public Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return features;
+        return Collections.emptyMap();
     }
 
-    private static class SwitchEntryType extends ConcordMapMetaType {
-
-        private static final SwitchEntryType INSTANCE = new SwitchEntryType();
-
-        public static SwitchEntryType getInstance() {
-            return INSTANCE;
+    @Override
+    public @Nullable Field findFeatureByName(@NotNull String name) {
+//        Field f = super.findFeatureByName(name);
+//        if (f != null) {
+//            return f;
+//        }
+//
+        if (name.equals("switch")) {
+            return new Field(name, ExpressionMetaType::getInstance);
         }
 
-        protected SwitchEntryType() {
-            super("Switch entry");
-        }
-
-        @Override
-        protected YamlMetaType getMapEntryType(String name) {
-            return StepsMetaType.getInstance();
-        }
+        return new Field(name, StepsMetaType.getInstance());
     }
 }

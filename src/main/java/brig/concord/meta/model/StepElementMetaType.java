@@ -1,9 +1,6 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordMetaTypeProvider;
-import brig.concord.psi.YamlDebugUtil;
 import brig.concord.psi.YamlPsiUtils;
-import com.intellij.openapi.diagnostic.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -15,11 +12,9 @@ import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.*;
 
-public class StepElementMetaType extends YamlAnyOfType {
+public class StepElementMetaType extends IdentityElementMetaType {
 
-    private static final Logger LOG = Logger.getInstance(StepElementMetaType.class);
-
-    private static final List<StepMetaType> steps = List.of(
+    private static final List<IdentityMetaType> steps = List.of(
             TaskStepMetaType.getInstance(),
             CallStepMetaType.getInstance(),
             LogStepMetaType.getInstance(),
@@ -35,7 +30,8 @@ public class StepElementMetaType extends YamlAnyOfType {
             ScriptStepMetaType.getInstance(),
             SwitchStepMetaType.getInstance(),
             TryStepMetaType.getInstance(),
-            BlockStepMetaType.getInstance()
+            BlockStepMetaType.getInstance(),
+            FormStepMetaType.getInstance()
     );
 
     private static final StepElementMetaType INSTANCE = new StepElementMetaType();
@@ -50,46 +46,38 @@ public class StepElementMetaType extends YamlAnyOfType {
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        StepMetaType meta = findStepMeta(Set.of(name));
-        if (meta == null) {
-            return null;
-        }
-
-        return new Field(name, new Field.MetaTypeSupplier() {
-
-            @Override
-            public @NotNull YamlMetaType getMainType() {
-                return StepElementMetaType.getInstance();
-            }
+//        StepMetaType meta = findStepMeta(Set.of(name));
+//        if (meta == null) {
+//            return null;
+//        }
+//
+        return new Field(name, StepElementMetaType.getInstance()) {
 
             @Override
-            public @Nullable YamlMetaType getSpecializedType(@NotNull YAMLValue element) {
-                LOG.warn(" >> getSpecializedType for : " + YamlDebugUtil.getDebugInfo(element));
-
+            public @NotNull Field resolveToSpecializedField(@NotNull YAMLValue element) {
                 YAMLMapping m = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, false);
                 if (m == null) {
-                    return null;
+                    return this;
                 }
 
                 StepMetaType stepMeta = findStepMeta(YamlPsiUtils.keys(m));
                 if (stepMeta == null) {
-                    return null;
+                    return this;
                 }
 
                 YAMLKeyValue kv = YamlPsiUtils.getParentOfType(element, YAMLKeyValue.class, false);
                 if (kv == null) {
-                    return null;
+                    return this;
                 }
 
                 Field field = stepMeta.findFeatureByName(kv.getKeyText());
                 if (field != null) {
-                    LOG.warn(" >> getSpecializedType for : " + YamlDebugUtil.getDebugInfo(element) + " -> " + field);
-                    return field.getDefaultType();
+                    return new Field(name, field.resolveToSpecializedField(element).getDefaultType());
                 }
 
-                return null;
+                return this;
             }
-        });
+        };
     }
 
     @Override

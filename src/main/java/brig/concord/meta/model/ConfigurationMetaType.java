@@ -2,7 +2,6 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordAnyMapMetaType;
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.ConcordStringArrayMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.*;
@@ -30,7 +29,7 @@ public class ConfigurationMetaType extends ConcordMetaType {
         features.put("processTimeout", DurationMetaType::getInstance);
         features.put("suspendTimeout", DurationMetaType::getInstance);
         features.put("exclusive", ExclusiveMetaType::getInstance);
-        features.put("out", ConcordStringArrayMetaType::getInstance);
+        features.put("out", StringArrayMetaType::getInstance);
         features.put("template", YamlStringType::getInstance);
         features.put("parallelLoopParallelism", () -> YamlIntegerType.getInstance(false));
     }
