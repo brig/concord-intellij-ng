@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.psi.YamlDebugUtil;
 import brig.concord.psi.YamlPsiUtils;
 import com.intellij.openapi.diagnostic.Logger;

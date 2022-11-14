@@ -12,7 +12,7 @@ public class FlowsMetaType extends ConcordMapMetaType {
     }
 
     protected FlowsMetaType() {
-        super("FLows");
+        super("Flows");
     }
 
     @Override

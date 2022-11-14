@@ -1,7 +1,6 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordRegexpArrayMetaType;
-import brig.concord.meta.ConcordRegexpMetaType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.meta.model.YamlStringType;
 
