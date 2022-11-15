@@ -20,10 +20,12 @@ public class RegexpMetaType extends StringMetaType {
 
     @Override
     protected void validateScalarValue(@NotNull YAMLScalar scalarValue, @NotNull ProblemsHolder holder) {
+        super.validateScalarValue(scalarValue, holder);
+
         try {
             Pattern.compile(scalarValue.getTextValue());
         } catch (PatternSyntaxException e) {
-            holder.registerProblem(scalarValue, ConcordBundle.message("RegexpType.error.scalar.value"), ProblemHighlightType.ERROR);
+            holder.registerProblem(scalarValue, ConcordBundle.message("RegexpType.error.scalar.value", e.getMessage()), ProblemHighlightType.ERROR);
         }
     }
 }

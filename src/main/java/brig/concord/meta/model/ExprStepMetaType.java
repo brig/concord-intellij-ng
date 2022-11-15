@@ -15,7 +15,7 @@ public class ExprStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "expr", StringMetaType::getInstance,
+            "expr", ExpressionMetaType::getInstance,
             "name", StringMetaType::getInstance,
             "out", ExprOutParamsMetaType::getInstance,
             "meta", StepMetaMetaType::getInstance,

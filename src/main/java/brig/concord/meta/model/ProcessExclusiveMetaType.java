@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class ExclusiveMetaType extends ConcordMetaType {
+public class ProcessExclusiveMetaType extends ConcordMetaType {
 
-    private static final ExclusiveMetaType INSTANCE = new ExclusiveMetaType();
+    private static final ProcessExclusiveMetaType INSTANCE = new ProcessExclusiveMetaType();
 
     private static final Set<String> requiredFeatures = Set.of("group");
 
@@ -19,11 +19,11 @@ public class ExclusiveMetaType extends ConcordMetaType {
             "mode", ModeType::getInstance
     );
 
-    public static ExclusiveMetaType getInstance() {
+    public static ProcessExclusiveMetaType getInstance() {
         return INSTANCE;
     }
 
-    protected ExclusiveMetaType() {
+    protected ProcessExclusiveMetaType() {
         super("Exclusive");
     }
 

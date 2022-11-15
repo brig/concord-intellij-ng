@@ -25,7 +25,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType {
             "activeProfiles", StringArrayMetaType::getInstance,
             "timezone", TimezoneMetaType::getInstance,
             "arguments", AnyMapMetaType::getInstance,
-            "exclusive", ExclusiveMetaType::getInstance
+            "exclusive", TriggerExclusiveMetaType::getInstance
             );
 
     protected CronTriggerEntryMetaType() {
@@ -40,45 +40,6 @@ public class CronTriggerEntryMetaType extends ConcordMetaType {
     @Override
     protected Set<String> getRequiredFields() {
         return required;
-    }
-
-    private static class ModeType extends YamlEnumType {
-
-        private static final ModeType INSTANCE = new ModeType();
-
-        protected static ModeType getInstance() {
-            return INSTANCE;
-        }
-
-        protected ModeType() {
-            super("Mode");
-            setDisplayName("[cancel|cancelOld|wait]");
-            withLiterals("cancel", "cancelOld", "wait");
-        }
-    }
-
-    private static class ExclusiveMetaType extends ConcordMetaType {
-
-        private static final ExclusiveMetaType INSTANCE = new ExclusiveMetaType();
-
-        public static ExclusiveMetaType getInstance() {
-            return INSTANCE;
-        }
-
-        private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "group", StringMetaType::getInstance,
-                "groupBy", () -> new YamlEnumType("group by").withLiterals("branch"),
-                "mode", ModeType::getInstance
-        );
-
-        protected ExclusiveMetaType() {
-            super("Exclusive");
-        }
-
-        @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
-            return features;
-        }
     }
 
     private static class RunAsMetaType extends ConcordMetaType {

@@ -43,19 +43,4 @@ public class EventsMetaType extends ConcordMetaType {
     protected Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
-
-    private static class ModeType extends YamlEnumType {
-
-        private static final ModeType INSTANCE = new ModeType();
-
-        public static ModeType getInstance() {
-            return INSTANCE;
-        }
-
-        protected ModeType() {
-            super("Mode");
-            setDisplayName("[serial|parallel]");
-            withLiterals("serial", "parallel");
-        }
-    }
 }

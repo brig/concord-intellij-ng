@@ -1,11 +1,20 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.YAMLBundle;
 import org.jetbrains.yaml.meta.model.*;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLMapping;
+import org.jetbrains.yaml.psi.YAMLValue;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class GitTriggerEntryMetaType extends ConcordMetaType {
 
@@ -24,7 +33,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
             "useEventCommitId", YamlBooleanType::getSharedInstance,
             "ignoreEmptyPush", YamlBooleanType::getSharedInstance,
             "arguments", AnyMapMetaType::getInstance,
-            "exclusive", ExclusiveMetaType::getInstance,
+            "exclusive", TriggerExclusiveMetaType::getInstance,
             "conditions", ConditionsMetaType::getInstance,
             "version", IntegerMetaType::getInstance
             );
@@ -41,45 +50,6 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
     @Override
     protected Set<String> getRequiredFields() {
         return required;
-    }
-
-    private static class ModeType extends YamlEnumType {
-
-        private static final ModeType INSTANCE = new ModeType();
-
-        protected static ModeType getInstance() {
-            return INSTANCE;
-        }
-
-        protected ModeType() {
-            super("Mode");
-            setDisplayName("[cancel|cancelOld|wait]");
-            withLiterals("cancel", "cancelOld", "wait");
-        }
-    }
-
-    private static class ExclusiveMetaType extends ConcordMetaType {
-
-        private static final ExclusiveMetaType INSTANCE = new ExclusiveMetaType();
-
-        public static ExclusiveMetaType getInstance() {
-            return INSTANCE;
-        }
-
-        private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "group", StringMetaType::getInstance,
-                "groupBy", () -> new YamlEnumType("group by").withLiterals("branch"),
-                "mode", ModeType::getInstance
-        );
-
-        protected ExclusiveMetaType() {
-            super("Exclusive");
-        }
-
-        @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
-            return features;
-        }
     }
 
     private static class RepositoryInfoMetaType extends ConcordMetaType {

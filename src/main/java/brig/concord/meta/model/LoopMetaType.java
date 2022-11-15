@@ -1,10 +1,8 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
-import org.jetbrains.yaml.meta.model.YamlAnything;
 import org.jetbrains.yaml.meta.model.YamlEnumType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlNumberType;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,8 +15,8 @@ public class LoopMetaType extends ConcordMetaType {
     private static final Set<String> requiredFeatures = Set.of("items");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "items", YamlAnything::getInstance,
-            "parallelism", () -> YamlNumberType.getInstance(false),
+            "items", AnythingMetaType::getInstance,
+            "parallelism", IntegerMetaType::getInstance,
             "mode", ModeType::getInstance
     );
 

@@ -28,7 +28,7 @@ public class ExpressionMetaType extends YamlScalarType {
     protected void validateScalarValue(@NotNull YAMLScalar scalarValue, @NotNull ProblemsHolder holder) {
         String text = scalarValue.getTextValue();
         if (!EXPR_PATTERN.matcher(text).matches()) {
-            holder.registerProblem(scalarValue, ConcordBundle.message("ExpressionType.error.scalar.value"), ProblemHighlightType.ERROR);
+            holder.registerProblem(scalarValue, ConcordBundle.message("ExpressionType.error.invalid.value"), ProblemHighlightType.ERROR);
         }
     }
 }

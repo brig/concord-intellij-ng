@@ -3,7 +3,6 @@ package brig.concord.meta.model;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlAnything;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
 public class AnyMapMetaType extends MapMetaType {
@@ -20,11 +19,11 @@ public class AnyMapMetaType extends MapMetaType {
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        return YamlAnything.getInstance().findFeatureByName(name);
+        return AnythingMetaType.getInstance().findFeatureByName(name);
     }
 
     @Override
     protected YamlMetaType getMapEntryType(String name) {
-        return YamlAnything.getInstance();
+        return AnythingMetaType.getInstance();
     }
 }

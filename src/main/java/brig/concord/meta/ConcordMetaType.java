@@ -1,5 +1,8 @@
 package brig.concord.meta;
 
+import brig.concord.ConcordBundle;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +23,13 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
+        if (value instanceof YAMLScalar) {
+            problemsHolder.registerProblem(value, ConcordBundle.message("ConcordMetaType.error.object.is.required"), ProblemHighlightType.ERROR);
+        }
     }
 
     @Override

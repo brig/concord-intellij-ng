@@ -27,7 +27,7 @@ public class ConfigurationMetaType extends ConcordMetaType {
         features.put("requirements", AnyMapMetaType::getInstance);
         features.put("processTimeout", DurationMetaType::getInstance);
         features.put("suspendTimeout", DurationMetaType::getInstance);
-        features.put("exclusive", ExclusiveMetaType::getInstance);
+        features.put("exclusive", ProcessExclusiveMetaType::getInstance);
         features.put("out", StringArrayMetaType::getInstance);
         features.put("template", StringMetaType::getInstance);
         features.put("parallelLoopParallelism", () -> YamlIntegerType.getInstance(false));

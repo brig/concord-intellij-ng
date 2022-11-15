@@ -19,6 +19,8 @@ public class DurationMetaType extends StringMetaType {
 
     @Override
     protected void validateScalarValue(@NotNull YAMLScalar scalarValue, @NotNull ProblemsHolder holder) {
+        super.validateScalarValue(scalarValue, holder);
+
         try {
             Duration.parse(scalarValue.getTextValue());
         } catch (DateTimeParseException e) {

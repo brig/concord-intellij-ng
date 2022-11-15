@@ -14,6 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * Any key to object
+ */
 public abstract class MapMetaType extends ConcordMetaType {
 
     protected MapMetaType(@NotNull String name) {
@@ -34,12 +37,9 @@ public abstract class MapMetaType extends ConcordMetaType {
 
     @Override
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        YamlMetaType type = getMapEntryType(null);
-        if (type instanceof ConcordMetaType) {
-            if (!(value instanceof YAMLMapping)) {
-                problemsHolder.registerProblem(value, ConcordBundle.message("YamlUnknownValuesInspectionBase.error.object.is.required"));
-            }
+        if (!(value instanceof YAMLMapping)) {
+            problemsHolder.registerProblem(value, ConcordBundle.message("YamlUnknownValuesInspectionBase.error.object.is.required"));
+
         }
-        super.validateValue(value, problemsHolder);
     }
 }

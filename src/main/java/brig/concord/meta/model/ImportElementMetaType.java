@@ -1,7 +1,16 @@
 package brig.concord.meta.model;
 
+import brig.concord.ConcordBundle;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
+import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLMapping;
+import org.jetbrains.yaml.psi.YAMLScalar;
+import org.jetbrains.yaml.psi.YAMLValue;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,6 +34,20 @@ public class ImportElementMetaType extends IdentityElementMetaType {
         super("Imports", entries);
     }
 
+//    @Override
+//    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
+//        if (value instanceof YAMLMapping m) {
+//            Collection<YAMLKeyValue> kvs = m.getKeyValues();
+//            if (kvs.size() == 1) {
+//                YAMLKeyValue kv = kvs.iterator().next();
+//
+//                if (kv.getValue() instanceof YAMLScalar) {
+//                    problemsHolder.registerProblem(value, ConcordBundle.message("ConcordMetaType.error.object.is.required"), ProblemHighlightType.ERROR);
+//                }
+//            }
+//        }
+//    }
+
     private static class ImportMetaType extends IdentityMetaType {
 
         private final Map<String, Supplier<YamlMetaType>> features;
@@ -38,6 +61,14 @@ public class ImportElementMetaType extends IdentityElementMetaType {
         @Override
         protected Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
+        }
+
+        @Override
+        public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
+            if (!(value instanceof YAMLMapping)) {
+                problemsHolder.registerProblem(value, ConcordBundle.message("ConcordMetaType.error.object.is.required"), ProblemHighlightType.ERROR);
+            }
+            super.validateValue(value, problemsHolder);
         }
     }
 }

@@ -1,0 +1,7 @@
+flows:
+  main:
+    - try:
+        - log: one
+      error:
+        - log: two
+      meta:

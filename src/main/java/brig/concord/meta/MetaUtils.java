@@ -1,13 +1,13 @@
 package brig.concord.meta;
 
+import brig.concord.meta.model.AnythingMetaType;
 import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.meta.model.YamlAnything;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
 public final class MetaUtils {
 
     public static boolean isAnything(YamlMetaType type) {
-        if (type instanceof YamlAnything) {
+        if (type instanceof AnythingMetaType) {
             return true;
         }
 

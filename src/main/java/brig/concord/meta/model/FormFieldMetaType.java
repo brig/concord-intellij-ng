@@ -27,8 +27,8 @@ public class FormFieldMetaType extends ConcordMetaType {
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "label", StringMetaType::getInstance,
             "type", FieldType::getInstance,
-            "value", YamlAnything::getInstance,
-            "allow", YamlAnything::getInstance
+            "value", AnythingMetaType::getInstance,
+            "allow", AnythingMetaType::getInstance
     );
 
     private static final Map<String, Supplier<YamlMetaType>> stringFeatures = Map.of(

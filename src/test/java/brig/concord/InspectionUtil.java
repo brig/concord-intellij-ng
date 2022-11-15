@@ -4,8 +4,6 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
-import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,30 +24,8 @@ public final class InspectionUtil {
         assertNoHighlighting(HighlightSeverity.ERROR);
     }
 
-    public void assertNoWarnings() {
-        assertNoHighlighting(HighlightSeverity.WARNING);
-    }
-
-    public void assertNoWarning(String warning) {
-        assertNoHighlighting(HighlightSeverity.WARNING, warning);
-    }
-
-    public void assertNoWeakWarning(String warning) {
-        assertNoHighlighting(HighlightSeverity.WEAK_WARNING, warning);
-    }
-
-    public void assertNoError(String error) {
-        assertNoHighlighting(HighlightSeverity.ERROR, error);
-    }
-
     public void assertHasError(String message) {
         assertHasHighlightingMessage(HighlightSeverity.ERROR, message);
-    }
-
-    private void assertNoHighlighting(HighlightSeverity severity, String message) {
-        assertTrue("Highlighting not wanted but present: " + message, getHighlighting(severity).stream().noneMatch(
-                highlightInfo -> highlightInfo.getDescription().startsWith(message)
-        ));
     }
 
     private void assertNoHighlighting(HighlightSeverity severity) {
@@ -85,21 +61,21 @@ public final class InspectionUtil {
         return getHighlighting().stream()
                 .map(highlightInfo -> String.format(
                         "%s: %s", highlightInfo.getSeverity().myName, highlightInfo.getDescription()
-                )).collect(Collectors.joining("\n"));
+                ))
+                .collect(Collectors.joining("\n"));
     }
 
     private List<HighlightInfo> getHighlighting(HighlightSeverity severity) {
-        return getHighlighting().stream().filter(
-                highlightInfo -> highlightInfo.getSeverity() == severity
-        ).collect(Collectors.toList());
+        return getHighlighting().stream()
+                .filter(highlightInfo -> highlightInfo.getSeverity() == severity)
+                .collect(Collectors.toList());
     }
 
-    private @NotNull List<HighlightInfo> getHighlighting() {
+    private List<HighlightInfo> getHighlighting() {
         try {
             return fixture.doHighlighting();
         } catch (IllegalStateException e) {
-            throw new RuntimeException("Don't wrap highlight assertions in ReadAction.read locks");
+            throw new RuntimeException(e);
         }
     }
-
 }

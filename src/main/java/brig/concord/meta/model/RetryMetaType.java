@@ -18,8 +18,6 @@ public class RetryMetaType extends ConcordMetaType {
 
     private static final RetryMetaType INSTANCE = new RetryMetaType();
 
-    private static final Set<String> requiredFeatures = Collections.emptySet();
-
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "in", AnyMapMetaType::getInstance,
             "times", TimesType::getInstance,

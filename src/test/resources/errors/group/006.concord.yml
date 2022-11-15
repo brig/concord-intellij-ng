@@ -1,0 +1,9 @@
+flows:
+  main:
+    - try:
+        - log: n
+      error:
+        - log: m
+      meta:
+        m1: "v1"
+      loop:

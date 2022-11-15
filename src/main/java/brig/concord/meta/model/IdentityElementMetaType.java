@@ -37,11 +37,6 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
             return null;
         }
 
-//        YAMLKeyValue kv = YamlPsiUtils.getParentOfType(element, YAMLKeyValue.class, false);
-//        if (kv == null) {
-//            return null;
-//        }
-
         Field field = meta.findFeatureByName(name);
         if (field != null) {
             return new Field(name, field.resolveToSpecializedField(m).getDefaultType());
@@ -120,15 +115,23 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
 
     @Override
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        if (value instanceof YAMLScalar) {
-            String text = value.getText();
-            IdentityMetaType e = findEntry(Set.of(text));
-            if (e == null) {
-                problemsHolder.registerProblem(value, ConcordBundle.message("IdentityElement.notfound.error.scalar.value"), ProblemHighlightType.ERROR);
-            }
-        } else {
-            super.validateValue(value, problemsHolder);
-        }
+//        if (!(value instanceof YAMLMapping m)) {
+//            return;
+//        }
+//
+//        IdentityMetaType meta = findEntry(YamlPsiUtils.keys(m));
+//        if (meta == null) {
+//            return;
+//        }
+//
+//        Collection<YAMLKeyValue> kvs = m.getKeyValues();
+//        if (kvs.size() == 1) {
+//            YAMLKeyValue kv = kvs.iterator().next();
+//
+//            if (kv.getValue() != null) {
+//                meta.validateValue(kv.getValue(), problemsHolder);
+//            }
+//        }
     }
 
     private IdentityMetaType identifyEntry(Set<String> existingKeys) {

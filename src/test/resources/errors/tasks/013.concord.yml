@@ -1,0 +1,16 @@
+flows:
+  main:
+    - task: "boo"
+      out: "result"
+      in:
+        k: "v"
+        k2: 2
+        k3: false
+      loop:
+        items: "${123}"
+        parallelism: 1
+        mode: serial
+      retry:
+        times: 1
+        delay: 1
+        in:
