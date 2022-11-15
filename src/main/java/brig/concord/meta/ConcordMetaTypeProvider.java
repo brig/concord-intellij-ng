@@ -12,10 +12,10 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.ModelAccess;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import org.jetbrains.yaml.meta.model.*;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
+import org.jetbrains.yaml.psi.YAMLScalar;
+import org.jetbrains.yaml.psi.YAMLSequence;
 import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.Optional;
@@ -63,7 +63,28 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     @Nullable
     @Override
     public MetaTypeProxy getMetaTypeProxy(@NotNull PsiElement element) {
-        return super.getMetaTypeProxy(element);
+        MetaTypeProxy result = super.getMetaTypeProxy(element);
+        if (result == null) {
+            return null;
+        }
+
+        if (result.getMetaType() instanceof YamlAnyOfType anyOfType) {
+            if (element instanceof YAMLSequence) {
+                for (YamlMetaType t : anyOfType.getSubTypes()) {
+                    if (t instanceof YamlArrayType) {
+                        return new ConcordMetaTypeProxy(element, t, new Field("<array>", t));
+                    }
+                }
+            } else if (element instanceof YAMLScalar) {
+                for (YamlMetaType t : anyOfType.getSubTypes()) {
+                    if (t instanceof YamlScalarType) {
+                        return new ConcordMetaTypeProxy(element, t, new Field("<scalar>", t));
+                    }
+                }
+            }
+        }
+
+        return new ConcordMetaTypeProxy(element, result.getMetaType(), result.getField());
     }
 
     @Nullable
@@ -86,8 +107,8 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     }
 
     private static void debug(Supplier<String> textSupplier) {
-//        if (LOG.isDebugEnabled()) {
-            LOG.warn(textSupplier.get());
-//        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(textSupplier.get());
+        }
     }
 }

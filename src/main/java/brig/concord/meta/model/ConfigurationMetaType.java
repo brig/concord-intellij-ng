@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
 import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
@@ -22,10 +21,10 @@ public class ConfigurationMetaType extends ConcordMetaType {
         features.put("debug", YamlBooleanType::getSharedInstance);
         features.put("entryPoint", YamlStringType::getInstance);
         features.put("dependencies", DependenciesMetaType::getInstance);
-        features.put("arguments", ConcordAnyMapMetaType::getInstance);
-        features.put("meta", ConcordAnyMapMetaType::getInstance);
+        features.put("arguments", AnyMapMetaType::getInstance);
+        features.put("meta", AnyMapMetaType::getInstance);
         features.put("events", EventsMetaType::getInstance);
-        features.put("requirements", ConcordAnyMapMetaType::getInstance);
+        features.put("requirements", AnyMapMetaType::getInstance);
         features.put("processTimeout", DurationMetaType::getInstance);
         features.put("suspendTimeout", DurationMetaType::getInstance);
         features.put("exclusive", ExclusiveMetaType::getInstance);

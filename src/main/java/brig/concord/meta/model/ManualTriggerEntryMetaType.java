@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
 import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.meta.model.YamlStringType;
@@ -23,7 +22,7 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType {
             "name", YamlStringType::getInstance,
             "entryPoint", YamlStringType::getInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
-            "arguments", ConcordAnyMapMetaType::getInstance
+            "arguments", AnyMapMetaType::getInstance
             );
 
     protected ManualTriggerEntryMetaType() {

@@ -1,6 +1,7 @@
-package brig.concord.meta;
+package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
+import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,9 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public abstract class ConcordMapMetaType extends ConcordMetaType {
+public abstract class MapMetaType extends ConcordMetaType {
 
-    protected ConcordMapMetaType(@NotNull String name) {
+    protected MapMetaType(@NotNull String name) {
         super(name);
     }
 

@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
 import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.*;
 
@@ -24,7 +23,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
             "activeProfiles", StringArrayMetaType::getInstance,
             "useEventCommitId", YamlBooleanType::getSharedInstance,
             "ignoreEmptyPush", YamlBooleanType::getSharedInstance,
-            "arguments", ConcordAnyMapMetaType::getInstance,
+            "arguments", AnyMapMetaType::getInstance,
             "exclusive", ExclusiveMetaType::getInstance,
             "conditions", ConditionsMetaType::getInstance,
             "version", IntegerMetaType::getInstance
@@ -157,7 +156,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
                 "status", RegexpMetaType::getInstance,
                 "repositoryInfo", () -> new YamlArrayType(RepositoryInfoMetaType.getInstance()),
                 "files", FilesMetaType::getInstance,
-                "payload", ConcordAnyMapMetaType::getInstance
+                "payload", AnyMapMetaType::getInstance
         );
 
         @Override

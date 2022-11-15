@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class ParallelStepMetaType extends StepMetaType {
+public class ParallelStepMetaType extends IdentityMetaType {
 
     private static final ParallelStepMetaType INSTANCE = new ParallelStepMetaType();
 

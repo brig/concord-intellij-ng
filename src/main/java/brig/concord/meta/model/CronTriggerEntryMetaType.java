@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
 import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.YamlEnumType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
@@ -26,7 +25,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType {
             "runAs", RunAsMetaType::getInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
             "timezone", TimezoneMetaType::getInstance,
-            "arguments", ConcordAnyMapMetaType::getInstance,
+            "arguments", AnyMapMetaType::getInstance,
             "exclusive", ExclusiveMetaType::getInstance
             );
 

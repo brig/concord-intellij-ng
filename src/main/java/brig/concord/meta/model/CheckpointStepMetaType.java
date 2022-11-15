@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class CheckpointStepMetaType extends StepMetaType {
+public class CheckpointStepMetaType extends IdentityMetaType {
 
     private static final CheckpointStepMetaType INSTANCE = new CheckpointStepMetaType();
 

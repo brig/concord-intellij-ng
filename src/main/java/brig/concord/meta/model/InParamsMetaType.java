@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -17,11 +16,11 @@ public class InParamsMetaType extends YamlAnyOfType {
     }
 
     protected InParamsMetaType() {
-        super("in params [object|expression]", List.of(ExpressionMetaType.getInstance(), ConcordAnyMapMetaType.getInstance()));
+        super("in params [object|expression]", List.of(ExpressionMetaType.getInstance(), AnyMapMetaType.getInstance()));
     }
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        return ConcordAnyMapMetaType.getInstance().findFeatureByName(name);
+        return AnyMapMetaType.getInstance().findFeatureByName(name);
     }
 }

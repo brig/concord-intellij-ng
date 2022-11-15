@@ -1,15 +1,9 @@
 package brig.concord.meta.model;
 
-import brig.concord.ConcordBundle;
-import brig.concord.meta.ConcordMapMetaType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlArrayType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLValue;
 
-public class FormsMetaType extends ConcordMapMetaType {
+public class FormsMetaType extends MapMetaType {
 
     private static final FormsMetaType INSTANCE = new FormsMetaType();
 
@@ -26,7 +20,7 @@ public class FormsMetaType extends ConcordMapMetaType {
         return FormFieldsMetaType.getInstance();
     }
 
-    private static class FieldsWrapper extends ConcordMapMetaType {
+    private static class FieldsWrapper extends MapMetaType {
 
         private static final FieldsWrapper INSTANCE = new FieldsWrapper();
 

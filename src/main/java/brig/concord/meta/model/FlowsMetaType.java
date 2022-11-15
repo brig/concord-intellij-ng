@@ -1,9 +1,8 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordMapMetaType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
-public class FlowsMetaType extends ConcordMapMetaType {
+public class FlowsMetaType extends MapMetaType {
 
     private static final FlowsMetaType INSTANCE = new FlowsMetaType();
 

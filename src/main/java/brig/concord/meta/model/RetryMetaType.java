@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
 import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,7 @@ public class RetryMetaType extends ConcordMetaType {
     private static final Set<String> requiredFeatures = Collections.emptySet();
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "in", ConcordAnyMapMetaType::getInstance,
+            "in", AnyMapMetaType::getInstance,
             "times", TimesType::getInstance,
             "delay", DelayType::getInstance
     );

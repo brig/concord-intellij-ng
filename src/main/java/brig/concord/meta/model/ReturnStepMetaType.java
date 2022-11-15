@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class ReturnStepMetaType extends StepMetaType {
+public class ReturnStepMetaType extends IdentityMetaType {
 
     private static final ReturnStepMetaType INSTANCE = new ReturnStepMetaType();
 

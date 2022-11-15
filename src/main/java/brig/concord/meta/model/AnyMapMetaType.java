@@ -1,4 +1,4 @@
-package brig.concord.meta;
+package brig.concord.meta.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -6,15 +6,15 @@ import org.jetbrains.yaml.meta.model.Field;
 import org.jetbrains.yaml.meta.model.YamlAnything;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
-public class ConcordAnyMapMetaType extends ConcordMapMetaType {
+public class AnyMapMetaType extends MapMetaType {
 
-    private static final ConcordAnyMapMetaType INSTANCE = new ConcordAnyMapMetaType();
+    private static final AnyMapMetaType INSTANCE = new AnyMapMetaType();
 
-    public static ConcordAnyMapMetaType getInstance() {
+    public static AnyMapMetaType getInstance() {
         return INSTANCE;
     }
 
-    protected ConcordAnyMapMetaType() {
+    protected AnyMapMetaType() {
         super("Object");
     }
 

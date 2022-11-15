@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class CallStepMetaType extends StepMetaType {
+public class CallStepMetaType extends IdentityMetaType {
 
     private static final CallStepMetaType INSTANCE = new CallStepMetaType();
 

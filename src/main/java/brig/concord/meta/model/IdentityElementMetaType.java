@@ -4,6 +4,7 @@ import brig.concord.ConcordBundle;
 import brig.concord.psi.YamlPsiUtils;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -26,6 +27,29 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
         this.entries = entries;
     }
 
+    public @Nullable Field findFeatureByName(@NotNull PsiElement element, @NotNull String name) {
+        if (!(element instanceof YAMLMapping m)) {
+            return null;
+        }
+
+        IdentityMetaType meta = findEntry(YamlPsiUtils.keys(m));
+        if (meta == null) {
+            return null;
+        }
+
+//        YAMLKeyValue kv = YamlPsiUtils.getParentOfType(element, YAMLKeyValue.class, false);
+//        if (kv == null) {
+//            return null;
+//        }
+
+        Field field = meta.findFeatureByName(name);
+        if (field != null) {
+            return new Field(name, field.resolveToSpecializedField(m).getDefaultType());
+        }
+
+        return null;
+    }
+
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
         IdentityMetaType meta = findEntry(Set.of(name));
@@ -33,38 +57,33 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
             return null;
         }
 
-        return new Field(name, new Field.MetaTypeSupplier() {
+        return new Field(name, this) {
 
             @Override
-            public @NotNull YamlMetaType getMainType() {
-                return IdentityElementMetaType.this;
-            }
-
-            @Override
-            public @Nullable YamlMetaType getSpecializedType(@NotNull YAMLValue element) {
+            public @NotNull Field resolveToSpecializedField(@NotNull YAMLValue element) {
                 YAMLMapping m = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, false);
                 if (m == null) {
-                    return null;
+                    return this;
                 }
 
                 IdentityMetaType meta = findEntry(YamlPsiUtils.keys(m));
                 if (meta == null) {
-                    return null;
+                    return this;
                 }
 
                 YAMLKeyValue kv = YamlPsiUtils.getParentOfType(element, YAMLKeyValue.class, false);
                 if (kv == null) {
-                    return null;
+                    return this;
                 }
 
                 Field field = meta.findFeatureByName(kv.getKeyText());
                 if (field != null) {
-                    return field.getDefaultType();
+                    return new Field(name, field.resolveToSpecializedField(element).getDefaultType());
                 }
 
-                return null;
+                return this;
             }
-        });
+        };
     }
 
     @Override

@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordMapMetaType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -11,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class SwitchStepMetaType extends StepMetaType {
+public class SwitchStepMetaType extends IdentityMetaType {
 
     private static final SwitchStepMetaType INSTANCE = new SwitchStepMetaType();
 

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class ExitStepMetaType extends StepMetaType {
+public class ExitStepMetaType extends IdentityMetaType {
 
     private static final ExitStepMetaType INSTANCE = new ExitStepMetaType();
 

@@ -1,8 +1,6 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
-
-public class StepMetaMetaType extends ConcordAnyMapMetaType {
+public class StepMetaMetaType extends AnyMapMetaType {
 
     private static final StepMetaMetaType INSTANCE = new StepMetaMetaType();
 

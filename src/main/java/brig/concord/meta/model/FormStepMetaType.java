@@ -1,7 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
-import brig.concord.meta.ConcordMapMetaType;
 import com.intellij.codeInsight.lookup.LookupElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class FormStepMetaType extends StepMetaType {
+public class FormStepMetaType extends IdentityMetaType {
 
     private static final FormStepMetaType INSTANCE = new FormStepMetaType();
 
@@ -25,8 +23,8 @@ public class FormStepMetaType extends StepMetaType {
             "form", YamlStringType::getInstance, // TODO: type for search
             "yield", YamlBooleanType::getSharedInstance,
             "saveSubmittedBy", YamlBooleanType::getSharedInstance,
-            "runAs", ConcordAnyMapMetaType::getInstance,
-            "values", ConcordAnyMapMetaType::getInstance,
+            "runAs", AnyMapMetaType::getInstance,
+            "values", AnyMapMetaType::getInstance,
             "fields", FieldsType::getInstance
     );
 
@@ -44,7 +42,7 @@ public class FormStepMetaType extends StepMetaType {
         return super.getValueLookups(insertedScalar, completionContext);
     }
 
-    private static class FieldWrapper extends ConcordMapMetaType {
+    private static class FieldWrapper extends MapMetaType {
 
         private static final FieldWrapper INSTANCE = new FieldWrapper();
 

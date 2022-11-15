@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class ScriptStepMetaType extends StepMetaType {
+public class ScriptStepMetaType extends IdentityMetaType {
 
     private static final ScriptStepMetaType INSTANCE = new ScriptStepMetaType();
 

@@ -1,6 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.ConcordAnyMapMetaType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -18,11 +17,11 @@ public class ScriptOutParamsMetaType extends YamlAnyOfType {
     }
 
     protected ScriptOutParamsMetaType() {
-        super("out params [object|string]", List.of(YamlStringType.getInstance(), ConcordAnyMapMetaType.getInstance()));
+        super("out params [object|string]", List.of(YamlStringType.getInstance(), AnyMapMetaType.getInstance()));
     }
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        return ConcordAnyMapMetaType.getInstance().findFeatureByName(name);
+        return AnyMapMetaType.getInstance().findFeatureByName(name);
     }
 }

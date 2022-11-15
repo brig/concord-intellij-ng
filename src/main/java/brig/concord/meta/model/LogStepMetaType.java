@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class LogStepMetaType extends StepMetaType {
+public class LogStepMetaType extends IdentityMetaType {
 
     private static final LogStepMetaType INSTANCE = new LogStepMetaType();
 

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class IfStepMetaType extends StepMetaType {
+public class IfStepMetaType extends IdentityMetaType {
 
     private static final IfStepMetaType INSTANCE = new IfStepMetaType();
 

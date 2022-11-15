@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class ThrowStepMetaType extends StepMetaType {
+public class ThrowStepMetaType extends IdentityMetaType {
 
     private static final ThrowStepMetaType INSTANCE = new ThrowStepMetaType();
 

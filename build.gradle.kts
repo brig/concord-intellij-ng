@@ -23,6 +23,13 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+}
+
 // Set the JVM language level used to compile sources and generate files - Java 11 is required since 2020.3
 kotlin {
     jvmToolchain {
@@ -55,6 +62,10 @@ qodana {
 }
 
 tasks {
+    test {
+        useJUnitPlatform()
+    }
+
     buildSearchableOptions {
         enabled = false
     }

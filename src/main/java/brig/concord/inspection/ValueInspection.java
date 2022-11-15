@@ -1,6 +1,7 @@
 package brig.concord.inspection;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
+import brig.concord.meta.MetaUtils;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
@@ -36,7 +37,7 @@ public class ValueInspection extends YamlUnknownValuesInspectionBase {
                     if (hasArray && hasScalar) {
                         return;
                     }
-                } else if (meta.getMetaType() instanceof YamlAnything) {
+                } else if (MetaUtils.isAnything(meta.getMetaType())) {
                     return;
                 }
 

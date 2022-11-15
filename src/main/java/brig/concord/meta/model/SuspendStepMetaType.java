@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class SuspendStepMetaType extends StepMetaType {
+public class SuspendStepMetaType extends IdentityMetaType {
 
     private static final SuspendStepMetaType INSTANCE = new SuspendStepMetaType();
 

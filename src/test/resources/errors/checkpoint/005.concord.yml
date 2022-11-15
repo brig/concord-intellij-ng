@@ -1,0 +1,6 @@
+flows:
+  main:
+    - checkpoint: "test"
+      meta:
+        k: "v"
+      trash: 1
