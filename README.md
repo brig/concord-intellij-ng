@@ -1,8 +1,8 @@
 # IntelliJ Plugin for Concord
 
 ![Build](https://github.com/brig/test-plugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/20365)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/20365)
+[![Version](https://img.shields.io/jetbrains/plugin/v/20365.svg)](https://plugins.jetbrains.com/plugin/20365)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/20365.svg)](https://plugins.jetbrains.com/plugin/20365)
 
 <!-- Plugin description -->
 IntelliJ plugin for [Concord](https://github.com/walmartlabs/concord) 
