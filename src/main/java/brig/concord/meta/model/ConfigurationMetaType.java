@@ -19,7 +19,7 @@ public class ConfigurationMetaType extends ConcordMetaType {
     static {
         features.put("runtime", () -> new YamlEnumType("runtime").withLiterals("concord-v2"));
         features.put("debug", YamlBooleanType::getSharedInstance);
-        features.put("entryPoint", YamlStringType::getInstance);
+        features.put("entryPoint", StringMetaType::getInstance);
         features.put("dependencies", DependenciesMetaType::getInstance);
         features.put("arguments", AnyMapMetaType::getInstance);
         features.put("meta", AnyMapMetaType::getInstance);
@@ -29,7 +29,7 @@ public class ConfigurationMetaType extends ConcordMetaType {
         features.put("suspendTimeout", DurationMetaType::getInstance);
         features.put("exclusive", ExclusiveMetaType::getInstance);
         features.put("out", StringArrayMetaType::getInstance);
-        features.put("template", YamlStringType::getInstance);
+        features.put("template", StringMetaType::getInstance);
         features.put("parallelLoopParallelism", () -> YamlIntegerType.getInstance(false));
     }
 

@@ -12,7 +12,6 @@ import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.CompletionContext;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
 import java.util.Collections;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class CallMetaType extends YamlStringType {
+public class CallMetaType extends StringMetaType {
 
     private static final CallMetaType INSTANCE = new CallMetaType();
 

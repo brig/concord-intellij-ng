@@ -3,7 +3,6 @@ package brig.concord.meta.model;
 import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.YamlEnumType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.Map;
 import java.util.Set;
@@ -20,8 +19,8 @@ public class CronTriggerEntryMetaType extends ConcordMetaType {
     private static final Set<String> required = Set.of("spec", "entryPoint");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "spec", YamlStringType::getInstance,
-            "entryPoint", YamlStringType::getInstance,
+            "spec", StringMetaType::getInstance,
+            "entryPoint", StringMetaType::getInstance,
             "runAs", RunAsMetaType::getInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
             "timezone", TimezoneMetaType::getInstance,
@@ -67,7 +66,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType {
         }
 
         private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "group", YamlStringType::getInstance,
+                "group", StringMetaType::getInstance,
                 "groupBy", () -> new YamlEnumType("group by").withLiterals("branch"),
                 "mode", ModeType::getInstance
         );
@@ -95,7 +94,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType {
         }
 
         private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "withSecret", YamlStringType::getInstance
+                "withSecret", StringMetaType::getInstance
         );
 
         @Override

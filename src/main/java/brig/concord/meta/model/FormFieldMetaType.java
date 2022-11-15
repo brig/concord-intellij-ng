@@ -25,7 +25,7 @@ public class FormFieldMetaType extends ConcordMetaType {
 
     private static final Set<String> required = Set.of("type");
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "label", YamlStringType::getInstance,
+            "label", StringMetaType::getInstance,
             "type", FieldType::getInstance,
             "value", YamlAnything::getInstance,
             "allow", YamlAnything::getInstance
@@ -33,8 +33,8 @@ public class FormFieldMetaType extends ConcordMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> stringFeatures = Map.of(
             "pattern", RegexpMetaType::getInstance,
-            "inputType", YamlStringType::getInstance,
-            "placeholder", YamlStringType::getInstance,
+            "inputType", StringMetaType::getInstance,
+            "placeholder", StringMetaType::getInstance,
             "search", YamlBooleanType::getSharedInstance,
             "readOnly", YamlBooleanType::getSharedInstance
     );
@@ -42,7 +42,7 @@ public class FormFieldMetaType extends ConcordMetaType {
     private static final Map<String, Supplier<YamlMetaType>> intFeatures = Map.of(
             "min", IntegerMetaType::getInstance,
             "max", IntegerMetaType::getInstance,
-            "placeholder", YamlStringType::getInstance,
+            "placeholder", StringMetaType::getInstance,
             "readOnly", YamlBooleanType::getSharedInstance
     );
 
@@ -51,7 +51,7 @@ public class FormFieldMetaType extends ConcordMetaType {
     );
 
     private static final Map<String, Supplier<YamlMetaType>> dateFeatures = Map.of(
-            "popupPosition", YamlStringType::getInstance,
+            "popupPosition", StringMetaType::getInstance,
             "readOnly", YamlBooleanType::getSharedInstance
     );
 

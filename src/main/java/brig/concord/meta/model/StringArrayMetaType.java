@@ -12,6 +12,6 @@ public class StringArrayMetaType extends YamlArrayType {
     }
 
     public StringArrayMetaType() {
-        super(YamlStringType.getInstance());
+        super(StringMetaType.getInstance());
     }
 }

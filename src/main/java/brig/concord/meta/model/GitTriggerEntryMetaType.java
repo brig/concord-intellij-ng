@@ -18,7 +18,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
     private static final Set<String> required = Set.of("entryPoint", "conditions", "version");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "entryPoint", YamlStringType::getInstance,
+            "entryPoint", StringMetaType::getInstance,
             "useInitiator", YamlBooleanType::getSharedInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
             "useEventCommitId", YamlBooleanType::getSharedInstance,
@@ -67,7 +67,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
         }
 
         private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "group", YamlStringType::getInstance,
+                "group", StringMetaType::getInstance,
                 "groupBy", () -> new YamlEnumType("group by").withLiterals("branch"),
                 "mode", ModeType::getInstance
         );
@@ -147,7 +147,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
         private static final Set<String> required = Set.of("type");
 
         private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "type", YamlStringType::getInstance,
+                "type", StringMetaType::getInstance,
                 "githubHost", RegexpMetaType::getInstance,
                 "githubOrg", RegexpMetaType::getInstance,
                 "githubRepo", RegexpMetaType::getInstance,

@@ -16,7 +16,7 @@ public class LogStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "log", YamlStringType::getInstance);
+            "log", StringMetaType::getInstance);
 
     protected LogStepMetaType() {
         super("Log", "log", Set.of("log"));

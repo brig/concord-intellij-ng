@@ -2,7 +2,6 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,11 +16,11 @@ public class GitImportEntryMetaType extends ConcordMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", YamlStringType::getInstance,
-            "url", YamlStringType::getInstance,
-            "version", YamlStringType::getInstance,
-            "path", YamlStringType::getInstance,
-            "dest", YamlStringType::getInstance,
+            "name", StringMetaType::getInstance,
+            "url", StringMetaType::getInstance,
+            "version", StringMetaType::getInstance,
+            "path", StringMetaType::getInstance,
+            "dest", StringMetaType::getInstance,
             "exclude", RegexpArrayMetaType::getInstance,
             "secret", SecretMetaType::getInstance
             );
@@ -46,9 +45,9 @@ public class GitImportEntryMetaType extends ConcordMetaType {
         private static final Set<String> required = Set.of("name");
 
         private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "org", YamlStringType::getInstance,
-                "name", YamlStringType::getInstance,
-                "password", YamlStringType::getInstance
+                "org", StringMetaType::getInstance,
+                "name", StringMetaType::getInstance,
+                "password", StringMetaType::getInstance
         );
 
         protected SecretMetaType() {

@@ -17,7 +17,7 @@ public class ScriptOutParamsMetaType extends YamlAnyOfType {
     }
 
     protected ScriptOutParamsMetaType() {
-        super("out params [object|string]", List.of(YamlStringType.getInstance(), AnyMapMetaType.getInstance()));
+        super("out params [object|string]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()));
     }
 
     @Override

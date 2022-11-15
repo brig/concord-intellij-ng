@@ -19,8 +19,8 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType {
     private static final Set<String> required = Set.of("entryPoint");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", YamlStringType::getInstance,
-            "entryPoint", YamlStringType::getInstance,
+            "name", StringMetaType::getInstance,
+            "entryPoint", StringMetaType::getInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
             "arguments", AnyMapMetaType::getInstance
             );

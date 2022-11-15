@@ -2,7 +2,6 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,8 +18,8 @@ public class DirImportEntryMetaType extends ConcordMetaType {
     private static final Set<String> required = Set.of("src");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "src", YamlStringType::getInstance,
-            "dest", YamlStringType::getInstance
+            "src", StringMetaType::getInstance,
+            "dest", StringMetaType::getInstance
             );
 
     protected DirImportEntryMetaType() {

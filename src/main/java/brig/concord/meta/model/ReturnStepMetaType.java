@@ -16,7 +16,7 @@ public class ReturnStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "return", YamlStringType::getInstance);
+            "return", StringMetaType::getInstance);
 
     protected ReturnStepMetaType() {
         super("Return", "return", Set.of("return"));

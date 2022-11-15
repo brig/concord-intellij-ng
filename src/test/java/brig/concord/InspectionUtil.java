@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -52,7 +53,7 @@ public final class InspectionUtil {
     }
 
     private void assertNoHighlighting(HighlightSeverity severity) {
-        final List<HighlightInfo> highlighting = getHighlighting(severity);
+        List<HighlightInfo> highlighting = getHighlighting(severity);
         if (!highlighting.isEmpty()) {
             ReadAction.run(() -> fail(String.format("All %s highlighting%n%s", severity.myName, highlighting)));
         }
@@ -71,7 +72,8 @@ public final class InspectionUtil {
     }
 
     private void assertHasHighlightingMessage(HighlightSeverity severity, String message, String highlightText) {
-        final List<HighlightInfo> highlighting = getHighlighting(severity);
+        List<HighlightInfo> highlighting = getHighlighting(severity);
+        assertFalse("No inspection messages", highlighting.isEmpty());
         assertTrue(
                 allHighlightingAsMessage(),
                 highlighting.stream().anyMatch(

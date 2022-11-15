@@ -19,8 +19,8 @@ public class MvnImportEntryMetaType extends ConcordMetaType {
     private static final Set<String> required = Set.of("url");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "url", YamlStringType::getInstance,
-            "dest", YamlStringType::getInstance
+            "url", StringMetaType::getInstance,
+            "dest", StringMetaType::getInstance
     );
 
     protected MvnImportEntryMetaType() {

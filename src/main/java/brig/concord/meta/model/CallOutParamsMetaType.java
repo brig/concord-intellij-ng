@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
 import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.List;
 
@@ -17,7 +16,7 @@ public class CallOutParamsMetaType extends YamlAnyOfType {
     }
 
     protected CallOutParamsMetaType() {
-        super("out params [object|array|string]", List.of(YamlStringType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance()));
+        super("out params [object|array|string]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance()));
     }
 
     @Override

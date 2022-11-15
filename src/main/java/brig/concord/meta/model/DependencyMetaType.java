@@ -1,8 +1,6 @@
 package brig.concord.meta.model;
 
-import org.jetbrains.yaml.meta.model.YamlStringType;
-
-public class DependencyMetaType extends YamlStringType {
+public class DependencyMetaType extends StringMetaType {
 
     private static final DependencyMetaType INSTANCE = new DependencyMetaType();
 

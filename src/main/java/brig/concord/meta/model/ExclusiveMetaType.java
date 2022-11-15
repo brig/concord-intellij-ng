@@ -3,7 +3,6 @@ package brig.concord.meta.model;
 import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.YamlEnumType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +15,7 @@ public class ExclusiveMetaType extends ConcordMetaType {
     private static final Set<String> requiredFeatures = Set.of("group");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "group", YamlStringType::getInstance,
+            "group", StringMetaType::getInstance,
             "mode", ModeType::getInstance
     );
 

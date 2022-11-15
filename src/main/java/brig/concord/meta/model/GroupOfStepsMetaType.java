@@ -1,7 +1,6 @@
 package brig.concord.meta.model;
 
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +18,7 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
     private static Map<String, Supplier<YamlMetaType>> createFeatures(String name) {
         return Map.of(
-                "name", YamlStringType::getInstance,
+                "name", StringMetaType::getInstance,
                 name, StepsMetaType::getInstance,
                 "out", GroupOfStepsOutParamsMetaType::getInstance,
                 "meta", StepMetaMetaType::getInstance,

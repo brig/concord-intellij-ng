@@ -17,7 +17,7 @@ public class TaskOutParamsMetaType extends YamlAnyOfType {
     }
 
     protected TaskOutParamsMetaType() {
-        super("out params [object|expression]", List.of(YamlStringType.getInstance(), AnyMapMetaType.getInstance()));
+        super("out params [object|expression]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()));
     }
 
     @Override

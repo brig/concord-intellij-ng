@@ -4,7 +4,6 @@ import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.YamlBooleanType;
 import org.jetbrains.yaml.meta.model.YamlEnumType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +28,7 @@ public class EventsMetaType extends ConcordMetaType {
         features.put("outVarsBlacklist", StringArrayMetaType::getInstance);
         features.put("recordTaskMeta", YamlBooleanType::getSharedInstance);
         features.put("truncateMeta", YamlBooleanType::getSharedInstance);
-        features.put("metaBlacklist", YamlStringType::getInstance);
+        features.put("metaBlacklist", StringMetaType::getInstance);
     }
 
     public static EventsMetaType getInstance() {

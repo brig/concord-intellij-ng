@@ -11,6 +11,7 @@ import brig.concord.inspection.ValueInspection;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
 import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCase;
+import org.jetbrains.yaml.YAMLBundle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +42,19 @@ public class InspectionTests extends BasePlatformTestCase {
     @Test
     public void testCheckpoint_001() throws Exception {
         configureByFile("errors/checkpoint/001.concord.yml");
-        inspection.assertHasError("Value is required");
+        inspection.assertHasError(ConcordBundle.message("StringType.error.scalar.value"));
+    }
+
+    @Test
+    public void testCheckpoint_002() throws Exception {
+        configureByFile("errors/checkpoint/002.concord.yml");
+        inspection.assertHasError(YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", "trash"));
+    }
+
+    @Test
+    public void testCheckpoint_003() throws Exception {
+        configureByFile("errors/checkpoint/003.concord.yml");
+        inspection.assertHasError(YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", "trash"));
     }
 
     private void configureByFile(String resource) throws Exception {

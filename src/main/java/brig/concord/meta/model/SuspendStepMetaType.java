@@ -16,7 +16,7 @@ public class SuspendStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "suspend", YamlStringType::getInstance);
+            "suspend", StringMetaType::getInstance);
 
     protected SuspendStepMetaType() {
         super("Suspend", "suspend", Set.of("suspend"));

@@ -10,7 +10,7 @@ import org.jetbrains.yaml.psi.YAMLScalar;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class RegexpMetaType extends YamlStringType {
+public class RegexpMetaType extends StringMetaType {
 
     private static final RegexpMetaType INSTANCE = new RegexpMetaType();
 
