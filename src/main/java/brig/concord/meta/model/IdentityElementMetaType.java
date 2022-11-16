@@ -27,6 +27,10 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
         this.entries = entries;
     }
 
+    public IdentityMetaType findEntry(YAMLMapping element) {
+        return findEntry(YamlPsiUtils.keys(element));
+    }
+
     public @Nullable Field findFeatureByName(@NotNull PsiElement element, @NotNull String name) {
         if (!(element instanceof YAMLMapping m)) {
             return null;
@@ -115,23 +119,16 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
 
     @Override
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-//        if (!(value instanceof YAMLMapping m)) {
-//            return;
-//        }
-//
-//        IdentityMetaType meta = findEntry(YamlPsiUtils.keys(m));
-//        if (meta == null) {
-//            return;
-//        }
-//
-//        Collection<YAMLKeyValue> kvs = m.getKeyValues();
-//        if (kvs.size() == 1) {
-//            YAMLKeyValue kv = kvs.iterator().next();
-//
-//            if (kv.getValue() != null) {
-//                meta.validateValue(kv.getValue(), problemsHolder);
-//            }
-//        }
+        if (!(value instanceof YAMLMapping m)) {
+            return;
+        }
+
+        IdentityMetaType meta = findEntry(YamlPsiUtils.keys(m));
+        if (meta == null) {
+            return;
+        }
+
+        meta.validateValue(value, problemsHolder);
     }
 
     private IdentityMetaType identifyEntry(Set<String> existingKeys) {

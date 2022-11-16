@@ -1,0 +1,10 @@
+profiles:
+  myProfile:
+    configuration:
+      debug: true
+    flows:
+      default:
+        - log: me
+    forms:
+      myForm:
+        - fullName: { label: "Name", type: "string", pattern: ".* .*", readonly: true, placeholder: "Place name here" }

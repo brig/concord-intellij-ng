@@ -1,5 +1,12 @@
 package brig.concord.meta.model;
 
+import brig.concord.ConcordBundle;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.yaml.psi.YAMLScalar;
+import org.jetbrains.yaml.psi.YAMLValue;
+
 import java.util.List;
 
 public class StepElementMetaType extends IdentityElementMetaType {
@@ -32,5 +39,14 @@ public class StepElementMetaType extends IdentityElementMetaType {
 
     protected StepElementMetaType() {
         super("Steps", List.copyOf(steps));
+    }
+
+    @Override
+    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
+        if (value instanceof YAMLScalar) {
+            problemsHolder.registerProblem(value, ConcordBundle.message("StepElementMetaType.error.unknown.step"), ProblemHighlightType.ERROR);
+        }
+
+        super.validateValue(value, problemsHolder);
     }
 }

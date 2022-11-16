@@ -1,0 +1,41 @@
+configuration:
+  debug: true
+  runtime: concord-v2
+  template: "test"
+  parallelLoopParallelism: 1
+  out:
+    - "out-var"
+  meta:
+    metaKey: metaValue
+  entryPoint: "main-test"
+  dependencies:
+    - "d1"
+    - "d2"
+  arguments:
+    k: "v"
+  requirements:
+    k: "v"
+  processTimeout: "PT1H"
+  suspendTimeout: "PT2H"
+  exclusive:
+    group: "X"
+    mode: "cancel"
+  events:
+    recordTaskInVars: true
+    inVarsBlacklist:
+      - "password"
+      - "apiToken"
+      - "apiKey"
+    recordTaskOutVars: true
+    outVarsBlacklist:
+      - "FOO"
+    recordTaskMeta: true
+    metaBlacklist:
+      - "apiKey"
+    recordEvents: true
+    truncateInVars: true
+    truncateMaxArrayLength: 123
+    truncateMaxDepth: 2
+    truncateMaxStringLength: 133
+    truncateMeta: true
+    truncateOutVars: true

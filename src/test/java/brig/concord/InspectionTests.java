@@ -123,12 +123,11 @@ public class InspectionTests extends BaseTest {
                 .check();
     }
 
-    // TODO: IdentityElementMetaType.validateValue
     @Test
     public void testExpression_008() {
         configureByFile("errors/expression/008.concord.yml");
         inspection()
-                .assertValueRequired()
+                .assertArrayRequired()
                 .check();
     }
 
@@ -137,16 +136,15 @@ public class InspectionTests extends BaseTest {
     public void testExpression_009() {
         configureByFile("errors/expression/009.concord.yml");
         inspection()
-                .assertValueRequired()
+                .assertArrayRequired()
                 .check();
     }
 
-    // TODO: IdentityElementMetaType.validateValue
     @Test
     public void testExpression_010() {
         configureByFile("errors/expression/010.concord.yml");
         inspection()
-                .assertValueRequired()
+                .assertUnknownStep()
                 .check();
     }
 
@@ -594,7 +592,7 @@ public class InspectionTests extends BaseTest {
     public void testTriggers_036() {
         configureByFile("errors/triggers/036.concord.yml");
         inspection()
-                .assertUnknownValue("test")
+                .assertUnexpectedValue("test")
                 .check();
     }
 
@@ -655,7 +653,6 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    @Disabled("validate empty values")
     public void testTasks_007() {
         configureByFile("errors/tasks/007.concord.yml");
         inspection()
@@ -707,7 +704,7 @@ public class InspectionTests extends BaseTest {
     public void testTasks_009_4() {
         configureByFile("errors/tasks/009_4.concord.yml");
         inspection()
-                .assertUnknownValue("a")
+                .assertUnexpectedValue("a")
                 .check();
     }
 
@@ -800,7 +797,7 @@ public class InspectionTests extends BaseTest {
 
         inspection()
                 .assertStringValueExpected()
-                .assertUnknownValue("trash")
+                .assertUnexpectedValue("trash")
                 .check();
     }
 
@@ -986,7 +983,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_000() {
+    public void testGroup_000() {
         configureByFile("errors/group/000.concord.yml");
 
         inspection()
@@ -995,7 +992,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_001() {
+    public void testGroup_001() {
         configureByFile("errors/group/001.concord.yml");
 
         inspection()
@@ -1004,7 +1001,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_002() {
+    public void testGroup_002() {
         configureByFile("errors/group/002.concord.yml");
 
         inspection()
@@ -1013,7 +1010,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_003() {
+    public void testGroup_003() {
         configureByFile("errors/group/003.concord.yml");
 
         inspection()
@@ -1022,7 +1019,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_004() {
+    public void testGroup_004() {
         configureByFile("errors/group/004.concord.yml");
 
         inspection()
@@ -1031,7 +1028,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_005() {
+    public void testGroup_005() {
         configureByFile("errors/group/005.concord.yml");
 
         inspection()
@@ -1040,7 +1037,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_006() {
+    public void testGroup_006() {
         configureByFile("errors/group/006.concord.yml");
 
         inspection()
@@ -1049,7 +1046,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_007() {
+    public void testGroup_007() {
         configureByFile("errors/group/007.concord.yml");
 
         inspection()
@@ -1058,7 +1055,7 @@ public class InspectionTests extends BaseTest {
     }
 
     @Test
-    public void testgroup_008() {
+    public void testGroup_008() {
         configureByFile("errors/group/008.concord.yml");
 
         inspection()
@@ -1080,7 +1077,7 @@ public class InspectionTests extends BaseTest {
         configureByFile("errors/parallel/001.concord.yml");
 
         inspection()
-                .assertValueRequired()
+                .assertArrayRequired()
                 .check();
     }
 
@@ -1089,7 +1086,7 @@ public class InspectionTests extends BaseTest {
         configureByFile("errors/parallel/002.concord.yml");
 
         inspection()
-                .assertValueRequired()
+                .assertUnknownStep()
                 .check();
     }
 
@@ -1120,8 +1117,719 @@ public class InspectionTests extends BaseTest {
                 .check();
     }
 
-    private void assertNoErrors() {
+    @Test
+    public void testForms_000() {
+        configureByFile("errors/forms/000.concord.yml");
+
         inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testForms_001() {
+        configureByFile("errors/forms/001.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
+                .check();
+    }
+
+    @Test
+    public void testForms_002() {
+        configureByFile("errors/forms/002.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testForms_003() {
+        configureByFile("errors/forms/003.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testForms_004() {
+        configureByFile("errors/forms/004.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testForms_005() {
+        configureByFile("errors/forms/005.concord.yml");
+
+        inspection()
+                .assertUnexpectedKey("error")
+                .check();
+    }
+
+    @Test
+    public void testForms_006() {
+        configureByFile("errors/forms/006.concord.yml");
+
+        inspection()
+                .assertStringValueExpected()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_000() {
+        configureByFile("errors/configuration/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_001() {
+        configureByFile("errors/configuration/001.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_002() {
+        configureByFile("errors/configuration/002.concord.yml");
+
+        inspection()
+                .assertStringValueExpected()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_003() {
+        configureByFile("errors/configuration/003.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+    @Test
+    public void testConfiguration_004() {
+        configureByFile("errors/configuration/004.concord.yml");
+
+        inspection()
+                .assertStringValueExpected()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_005() {
+        configureByFile("errors/configuration/005.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_005_1() {
+        configureByFile("errors/configuration/005_1.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_006() {
+        configureByFile("errors/configuration/006.concord.yml");
+
+        inspection()
+                .assertUnknownKey("trash")
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_007() {
+        configureByFile("errors/configuration/007.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_008() {
+        configureByFile("errors/configuration/008.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_009() {
+        configureByFile("errors/configuration/009.concord.yml");
+
+        inspection()
+                .assertDurationExpected()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_010() {
+        configureByFile("errors/configuration/010.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_011() {
+        configureByFile("errors/configuration/011.concord.yml");
+
+        inspection()
+                .assertMissingKey("group")
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_011_1() {
+        configureByFile("errors/configuration/011_1.concord.yml");
+
+        inspection()
+                .assertHasError(ConcordBundle.message("StringType.error.empty.scalar.value"))
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_012() {
+        configureByFile("errors/configuration/012.concord.yml");
+
+        inspection()
+                .assertUnknownKey("mode1")
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_013() {
+        configureByFile("errors/configuration/013.concord.yml");
+
+        inspection()
+                .assertUnexpectedValue("canceL")
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_014() {
+        configureByFile("errors/configuration/014.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_015() {
+        configureByFile("errors/configuration/015.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_016() {
+        configureByFile("errors/configuration/016.concord.yml");
+
+        inspection()
+                .assertUnexpectedValue("1")
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_017() {
+        configureByFile("errors/configuration/017.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_018() {
+        configureByFile("errors/configuration/018.concord.yml");
+
+        inspection()
+                .assertUnknownKey("trash")
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_019() {
+        configureByFile("errors/configuration/019.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_020() {
+        configureByFile("errors/configuration/020.concord.yml");
+
+        inspection()
+                .assertSingleValueExpected()
+                .assertSingleValueExpected()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_021() {
+        configureByFile("errors/configuration/021.concord.yml");
+
+        inspection()
+                .assertUnexpectedValue("1")
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_022() {
+        configureByFile("errors/configuration/022.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
+                .check();
+    }
+
+    @Test
+    public void testConfiguration_023() {
+        configureByFile("errors/configuration/023.concord.yml");
+
+        inspection()
+                .assertDurationExpected()
+                .check();
+    }
+
+    @Test
+    public void testForms_007() {
+        configureByFile("errors/forms/007.concord.yml");
+
+        inspection()
+                .assertUnexpectedValue("123")
+                .check();
+    }
+
+    @Test
+    public void testForms_008() {
+        configureByFile("errors/forms/008.concord.yml");
+
+        inspection()
+                .assertMissingKey("type")
+                .check();
+    }
+
+    @Test
+    public void testForms_009() {
+        configureByFile("errors/forms/009.concord.yml");
+
+        inspection()
+                .assertUnexpectedValue("123")
+                .check();
+    }
+
+    @Test
+    public void testForms_010() {
+        configureByFile("errors/forms/010.concord.yml");
+
+        inspection()
+                .assertUnexpectedValue("1")
+                .check();
+    }
+
+    @Test
+    public void testForms_011() {
+        configureByFile("errors/forms/011.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testForms_012() {
+        configureByFile("errors/forms/012.concord.yml");
+
+        inspection()
+                .assertUnexpectedKey("min")
+                .assertUnexpectedKey("max")
+                .check();
+    }
+
+    @Test
+    public void testFormCall_000() {
+        configureByFile("errors/formCall/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testFormCall_001() {
+        configureByFile("errors/formCall/001.concord.yml");
+
+        inspection()
+                .assertStringValueExpected()
+                .check();
+    }
+
+    @Test
+    public void testFormCall_002() {
+        configureByFile("errors/formCall/002.concord.yml");
+
+        inspection()
+                .assertUnexpectedKey("a")
+                .assertUnexpectedKey("b")
+                .check();
+    }
+
+    @Test
+    public void testFormCall_003() {
+        configureByFile("errors/formCall/003.concord.yml");
+
+        inspection()
+                .assertBooleanExpected()
+                .check();
+    }
+
+    @Test
+    public void testFormCall_004() {
+        configureByFile("errors/formCall/004.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testFormCall_005() {
+        configureByFile("errors/formCall/005.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testFormCall_006() {
+        configureByFile("errors/formCall/006.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testFormCall_007() {
+        configureByFile("errors/formCall/007.concord.yml");
+
+        inspection()
+                .assertExpressionExpected()
+                .check();
+    }
+
+    @Test
+    public void testFlows_000() {
+        configureByFile("errors/flows/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testFlows_001() {
+        configureByFile("errors/flows/001.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testFlows_002() {
+        configureByFile("errors/flows/002.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testProfiles_000() {
+        configureByFile("errors/profiles/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testProfiles_001() {
+        configureByFile("errors/profiles/001.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testProfiles_002() {
+        configureByFile("errors/profiles/002.concord.yml");
+
+        inspection()
+                .assertObjectRequired()
+                .check();
+    }
+
+    @Test
+    public void testProfiles_003() {
+        configureByFile("errors/profiles/003.concord.yml");
+
+        inspection()
+                .assertUnknownKey("trash")
+                .check();
+    }
+
+    @Test
+    public void testIf_000() {
+        configureByFile("errors/if/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .assertMissingKey("then")
+                .check();
+    }
+
+    @Test
+    public void testIf_001() {
+        configureByFile("errors/if/001.concord.yml");
+
+        inspection()
+                .assertExpressionExpected()
+                .assertMissingKey("then")
+                .check();
+    }
+
+    @Test
+    public void testIf_002() {
+        configureByFile("errors/if/002.concord.yml");
+
+        inspection()
+                .assertMissingKey("then")
+                .check();
+    }
+
+    @Test
+    public void testIf_003() {
+        configureByFile("errors/if/003.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testIf_004() {
+        configureByFile("errors/if/004.concord.yml");
+
+        inspection()
+                .assertUnknownKey("el")
+                .check();
+    }
+
+    @Test
+    public void testIf_005() {
+        configureByFile("errors/if/005.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testIf_006() {
+        configureByFile("errors/if/006.concord.yml");
+
+        inspection()
+                .assertUnknownKey("trash")
+                .check();
+    }
+
+    @Test
+    public void testIf_007() {
+        configureByFile("errors/if/007.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testSwitch_000() {
+        configureByFile("errors/switch/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .assertHasError(ConcordBundle.message("SwitchStepMetaType.error.missing.labels"))
+                .check();
+    }
+
+    @Test
+    public void testSwitch_001() {
+        configureByFile("errors/switch/001.concord.yml");
+
+        inspection()
+                .assertHasError(ConcordBundle.message("SwitchStepMetaType.error.missing.labels"))
+                .check();
+    }
+
+    @Test
+    public void testSwitch_002() {
+        configureByFile("errors/switch/002.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testSwitch_003() {
+        configureByFile("errors/switch/003.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testPublicFlows_000() {
+        configureByFile("errors/publicFlows/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testPublicFlows_001() {
+        configureByFile("errors/publicFlows/001.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
+                .check();
+    }
+
+    @Test
+    public void testPublicFlows_002() {
+        configureByFile("errors/publicFlows/002.concord.yml");
+
+        inspection()
+                .assertStringValueExpected()
+                .check();
+    }
+
+    @Test
+    public void testScript_000() {
+        configureByFile("errors/scripts/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testScript_001() {
+        configureByFile("errors/scripts/001.concord.yml");
+
+        inspection()
+                .assertStringValueExpected()
+                .check();
+    }
+
+    @Test
+    public void testScript_002() {
+        configureByFile("errors/scripts/002.concord.yml");
+
+        inspection()
+                .assertUnknownKey("body1")
+                .check();
+    }
+
+    @Test
+    public void testScript_003() {
+        configureByFile("errors/scripts/003.concord.yml");
+
+        inspection()
+                .assertUnknownStep()
+                .check();
+    }
+
+    @Test
+    public void tesResources_000() {
+        configureByFile("errors/resources/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void tesResources_001() {
+        configureByFile("errors/resources/001.concord.yml");
+
+        inspection()
+                .assertUnknownKey("trash")
+                .check();
+    }
+
+    @Test
+    public void tesResources_002() {
+        configureByFile("errors/resources/002.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
+                .check();
+    }
+
+    @Test
+    public void tesSetVariables_000() {
+        configureByFile("errors/setVariables/000.concord.yml");
+
+        inspection()
+                .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void tesSetVariables_001() {
+        configureByFile("errors/setVariables/001.concord.yml");
+
+        inspection()
+                .assertUnknownKey("meta1")
+                .check();
+    }
+
+    @Test
+    public void tesSteps_000() {
+        configureByFile("errors/steps/000.concord.yml");
+
+        inspection()
+                .assertUnknownStep()
                 .check();
     }
 
@@ -1184,12 +1892,17 @@ public class InspectionTests extends BaseTest {
             return this;
         }
 
+        private Inspection assertDurationExpected() {
+            errors.add(ConcordBundle.message("DurationType.error.scalar.value"));
+            return this;
+        }
+
         private Inspection assertUnknownKey(String key) {
             errors.add(YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
             return this;
         }
 
-        private Inspection assertUnknownValue(String value) {
+        private Inspection assertUnexpectedValue(String value) {
             errors.add(YAMLBundle.message("YamlEnumType.validation.error.value.unknown", value));
             return this;
         }
@@ -1201,6 +1914,11 @@ public class InspectionTests extends BaseTest {
 
         private Inspection assertUnexpectedKey(String key) {
             errors.add(YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
+            return this;
+        }
+
+        public Inspection assertUnknownStep() {
+            errors.add(ConcordBundle.message("StepElementMetaType.error.unknown.step"));
             return this;
         }
 
@@ -1225,12 +1943,6 @@ public class InspectionTests extends BaseTest {
             }
 
             assertTrue(dump(highlighting), highlighting.isEmpty());
-        }
-
-        private static String dump(List<HighlightInfo> highlighting) {
-            return "------ highlighting ------\n"
-                    + highlighting.stream().map(HighlightInfo::toString).collect(Collectors.joining("\n"))
-                    + "\n------ highlighting ------";
         }
     }
 }

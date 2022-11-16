@@ -1,0 +1,3 @@
+resources:
+  concord:
+    - "regexp:.*.yml"

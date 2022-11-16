@@ -1,6 +1,9 @@
 package brig.concord.meta.model;
 
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
+import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.Map;
 import java.util.Set;
@@ -30,5 +33,10 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
     @Override
     public Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
+    }
+
+    @Override
+    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
+        super.validateValue(value, problemsHolder);
     }
 }

@@ -1,0 +1,3 @@
+forms:
+  myForm:
+    - fullName: { type: "string+", pattern: ".* .*", min: 1, max: 2, placeholder: "Place name here" }

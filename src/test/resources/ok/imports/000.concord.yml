@@ -1,0 +1,22 @@
+imports:
+  - git:
+      name: "brig/hello-world"
+      url: "github.com/walmartlabs/concord.git"
+      version: "1.0.0"
+      path: "examples/hello_world"
+      dest: "/"
+      exclude:
+        - ".*.yml"
+      secret:
+        org: "my-org"
+        name: "my-name"
+        password: "iddqd"
+  - dir:
+      src: "/src"
+      dest: "/dest"
+  - dir:
+      src: "/src2"
+      dest: "/dest2"
+  - mvn:
+      url: "url"
+      dest: "/"

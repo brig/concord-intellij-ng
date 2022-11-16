@@ -1,5 +1,7 @@
 package brig.concord.meta;
 
+import brig.concord.meta.model.IdentityElementMetaType;
+import brig.concord.meta.model.IdentityMetaType;
 import brig.concord.psi.ConcordFile;
 import brig.concord.psi.YamlDebugUtil;
 import com.intellij.openapi.components.Service;
@@ -13,10 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
 import org.jetbrains.yaml.meta.model.*;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLSequence;
-import org.jetbrains.yaml.psi.YAMLValue;
+import org.jetbrains.yaml.psi.*;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -49,12 +48,6 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
         return project.getService(ConcordMetaTypeProvider.class);
     }
 
-    public @Nullable YamlMetaType getResolvedKeyValueMetaTypeMeta(@NotNull YAMLKeyValue keyValue) {
-        return Optional.ofNullable(getKeyValueMetaType(keyValue))
-                .map(MetaTypeProxy::getMetaType)
-                .orElse(null);
-    }
-
     public @Nullable YamlMetaType getResolvedMetaType(@NotNull PsiElement element) {
         final MetaTypeProxy metaTypeProxy = getMetaTypeProxy(element);
         return metaTypeProxy != null ? metaTypeProxy.getMetaType() : null;
@@ -66,6 +59,15 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
         MetaTypeProxy result = super.getMetaTypeProxy(element);
         if (result == null) {
             return null;
+        }
+
+        if (result.getMetaType() instanceof IdentityElementMetaType identity) {
+            if (element instanceof YAMLMapping m) {
+                IdentityMetaType mt = identity.findEntry(m);
+                if (mt != null) {
+                    return new ConcordMetaTypeProxy(element, mt, new Field("<identity>", mt));
+                }
+            }
         }
 
         if (result.getMetaType() instanceof YamlAnyOfType anyOfType) {

@@ -28,7 +28,7 @@ public class EventsMetaType extends ConcordMetaType {
         features.put("outVarsBlacklist", StringArrayMetaType::getInstance);
         features.put("recordTaskMeta", YamlBooleanType::getSharedInstance);
         features.put("truncateMeta", YamlBooleanType::getSharedInstance);
-        features.put("metaBlacklist", StringMetaType::getInstance);
+        features.put("metaBlacklist", StringArrayMetaType::getInstance);
     }
 
     public static EventsMetaType getInstance() {

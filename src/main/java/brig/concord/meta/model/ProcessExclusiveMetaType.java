@@ -1,8 +1,15 @@
 package brig.concord.meta.model;
 
+import brig.concord.ConcordBundle;
 import brig.concord.meta.ConcordMetaType;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlEnumType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
+import org.jetbrains.yaml.meta.model.YamlStringType;
+import org.jetbrains.yaml.psi.YAMLScalar;
+import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +22,7 @@ public class ProcessExclusiveMetaType extends ConcordMetaType {
     private static final Set<String> requiredFeatures = Set.of("group");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "group", StringMetaType::getInstance,
+            "group", GroupMetaType::getInstance,
             "mode", ModeType::getInstance
     );
 
@@ -35,6 +42,24 @@ public class ProcessExclusiveMetaType extends ConcordMetaType {
     @Override
     protected Set<String> getRequiredFields() {
         return requiredFeatures;
+    }
+
+    private static class GroupMetaType extends StringMetaType {
+
+        private static final GroupMetaType INSTANCE = new GroupMetaType();
+
+        public static GroupMetaType getInstance() {
+            return INSTANCE;
+        }
+
+        @Override
+        protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
+            super.validateScalarValue(value, holder);
+
+            if (value.getTextValue().trim().isEmpty()) {
+                holder.registerProblem(value, ConcordBundle.message("StringType.error.empty.scalar.value"), ProblemHighlightType.ERROR);
+            }
+        }
     }
 
     private static class ModeType extends YamlEnumType {

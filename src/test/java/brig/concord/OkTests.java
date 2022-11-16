@@ -21,10 +21,118 @@ public class OkTests extends BaseTest {
         assertNoErrors();
     }
 
+    @Test
+    public void testConfiguration_000() {
+        configureByFile("ok/configuration/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testFlowCall_000() {
+        configureByFile("ok/flowCall/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testFlowCall_001() {
+        configureByFile("ok/flowCall/001.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testFlowCall_002() {
+        configureByFile("ok/flowCall/002.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testFormCall_000() {
+        configureByFile("ok/formCall/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testForms_000() {
+        configureByFile("ok/forms/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testGroup_000() {
+        configureByFile("ok/group/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testIf_000() {
+        configureByFile("ok/if/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testImports_000() {
+        configureByFile("ok/imports/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testParallel_000() {
+        configureByFile("ok/imports/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testProfiles_000() {
+        configureByFile("ok/profiles/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testPublicFlows_000() {
+        configureByFile("ok/publicFlows/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testResources_000() {
+        configureByFile("ok/resources/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testScript_000() {
+        configureByFile("ok/script/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testSetVariables_000() {
+        configureByFile("ok/setVariables/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testSwitch_000() {
+        configureByFile("ok/switch/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testTaskCall_000() {
+        configureByFile("ok/taskCall/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testTriggers_000() {
+        configureByFile("ok/triggers/000.concord.yml");
+        assertNoErrors();
+    }
+
     private void assertNoErrors() {
         List<HighlightInfo> highlighting = myFixture.doHighlighting();
         if (!highlighting.isEmpty()) {
-            fail(String.format("highlighting%n%s", highlighting));
+            fail(dump(highlighting));
         }
     }
 }

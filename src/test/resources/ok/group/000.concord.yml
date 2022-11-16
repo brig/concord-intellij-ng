@@ -1,0 +1,11 @@
+flows:
+  main:
+    - name: try-test
+      try:
+        - log: me
+      error:
+        - log: me
+      meta:
+        m1: "v1"
+      loop:
+        items: "${items}"

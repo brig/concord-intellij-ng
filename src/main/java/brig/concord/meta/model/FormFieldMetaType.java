@@ -24,20 +24,20 @@ public class FormFieldMetaType extends ConcordMetaType {
     }
 
     private static final Set<String> required = Set.of("type");
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
+    private static final Map<String, Supplier<YamlMetaType>> features = caseInsensitiveMap(Map.of(
             "label", StringMetaType::getInstance,
             "type", FieldType::getInstance,
             "value", AnythingMetaType::getInstance,
             "allow", AnythingMetaType::getInstance
-    );
+    ));
 
-    private static final Map<String, Supplier<YamlMetaType>> stringFeatures = Map.of(
+    private static final Map<String, Supplier<YamlMetaType>> stringFeatures = caseInsensitiveMap(Map.of(
             "pattern", RegexpMetaType::getInstance,
             "inputType", StringMetaType::getInstance,
             "placeholder", StringMetaType::getInstance,
             "search", YamlBooleanType::getSharedInstance,
             "readOnly", YamlBooleanType::getSharedInstance
-    );
+    ));
 
     private static final Map<String, Supplier<YamlMetaType>> intFeatures = Map.of(
             "min", IntegerMetaType::getInstance,
@@ -67,7 +67,7 @@ public class FormFieldMetaType extends ConcordMetaType {
     private static final Map<String, Supplier<YamlMetaType>> allFeatures =
             Stream.of(features, stringFeatures, intFeatures, booleanFeatures, dateFeatures)
                     .flatMap(m -> m.entrySet().stream())
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (o1, o2) -> o1));
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (o1, o2) -> o1, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
 
 
     protected FormFieldMetaType() {
@@ -111,14 +111,23 @@ public class FormFieldMetaType extends ConcordMetaType {
             return;
         }
 
+        if (!FieldType.isValidType(type)) {
+            return;
+        }
+
         Map<String, Supplier<YamlMetaType>> typedFeatures = featuresByType.getOrDefault(type, Map.of());
         m.getKeyValues().stream()
                 .map(YAMLKeyValue::getKeyText)
+                .filter(allFeatures::containsKey) // unknown key is not our business
                 .filter(k -> !features.containsKey(k))
                 .filter(k -> !typedFeatures.containsKey(k))
+                .map(m::getKeyValueByKey)
+                .filter(Objects::nonNull)
+                .map(YAMLKeyValue::getKey)
+                .filter(Objects::nonNull)
                 .forEach(k -> {
-                    String msg = YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", k);
-                    problemsHolder.registerProblem(Objects.requireNonNull(m.getKeyValueByKey(k)), msg, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
+                    String msg = YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", k.getText());
+                    problemsHolder.registerProblem(k, msg, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
                 });
     }
 
@@ -136,6 +145,12 @@ public class FormFieldMetaType extends ConcordMetaType {
             return typeWithCardinality.substring(0, typeWithCardinality.length() - 1);
         }
         return typeWithCardinality;
+    }
+
+    private static Map<String, Supplier<YamlMetaType>> caseInsensitiveMap(Map<String, Supplier<YamlMetaType>> m) {
+        Map<String, Supplier<YamlMetaType>> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        result.putAll(m);
+        return result;
     }
 
     private static class FieldType extends YamlEnumType {
@@ -160,6 +175,10 @@ public class FormFieldMetaType extends ConcordMetaType {
                 }
             }
             withLiterals(literals.toArray(new String[0]));
+        }
+
+        public static boolean isValidType(String type) {
+            return types.contains(type);
         }
     }
 }
