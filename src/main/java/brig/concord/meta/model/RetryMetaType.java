@@ -8,10 +8,8 @@ import org.jetbrains.yaml.meta.model.YamlIntegerType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.psi.YAMLValue;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 public class RetryMetaType extends ConcordMetaType {

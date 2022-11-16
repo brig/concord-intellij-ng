@@ -1,20 +1,13 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.YAMLBundle;
-import org.jetbrains.yaml.meta.model.*;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLValue;
+import org.jetbrains.yaml.meta.model.YamlArrayType;
+import org.jetbrains.yaml.meta.model.YamlBooleanType;
+import org.jetbrains.yaml.meta.model.YamlMetaType;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class GitTriggerEntryMetaType extends ConcordMetaType {
 

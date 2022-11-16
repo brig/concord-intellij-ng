@@ -2,7 +2,6 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 
 import java.util.Map;
 import java.util.Set;

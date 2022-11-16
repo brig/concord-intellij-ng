@@ -7,9 +7,7 @@ import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlEnumType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.Map;
 import java.util.Set;

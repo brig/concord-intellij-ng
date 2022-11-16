@@ -1,13 +1,7 @@
 package brig.concord.meta.model;
 
-import brig.concord.ConcordBundle;
 import brig.concord.meta.ConcordMetaType;
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.Map;
 import java.util.Set;

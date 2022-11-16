@@ -1,18 +1,14 @@
 package brig.concord.meta.model;
 
-import brig.concord.ConcordBundle;
 import brig.concord.psi.YamlPsiUtils;
-import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
 import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.*;

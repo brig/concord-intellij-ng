@@ -3,7 +3,10 @@ package brig.concord.meta.model;
 import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.*;
+import org.jetbrains.yaml.meta.model.YamlBooleanType;
+import org.jetbrains.yaml.meta.model.YamlEnumType;
+import org.jetbrains.yaml.meta.model.YamlIntegerType;
+import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.HashMap;

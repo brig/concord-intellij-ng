@@ -3,7 +3,6 @@ package brig.concord.meta.model;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlArrayType;
-import org.jetbrains.yaml.meta.model.YamlStringType;
 import org.jetbrains.yaml.psi.YAMLValue;
 
 public class StringArrayMetaType extends YamlArrayType {

@@ -4,11 +4,8 @@ import brig.concord.ConcordBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.YAMLBundle;
 import org.jetbrains.yaml.meta.model.YamlStringType;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLValue;
 
 public class StringMetaType extends YamlStringType {
 

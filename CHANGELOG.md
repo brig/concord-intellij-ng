@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.0.6 - 2022-11-16]
+
+### Changed
+
+- Using proper java version
+
 ## [0.0.5 - 2022-11-16]
 
 ### Added
