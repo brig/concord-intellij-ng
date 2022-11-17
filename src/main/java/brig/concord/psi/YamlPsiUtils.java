@@ -11,7 +11,6 @@ import org.jetbrains.yaml.psi.YAMLFile;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -34,9 +33,8 @@ public final class YamlPsiUtils {
             return null;
         }
 
-        Path rootPath = rootDir.toNioPath();
         for (String fileName : ConcordFile.PROJECT_ROOT_FILE_NAMES) {
-            VirtualFile root = VfsUtil.findFile(rootPath.resolve(fileName), false);
+            VirtualFile root = VfsUtil.findRelativeFile(rootDir, fileName);
             if (root != null) {
                 return root;
             }

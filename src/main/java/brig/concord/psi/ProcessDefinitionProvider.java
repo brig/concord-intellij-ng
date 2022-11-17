@@ -7,8 +7,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.util.AstLoadingFilter;
 import org.jetbrains.yaml.psi.YAMLDocument;
 
-import java.nio.file.Path;
-
 public class ProcessDefinitionProvider {
 
     private static final ProcessDefinitionProvider INSTANCE = new ProcessDefinitionProvider();
@@ -35,11 +33,6 @@ public class ProcessDefinitionProvider {
         PsiFile rootPsiFile = PsiManager.getInstance(element.getProject()).findFile(rootFile);
         YAMLDocument rootDoc = YamlPsiUtils.getDocument(rootPsiFile);
 
-        if (rootDoc == null || rootDoc.getContainingFile() == null || rootDoc.getContainingFile().getVirtualFile() == null) {
-            return null;
-        }
-
-        Path rootYamlPath = rootDoc.getContainingFile().getVirtualFile().toNioPath();
-        return new ProcessDefinition(rootYamlPath, rootDoc);
+        return new ProcessDefinition(rootDoc);
     }
 }

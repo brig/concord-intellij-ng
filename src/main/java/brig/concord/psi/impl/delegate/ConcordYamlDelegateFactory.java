@@ -1,6 +1,7 @@
 package brig.concord.psi.impl.delegate;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
+import brig.concord.meta.ConcordMetaTypeProxy;
 import brig.concord.meta.model.CallMetaType;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
@@ -51,11 +52,18 @@ public class ConcordYamlDelegateFactory {
 
     private static PsiNamedElement createPlainTextDelegate(YAMLPlainTextImpl yamlPlainText) {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(yamlPlainText.getProject());
-        YamlMetaType metaType = instance.getResolvedMetaType(yamlPlainText);
+        YamlMetaType metaType = unwindMetaType(instance.getResolvedMetaType(yamlPlainText));
         if (metaType instanceof CallMetaType) {
             return new YamlFlowCallDelegate(yamlPlainText);
         }
         return null;
+    }
+
+    private static YamlMetaType unwindMetaType(YamlMetaType metaType) {
+        if (metaType instanceof ConcordMetaTypeProxy.YamlMetaTypeProxy proxy) {
+            return proxy.original();
+        }
+        return metaType;
     }
 
     private static class NotADelegate extends ASTWrapperPsiElement implements PsiNamedElement {

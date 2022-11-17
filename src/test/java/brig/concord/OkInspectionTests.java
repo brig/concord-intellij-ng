@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
-public class OkTests extends BaseTest {
+public class OkInspectionTests extends BaseInspectionTest {
 
     @Test
     public void testCheckpoint_000() {

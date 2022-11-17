@@ -9,11 +9,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertTrue;
-
-public class InspectionTests extends BaseTest {
+public class ErrorInspectionTests extends BaseInspectionTest {
 
     @Test
     public void testCheckpoint_000() {

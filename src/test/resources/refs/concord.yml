@@ -1,0 +1,6 @@
+flows:
+  default:
+    - call: test<caret>
+
+  test:
+    - log: me

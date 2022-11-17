@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class BaseTest extends BasePlatformTestCase {
+public abstract class BaseInspectionTest extends BasePlatformTestCase {
 
     @Override
     protected String getTestDataPath() {

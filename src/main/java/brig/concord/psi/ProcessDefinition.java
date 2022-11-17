@@ -5,11 +5,9 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.*;
 
-import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,11 +16,9 @@ public class ProcessDefinition {
 
     private static final String DEFAULT_CONCORD_RESOURCES = "glob:concord/{**/,}{*.,}concord.{yml,yaml}";
 
-    private final Path rootYamlPath;
     private final YAMLDocument rootDoc;
 
-    public ProcessDefinition(Path rootYamlPath, YAMLDocument rootDoc) {
-        this.rootYamlPath = rootYamlPath.getParent();
+    public ProcessDefinition(YAMLDocument rootDoc) {
         this.rootDoc = rootDoc;
     }
 
@@ -69,6 +65,9 @@ public class ProcessDefinition {
     }
 
     public List<PathMatcher> resourcePatterns(String name) {
+        String rootYamlUrl = rootDoc.getContainingFile().getVirtualFile().getPresentableUrl();
+        String rootYamlPath = Paths.get(rootYamlUrl).getParent().toString();
+
         YAMLSequence element = resources(name);
         if (element == null) {
             return Collections.singletonList(parsePattern(rootYamlPath, DEFAULT_CONCORD_RESOURCES));
@@ -82,7 +81,7 @@ public class ProcessDefinition {
                 .collect(Collectors.toList());
     }
 
-    private static PathMatcher parsePattern(Path baseDir, String pattern) {
+    private static PathMatcher parsePattern(String baseDir, String pattern) {
         String normalizedPattern = null;
 
         pattern = pattern.trim();
@@ -97,21 +96,22 @@ public class ProcessDefinition {
             return FileSystems.getDefault().getPathMatcher(normalizedPattern);
         }
 
-        Path singleFilePattern = baseDir.resolve(pattern);
+        String singleFilePattern = concat(baseDir, pattern);
         return path -> {
-            try {
-                return Files.isSameFile(singleFilePattern, path);
-            } catch (IOException e) {
-                return false;
-            }
+//            try {
+//                return Files.isSameFile(singleFilePattern, path);
+                return singleFilePattern.equals(path.toAbsolutePath().toString());
+//            } catch (IOException e) {
+//                return false;
+//            }
         };
     }
 
-    private static String concat(Path path, String str) {
+    private static String concat(String path, String str) {
         String separator = "/";
         if (str.startsWith("/")) {
             separator = "";
         }
-        return path.toAbsolutePath() + separator + str;
+        return path + separator + str;
     }
 }

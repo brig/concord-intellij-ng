@@ -10,8 +10,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -40,12 +40,12 @@ public final class FileUtils {
 
         List<PsiFile> result = new ArrayList<>();
         FilenameIndex.processFilesByNames(names, false, GlobalSearchScope.projectScope(project), null, virtualFile -> {
-            Path path = virtualFile.getFileSystem().getNioPath(virtualFile);
-            if (path == null || path.toString().contains("/target/")) {
+            String path = virtualFile.getPresentableUrl();
+            if (path.contains("/target/")) {
                 return true;
             }
 
-            if (patterns.stream().anyMatch(m -> m.matches(path))) {
+            if (patterns.stream().anyMatch(m -> m.matches(Paths.get(path)))) {
                 PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
                 if (psiFile != null) {
                     result.add(psiFile);
@@ -54,21 +54,6 @@ public final class FileUtils {
             return true;
         });
 
-
-//        Collection<VirtualFile> virtualFiles = FileTypeIndex.getFiles(ConcordFileType.INSTANCE, GlobalSearchScope.projectScope(project));
-//        for (VirtualFile virtualFile : virtualFiles) {
-//            Path path = virtualFile.getFileSystem().getNioPath(virtualFile);
-//            if (path == null || path.toString().contains("/target/")) {
-//                continue;
-//            }
-//
-//            if (patterns.stream().anyMatch(m -> m.matches(path))) {
-//                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
-//                if (psiFile != null) {
-//                    result.add(psiFile);
-//                }
-//            }
-//        }
         return result;
     }
 }
