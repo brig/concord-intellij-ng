@@ -1,6 +1,5 @@
 - indexes for *.concord.yaml search
 - fixed triggers version = 2
-- grammar for 'return' step
 - grammar for custom triggers
 - resolve imports
 - resolve tasks

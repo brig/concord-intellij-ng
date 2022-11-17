@@ -2,7 +2,6 @@ package brig.concord.meta.model;
 
 import brig.concord.psi.YamlPsiUtils;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
@@ -25,24 +24,6 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
 
     public IdentityMetaType findEntry(YAMLMapping element) {
         return findEntry(YamlPsiUtils.keys(element));
-    }
-
-    public @Nullable Field findFeatureByName(@NotNull PsiElement element, @NotNull String name) {
-        if (!(element instanceof YAMLMapping m)) {
-            return null;
-        }
-
-        IdentityMetaType meta = findEntry(YamlPsiUtils.keys(m));
-        if (meta == null) {
-            return null;
-        }
-
-        Field field = meta.findFeatureByName(name);
-        if (field != null) {
-            return new Field(name, field.resolveToSpecializedField(m).getDefaultType());
-        }
-
-        return null;
     }
 
     @Override

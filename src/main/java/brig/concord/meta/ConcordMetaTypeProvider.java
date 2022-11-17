@@ -56,6 +56,10 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
         return metaTypeProxy != null ? metaTypeProxy.getMetaType() : null;
     }
 
+    private static MetaTypeProxy of(MetaTypeProxy result, YamlMetaType newType) {
+        return FieldAndRelation.forNullable(new Field(result.getField().getName(), newType), result.getField().getDefaultRelation());
+    }
+
     @Nullable
     @Override
     public MetaTypeProxy getMetaTypeProxy(@NotNull PsiElement element) {
@@ -68,7 +72,7 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
             if (element instanceof YAMLMapping m) {
                 IdentityMetaType mt = identity.findEntry(m);
                 if (mt != null) {
-                    return new ConcordMetaTypeProxy(element, mt, new Field("<identity>", mt));
+                    return of(result, mt);
                 }
             }
         }
@@ -77,19 +81,19 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
             if (element instanceof YAMLSequence) {
                 for (YamlMetaType t : anyOfType.getSubTypes()) {
                     if (t instanceof YamlArrayType) {
-                        return new ConcordMetaTypeProxy(element, t, new Field("<array>", t));
+                        return of(result, t);
                     }
                 }
             } else if (element instanceof YAMLScalar) {
                 for (YamlMetaType t : anyOfType.getSubTypes()) {
                     if (t instanceof YamlScalarType) {
-                        return new ConcordMetaTypeProxy(element, t, new Field("<scalar>", t));
+                        return of(result, t);
                     }
                 }
             }
         }
 
-        return new ConcordMetaTypeProxy(element, result.getMetaType(), result.getField());
+        return result;
     }
 
     @Nullable

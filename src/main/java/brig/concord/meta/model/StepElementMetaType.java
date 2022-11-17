@@ -1,9 +1,13 @@
 package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.meta.model.CompletionContext;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.YAMLValue;
 
@@ -16,7 +20,6 @@ public class StepElementMetaType extends IdentityElementMetaType {
             CallStepMetaType.getInstance(),
             LogStepMetaType.getInstance(),
             IfStepMetaType.getInstance(),
-            ReturnStepMetaType.getInstance(),
             ExitStepMetaType.getInstance(),
             CheckpointStepMetaType.getInstance(),
             SetStepMetaType.getInstance(),
@@ -44,9 +47,23 @@ public class StepElementMetaType extends IdentityElementMetaType {
     @Override
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
         if (value instanceof YAMLScalar) {
+            if ("return".equals(value.getText())) {
+                return;
+            }
+
             problemsHolder.registerProblem(value, ConcordBundle.message("StepElementMetaType.error.unknown.step"), ProblemHighlightType.ERROR);
         }
 
         super.validateValue(value, problemsHolder);
+    }
+
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
+        LookupElementBuilder l = LookupElementBuilder
+                .create("return");
+        List result = super.getValueLookups(insertedScalar, completionContext);
+        result.add(l);
+        return result;
     }
 }

@@ -127,6 +127,12 @@ public class OkInspectionTests extends BaseInspectionTest {
         assertNoErrors();
     }
 
+    @Test
+    public void testReturn_000() {
+        configureByFile("ok/return/000.concord.yml");
+        assertNoErrors();
+    }
+
     private void assertNoErrors() {
         List<HighlightInfo> highlighting = myFixture.doHighlighting();
         if (!highlighting.isEmpty()) {
