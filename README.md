@@ -7,7 +7,8 @@
 <!-- Plugin description -->
 IntelliJ plugin for [Concord](https://github.com/walmartlabs/concord) 
 
-Helps writing and working with concord flows.
+Helps writing and working with concord runtime-v2 flows.
+This plugin can auto-complete all concord runtime-v2 yaml fields.
 <!-- Plugin description end -->
 
 ## Features
