@@ -9,8 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.CompletionContext;
 import org.jetbrains.yaml.psi.YAMLScalar;
+import org.jetbrains.yaml.psi.YAMLSequenceItem;
 import org.jetbrains.yaml.psi.YAMLValue;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class StepElementMetaType extends IdentityElementMetaType {
@@ -60,10 +63,13 @@ public class StepElementMetaType extends IdentityElementMetaType {
     @Override
     @SuppressWarnings({"rawtypes", "unchecked"})
     public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
-        LookupElementBuilder l = LookupElementBuilder
-                .create("return");
-        List result = super.getValueLookups(insertedScalar, completionContext);
-        result.add(l);
-        return result;
+        if (insertedScalar.getParent() instanceof YAMLSequenceItem) {
+            LookupElementBuilder l = LookupElementBuilder
+                    .create("return");
+            List result = super.getValueLookups(insertedScalar, completionContext);
+            result.add(l);
+            return result;
+        }
+        return Collections.emptyList();
     }
 }

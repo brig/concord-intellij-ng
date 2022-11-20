@@ -4,7 +4,8 @@
 
 ### Added
 
-- Support for `return` step
+- Support for generic trigger;
+- Support for `return` step.
 
 ## [0.0.6 - 2022-11-16]
 
