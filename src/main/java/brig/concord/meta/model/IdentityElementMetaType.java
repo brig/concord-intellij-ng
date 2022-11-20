@@ -108,7 +108,7 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
         meta.validateValue(value, problemsHolder);
     }
 
-    private IdentityMetaType identifyEntry(Set<String> existingKeys) {
+    protected IdentityMetaType identifyEntry(Set<String> existingKeys) {
         for (IdentityMetaType step : entries) {
             if (existingKeys.contains(step.getIdentity())) {
                 return step;

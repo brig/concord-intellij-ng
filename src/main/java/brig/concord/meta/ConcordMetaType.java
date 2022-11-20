@@ -62,51 +62,55 @@ public abstract class ConcordMetaType extends YamlMetaType {
                 .map(map -> map.get(name))
                 .map(Supplier::get)
                 .orElse(null);
+        return metaTypeToField(metaType, name);
+    }
+
+    protected Field metaTypeToField(YamlMetaType metaType, String name) {
         if (metaType == null) {
             return null;
         }
 
-        if (metaType instanceof YamlAnyOfType) {
-            return new Field(name, metaType) {
-                @Override
-                public @NotNull Field resolveToSpecializedField(@NotNull YAMLValue element) {
-                    YamlMetaType result = metaType;
-
-                    YamlAnyOfType anyType = (YamlAnyOfType)metaType;
-                    if (element instanceof YAMLScalar) {
-                        result = findScalarType(element, anyType);
-                    } else if (element instanceof YAMLSequenceItem) {
-                        result = findArrayType(anyType);
-                    }
-                    return new Field(name, result != null ? result : metaType);
-                }
-
-                private static YamlMetaType findScalarType(YAMLValue element, YamlAnyOfType anyType) {
-                    YamlMetaType deafult = null;
-                    for (YamlMetaType t : anyType.getSubTypes()) {
-                        if (t instanceof YamlIntegerType) {
-                            if (element.getText().matches("[0-9]+")) {
-                                return t;
-                            }
-                        } else if (t instanceof YamlScalarType) {
-                            deafult = t;
-                        }
-                    }
-                    return deafult;
-                }
-
-                private static YamlMetaType findArrayType(YamlAnyOfType anyType) {
-                    for (YamlMetaType t : anyType.getSubTypes()) {
-                        if (t instanceof YamlArrayType) {
-                            return t;
-                        }
-                    }
-                    return null;
-                }
-            };
+        if (!(metaType instanceof YamlAnyOfType)) {
+            return new Field(name, metaType);
         }
 
-        return new Field(name, metaType);
+        return new Field(name, metaType) {
+            @Override
+            public @NotNull Field resolveToSpecializedField(@NotNull YAMLValue element) {
+                YamlMetaType result = metaType;
+
+                YamlAnyOfType anyType = (YamlAnyOfType)metaType;
+                if (element instanceof YAMLScalar) {
+                    result = findScalarType(element, anyType);
+                } else if (element instanceof YAMLSequenceItem) {
+                    result = findArrayType(anyType);
+                }
+                return new Field(name, result != null ? result : metaType);
+            }
+
+            private static YamlMetaType findScalarType(YAMLValue element, YamlAnyOfType anyType) {
+                YamlMetaType deafult = null;
+                for (YamlMetaType t : anyType.getSubTypes()) {
+                    if (t instanceof YamlIntegerType) {
+                        if (element.getText().matches("[0-9]+")) {
+                            return t;
+                        }
+                    } else if (t instanceof YamlScalarType) {
+                        deafult = t;
+                    }
+                }
+                return deafult;
+            }
+
+            private static YamlMetaType findArrayType(YamlAnyOfType anyType) {
+                for (YamlMetaType t : anyType.getSubTypes()) {
+                    if (t instanceof YamlArrayType) {
+                        return t;
+                    }
+                }
+                return null;
+            }
+        };
     }
 
     @Override
