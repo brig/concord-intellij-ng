@@ -17,7 +17,11 @@ public class StringMetaType extends YamlStringType {
 
     @Override
     protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
-        String text = value.getTextValue();
+        String text = value.getText();
+        if (text.startsWith("\"") && text.endsWith("\"")) {
+            return;
+        }
+
         if (text.matches("[0-9]+")) {
             holder.registerProblem(value, ConcordBundle.message("StringType.error.scalar.value"), ProblemHighlightType.ERROR);
         }
