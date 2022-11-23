@@ -793,7 +793,6 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         configureByFile("errors/tasks/020.concord.yml");
 
         inspection()
-                .assertStringValueExpected()
                 .assertUnexpectedValue("trash")
                 .check();
     }
@@ -803,7 +802,6 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         configureByFile("errors/tasks/021.concord.yml");
 
         inspection()
-                .assertStringValueExpected()
                 .assertIntExpected()
                 .check();
     }
