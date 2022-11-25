@@ -35,7 +35,7 @@ public class EventsMetaType extends ConcordMetaType {
     }
 
     protected EventsMetaType() {
-        super("loop");
+        super("Events");
     }
 
     @Override
