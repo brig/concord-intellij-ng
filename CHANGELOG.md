@@ -4,6 +4,9 @@
 
 ### Added
 
+- default value for autocomplete form field; 
+- default value for autocomplete form name;
+- default value for autocomplete flow name;
 - Support for generic trigger;
 - Support for `return` step.
 
