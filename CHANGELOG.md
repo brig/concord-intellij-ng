@@ -4,6 +4,7 @@
 
 ### Added
 
+- initial steps documentation;
 - default value for autocomplete form field; 
 - default value for autocomplete form name;
 - default value for autocomplete flow name;

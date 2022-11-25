@@ -1,5 +1,7 @@
 package brig.concord.meta.model;
 
+import brig.concord.ConcordBundle;
+import brig.concord.documentation.Documented;
 import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInspection.ProblemsHolder;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class ConfigurationMetaType extends ConcordMetaType {
+public class ConfigurationMetaType extends ConcordMetaType implements Documented {
 
     private static final ConfigurationMetaType INSTANCE = new ConfigurationMetaType();
 
@@ -51,6 +53,7 @@ public class ConfigurationMetaType extends ConcordMetaType {
     }
 
     @Override
-    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
+    public String getDescription() {
+        return ConcordBundle.message("Configuration.description");
     }
 }

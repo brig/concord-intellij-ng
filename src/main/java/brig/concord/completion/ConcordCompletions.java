@@ -1,10 +1,9 @@
 package brig.concord.completion;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
-import com.intellij.codeInsight.completion.CompletionContributor;
-import com.intellij.codeInsight.completion.CompletionParameters;
-import com.intellij.codeInsight.completion.CompletionResultSet;
-import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.codeInsight.completion.*;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +12,7 @@ import org.jetbrains.yaml.meta.impl.YamlMetaTypeCompletionProviderBase;
 import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
@@ -59,5 +59,16 @@ public class ConcordCompletions extends CompletionContributor {
             }
         }
 
+        @Override
+        protected void registerBasicKeyCompletion(@NotNull CompletionResultSet result, @NotNull List<LookupElementBuilder> lookups, @NotNull InsertHandler<LookupElement> insertHandler) {
+            if (!lookups.isEmpty()) {
+                lookups.stream().map(l -> {
+                    if (l.getInsertHandler() == null) {
+                        return l.withInsertHandler(insertHandler);
+                    }
+                    return l.withInsertHandler(new ChainInsertHandler(List.of(insertHandler, l.getInsertHandler())));
+                }).forEach(result::addElement);
+            }
+        }
     }
 }

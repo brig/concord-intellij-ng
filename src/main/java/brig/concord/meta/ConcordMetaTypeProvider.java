@@ -15,10 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
 import org.jetbrains.yaml.meta.model.*;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLSequence;
-import org.jetbrains.yaml.psi.YAMLValue;
+import org.jetbrains.yaml.psi.*;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -49,6 +46,12 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
 
     public static ConcordMetaTypeProvider getInstance(@NotNull Project project) {
         return project.getService(ConcordMetaTypeProvider.class);
+    }
+
+    public @Nullable YamlMetaType getResolvedKeyValueMetaTypeMeta(@NotNull YAMLKeyValue keyValue) {
+        return Optional.ofNullable(getKeyValueMetaType(keyValue))
+                .map(YamlMetaTypeProvider.MetaTypeProxy::getMetaType)
+                .orElse(null);
     }
 
     public @Nullable YamlMetaType getResolvedMetaType(@NotNull PsiElement element) {
