@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @Service
+@SuppressWarnings("UnstableApiUsage")
 public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
 
     private static final Logger LOG = Logger.getInstance(ConcordMetaTypeProvider.class);

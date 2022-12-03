@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ImportElementMetaType extends IdentityElementMetaType {
 
     private static final List<IdentityMetaType> entries = List.of(

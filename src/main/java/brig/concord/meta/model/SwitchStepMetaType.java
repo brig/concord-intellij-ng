@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class SwitchStepMetaType extends IdentityMetaType {
 
     private static final SwitchStepMetaType INSTANCE = new SwitchStepMetaType();

@@ -9,6 +9,7 @@ import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ExprOutParamsMetaType extends YamlAnyOfType {
 
     private static final ExprOutParamsMetaType INSTANCE = new ExprOutParamsMetaType();

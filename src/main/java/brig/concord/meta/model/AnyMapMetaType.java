@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
+@SuppressWarnings("UnstableApiUsage")
 public class AnyMapMetaType extends MapMetaType {
 
     private static final AnyMapMetaType INSTANCE = new AnyMapMetaType();

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public abstract class IdentityMetaType extends ConcordMetaType {
 
     private final String identity;

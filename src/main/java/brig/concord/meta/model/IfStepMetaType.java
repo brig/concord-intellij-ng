@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class IfStepMetaType extends IdentityMetaType {
 
     private static final IfStepMetaType INSTANCE = new IfStepMetaType();

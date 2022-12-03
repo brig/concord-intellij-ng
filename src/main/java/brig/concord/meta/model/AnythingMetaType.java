@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.Field;
 import org.jetbrains.yaml.meta.model.YamlAnything;
 
+@SuppressWarnings("UnstableApiUsage")
 public class AnythingMetaType extends YamlAnything {
 
     private static final AnythingMetaType INSTANCE = new AnythingMetaType();

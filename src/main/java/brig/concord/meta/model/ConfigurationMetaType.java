@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ConfigurationMetaType extends ConcordMetaType implements Documented {
 
     private static final ConfigurationMetaType INSTANCE = new ConfigurationMetaType();

@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("UnstableApiUsage")
 public abstract class ConcordMetaType extends YamlMetaType {
 
     protected ConcordMetaType(@NonNls @NotNull String typeName) {

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class GitImportEntryMetaType extends ConcordMetaType {
 
     private static final GitImportEntryMetaType INSTANCE = new GitImportEntryMetaType();

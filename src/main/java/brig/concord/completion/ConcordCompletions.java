@@ -40,6 +40,7 @@ public class ConcordCompletions extends CompletionContributor {
         completionParametersHashMap.remove(parameters.getPosition());
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     static class KeyCompletion extends YamlMetaTypeCompletionProviderBase {
 
         @Override

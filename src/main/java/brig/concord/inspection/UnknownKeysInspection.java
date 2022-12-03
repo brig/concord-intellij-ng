@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
 import org.jetbrains.yaml.meta.impl.YamlUnknownKeysInspectionBase;
 
+@SuppressWarnings("UnstableApiUsage")
 public class UnknownKeysInspection extends YamlUnknownKeysInspectionBase {
 
     @Override

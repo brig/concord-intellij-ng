@@ -2,6 +2,7 @@ package brig.concord.meta.model;
 
 import org.jetbrains.yaml.meta.model.YamlArrayType;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ImportsMetaType extends YamlArrayType {
 
     private static final ImportsMetaType INSTANCE = new ImportsMetaType();

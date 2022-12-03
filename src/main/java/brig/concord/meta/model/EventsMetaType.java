@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class EventsMetaType extends ConcordMetaType {
 
     private static final EventsMetaType INSTANCE = new EventsMetaType();

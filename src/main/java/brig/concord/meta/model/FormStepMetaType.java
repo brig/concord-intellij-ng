@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class FormStepMetaType extends IdentityMetaType {
 
     private static final FormStepMetaType INSTANCE = new FormStepMetaType();

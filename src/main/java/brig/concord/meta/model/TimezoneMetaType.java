@@ -10,6 +10,7 @@ import org.jetbrains.yaml.psi.YAMLScalar;
 import java.util.Arrays;
 import java.util.TimeZone;
 
+@SuppressWarnings("UnstableApiUsage")
 public class TimezoneMetaType extends YamlStringType {
 
     private static final TimezoneMetaType INSTANCE = new TimezoneMetaType();

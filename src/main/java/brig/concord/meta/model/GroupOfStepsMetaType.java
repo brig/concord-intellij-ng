@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
     private final Map<String, Supplier<YamlMetaType>> features;

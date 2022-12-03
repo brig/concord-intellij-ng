@@ -16,6 +16,7 @@ import org.jetbrains.yaml.psi.YAMLMapping;
 
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ConcordDocumentationProvider extends AbstractDocumentationProvider {
 
     @Override

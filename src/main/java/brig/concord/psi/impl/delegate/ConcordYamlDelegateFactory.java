@@ -16,6 +16,7 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLPsiElement;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ConcordYamlDelegateFactory {
 
     private static final Key<PsiNamedElement> DELEGATE = new Key<>("CONCORD_YAML_DELEGATE");

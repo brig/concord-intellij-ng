@@ -6,6 +6,7 @@ import org.jetbrains.yaml.meta.model.YamlMetaType;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ProfilesMetaType extends MapMetaType {
 
     private static final ProfilesMetaType INSTANCE = new ProfilesMetaType();

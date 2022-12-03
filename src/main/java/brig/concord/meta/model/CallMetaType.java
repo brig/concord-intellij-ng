@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CallMetaType extends StringMetaType {
 
     private static final CallMetaType INSTANCE = new CallMetaType();

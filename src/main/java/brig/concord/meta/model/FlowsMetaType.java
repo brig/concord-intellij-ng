@@ -8,6 +8,7 @@ import org.jetbrains.yaml.psi.YAMLMapping;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class FlowsMetaType extends MapMetaType {
 
     private static final FlowsMetaType INSTANCE = new FlowsMetaType();

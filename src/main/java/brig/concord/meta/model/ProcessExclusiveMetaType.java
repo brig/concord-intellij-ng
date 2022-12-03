@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ProcessExclusiveMetaType extends ConcordMetaType {
 
     private static final ProcessExclusiveMetaType INSTANCE = new ProcessExclusiveMetaType();

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class RetryMetaType extends ConcordMetaType {
 
     private static final RetryMetaType INSTANCE = new RetryMetaType();

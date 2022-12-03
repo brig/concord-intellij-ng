@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class GenericTriggerEntryMetaType extends ConcordMetaType {
 
     private static final GenericTriggerEntryMetaType INSTANCE = new GenericTriggerEntryMetaType();

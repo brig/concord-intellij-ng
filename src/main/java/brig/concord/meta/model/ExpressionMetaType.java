@@ -9,6 +9,7 @@ import org.jetbrains.yaml.psi.YAMLScalar;
 
 import java.util.regex.Pattern;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ExpressionMetaType extends YamlScalarType {
 
     private static final ExpressionMetaType INSTANCE = new ExpressionMetaType();

@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 /**
  * Any key to object
  */
+@SuppressWarnings("UnstableApiUsage")
 public abstract class MapMetaType extends ConcordMetaType {
 
     protected MapMetaType(@NotNull String name) {

@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class StepElementMetaType extends IdentityElementMetaType {
 
     private static final List<IdentityMetaType> steps = List.of(

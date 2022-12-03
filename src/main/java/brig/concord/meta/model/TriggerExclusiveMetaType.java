@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("UnstableApiUsage")
 public class TriggerExclusiveMetaType extends ConcordMetaType {
 
     public static class ModeType extends YamlEnumType {

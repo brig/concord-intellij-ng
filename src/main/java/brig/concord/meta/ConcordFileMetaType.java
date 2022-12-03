@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ConcordFileMetaType extends ConcordMetaType {
 
     private static final ConcordFileMetaType INSTANCE = new ConcordFileMetaType();

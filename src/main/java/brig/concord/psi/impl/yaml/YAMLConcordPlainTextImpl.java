@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
+@SuppressWarnings("UnstableApiUsage")
 public class YAMLConcordPlainTextImpl extends YAMLPlainTextImpl implements PsiNamedElement, PsiLanguageInjectionHost, YAMLScalar {
 
     public YAMLConcordPlainTextImpl(@NotNull ASTNode node) {

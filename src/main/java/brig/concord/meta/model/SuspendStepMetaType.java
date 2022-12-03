@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class SuspendStepMetaType extends IdentityMetaType {
 
     private static final SuspendStepMetaType INSTANCE = new SuspendStepMetaType();

@@ -7,6 +7,7 @@ import org.jetbrains.yaml.meta.model.YamlAnyOfType;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class CallOutParamsMetaType extends YamlAnyOfType {
 
     private static final CallOutParamsMetaType INSTANCE = new CallOutParamsMetaType();

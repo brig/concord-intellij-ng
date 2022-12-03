@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class TriggerElementMetaType extends IdentityElementMetaType {
 
     private static final List<IdentityMetaType> entries = List.of(

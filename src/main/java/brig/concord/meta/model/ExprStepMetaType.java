@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ExprStepMetaType extends IdentityMetaType {
 
     private static final ExprStepMetaType INSTANCE = new ExprStepMetaType();

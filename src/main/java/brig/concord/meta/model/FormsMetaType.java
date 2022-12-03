@@ -9,6 +9,7 @@ import org.jetbrains.yaml.psi.YAMLMapping;
 
 import java.util.List;
 
+@SuppressWarnings("UnstableApiUsage")
 public class FormsMetaType extends MapMetaType {
 
     private static final FormsMetaType INSTANCE = new FormsMetaType();

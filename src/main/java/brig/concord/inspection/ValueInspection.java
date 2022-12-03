@@ -18,6 +18,7 @@ import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLSequence;
 import org.jetbrains.yaml.psi.YAMLValue;
 
+@SuppressWarnings("UnstableApiUsage")
 public class ValueInspection extends YamlUnknownValuesInspectionBase {
 
     @Override

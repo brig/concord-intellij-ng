@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlStringType;
 import org.jetbrains.yaml.psi.YAMLScalar;
 
+@SuppressWarnings("UnstableApiUsage")
 public class StringMetaType extends YamlStringType {
 
     private static final StringMetaType INSTANCE = new StringMetaType();

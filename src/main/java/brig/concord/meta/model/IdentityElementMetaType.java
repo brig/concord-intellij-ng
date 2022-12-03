@@ -12,6 +12,7 @@ import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.*;
 
+@SuppressWarnings("UnstableApiUsage")
 public abstract class IdentityElementMetaType extends YamlAnyOfType {
 
     private final List<IdentityMetaType> entries;

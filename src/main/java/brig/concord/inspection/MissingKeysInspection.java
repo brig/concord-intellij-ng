@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
 import org.jetbrains.yaml.meta.impl.YamlMissingKeysInspectionBase;
 
+@SuppressWarnings("UnstableApiUsage")
 public class MissingKeysInspection extends YamlMissingKeysInspectionBase {
     @Override
     protected @Nullable YamlMetaTypeProvider getMetaTypeProvider(@NotNull ProblemsHolder holder) {
