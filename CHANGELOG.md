@@ -1,6 +1,7 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+- Fix `exit` step.
 
 ## [0.0.7]
 ### Added

@@ -12,7 +12,6 @@ import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.YAMLSequenceItem;
 import org.jetbrains.yaml.psi.YAMLValue;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class StepElementMetaType extends IdentityElementMetaType {
             CallStepMetaType.getInstance(),
             LogStepMetaType.getInstance(),
             IfStepMetaType.getInstance(),
-            ExitStepMetaType.getInstance(),
             CheckpointStepMetaType.getInstance(),
             SetStepMetaType.getInstance(),
             ThrowStepMetaType.getInstance(),
@@ -54,6 +52,9 @@ public class StepElementMetaType extends IdentityElementMetaType {
             if ("return".equals(value.getText())) {
                 return;
             }
+            if ("exit".equals(value.getText())) {
+                return;
+            }
 
             problemsHolder.registerProblem(value, ConcordBundle.message("StepElementMetaType.error.unknown.step"), ProblemHighlightType.ERROR);
         }
@@ -65,10 +66,9 @@ public class StepElementMetaType extends IdentityElementMetaType {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
         if (insertedScalar.getParent() instanceof YAMLSequenceItem) {
-            LookupElementBuilder l = LookupElementBuilder
-                    .create("return");
             List result = super.getValueLookups(insertedScalar, completionContext);
-            result.add(l);
+            result.add(LookupElementBuilder.create("return"));
+            result.add(LookupElementBuilder.create("exit"));
             return result;
         }
         return Collections.emptyList();
