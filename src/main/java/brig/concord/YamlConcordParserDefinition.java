@@ -11,6 +11,8 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.YAMLParserDefinition;
 
+import static org.jetbrains.yaml.YAMLElementTypes.*;
+
 public class YamlConcordParserDefinition extends YAMLParserDefinition implements ParserDefinition {
 
     @Override

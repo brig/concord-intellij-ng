@@ -1,6 +1,7 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+- Idea 2022.3 support;
 - Fix `exit` step.
 
 ## [0.0.7]
