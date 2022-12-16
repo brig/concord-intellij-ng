@@ -1,0 +1,6 @@
+flows:
+  main:
+    - if: ${test}
+      then:
+        set:
+          k: v

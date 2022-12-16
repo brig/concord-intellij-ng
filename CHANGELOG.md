@@ -1,6 +1,7 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+- validate steps array;
 
 ## [0.0.8]
 - Idea 2022.3 support;

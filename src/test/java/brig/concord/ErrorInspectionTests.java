@@ -1565,6 +1565,15 @@ public class ErrorInspectionTests extends BaseInspectionTest {
     }
 
     @Test
+    public void testFlows_003() {
+        configureByFile("errors/flows/003.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
+                .check();
+    }
+
+    @Test
     public void testProfiles_000() {
         configureByFile("errors/profiles/000.concord.yml");
 
@@ -1671,6 +1680,15 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .check();
+    }
+
+    @Test
+    public void testIf_008() {
+        configureByFile("errors/if/008.concord.yml");
+
+        inspection()
+                .assertArrayRequired()
                 .check();
     }
 

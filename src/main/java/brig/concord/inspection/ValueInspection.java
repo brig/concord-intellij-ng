@@ -6,13 +6,11 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.YAMLBundle;
 import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
 import org.jetbrains.yaml.meta.impl.YamlMetaUtil;
 import org.jetbrains.yaml.meta.impl.YamlUnknownValuesInspectionBase;
-import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.meta.model.YamlArrayType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlScalarType;
+import org.jetbrains.yaml.meta.model.*;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLSequence;
@@ -67,6 +65,12 @@ public class ValueInspection extends YamlUnknownValuesInspectionBase {
                 if (value == null || YamlMetaUtil.isNull(value)) {
                     validateEmptyValue(meta.getField(), keyValue);
                     return;
+                }
+
+                if (meta instanceof YamlMetaTypeProvider.FieldAndRelation far) {
+                    if (far.getRelation() == Field.Relation.SEQUENCE_ITEM && !(value instanceof YAMLSequence)) {
+                        holder.registerProblem(value, YAMLBundle.message("YamlUnknownValuesInspectionBase.error.array.is.required"));
+                    }
                 }
 
                 int before = holder.getResultCount();
