@@ -1,6 +1,7 @@
 package brig.concord.completion;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
+import brig.concord.psi.ConcordFile;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
@@ -52,6 +53,11 @@ public class ConcordCompletions extends CompletionContributor {
         protected void addCompletions(@NotNull CompletionParameters params,
                                       @NotNull ProcessingContext context,
                                       @NotNull CompletionResultSet result) {
+
+            if (!(params.getOriginalFile() instanceof ConcordFile)) {
+                return;
+            }
+
             ConcordCompletions.registerCompletionParameters(params);
             try {
                 super.addCompletions(params, context, result);
