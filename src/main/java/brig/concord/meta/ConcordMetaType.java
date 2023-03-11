@@ -90,17 +90,17 @@ public abstract class ConcordMetaType extends YamlMetaType {
             }
 
             private static YamlMetaType findScalarType(YAMLValue element, YamlAnyOfType anyType) {
-                YamlMetaType deafult = null;
+                YamlMetaType def = null;
                 for (YamlMetaType t : anyType.getSubTypes()) {
                     if (t instanceof YamlIntegerType) {
                         if (element.getText().matches("[0-9]+")) {
                             return t;
                         }
                     } else if (t instanceof YamlScalarType) {
-                        deafult = t;
+                        def = t;
                     }
                 }
-                return deafult;
+                return def;
             }
 
             private static YamlMetaType findArrayType(YamlAnyOfType anyType) {

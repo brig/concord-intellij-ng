@@ -25,10 +25,6 @@ public class SwitchStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "switch", ExpressionMetaType::getInstance,
-            "default", StepsMetaType::getInstance);
-
     protected SwitchStepMetaType() {
         super("Switch", "switch", Set.of("switch"));
     }

@@ -32,12 +32,7 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
         String filename = Optional.ofNullable(document.getContainingFile())
                 .map(PsiFileSystemItem::getName)
                 .orElse("concord-file");
-        final YamlMetaType root;
-        if (ConcordFile.isRootFileName(filename)) {
-            root = ConcordFileMetaType.getInstance();
-        } else {
-            root = ConcordFileMetaType.getInstance();
-        }
+        YamlMetaType root = ConcordFileMetaType.getInstance();
         return new Field(filename, root);
     };
 
