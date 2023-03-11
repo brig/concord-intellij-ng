@@ -821,6 +821,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertStringValueExpected()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -830,6 +831,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -839,6 +841,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertStringValueExpected()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -848,6 +851,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -857,6 +861,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertExpressionExpected()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -866,6 +871,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -875,6 +881,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertUnknownKey("withItems")
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -884,6 +891,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -893,6 +901,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertObjectRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -902,6 +911,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -911,6 +921,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -920,6 +931,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -929,6 +941,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertObjectRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -938,6 +951,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertUnknownKey("trash")
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -947,6 +961,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertValueRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -956,6 +971,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertObjectRequired()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -965,6 +981,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertStringValueExpected()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -974,6 +991,16 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertObjectRequired()
+                .assertUndefinedFlow()
+                .check();
+    }
+
+    @Test
+    public void testFlowCall_020() {
+        configureByFile("errors/flowCall/020.concord.yml");
+
+        inspection()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -1877,6 +1904,11 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         private Inspection assertObjectRequired() {
             errors.add(ConcordBundle.message("ConcordMetaType.error.object.is.required"));
+            return this;
+        }
+
+        private Inspection assertUndefinedFlow() {
+            errors.add(ConcordBundle.message("CallStepMetaType.error.undefinedFlow"));
             return this;
         }
 

@@ -17,3 +17,6 @@ flows:
           k: v
       meta:
         metaKey: metaValue
+
+  test:
+    - log: "call-test"

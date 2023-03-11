@@ -98,6 +98,7 @@ public class ValueInspection extends YamlUnknownValuesInspectionBase {
                     // will be handled separately
                     return;
                 }
+
                 meta.getMetaType().validateValue(value, holder);
             }
         };

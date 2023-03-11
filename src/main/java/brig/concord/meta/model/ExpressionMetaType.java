@@ -25,6 +25,10 @@ public class ExpressionMetaType extends YamlScalarType {
         return INSTANCE;
     }
 
+    public static boolean containsExpression(String value) {
+        return value.contains("${");
+    }
+
     @Override
     protected void validateScalarValue(@NotNull YAMLScalar scalarValue, @NotNull ProblemsHolder holder) {
         String text = scalarValue.getTextValue();

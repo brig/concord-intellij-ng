@@ -1,23 +1,23 @@
 package brig.concord.meta.model;
 
-import brig.concord.completion.ConcordCompletions;
+import brig.concord.ConcordBundle;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
-import com.intellij.codeInsight.completion.CompletionParameters;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.CompletionContext;
 import org.jetbrains.yaml.psi.YAMLScalar;
+import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static brig.concord.meta.model.ExpressionMetaType.containsExpression;
 
 @SuppressWarnings("UnstableApiUsage")
 public class CallMetaType extends StringMetaType {
@@ -30,19 +30,7 @@ public class CallMetaType extends StringMetaType {
 
     @Override
     public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
-        VirtualFile vFile = Optional.ofNullable(ConcordCompletions.getPlaceholderToken())
-                .map(ConcordCompletions::getCompletionParameters)
-                .map(CompletionParameters::getOriginalFile)
-                .map(PsiFile::getVirtualFile)
-                .filter(VirtualFile::isValid)
-                .orElse(null);
-        if (vFile == null) {
-            return Collections.emptyList();
-        }
-
-        PsiFile psiFile = PsiManager.getInstance(insertedScalar.getProject()).findFile(vFile);
-
-        ProcessDefinition processDefinition = ProcessDefinitionProvider.getInstance().get(psiFile);
+        ProcessDefinition processDefinition = processDefinition(insertedScalar);
         if (processDefinition == null) {
             return Collections.emptyList();
         }
@@ -52,5 +40,28 @@ public class CallMetaType extends StringMetaType {
                 .map(name -> LookupElementBuilder.create(name)
                         .withPresentableText(name))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
+        super.validateScalarValue(value, holder);
+
+        String text = value.getText();
+        if (containsExpression(text)) {
+            return;
+        }
+
+        ProcessDefinition processDefinition = processDefinition(value);
+        if (processDefinition == null) {
+            return;
+        }
+
+        if (processDefinition.flow(text) == null) {
+            holder.registerProblem(value, ConcordBundle.message("CallStepMetaType.error.undefinedFlow"), ProblemHighlightType.ERROR);
+        }
+    }
+
+    private static ProcessDefinition processDefinition(YAMLValue value) {
+        return ProcessDefinitionProvider.getInstance().get(value);
     }
 }

@@ -19,19 +19,21 @@ public class ProcessDefinitionProvider {
         return AstLoadingFilter.disallowTreeLoading(() -> _get(element));
     }
 
-    public ProcessDefinition _get(PsiElement element) {
+    private ProcessDefinition _get(PsiElement element) {
         YAMLDocument currentDoc = YamlPsiUtils.getDocument(element);
         if (currentDoc == null) {
             return null;
         }
 
-        VirtualFile rootFile = YamlPsiUtils.rootConcordYaml(element);
-        if (rootFile == null) {
-            return null;
-        }
+        YAMLDocument rootDoc;
 
-        PsiFile rootPsiFile = PsiManager.getInstance(element.getProject()).findFile(rootFile);
-        YAMLDocument rootDoc = YamlPsiUtils.getDocument(rootPsiFile);
+        VirtualFile rootFile = YamlPsiUtils.rootConcordYaml(element);
+        if (rootFile != null) {
+            PsiFile rootPsiFile = PsiManager.getInstance(element.getProject()).findFile(rootFile);
+            rootDoc = YamlPsiUtils.getDocument(rootPsiFile);
+        } else {
+            rootDoc = currentDoc;
+        }
 
         return new ProcessDefinition(rootDoc);
     }
