@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FlowDefinitionSearchEverywhereContributor implements SearchEverywhereContributor<FlowDefinitionNavigationItem> {
 
@@ -143,7 +144,7 @@ public class FlowDefinitionSearchEverywhereContributor implements SearchEverywhe
                 result.add(key);
             }
         }
-        return result.stream().sorted().toList();
+        return result.stream().sorted().collect(Collectors.toList());
     }
 
     public static class Factory implements SearchEverywhereContributorFactory<FlowDefinitionNavigationItem> {
