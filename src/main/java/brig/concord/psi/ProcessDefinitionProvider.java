@@ -35,6 +35,10 @@ public class ProcessDefinitionProvider {
             rootDoc = currentDoc;
         }
 
+        if (rootDoc == null || rootDoc.getContainingFile() == null || rootDoc.getContainingFile().getVirtualFile() == null) {
+            return null;
+        }
+
         return new ProcessDefinition(rootDoc);
     }
 }
