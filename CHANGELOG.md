@@ -2,16 +2,15 @@
 
 ## [Unreleased]
 
+## [0.0.10]
 - indexes for flow search and validate;
 - simple search everywhere impl.
 
 ## [0.0.9]
-
 - analyze only concord files;
 - validate steps array;
 
 ## [0.0.8]
-
 - Idea 2022.3 support;
 - Fix `exit` step.
 
