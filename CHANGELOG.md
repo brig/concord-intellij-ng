@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- indexes for flow search and validate;
+- simple search everywhere impl.
+
+## [0.0.9]
+
 - analyze only concord files;
 - validate steps array;
 

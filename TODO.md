@@ -1,4 +1,3 @@
-- indexes for *.concord.yaml search
 - docs
 - fixed triggers version = 2
 - resolve imports

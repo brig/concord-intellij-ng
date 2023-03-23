@@ -26,14 +26,17 @@
 
         <documentationProvider order="first" implementation="brig.concord.documentation.ConcordDocumentationProvider" />
 
+        <fileBasedIndex implementation="brig.concord.navigation.FlowNamesIndex"/>
+        <searchEverywhereContributor implementation="brig.concord.navigation.FlowDefinitionSearchEverywhereContributor$Factory"/>
+
         <!-- inspections -->
-        <localInspection displayName="Unknown keys" groupPath="OMT" language="Concord"
+        <localInspection displayName="Unknown keys" groupPath="Concord" language="Concord"
                          enabledByDefault="true" level="ERROR" groupName="Structure"
                          implementationClass="brig.concord.inspection.UnknownKeysInspection"/>
-        <localInspection displayName="Missing keys" groupPath="OMT" language="Concord"
+        <localInspection displayName="Missing keys" groupPath="Concord" language="Concord"
                          enabledByDefault="true" level="ERROR" groupName="Structure"
                          implementationClass="brig.concord.inspection.MissingKeysInspection"/>
-        <localInspection displayName="Scalar values" groupPath="OMT" language="Concord"
+        <localInspection displayName="Scalar values" groupPath="Concord" language="Concord"
                          enabledByDefault="true" level="ERROR" groupName="Structure"
                          implementationClass="brig.concord.inspection.ValueInspection"/>
 

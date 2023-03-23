@@ -1,7 +1,19 @@
 package brig.concord.psi;
 
+import brig.concord.navigation.FlowNamesIndex;
+import com.intellij.openapi.actionSystem.ex.ActionUtil;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.ProjectScope;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.CommonProcessors;
+import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.*;
 
@@ -23,23 +35,64 @@ public class ProcessDefinition {
     }
 
     @Nullable
-    public YAMLSequence resources(String name) {
+    private YAMLSequence resources(String name) {
         return YamlPsiUtils.get(rootDoc, YAMLSequence.class, "resources", name);
     }
 
     @Nullable
     public PsiElement flow(String name) {
-        return allDefinitions().stream()
-                .map(d -> flow(d, name))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        Project project = rootDoc.getProject();
+        if (ActionUtil.isDumbMode(project)) {
+            return null;
+        }
+
+        CommonProcessors.CollectProcessor<VirtualFile> files = new CommonProcessors.CollectProcessor<>();
+        FileBasedIndex.getInstance().getFilesWithKey(FlowNamesIndex.KEY,
+                Collections.singleton(name),
+                files,
+                ProjectScope.getProjectScope(project));
+
+        for (VirtualFile file : files.getResults()) {
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
+            if (psiFile == null) {
+                continue;
+            }
+
+            YAMLDocument doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
+            PsiElement result = flow(doc, name);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return null;
+
+//        return allDefinitions().stream()
+//                .map(d -> flow(d, name))
+//                .filter(Objects::nonNull)
+//                .findFirst()
+//                .orElse(null);
     }
 
     public Set<String> flowNames() {
-        Set<String> result = new HashSet<>();
-        allDefinitions().forEach(c -> result.addAll(flowNames(c)));
-        return result;
+        Project project = rootDoc.getProject();
+        if (ActionUtil.isDumbMode(project)) {
+            return Collections.emptySet();
+        }
+
+        Computable<Collection<String>> task = () -> FileBasedIndex.getInstance().getAllKeys(FlowNamesIndex.KEY, project);
+        Application application = ApplicationManager.getApplication();
+        return new HashSet<>(application.runReadAction(task));
+
+//        YAMLMapping flows = YamlPsiUtils.get(root, YAMLMapping.class, "flows");
+//        if (flows == null) {
+//            return Collections.emptySet();
+//        }
+//        return YamlPsiUtils.keys(flows);
+//
+//        Set<String> result = new HashSet<>();
+//        allDefinitions().forEach(c -> result.addAll(flowNames(c)));
+//        return result;
     }
 
     private static Set<String> flowNames(YAMLDocument root) {
@@ -54,7 +107,7 @@ public class ProcessDefinition {
         return YamlPsiUtils.get(root, YAMLPsiElement.class, "flows", name);
     }
 
-    public List<YAMLDocument> allDefinitions() {
+    private List<YAMLDocument> allDefinitions() {
         List<PathMatcher> resources = resourcePatterns("concord");
         return Stream.concat(
                         FileUtils.findFiles(rootDoc.getProject(), resources).stream() // TODO: sort
@@ -64,7 +117,7 @@ public class ProcessDefinition {
                 .collect(Collectors.toList());
     }
 
-    public List<PathMatcher> resourcePatterns(String name) {
+    private List<PathMatcher> resourcePatterns(String name) {
         String rootYamlUrl = rootDoc.getContainingFile().getVirtualFile().getPresentableUrl();
         String rootYamlPath = Paths.get(rootYamlUrl).getParent().toString();
 

@@ -2,7 +2,6 @@ package brig.concord.meta;
 
 import brig.concord.meta.model.IdentityElementMetaType;
 import brig.concord.meta.model.IdentityMetaType;
-import brig.concord.psi.ConcordFile;
 import brig.concord.psi.YamlDebugUtil;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
