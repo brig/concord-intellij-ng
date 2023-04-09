@@ -28,7 +28,7 @@ public final class FlowNamesIndex extends FileBasedIndexExtension<String, Intege
 
     @Override
     public int getVersion() {
-        return 13;
+        return 18;
     }
 
     @NotNull

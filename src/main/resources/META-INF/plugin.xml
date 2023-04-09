@@ -17,8 +17,8 @@
 
         <lang.parserDefinition language="Concord" implementationClass="brig.concord.ConcordParserDefinition"/>
 
-        <lang.findUsagesProvider language="yaml" order="before yamlFindUsagesProvider"
-                                 implementationClass="brig.concord.FindUsageProvider"/>
+<!--        <lang.findUsagesProvider language="yaml" order="before yamlFindUsagesProvider"-->
+<!--                                 implementationClass="brig.concord.FindUsageProvider"/>-->
 
         <psi.referenceContributor language="yaml" implementation="brig.concord.ConcordYamlReferenceContributor"/>
         <completion.contributor implementationClass="brig.concord.completion.ConcordCompletions"
