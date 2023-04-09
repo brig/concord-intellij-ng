@@ -1,8 +1,10 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+
+## [0.0.11]
 - throw: name attribute;
-- ide version up.
+- idea version up.
 
 ## [0.0.10]
 - indexes for flow search and validate;
