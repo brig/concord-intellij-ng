@@ -23,12 +23,13 @@ import java.util.Collections;
 import java.util.Map;
 
 public final class FlowNamesIndex extends FileBasedIndexExtension<String, Integer> {
+
     @NonNls
     public static final ID<String, Integer> KEY = ID.create("concord.yaml.flow.names");
 
     @Override
     public int getVersion() {
-        return 18;
+        return 20;
     }
 
     @NotNull
@@ -47,6 +48,7 @@ public final class FlowNamesIndex extends FileBasedIndexExtension<String, Intege
                     @Override
                     public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
                         PsiElement key = keyValue.getKey();
+
                         if (key != null) {
                             YamlMetaType type = ConcordMetaTypeProvider.getInstance(keyValue.getProject()).getResolvedKeyValueMetaTypeMeta(keyValue);
                             if (type instanceof StepElementMetaType) {
@@ -93,6 +95,11 @@ public final class FlowNamesIndex extends FileBasedIndexExtension<String, Intege
 
     @Override
     public boolean dependsOnFileContent() {
+        return true;
+    }
+
+    @Override
+    public boolean traceKeyHashToVirtualFileMapping() {
         return true;
     }
 }
