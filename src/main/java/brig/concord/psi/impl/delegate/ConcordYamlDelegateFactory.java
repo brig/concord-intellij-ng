@@ -2,6 +2,7 @@ package brig.concord.psi.impl.delegate;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.CallMetaType;
+import brig.concord.psi.impl.yaml.YAMLQuotedTextImpl_;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.Key;
@@ -35,7 +36,10 @@ public class ConcordYamlDelegateFactory {
             delegate = createKeyValueDelegate((YAMLKeyValue) psiElement);
         } else if (psiElement instanceof YAMLPlainTextImpl) {
             delegate = createPlainTextDelegate((YAMLPlainTextImpl) psiElement);
+        } else if (psiElement instanceof YAMLQuotedTextImpl_) {
+            delegate = createQuoteTextDelegate((YAMLQuotedTextImpl_) psiElement);
         }
+
         if (delegate == null) {
             delegate = psiElement != null ? new NotADelegate(psiElement.getNode()) : null;
         }
@@ -54,7 +58,16 @@ public class ConcordYamlDelegateFactory {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(yamlPlainText.getProject());
         YamlMetaType metaType = instance.getResolvedMetaType(yamlPlainText);
         if (metaType instanceof CallMetaType) {
-            return new YamlFlowCallDelegate(yamlPlainText);
+            return new YamlPlainTextFlowCallDelegate(yamlPlainText);
+        }
+        return null;
+    }
+
+    private static PsiNamedElement createQuoteTextDelegate(YAMLQuotedTextImpl_ quotedText) {
+        ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(quotedText.getProject());
+        YamlMetaType metaType = instance.getResolvedMetaType(quotedText);
+        if (metaType instanceof CallMetaType) {
+            return new YamlQuoteTextFlowCallDelegate(quotedText);
         }
         return null;
     }

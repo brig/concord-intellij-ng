@@ -2,7 +2,7 @@ package brig.concord;
 
 import brig.concord.psi.impl.yaml.YAMLConcordKeyValueImpl;
 import brig.concord.psi.impl.yaml.YAMLConcordPlainTextImpl;
-import brig.concord.psi.impl.yaml.YAMLConcordQuotedStringImpl;
+import brig.concord.psi.impl.yaml.YAMLConcordQuotedTextImpl;
 import brig.concord.psi.impl.yaml.YAMLConcordScalarList;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.ParserDefinition;
@@ -25,7 +25,7 @@ public class YamlConcordParserDefinition extends YAMLParserDefinition implements
         } else if (type == SCALAR_LIST_VALUE) {
             return new YAMLConcordScalarList(node);
         } else if (type == SCALAR_QUOTED_STRING) {
-            return new YAMLConcordQuotedStringImpl(node);
+            return new YAMLConcordQuotedTextImpl(node);
         }
         return super.createElement(node);
     }

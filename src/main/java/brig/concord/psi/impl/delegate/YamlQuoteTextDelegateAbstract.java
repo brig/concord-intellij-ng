@@ -1,15 +1,15 @@
 package brig.concord.psi.impl.delegate;
 
+import brig.concord.psi.impl.yaml.YAMLQuotedTextImpl_;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.Optional;
 
-public abstract class YamlPlainTextDelegateAbstract extends YAMLPlainTextImpl {
+public abstract class YamlQuoteTextDelegateAbstract extends YAMLQuotedTextImpl_ {
 
-    protected YamlPlainTextDelegateAbstract(@NotNull ASTNode node) {
+    protected YamlQuoteTextDelegateAbstract(@NotNull ASTNode node) {
         super(node);
     }
 

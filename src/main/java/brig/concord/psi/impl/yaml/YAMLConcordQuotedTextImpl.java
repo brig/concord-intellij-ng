@@ -2,30 +2,18 @@ package brig.concord.psi.impl.yaml;
 
 import brig.concord.psi.impl.delegate.ConcordYamlDelegateFactory;
 import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.SearchScope;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
-@SuppressWarnings("UnstableApiUsage")
-public class YAMLConcordPlainTextImpl extends YAMLPlainTextImpl implements PsiNamedElement {
+public class YAMLConcordQuotedTextImpl extends YAMLQuotedTextImpl_ implements PsiNamedElement {
 
     private transient PsiNamedElement delegate;
 
-    public YAMLConcordPlainTextImpl(@NotNull ASTNode node) {
+    public YAMLConcordQuotedTextImpl(@NotNull ASTNode node) {
         super(node);
-    }
-
-    @Override
-    public @NotNull SearchScope getUseScope() {
-        PsiFile containingFile = getContainingFile();
-        return containingFile != null ? GlobalSearchScope.fileScope(containingFile) : GlobalSearchScope.EMPTY_SCOPE;
     }
 
     @Override
@@ -34,7 +22,7 @@ public class YAMLConcordPlainTextImpl extends YAMLPlainTextImpl implements PsiNa
     }
 
     @Override
-    public PsiElement setName(@NlsSafe @NotNull String name) throws IncorrectOperationException {
+    public PsiElement setName(@NotNull String name) throws IncorrectOperationException {
         return getDelegate().setName(name);
     }
 

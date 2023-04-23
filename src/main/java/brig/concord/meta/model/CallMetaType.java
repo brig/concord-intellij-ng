@@ -46,7 +46,7 @@ public class CallMetaType extends StringMetaType {
     protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
         super.validateScalarValue(value, holder);
 
-        String text = value.getText();
+        String text = value.getTextValue();
         if (containsExpression(text)) {
             return;
         }

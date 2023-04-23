@@ -10,11 +10,11 @@ import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLScalar;
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
 
-public class YamlFlowCallDelegate extends YamlPlainTextDelegateAbstract implements PsiNamedElement {
+public class YamlPlainTextFlowCallDelegate extends YamlPlainTextDelegateAbstract implements PsiNamedElement {
 
     private final transient YAMLScalar flow;
 
-    public YamlFlowCallDelegate(YAMLPlainTextImpl flow) {
+    public YamlPlainTextFlowCallDelegate(YAMLPlainTextImpl flow) {
         super(flow.getNode());
         this.flow = flow;
     }
