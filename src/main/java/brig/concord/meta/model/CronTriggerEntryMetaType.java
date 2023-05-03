@@ -26,7 +26,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType {
             "timezone", TimezoneMetaType::getInstance,
             "arguments", AnyMapMetaType::getInstance,
             "exclusive", TriggerExclusiveMetaType::getInstance
-            );
+    );
 
     protected CronTriggerEntryMetaType() {
         super("cron trigger entry");

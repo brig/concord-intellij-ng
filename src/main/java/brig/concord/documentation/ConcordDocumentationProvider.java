@@ -47,7 +47,7 @@ public class ConcordDocumentationProvider extends AbstractDocumentationProvider 
                                                               @Nullable PsiElement contextElement,
                                                               int targetOffset) {
         IElementType elementType = PsiUtilCore.getElementType(contextElement);
-        if (elementType == YAMLTokenTypes.SCALAR_KEY ) {
+        if (elementType == YAMLTokenTypes.SCALAR_KEY) {
             return contextElement.getParent();
         }
         return contextElement;

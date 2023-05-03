@@ -30,7 +30,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
             "exclusive", TriggerExclusiveMetaType::getInstance,
             "conditions", ConditionsMetaType::getInstance,
             "version", IntegerMetaType::getInstance
-            );
+    );
 
     protected GitTriggerEntryMetaType() {
         super("git trigger entry");

@@ -87,6 +87,7 @@ public class FormFieldMetaType extends ConcordMetaType {
     protected Set<String> getRequiredFields() {
         return required;
     }
+
     @Override
     public @NotNull List<Field> computeKeyCompletions(YAMLMapping existingMapping) {
         Map<String, Supplier<YamlMetaType>> typeFeatures = Map.of();

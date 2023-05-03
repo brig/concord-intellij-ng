@@ -14,84 +14,84 @@ import java.util.Objects;
 
 public class FlowDefinitionNavigationItem implements NavigationItem {
 
-  private final @NotNull Navigatable myNavigatable;
-  private final @NotNull Project myProject;
-  private final @NotNull String myName;
-  private final @NotNull VirtualFile myFile;
-  private final int myPosition;
+    private final @NotNull Navigatable myNavigatable;
+    private final @NotNull Project myProject;
+    private final @NotNull String myName;
+    private final @NotNull VirtualFile myFile;
+    private final int myPosition;
 
-  FlowDefinitionNavigationItem(@NotNull Project project, @NotNull String name, @NotNull VirtualFile file, int position) {
-    myNavigatable = PsiNavigationSupport.getInstance().createNavigatable(project, file, position);
-    myProject = project;
-    myName = name;
-    myFile = file;
-    myPosition = position;
-  }
+    FlowDefinitionNavigationItem(@NotNull Project project, @NotNull String name, @NotNull VirtualFile file, int position) {
+        myNavigatable = PsiNavigationSupport.getInstance().createNavigatable(project, file, position);
+        myProject = project;
+        myName = name;
+        myFile = file;
+        myPosition = position;
+    }
 
-  @Override
-  public void navigate(boolean requestFocus) {
-    myNavigatable.navigate(requestFocus);
-  }
+    @Override
+    public void navigate(boolean requestFocus) {
+        myNavigatable.navigate(requestFocus);
+    }
 
-  @Override
-  public boolean canNavigate() {
-    return true;
-  }
+    @Override
+    public boolean canNavigate() {
+        return true;
+    }
 
-  @Override
-  public boolean canNavigateToSource() {
-    return true;
-  }
+    @Override
+    public boolean canNavigateToSource() {
+        return true;
+    }
 
-  @NotNull
-  public Project getProject() {
-    return myProject;
-  }
+    @NotNull
+    public Project getProject() {
+        return myProject;
+    }
 
-  @NotNull
-  @Override
-  public String getName() {
-    return myName;
-  }
+    @NotNull
+    @Override
+    public String getName() {
+        return myName;
+    }
 
-  public @NotNull VirtualFile getFile() {
-    return myFile;
-  }
+    public @NotNull VirtualFile getFile() {
+        return myFile;
+    }
 
-  @NotNull
-  @Override
-  public ItemPresentation getPresentation() {
-    return new ItemPresentation() {
-      @NotNull
-      @Override
-      public String getPresentableText() {
-        return "flow: " + myName;
-      }
+    @NotNull
+    @Override
+    public ItemPresentation getPresentation() {
+        return new ItemPresentation() {
+            @NotNull
+            @Override
+            public String getPresentableText() {
+                return "flow: " + myName;
+            }
 
-      @NotNull
-      @Override
-      public String getLocationString() {
-        return myFile.toString();
-      }
+            @NotNull
+            @Override
+            public String getLocationString() {
+                return myFile.toString();
+            }
 
-      @NotNull
-      @Override
-      public Icon getIcon(boolean unused) {
-        return ConcordIcons.FILE;
-      }
-    };
-  }
+            @NotNull
+            @Override
+            public Icon getIcon(boolean unused) {
+                return ConcordIcons.FILE;
+            }
+        };
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    FlowDefinitionNavigationItem item = (FlowDefinitionNavigationItem)o;
-    return myPosition == item.myPosition && myName.equals(item.myName) && myFile.equals(item.myFile);
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FlowDefinitionNavigationItem item = (FlowDefinitionNavigationItem) o;
+        return myPosition == item.myPosition && myName.equals(item.myName) && myFile.equals(item.myFile);
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(myName, myFile, myPosition);
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(myName, myFile, myPosition);
+    }
 }

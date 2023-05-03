@@ -55,7 +55,7 @@ public class TriggerElementMetaType extends IdentityElementMetaType {
             return result;
         }
 
-        if (existingKeys.size()  == 1) {
+        if (existingKeys.size() == 1) {
             return GENERIC_TRIGGER;
         }
 

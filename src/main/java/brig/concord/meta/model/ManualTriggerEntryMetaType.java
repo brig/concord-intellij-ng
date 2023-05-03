@@ -23,7 +23,7 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType {
             "entryPoint", StringMetaType::getInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
             "arguments", AnyMapMetaType::getInstance
-            );
+    );
 
     protected ManualTriggerEntryMetaType() {
         super("manual trigger entry");

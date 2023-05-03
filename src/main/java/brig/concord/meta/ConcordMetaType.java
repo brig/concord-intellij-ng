@@ -80,7 +80,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
             public @NotNull Field resolveToSpecializedField(@NotNull YAMLValue element) {
                 YamlMetaType result = metaType;
 
-                YamlAnyOfType anyType = (YamlAnyOfType)metaType;
+                YamlAnyOfType anyType = (YamlAnyOfType) metaType;
                 if (element instanceof YAMLScalar) {
                     result = findScalarType(element, anyType);
                 } else if (element instanceof YAMLSequenceItem) {

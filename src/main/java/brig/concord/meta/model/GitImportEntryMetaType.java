@@ -24,7 +24,7 @@ public class GitImportEntryMetaType extends ConcordMetaType {
             "dest", StringMetaType::getInstance,
             "exclude", RegexpArrayMetaType::getInstance,
             "secret", SecretMetaType::getInstance
-            );
+    );
 
     protected GitImportEntryMetaType() {
         super("git import entry");

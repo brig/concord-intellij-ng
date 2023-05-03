@@ -153,7 +153,7 @@ public class ProcessDefinition {
         return path -> {
 //            try {
 //                return Files.isSameFile(singleFilePattern, path);
-                return singleFilePattern.equals(path.toAbsolutePath().toString());
+            return singleFilePattern.equals(path.toAbsolutePath().toString());
 //            } catch (IOException e) {
 //                return false;
 //            }

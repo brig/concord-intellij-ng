@@ -75,8 +75,8 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
     @Override
     public @NotNull List<Field> computeKeyCompletions(@Nullable YAMLMapping existingMapping) {
         IdentityMetaType meta = Optional.ofNullable(existingMapping)
-                        .map(YamlPsiUtils::keys)
-                        .map(this::identifyEntry)
+                .map(YamlPsiUtils::keys)
+                .map(this::identifyEntry)
                 .orElse(null);
 
         if (meta != null) {

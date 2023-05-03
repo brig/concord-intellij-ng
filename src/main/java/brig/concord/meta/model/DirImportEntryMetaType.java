@@ -21,7 +21,7 @@ public class DirImportEntryMetaType extends ConcordMetaType {
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "src", StringMetaType::getInstance,
             "dest", StringMetaType::getInstance
-            );
+    );
 
     protected DirImportEntryMetaType() {
         super("dir import entry");

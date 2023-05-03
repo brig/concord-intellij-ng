@@ -55,8 +55,7 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
             int lineEnd = line.length();
             if (i == 0) {
                 lineStart++;
-            }
-            else {
+            } else {
                 while (lineStart < line.length() && YAMLGrammarCharUtil.isSpaceLike(line.charAt(lineStart))) {
                     lineStart++;
                 }
@@ -64,8 +63,7 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
             if (i == lines.size() - 1) {
                 // Last line has closing quote
                 lineEnd--;
-            }
-            else {
+            } else {
                 while (lineEnd > lineStart && YAMLGrammarCharUtil.isSpaceLike(line.charAt(lineEnd - 1))) {
                     lineEnd--;
                 }
@@ -93,8 +91,7 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
             if (isSingleQuote() && input.charAt(i) == '\'' && input.charAt(i + 1) == '\'') {
                 result.add(Pair.create(TextRange.from(i, 2), "'"));
                 i++;
-            }
-            else if (!isSingleQuote() && input.charAt(i) == '\\') {
+            } else if (!isSingleQuote() && input.charAt(i) == '\\') {
                 if (input.charAt(i + 1) == '\n') {
                     result.add(Pair.create(TextRange.from(i, 2), i > 0 || input.length() > i + 2 ? "" : "\n"));
                     i++;
@@ -103,7 +100,7 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
                 final int length = Escaper.findEscapementLength(input, i);
                 final int charCode = Escaper.toUnicodeChar(input, i, length);
                 final TextRange range = TextRange.create(i, Math.min(i + length + 1, input.length()));
-                result.add(Pair.create(range, Character.toString((char)charCode)));
+                result.add(Pair.create(range, Character.toString((char) charCode)));
                 i += range.getLength() - 1;
             }
         }
@@ -131,11 +128,9 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
             if (c == '\n') {
                 if (!isSingleQuote() && i + 1 < input.length() && YAMLGrammarCharUtil.isSpaceLike(input.charAt(i + 1))) {
                     result.add(Pair.create(TextRange.from(i, 1), "\\n\\\n" + indentString + "\\"));
-                }
-                else if (!isSingleQuote() && i + 1 < input.length() && input.charAt(i + 1) == '\n' && i > 0) {
+                } else if (!isSingleQuote() && i + 1 < input.length() && input.charAt(i + 1) == '\n' && i > 0) {
                     result.add(Pair.create(TextRange.from(i, 1), "\\\n" + indentString + "\\n"));
-                }
-                else {
+                } else {
                     result.add(Pair.create(TextRange.from(i, 1), "\n" + indentString));
                 }
                 currentLength = 0;
@@ -148,11 +143,9 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
                 final String replacement;
                 if (isSingleQuote()) {
                     replacement = "\n" + indentString;
-                }
-                else if (YAMLGrammarCharUtil.isSpaceLike(c)) {
+                } else if (YAMLGrammarCharUtil.isSpaceLike(c)) {
                     replacement = "\\\n" + indentString + "\\";
-                }
-                else {
+                } else {
                     replacement = "\\\n" + indentString;
                 }
                 result.add(Pair.create(TextRange.from(i, isSingleQuote() ? 1 : 0), replacement));
@@ -169,8 +162,7 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
             if (!isSingleQuote()) {
                 if (c == '"') {
                     result.add(Pair.create(TextRange.from(i, 1), "\\\""));
-                }
-                else if (c == '\\') {
+                } else if (c == '\\') {
                     result.add(Pair.create(TextRange.from(i, 1), "\\\\"));
                 }
             }
@@ -194,7 +186,7 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
     }
 
     private static final class Escaper {
-        private static final int[][] ONE_LETTER_CONVERSIONS = new int[][] {
+        private static final int[][] ONE_LETTER_CONVERSIONS = new int[][]{
                 {'0', 0},
                 {'a', 7},
                 {'b', 8},
@@ -231,14 +223,11 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
             final char c = text.charAt(pos + 1);
             if (c == 'x') {
                 return 3;
-            }
-            else if (c == 'u') {
+            } else if (c == 'u') {
                 return 5;
-            }
-            else if (c == 'U') {
+            } else if (c == 'U') {
                 return 9;
-            }
-            else {
+            } else {
                 return 1;
             }
         }
@@ -248,14 +237,12 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
                 CharSequence s = text.subSequence(pos + 2, Math.min(text.length(), pos + length + 1));
                 try {
                     return Integer.parseInt(s.toString(), 16);
-                }
-                catch (NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     return '?';
                 }
-            }
-            else {
+            } else {
                 final Integer result = ESC_TO_CODE.getValue().get(text.charAt(pos + 1));
-                return ObjectUtils.notNull(result, (int)text.charAt(pos + 1));
+                return ObjectUtils.notNull(result, (int) text.charAt(pos + 1));
             }
         }
     }
@@ -263,9 +250,8 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
     @Override
     public void accept(@NotNull PsiElementVisitor visitor) {
         if (visitor instanceof YamlPsiElementVisitor) {
-            ((YamlPsiElementVisitor)visitor).visitQuotedText(this);
-        }
-        else {
+            ((YamlPsiElementVisitor) visitor).visitQuotedText(this);
+        } else {
             super.accept(visitor);
         }
     }
@@ -298,8 +284,7 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
                 int lineEnd = line.length();
                 if (i == 0) {
                     lineStart++;
-                }
-                else {
+                } else {
                     while (lineStart < line.length() && YAMLGrammarCharUtil.isSpaceLike(line.charAt(lineStart))) {
                         lineStart++;
                     }
@@ -307,8 +292,7 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
                 if (i == lines.size() - 1) {
                     // Last line has closing quote
                     lineEnd--;
-                }
-                else {
+                } else {
                     while (lineEnd > lineStart && YAMLGrammarCharUtil.isSpaceLike(line.charAt(lineEnd - 1))) {
                         lineEnd--;
                     }
@@ -327,11 +311,9 @@ public class YAMLQuotedTextImpl_ extends YAMLScalarImpl implements YAMLQuotedTex
             final TextRange leftRange = contentRanges.get(indexBefore);
             if (leftRange.isEmpty() || !myHost.isSingleQuote() && text.charAt(leftRange.getEndOffset() - 1) == '\\') {
                 return "\n";
-            }
-            else if (contentRanges.get(indexBefore + 1).isEmpty()) {
+            } else if (contentRanges.get(indexBefore + 1).isEmpty()) {
                 return "";
-            }
-            else {
+            } else {
                 return " ";
             }
         }
