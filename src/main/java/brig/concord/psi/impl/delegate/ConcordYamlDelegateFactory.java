@@ -2,6 +2,7 @@ package brig.concord.psi.impl.delegate;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.CallMetaType;
+import brig.concord.meta.model.LoopArrayItemMetaType;
 import brig.concord.psi.impl.yaml.YAMLQuotedTextImpl_;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
@@ -57,7 +58,7 @@ public class ConcordYamlDelegateFactory {
     private static PsiNamedElement createPlainTextDelegate(YAMLPlainTextImpl yamlPlainText) {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(yamlPlainText.getProject());
         YamlMetaType metaType = instance.getResolvedMetaType(yamlPlainText);
-        if (metaType instanceof CallMetaType) {
+        if (metaType instanceof CallMetaType || metaType instanceof LoopArrayItemMetaType) {
             return new YamlPlainTextFlowCallDelegate(yamlPlainText);
         }
         return null;
@@ -66,7 +67,7 @@ public class ConcordYamlDelegateFactory {
     private static PsiNamedElement createQuoteTextDelegate(YAMLQuotedTextImpl_ quotedText) {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(quotedText.getProject());
         YamlMetaType metaType = instance.getResolvedMetaType(quotedText);
-        if (metaType instanceof CallMetaType) {
+        if (metaType instanceof CallMetaType || metaType instanceof LoopArrayItemMetaType) {
             return new YamlQuoteTextFlowCallDelegate(quotedText);
         }
         return null;

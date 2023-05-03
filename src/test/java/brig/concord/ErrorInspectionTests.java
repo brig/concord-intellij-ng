@@ -794,6 +794,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertUnexpectedValue("trash")
+                .assertExpressionExpected()
                 .check();
     }
 
@@ -1001,6 +1002,16 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertUndefinedFlow()
+                .check();
+    }
+
+    @Test
+    public void testFlowCall_021() {
+        configureByFile("errors/flowCall/021.concord.yml");
+
+        inspection()
+                .assertUndefinedFlow()
+                .assertExpressionExpected()
                 .check();
     }
 

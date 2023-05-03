@@ -3,5 +3,5 @@ flows:
     - name: "123123"
       task: "boo"
       loop:
-        items: 1
+        items: "${myItems}"
         parallelism: one

@@ -16,7 +16,7 @@ public class LoopMetaType extends ConcordMetaType {
     private static final Set<String> requiredFeatures = Set.of("items");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "items", AnythingMetaType::getInstance,
+            "items", LoopItemsMetaType::getInstance,
             "parallelism", IntegerMetaType::getInstance,
             "mode", ModeType::getInstance
     );
