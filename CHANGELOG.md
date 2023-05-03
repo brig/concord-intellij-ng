@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- parse quoted strings as plaint text (e.g. `call: myFlow` and `call: "myFlow"` the same now)
+- flow definition index per project;
+- loop items as links to flow definition.
+
 ## [0.0.11]
 - throw: name attribute;
 - idea version up.
