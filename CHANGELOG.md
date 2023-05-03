@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+## [0.1.0]
 - parse quoted strings as plaint text (e.g. `call: myFlow` and `call: "myFlow"` the same now)
 - flow definition index per project;
 - loop items as links to flow definition.
