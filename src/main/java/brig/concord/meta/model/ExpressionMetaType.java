@@ -14,7 +14,7 @@ public class ExpressionMetaType extends YamlScalarType {
 
     private static final ExpressionMetaType INSTANCE = new ExpressionMetaType();
 
-    private static final Pattern EXPR_PATTERN = Pattern.compile("^\\$\\{.*}$");
+    private static final Pattern EXPR_PATTERN = Pattern.compile("^\\$\\{.*}$", Pattern.DOTALL);
 
     protected ExpressionMetaType() {
         super("Expression");

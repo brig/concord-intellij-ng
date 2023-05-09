@@ -20,6 +20,12 @@ public class OkInspectionTests extends BaseInspectionTest {
     }
 
     @Test
+    public void testExpression_001() {
+        configureByFile("ok/expression/001.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
     public void testConfiguration_000() {
         configureByFile("ok/configuration/000.concord.yml");
         assertNoErrors();
