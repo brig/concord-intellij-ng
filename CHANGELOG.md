@@ -1,6 +1,7 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+- parser: fix parsing multi-line expressions.
 
 ## [0.1.0]
 - parse quoted strings as plaint text (e.g. `call: myFlow` and `call: "myFlow"` the same now)
