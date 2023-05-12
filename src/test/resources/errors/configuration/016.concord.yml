@@ -18,3 +18,7 @@ configuration:
       - "apiToken"
       - "apiKey"
     recordTaskOutVars: 1
+
+flows:
+  main-test:
+    - log: "test"

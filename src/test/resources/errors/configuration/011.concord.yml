@@ -10,3 +10,7 @@ configuration:
   processTimeout: "PT1H"
   exclusive:
     mode: "cancel"
+
+flows:
+  main-test:
+    - log: "test"

@@ -8,3 +8,7 @@ triggers:
         - "one"
       useInitiator: true
       useEventCommitId: "che?"
+
+flows:
+  onGithub:
+    - log: "test"

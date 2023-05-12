@@ -12,3 +12,7 @@ configuration:
     group: "X"
     mode: "cancel"
   events: 1
+
+flows:
+  main-test:
+    - log: "test"

@@ -24,3 +24,7 @@ configuration:
     truncateMaxArrayLength: 8
     truncateMaxDepth: 5
     trash:
+
+flows:
+  main-test:
+    - log: "test"

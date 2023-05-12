@@ -6,3 +6,7 @@ triggers:
         mode: cancel
       conditions:
         type: "push"
+
+flows:
+  onGithub:
+    - log: "test"

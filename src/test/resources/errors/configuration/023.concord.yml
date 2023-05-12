@@ -24,3 +24,7 @@ configuration:
     recordTaskMeta: true
     metaBlacklist:
       - "apiKey"
+
+flows:
+  main-test:
+    - log: "test"

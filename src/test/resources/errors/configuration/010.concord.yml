@@ -11,3 +11,7 @@ configuration:
   exclusive: 1
 #    group: "myGroup"
 #    mode: "cancel"
+
+flows:
+  main-test:
+    - log: "test"

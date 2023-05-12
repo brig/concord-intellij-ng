@@ -14,3 +14,7 @@ configuration:
   events:
     recordTaskInVars: true
     inVarsBlacklist: 1
+
+flows:
+  main-test:
+    - log: "test"

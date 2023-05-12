@@ -8,3 +8,7 @@ configuration:
   requirements:
     k: "v"
   processTimeout: "PT"
+
+flows:
+  main-test:
+    - log: "test"

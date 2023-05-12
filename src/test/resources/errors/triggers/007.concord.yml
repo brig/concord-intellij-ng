@@ -3,3 +3,7 @@ triggers:
       version: 2
       entryPoint: "onGithub"
       conditions: 1
+
+flows:
+  onGithub:
+    - log: "test"

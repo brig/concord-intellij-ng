@@ -7,3 +7,7 @@ triggers:
       activeProfiles:
         - "one"
       useInitiator: "che"
+
+flows:
+  onGithub:
+    - log: "test"

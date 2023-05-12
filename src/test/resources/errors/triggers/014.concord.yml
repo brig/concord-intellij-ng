@@ -13,3 +13,7 @@ triggers:
       conditions:
         type: "push"
         githubOrg: "*"
+
+flows:
+  onGithub:
+    - log: "test"

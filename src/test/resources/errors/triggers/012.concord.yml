@@ -9,3 +9,7 @@ triggers:
       useInitiator: true
       useEventCommitId: true
       exclusive: 1
+
+flows:
+  onGithub:
+    - log: "test"

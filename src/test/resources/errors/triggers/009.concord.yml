@@ -5,3 +5,7 @@ triggers:
       conditions:
         type: "push"
       activeProfiles: 1
+
+flows:
+  onGithub:
+    - log: "test"

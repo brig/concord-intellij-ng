@@ -5,3 +5,7 @@ triggers:
       runAs:
         unknown: 123
       timezone: "Europe/Moscow"
+
+flows:
+  foo:
+    - log: "test"

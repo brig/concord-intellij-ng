@@ -4,3 +4,7 @@ configuration:
     - "d1"
     - "d2"
   arguments:
+
+flows:
+  main-test:
+    - log: "test"

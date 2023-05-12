@@ -19,3 +19,7 @@ configuration:
       - "apiKey"
     recordTaskOutVars: true
     outVarsBlacklist: 1
+
+flows:
+  main-test:
+    - log: "test"

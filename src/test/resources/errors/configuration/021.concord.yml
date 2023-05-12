@@ -21,3 +21,7 @@ configuration:
     outVarsBlacklist:
       - "FOO"
     recordTaskMeta: 1
+
+flows:
+  main-test:
+    - log: "test"

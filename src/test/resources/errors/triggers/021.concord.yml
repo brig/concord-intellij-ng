@@ -5,3 +5,7 @@ triggers:
       activeProfiles:
         - "main"
       arguments: 1
+
+flows:
+  main:
+    - log: "test"

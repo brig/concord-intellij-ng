@@ -4,3 +4,7 @@ triggers:
       entryPoint: "foo"
       timezone: "Europe/Moscow"
       trash: "unknown-attr"
+
+flows:
+  foo:
+    - log: "test"

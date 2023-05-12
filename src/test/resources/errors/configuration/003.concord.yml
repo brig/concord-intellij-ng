@@ -1,3 +1,7 @@
 configuration:
   entryPoint: "main-test"
   dependencies:
+
+flows:
+  "main-test":
+    - log: "me"

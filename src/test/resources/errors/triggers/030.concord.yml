@@ -3,3 +3,7 @@ triggers:
       spec: "*"
       entryPoint: "foo"
       timezone: "test"
+
+flows:
+  foo:
+    - log: "test"

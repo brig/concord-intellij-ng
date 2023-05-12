@@ -53,3 +53,13 @@ triggers:
         - "one"
       arguments:
         k: v
+
+flows:
+  default:
+    - log: "test"
+
+  onConcordUpdate:
+    -  log: "test"
+
+  entryPoint:
+    - log: "test"

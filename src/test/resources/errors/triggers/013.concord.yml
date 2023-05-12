@@ -11,3 +11,7 @@ triggers:
       exclusive:
         group: "red"
       arguments: 1
+
+flows:
+  onGithub:
+    - log: "test"

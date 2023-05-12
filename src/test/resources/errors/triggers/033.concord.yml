@@ -5,3 +5,7 @@ triggers:
       conditions:
         type: "push"
         repositoryInfo:
+
+flows:
+  onGithub:
+    - log: "test"

@@ -2,3 +2,7 @@ triggers:
   - github:
       version: 2
       entryPoint: "onGithub"
+
+flows:
+  onGithub:
+    - log: "test"

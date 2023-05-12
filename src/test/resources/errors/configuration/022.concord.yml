@@ -22,3 +22,7 @@ configuration:
       - "FOO"
     recordTaskMeta: true
     metaBlacklist: 1
+
+flows:
+  main-test:
+    - log: "test"

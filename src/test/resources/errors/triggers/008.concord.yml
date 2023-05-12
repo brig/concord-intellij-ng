@@ -4,3 +4,7 @@ triggers:
       entryPoint: "onGithub"
       conditions:
         test: "value"
+
+flows:
+  onGithub:
+    - log: "test"

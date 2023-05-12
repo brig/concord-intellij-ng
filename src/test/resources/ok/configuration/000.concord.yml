@@ -39,3 +39,7 @@ configuration:
     truncateMaxStringLength: 133
     truncateMeta: true
     truncateOutVars: true
+
+flows:
+  main-test:
+    - log: "test"

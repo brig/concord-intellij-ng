@@ -324,6 +324,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         configureByFile("errors/triggers/005.concord.yml");
         inspection()
                 .assertStringValueExpected()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -434,6 +435,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         inspection()
                 .assertStringValueExpected()
                 .assertStringValueExpected()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -442,6 +444,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         configureByFile("errors/triggers/019.concord.yml");
         inspection()
                 .assertStringValueExpected()
+                .assertUndefinedFlow()
                 .check();
     }
 
@@ -1237,6 +1240,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         inspection()
                 .assertStringValueExpected()
+                .assertUndefinedFlow()
                 .check();
     }
 

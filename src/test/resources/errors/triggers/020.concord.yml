@@ -3,3 +3,7 @@ triggers:
       spec: "*"
       entryPoint: "main"
       activeProfiles: 1
+
+flows:
+  main:
+    - log: "test"

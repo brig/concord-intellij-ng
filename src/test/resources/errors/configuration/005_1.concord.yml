@@ -5,3 +5,7 @@ configuration:
     - "d2"
   arguments:
     k:
+
+flows:
+  main-test:
+    - log: "test"
