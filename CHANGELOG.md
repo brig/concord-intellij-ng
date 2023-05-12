@@ -1,6 +1,7 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+- triggers: entryPoint as link to flow definition;
 - parser: fix parsing multi-line expressions.
 
 ## [0.1.0]
