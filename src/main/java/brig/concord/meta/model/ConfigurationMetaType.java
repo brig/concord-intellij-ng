@@ -22,7 +22,7 @@ public class ConfigurationMetaType extends ConcordMetaType implements Documented
     static {
         features.put("runtime", () -> new YamlEnumType("runtime").withLiterals("concord-v2"));
         features.put("debug", YamlBooleanType::getSharedInstance);
-        features.put("entryPoint", StringMetaType::getInstance);
+        features.put("entryPoint", CallMetaType::getInstance);
         features.put("dependencies", DependenciesMetaType::getInstance);
         features.put("arguments", AnyMapMetaType::getInstance);
         features.put("meta", AnyMapMetaType::getInstance);

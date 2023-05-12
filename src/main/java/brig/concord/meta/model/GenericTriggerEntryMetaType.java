@@ -19,7 +19,7 @@ public class GenericTriggerEntryMetaType extends ConcordMetaType {
     private static final Set<String> required = Set.of("entryPoint", "conditions", "version");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "entryPoint", StringMetaType::getInstance,
+            "entryPoint", CallMetaType::getInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
             "arguments", AnyMapMetaType::getInstance,
             "exclusive", TriggerExclusiveMetaType::getInstance,

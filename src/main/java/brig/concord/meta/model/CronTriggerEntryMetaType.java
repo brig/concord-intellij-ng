@@ -20,7 +20,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "spec", StringMetaType::getInstance,
-            "entryPoint", StringMetaType::getInstance,
+            "entryPoint", CallMetaType::getInstance,
             "runAs", RunAsMetaType::getInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
             "timezone", TimezoneMetaType::getInstance,

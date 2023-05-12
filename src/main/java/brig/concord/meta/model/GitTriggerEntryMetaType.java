@@ -21,7 +21,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
     private static final Set<String> required = Set.of("entryPoint", "conditions", "version");
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "entryPoint", StringMetaType::getInstance,
+            "entryPoint", CallMetaType::getInstance,
             "useInitiator", YamlBooleanType::getSharedInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
             "useEventCommitId", YamlBooleanType::getSharedInstance,
