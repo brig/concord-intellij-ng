@@ -42,7 +42,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "group", StringMetaType::getInstance,
-            "groupBy", () -> new YamlEnumType("group by").withLiterals("branch"),
+            "groupBy", StringMetaType::getInstance,
             "mode", ModeType::getInstance
     );
 
