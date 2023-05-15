@@ -36,8 +36,8 @@ public class RefsTest extends BasePlatformTestCase {
 
         ReadAction.run(() -> {
             PsiElement elementAtCaret = myFixture.getElementAtCaret();
-            Assertions.assertTrue(elementAtCaret instanceof YAMLSequence);
-            YAMLKeyValue flowDef = YamlPsiUtils.getParentOfType(elementAtCaret, YAMLKeyValue.class, true);
+            Assertions.assertTrue(elementAtCaret instanceof YAMLKeyValue);
+            YAMLKeyValue flowDef = (YAMLKeyValue)elementAtCaret;
             assertNotNull(flowDef);
             Assertions.assertEquals("test", flowDef.getKeyText());
         });

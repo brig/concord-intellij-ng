@@ -1,0 +1,6 @@
+flows:
+  default:
+    - call: one
+
+  <caret>one:
+    - log: me

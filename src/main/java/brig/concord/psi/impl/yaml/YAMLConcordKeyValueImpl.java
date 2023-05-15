@@ -10,6 +10,7 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.YAMLUtil;
 import org.jetbrains.yaml.psi.impl.YAMLKeyValueImpl;
 
@@ -57,5 +58,10 @@ public class YAMLConcordKeyValueImpl extends YAMLKeyValueImpl {
         PsiElement rename = YAMLUtil.rename(this, newName);
         referenceCollection.forEach(reference -> reference.handleElementRename(newName));
         return rename;
+    }
+
+    @Override
+    public @Nullable String getName() {
+        return super.getName();
     }
 }
