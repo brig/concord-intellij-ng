@@ -1,6 +1,8 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+
+## [0.2.0]
 - find flow usage;
 - gh-triggers: groupBy as string;
 - triggers: entryPoint as link to flow definition;
