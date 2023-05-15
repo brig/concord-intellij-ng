@@ -592,7 +592,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
     public void testTriggers_036() {
         configureByFile("errors/triggers/036.concord.yml");
         inspection()
-                .assertUnexpectedValue("test")
+                .assertStringValueExpected()
                 .check();
     }
 
