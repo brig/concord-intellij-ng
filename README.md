@@ -7,12 +7,16 @@
 <!-- Plugin description -->
 IntelliJ plugin for [Concord](https://github.com/walmartlabs/concord) 
 
-Helps writing and working with concord runtime-v2 flows.
-This plugin can auto-complete all concord runtime-v2 yaml fields.
+This plugin enhances the writing and working experience with Concord flows.
+It provides comprehensive auto-completion for all Concord YAML fields and enables navigation between flow elements
+such as flow `call`, forms, etc.
+
 <!-- Plugin description end -->
 
 ## Features
-* Autocomplete concord yaml fields
+
+* Autocomplete Concord YAML fields.
+* Navigate between flow elements: `call`, `form` and others.
 
 ## Installation
 
