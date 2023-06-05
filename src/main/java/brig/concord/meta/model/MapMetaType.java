@@ -40,7 +40,6 @@ public abstract class MapMetaType extends ConcordMetaType {
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
         if (!(value instanceof YAMLMapping)) {
             problemsHolder.registerProblem(value, ConcordBundle.message("YamlUnknownValuesInspectionBase.error.object.is.required"));
-
         }
     }
 }

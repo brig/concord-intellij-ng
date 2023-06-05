@@ -1,8 +1,9 @@
 package brig.concord.psi.impl.delegate;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
-import brig.concord.meta.model.CallMetaType;
 import brig.concord.meta.model.LoopArrayItemMetaType;
+import brig.concord.meta.model.call.CallInParamMetaType;
+import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.psi.impl.yaml.YAMLQuotedTextImpl_;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
@@ -50,8 +51,11 @@ public class ConcordYamlDelegateFactory {
     }
 
     private static PsiNamedElement createKeyValueDelegate(YAMLKeyValue keyValue) {
-//        ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(keyValue.getProject());
-//        YamlMetaType valueMetaType = instance.getResolvedKeyValueMetaTypeMeta(keyValue);
+        ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(keyValue.getProject());
+        YamlMetaType valueMetaType = instance.getResolvedKeyValueMetaTypeMeta(keyValue);
+        if (valueMetaType instanceof CallInParamMetaType) {
+            return new YamlFlowCallInParamDelegate(keyValue);
+        }
         return null;
     }
 

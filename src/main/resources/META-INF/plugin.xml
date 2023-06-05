@@ -32,6 +32,8 @@
         <fileBasedIndex implementation="brig.concord.navigation.FlowNamesIndex"/>
         <searchEverywhereContributor implementation="brig.concord.navigation.FlowDefinitionSearchEverywhereContributor$Factory"/>
 
+        <enterHandlerDelegate implementation="brig.concord.smart.ConcordYamlEnterAtIndentHandler" order="first"/>
+
         <!-- inspections -->
         <localInspection displayName="Unknown keys" groupPath="Concord" language="Concord"
                          enabledByDefault="true" level="ERROR" groupName="Structure"

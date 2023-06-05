@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.*;
 import org.jetbrains.yaml.psi.YAMLMapping;
 import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLSequenceItem;
 import org.jetbrains.yaml.psi.YAMLValue;
 
 import java.util.*;
@@ -78,15 +77,17 @@ public abstract class ConcordMetaType extends YamlMetaType {
         return new Field(name, metaType) {
             @Override
             public @NotNull Field resolveToSpecializedField(@NotNull YAMLValue element) {
-                YamlMetaType result = metaType;
-
                 YamlAnyOfType anyType = (YamlAnyOfType) metaType;
-                if (element instanceof YAMLScalar) {
-                    result = findScalarType(element, anyType);
-                } else if (element instanceof YAMLSequenceItem) {
-                    result = findArrayType(anyType);
+                Field result = new Field(name, metaType);
+                YamlArrayType arrayType = findArrayType(anyType);
+                if (arrayType != null) {
+                    result = result.withRelationSpecificType(Relation.SEQUENCE_ITEM, arrayType.getElementType());
                 }
-                return new Field(name, result != null ? result : metaType);
+                YamlMetaType scalar = findScalarType(element, anyType);
+                if (scalar != null) {
+                    result = result.withRelationSpecificType(Relation.SCALAR_VALUE, scalar);
+                }
+                return result;
             }
 
             private static YamlMetaType findScalarType(YAMLValue element, YamlAnyOfType anyType) {
@@ -103,10 +104,10 @@ public abstract class ConcordMetaType extends YamlMetaType {
                 return def;
             }
 
-            private static YamlMetaType findArrayType(YamlAnyOfType anyType) {
+            private static YamlArrayType findArrayType(YamlAnyOfType anyType) {
                 for (YamlMetaType t : anyType.getSubTypes()) {
                     if (t instanceof YamlArrayType) {
-                        return t;
+                        return (YamlArrayType) t;
                     }
                 }
                 return null;

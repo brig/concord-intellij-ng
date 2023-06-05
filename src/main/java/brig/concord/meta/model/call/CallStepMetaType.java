@@ -1,5 +1,6 @@
-package brig.concord.meta.model;
+package brig.concord.meta.model.call;
 
+import brig.concord.meta.model.*;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
 import java.util.Map;
@@ -18,7 +19,7 @@ public class CallStepMetaType extends IdentityMetaType {
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "name", StringMetaType::getInstance,
             "call", CallMetaType::getInstance,
-            "in", InParamsMetaType::getInstance,
+            "in", CallInParamsMetaType::getInstance,
             "out", CallOutParamsMetaType::getInstance,
             "meta", StepMetaMetaType::getInstance,
             "loop", LoopMetaType::getInstance,

@@ -3,6 +3,7 @@ package brig.concord.meta.model;
 import brig.concord.ConcordBundle;
 import brig.concord.documentation.Documented;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.model.call.CallMetaType;
 import org.jetbrains.yaml.meta.model.YamlBooleanType;
 import org.jetbrains.yaml.meta.model.YamlEnumType;
 import org.jetbrains.yaml.meta.model.YamlIntegerType;

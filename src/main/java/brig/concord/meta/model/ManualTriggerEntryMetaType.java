@@ -1,6 +1,7 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.model.call.CallMetaType;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 
 import java.util.Map;

@@ -1,0 +1,22 @@
+flows:
+  default:
+    - call: test
+      in:
+        k1: "string key"
+        k2: "boolean key"
+        k3: "number key"
+        k4: "array key"
+        k5<caret>: "object key"
+        k6: "any key"
+
+  ##
+  # in:
+  #   k2: boolean, k2 definition
+  #   k1: string, mandatory, k1 definition
+  #   k3: number, k3 definition
+  #   k4: array, k4 definition
+  #   k5: object, k5 definition
+  #   k6: k6 definition
+  ##
+  test:
+    - log: me

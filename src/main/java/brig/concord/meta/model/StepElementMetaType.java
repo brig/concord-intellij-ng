@@ -1,6 +1,7 @@
 package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
+import brig.concord.meta.model.call.CallStepMetaType;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;

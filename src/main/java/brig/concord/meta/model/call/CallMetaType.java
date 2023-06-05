@@ -1,6 +1,7 @@
-package brig.concord.meta.model;
+package brig.concord.meta.model.call;
 
 import brig.concord.ConcordBundle;
+import brig.concord.meta.model.StringMetaType;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
 import com.intellij.codeInsight.lookup.LookupElement;

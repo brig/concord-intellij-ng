@@ -25,6 +25,18 @@ public class ConcordCompletions extends CompletionContributor {
         extend(CompletionType.BASIC, psiElement(), new KeyCompletion());
     }
 
+    public static PsiElement getPlaceholderToken() {
+        return completionParametersHashMap.keySet().stream().findFirst().orElse(null);
+    }
+
+    public static CompletionParameters getPlaceholderCompletionParameters() {
+        return completionParametersHashMap.values().stream().findFirst().orElse(null);
+    }
+
+    public static CompletionParameters getCompletionParameters(PsiElement element) {
+        return completionParametersHashMap.get(element);
+    }
+
     public static void registerCompletionParameters(CompletionParameters parameters) {
         completionParametersHashMap.put(parameters.getPosition(), parameters);
     }
