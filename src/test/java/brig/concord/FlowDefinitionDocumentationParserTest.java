@@ -28,9 +28,9 @@ public class FlowDefinitionDocumentationParserTest {
 
         FlowDocumentation doc = FlowDefinitionDocumentationParser.parse(toCommentElements(str));
         assertEquals("Flow Caption.", doc.description());
-        assertEquals(1, doc.in().size());
-        assertEquals("p1", doc.in().get(0).name());
-        assertEquals(ParamType.STRING, doc.in().get(0).type());
+        assertEquals(1, doc.in().list().size());
+        assertEquals("p1", doc.in().list().get(0).name());
+        assertEquals(ParamType.STRING, doc.in().list().get(0).type());
         assertEquals(1, doc.out().size());
         assertEquals("testOut", doc.out().get(0).name());
     }
@@ -42,7 +42,21 @@ public class FlowDefinitionDocumentationParserTest {
 
         FlowDocumentation doc = FlowDefinitionDocumentationParser.parse(toCommentElements(str));
         assertEquals("", doc.description());
-        assertEquals(0, doc.in().size());
+        assertEquals(0, doc.in().list().size());
+        assertEquals(0, doc.out().size());
+    }
+
+    @Test
+    public void testParseInvalidCommentFormat() {
+        String str = """
+                #
+                # in:
+                #   a: test
+                """;
+
+        FlowDocumentation doc = FlowDefinitionDocumentationParser.parse(toCommentElements(str));
+        assertEquals("", doc.description());
+        assertEquals(0, doc.in().list().size());
         assertEquals(0, doc.out().size());
     }
 

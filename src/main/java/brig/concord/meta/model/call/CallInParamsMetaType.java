@@ -34,4 +34,9 @@ public class CallInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
     private static YamlMetaType objectMetaType(PsiElement element) {
         return FlowCallParamsProvider.getInstance().inParams(element);
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ":" + getTypeName() + " @ " + getSubTypes();
+    }
 }

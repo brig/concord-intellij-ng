@@ -28,6 +28,7 @@ public class ConcordDocumentationProvider extends AbstractDocumentationProvider 
         } else if (element instanceof YAMLMapping) {
             metaType = metaTypeProvider.getResolvedMetaType(element);
         }
+
         if (metaType == null) {
             return null;
         }
@@ -36,8 +37,6 @@ public class ConcordDocumentationProvider extends AbstractDocumentationProvider 
             return DEFINITION_START + metaType.getDisplayName() + DEFINITION_END +
                     CONTENT_START + d.getDescription() + CONTENT_END;
         }
-
-//        return ">>>> Undocumented: " + metaType.getClass().getName() + "<<<<";
         return null;
     }
 

@@ -52,7 +52,7 @@ public final class ParamDocumentation {
     @Override
     public String toString() {
         return "ParamDocumentation[" +
-                "element=" + element + ", " +
+                "element=" + element.getText() + ", " +
                 "name=" + name + ", " +
                 "type=" + type + ", " +
                 "mandatory=" + mandatory + ']';

@@ -1,13 +1,19 @@
 package brig.concord.meta.model.call;
 
 import brig.concord.ConcordBundle;
+import brig.concord.documentation.FlowDefinitionDocumentationParser;
 import brig.concord.meta.model.StringMetaType;
+import brig.concord.psi.CommentsProcessor;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
+import brig.concord.psi.ref.FlowDefinitionReference;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.PsiComment;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.meta.model.CompletionContext;
@@ -47,19 +53,22 @@ public class CallMetaType extends StringMetaType {
     protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
         super.validateScalarValue(value, holder);
 
-        String text = value.getTextValue();
-        if (containsExpression(text)) {
+        String maybeFlowName = value.getTextValue();
+        if (containsExpression(maybeFlowName)) {
             return;
         }
 
-        ProcessDefinition processDefinition = processDefinition(value);
-        if (processDefinition == null) {
-            return;
+        PsiReference[] flowRefs = value.getReferences();
+        for (PsiReference ref : flowRefs) {
+            if (ref instanceof FlowDefinitionReference fdr) {
+                PsiElement definition = fdr.resolve();
+                if (definition != null) {
+                    return;
+                }
+            }
         }
 
-        if (processDefinition.flow(text) == null) {
-            holder.registerProblem(value, ConcordBundle.message("CallStepMetaType.error.undefinedFlow"), ProblemHighlightType.ERROR);
-        }
+        holder.registerProblem(value, ConcordBundle.message("CallStepMetaType.error.undefinedFlow"), ProblemHighlightType.ERROR);
     }
 
     private static ProcessDefinition processDefinition(YAMLValue value) {

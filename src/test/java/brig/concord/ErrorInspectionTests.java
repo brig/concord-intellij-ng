@@ -1019,6 +1019,24 @@ public class ErrorInspectionTests extends BaseInspectionTest {
     }
 
     @Test
+    public void testFlowCall_022() {
+        configureByFile("errors/flowCall/022.concord.yml");
+
+        inspection()
+                .assertUnexpectedKey("unknown")
+                .check();
+    }
+
+    @Test
+    public void testFlowCall_023() {
+        configureByFile("errors/flowCall/023.concord.yml");
+
+        inspection()
+                .assertStringValueExpected()
+                .check();
+    }
+
+    @Test
     public void testGroup_000() {
         configureByFile("errors/group/000.concord.yml");
 

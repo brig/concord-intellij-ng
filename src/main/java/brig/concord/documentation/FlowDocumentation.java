@@ -5,14 +5,14 @@ import java.util.Objects;
 
 public final class FlowDocumentation {
     private final String description;
-    private final List<ParamDocumentation> in;
+    private final InParamsDocumentation in;
     private final List<ParamDocumentation> out;
 
     public FlowDocumentation(String description,
                              List<ParamDocumentation> in,
                              List<ParamDocumentation> out) {
         this.description = description;
-        this.in = in;
+        this.in = new InParamsDocumentation(in);
         this.out = out;
     }
 
@@ -20,7 +20,7 @@ public final class FlowDocumentation {
         return description;
     }
 
-    public List<ParamDocumentation> in() {
+    public InParamsDocumentation in() {
         return in;
     }
 

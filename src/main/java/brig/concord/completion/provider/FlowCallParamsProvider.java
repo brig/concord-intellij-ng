@@ -5,7 +5,6 @@ import brig.concord.documentation.FlowDocumentation;
 import brig.concord.documentation.ParamDocumentation;
 import brig.concord.documentation.ParamType;
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.model.AnyMapMetaType;
 import brig.concord.meta.model.call.*;
 import brig.concord.psi.CommentsProcessor;
 import brig.concord.psi.YamlPsiUtils;
@@ -14,6 +13,9 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.yaml.meta.model.Field;
 import org.jetbrains.yaml.meta.model.YamlMetaType;
 import org.jetbrains.yaml.psi.YAMLKeyValue;
 import org.jetbrains.yaml.psi.YAMLMapping;
@@ -26,7 +28,7 @@ import java.util.function.Supplier;
 @SuppressWarnings("UnstableApiUsage")
 public class FlowCallParamsProvider {
 
-    private static final YamlMetaType DEFAULT_OBJECT_TYPE = AnyMapMetaType.getInstance();
+    private static final YamlMetaType DEFAULT_OBJECT_TYPE = AnyMapInParamMetaType.getInstance();
 
     private static final FlowCallParamsProvider INSTANCE = new FlowCallParamsProvider();
 
@@ -40,13 +42,13 @@ public class FlowCallParamsProvider {
         }
 
         FlowDocumentation documentation = flowDocumentation(in);
-        if (documentation == null || documentation.in().isEmpty()) {
+        if (documentation == null || documentation.in().list().isEmpty()) {
             return null;
         }
 
 
         String inParamName = in.getKeyText();
-        ParamDocumentation paramDef = documentation.in().stream().filter(p -> p.name().equals(inParamName)).findAny().orElse(null);
+        ParamDocumentation paramDef = documentation.in().find(inParamName);
         if (paramDef == null) {
             return null;
         }
@@ -60,22 +62,59 @@ public class FlowCallParamsProvider {
         }
 
         FlowDocumentation documentation = flowDocumentation(element);
-        if (documentation == null || documentation.in().isEmpty()) {
+        if (documentation == null || documentation.in().list().isEmpty()) {
             return DEFAULT_OBJECT_TYPE;
         }
 
-        return new ConcordMetaType("call in params") {
+        return new MT(documentation);
+    }
 
-            @Override
-            protected Map<String, Supplier<YamlMetaType>> getFeatures() {
-                Map<String, Supplier<YamlMetaType>> result = new HashMap<>();
-                for (ParamDocumentation p : documentation.in()) {
-                    YamlMetaType metaType = toMetaType(p.type());
-                    result.put(p.name(), () -> metaType);
-                }
-                return result;
+    static class MT extends ConcordMetaType implements CallInParamMetaType {
+
+        private final FlowDocumentation documentation;
+
+        public MT(FlowDocumentation documentation) {
+            super("call in params");
+
+            this.documentation = documentation;
+        }
+
+        @Override
+        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+            Map<String, Supplier<YamlMetaType>> result = new HashMap<>();
+            for (ParamDocumentation p : documentation.in().list()) {
+                YamlMetaType metaType = toMetaType(p.type());
+                result.put(p.name(), () -> metaType);
             }
-        };
+
+            return result;
+        }
+
+        @Override
+        public @Nullable Field findFeatureByName(@NotNull String name) {
+            ParamDocumentation def = documentation.in().find(name);
+            if (def == null) {
+                return null;
+            }
+
+            return metaTypeToField(toMetaType(def.type()), name);
+        }
+    }
+
+    public static YAMLKeyValue findCallKv(PsiElement element) {
+        while (true) {
+            YAMLMapping callMapping = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, false);
+            if (callMapping == null) {
+                return null;
+            }
+
+            YAMLKeyValue callKv = callMapping.getKeyValueByKey("call");
+            if (callKv != null) {
+                return callKv;
+            }
+
+            element = callMapping;
+        }
     }
 
     private static YamlMetaType toMetaType(ParamType type) {
@@ -98,22 +137,6 @@ public class FlowCallParamsProvider {
             default -> {
                 return AnyInParamMetaType.getInstance();
             }
-        }
-    }
-
-    private static YAMLKeyValue findCallKv(PsiElement element) {
-        while (true) {
-            YAMLMapping callMapping = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, false);
-            if (callMapping == null) {
-                return null;
-            }
-
-            YAMLKeyValue callKv = callMapping.getKeyValueByKey("call");
-            if (callKv != null) {
-                return callKv;
-            }
-
-            element = callMapping;
         }
     }
 

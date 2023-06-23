@@ -19,6 +19,11 @@ public class UnknownKeysInspection extends YamlUnknownKeysInspectionBase {
     }
 
     @Override
+    protected @NotNull PsiElementVisitor doBuildVisitor(@NotNull ProblemsHolder holder, @NotNull YamlMetaTypeProvider metaTypeProvider) {
+        return super.doBuildVisitor(holder, metaTypeProvider);
+    }
+
+    @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly, @NotNull LocalInspectionToolSession session) {
         if (holder.getFile() instanceof ConcordFile) {
             return super.buildVisitor(holder, isOnTheFly, session);

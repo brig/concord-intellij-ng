@@ -1,0 +1,12 @@
+flows:
+  main:
+    - call: "myFlow"
+      in:
+        p1: 123
+
+  ##
+  #  in:
+  #    p1: string, mandatory, param
+  ##
+  myFlow:
+    - log: "my"

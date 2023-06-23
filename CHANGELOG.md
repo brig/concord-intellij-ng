@@ -1,7 +1,7 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
-- fall call completion;
+- flow call input params completion (experimental);
 
 ## [0.2.0]
 - find flow usage;

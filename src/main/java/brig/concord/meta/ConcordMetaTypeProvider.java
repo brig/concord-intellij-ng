@@ -61,7 +61,7 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     }
 
     public @Nullable YamlMetaType getResolvedMetaType(@NotNull PsiElement element) {
-        final MetaTypeProxy metaTypeProxy = getMetaTypeProxy(element);
+        MetaTypeProxy metaTypeProxy = getMetaTypeProxy(element);
         return metaTypeProxy != null ? metaTypeProxy.getMetaType() : null;
     }
 

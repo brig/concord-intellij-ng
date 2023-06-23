@@ -10,6 +10,7 @@ import java.util.List;
 public class FlowDefinitionDocumentationParser {
 
     enum State {
+        INIT,
         DESCRIPTION,
         IN,
         OUT
@@ -28,15 +29,20 @@ public class FlowDefinitionDocumentationParser {
     }
 
     public static FlowDocumentation parse(PsiComment start) {
-        State state = State.DESCRIPTION;
+        State state = State.INIT;
         StringBuilder description = new StringBuilder();
         List<ParamDocumentation> in = new LinkedList<>();
         List<ParamDocumentation> out = new LinkedList<>();
 
         for (PsiComment comment : CommentsProcessor.comments(start)) {
             String line = comment.getText();
-            if (isHeader(line)) {
-                continue;
+            if (state == State.INIT) {
+                if (isHeader(line)) {
+                    state = State.DESCRIPTION;
+                    continue;
+                } else {
+                    break;
+                }
             }
 
             String clean = CharMatcher.anyOf("#").trimLeadingFrom(line).trim();
@@ -48,18 +54,24 @@ public class FlowDefinitionDocumentationParser {
                 continue;
             }
 
-            if (state == State.IN) {
-                ParamDocumentation param = parseParam(comment, clean);
-                if (param != null) {
-                    in.add(param);
+            switch (state) {
+                case IN ->  {
+                    ParamDocumentation param = parseParam(comment, clean);
+                    if (param != null) {
+                        in.add(param);
+                    }
                 }
-            } else if (state == State.OUT) {
-                ParamDocumentation param = parseParam(comment, clean);
-                if (param != null) {
-                    out.add(param);
+                case OUT -> {
+                    ParamDocumentation param = parseParam(comment, clean);
+                    if (param != null) {
+                        out.add(param);
+                    }
                 }
-            } else if (!clean.isEmpty()){
-                description.append(clean);
+                case DESCRIPTION -> {
+                    if (!clean.isEmpty()) {
+                        description.append(clean);
+                    }
+                }
             }
         }
         return new FlowDocumentation(description.toString(), in, out);

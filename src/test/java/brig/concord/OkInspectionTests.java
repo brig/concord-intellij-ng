@@ -50,6 +50,12 @@ public class OkInspectionTests extends BaseInspectionTest {
     }
 
     @Test
+    public void testFlowCall_003() {
+        configureByFile("ok/flowCall/003.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
     public void testFormCall_000() {
         configureByFile("ok/formCall/000.concord.yml");
         assertNoErrors();
