@@ -1,6 +1,8 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+
+## [0.3.0]
 - flow call input params completion (experimental);
 
 ## [0.2.0]
