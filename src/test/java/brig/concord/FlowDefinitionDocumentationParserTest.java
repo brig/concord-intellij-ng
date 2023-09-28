@@ -36,6 +36,28 @@ public class FlowDefinitionDocumentationParserTest {
     }
 
     @Test
+    public void testParseWithDotsOK() {
+        String str = """
+                ##
+                # Flow Caption.
+                # out:
+                #   testOut: boom
+                # in:
+                #   p1: string, mandatory, test param1
+                #   p2.item: string, mandatory, ignore me
+                ##
+                """;
+
+        FlowDocumentation doc = FlowDefinitionDocumentationParser.parse(toCommentElements(str));
+        assertEquals("Flow Caption.", doc.description());
+        assertEquals(1, doc.in().list().size());
+        assertEquals("p1", doc.in().list().get(0).name());
+        assertEquals(ParamType.STRING, doc.in().list().get(0).type());
+        assertEquals(1, doc.out().size());
+        assertEquals("testOut", doc.out().get(0).name());
+    }
+
+    @Test
     public void testParseEmpty() {
         String str = """
                 """;

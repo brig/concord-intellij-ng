@@ -1,9 +1,7 @@
 package brig.concord.meta.model.call;
 
 import brig.concord.ConcordBundle;
-import brig.concord.documentation.FlowDefinitionDocumentationParser;
 import brig.concord.meta.model.StringMetaType;
-import brig.concord.psi.CommentsProcessor;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
 import brig.concord.psi.ref.FlowDefinitionReference;
@@ -11,7 +9,6 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;

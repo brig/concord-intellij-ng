@@ -61,7 +61,7 @@ public class ProcessDefinition {
             YAMLDocument doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
             PsiElement result = flow(doc, name);
             if (result != null) {
-                return ((YAMLKeyValue)result.getParent());
+                return result.getParent();
             }
         }
 

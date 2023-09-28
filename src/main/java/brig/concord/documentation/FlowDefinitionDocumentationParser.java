@@ -84,6 +84,10 @@ public class FlowDefinitionDocumentationParser {
         }
 
         String name = str.substring(0, pos);
+        // TODO: parse keys
+        if (name.contains(".")) {
+            return null;
+        }
         ParamType paramType = ParamType.ANY;
         int pos2 = str.indexOf(",", pos);
         if (pos2 > 0) {

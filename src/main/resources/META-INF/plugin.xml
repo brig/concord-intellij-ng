@@ -27,7 +27,8 @@
         <completion.contributor implementationClass="brig.concord.completion.ConcordCompletions"
                                 order="first" language="yaml"/>
 
-        <documentationProvider order="first" implementation="brig.concord.documentation.ConcordDocumentationProvider" />
+        <!-- disabled: performance issues -->
+<!--        <documentationProvider order="first" implementation="brig.concord.documentation.ConcordDocumentationProvider" />-->
 
         <fileBasedIndex implementation="brig.concord.navigation.FlowNamesIndex"/>
         <searchEverywhereContributor implementation="brig.concord.navigation.FlowDefinitionSearchEverywhereContributor$Factory"/>

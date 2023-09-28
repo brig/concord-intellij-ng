@@ -18,5 +18,5 @@ public class FlowUsageTypeProvider implements UsageTypeProvider {
         return null;
     }
 
-    private static final UsageType FLOW_CALL_USAGE_TYPE = new UsageType(ConcordBundle.message("flawCall.usage.type"));
+    private static final UsageType FLOW_CALL_USAGE_TYPE = new UsageType(() -> ConcordBundle.message("flawCall.usage.type"));
 }

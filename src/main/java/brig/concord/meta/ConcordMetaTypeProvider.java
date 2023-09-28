@@ -79,6 +79,7 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     private MetaTypeProxy resolveMetaTypeProxy(@NotNull PsiElement element) {
         MetaTypeProxy result = super.getMetaTypeProxy(element);
         if (result == null) {
+            LOG.info("resolveMetaTypeProxy -> null for: " + element.getText());
             return null;
         }
 

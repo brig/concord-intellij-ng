@@ -17,7 +17,7 @@ public class LoopMetaType extends ConcordMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "items", LoopItemsMetaType::getInstance,
-            "parallelism", IntegerMetaType::getInstance,
+            "parallelism", () -> AnyOfType.anyOf(IntegerMetaType.getInstance(), ExpressionMetaType.getInstance()),
             "mode", ModeType::getInstance
     );
 
@@ -48,8 +48,7 @@ public class LoopMetaType extends ConcordMetaType {
         }
 
         protected ModeType() {
-            super("Mode");
-            setDisplayName("[serial|parallel]");
+            super("Mode", "[serial|parallel]");
             withLiterals("serial", "parallel");
         }
     }

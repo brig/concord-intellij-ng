@@ -1,5 +1,6 @@
 package brig.concord;
 
+import brig.concord.meta.model.AnyOfType;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import org.jetbrains.yaml.YAMLBundle;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import static brig.concord.completion.provider.FlowCallParamsProvider.*;
 
 public class ErrorInspectionTests extends BaseInspectionTest {
 
@@ -696,7 +699,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
     public void testTasks_009_3() {
         configureByFile("errors/tasks/009_3.concord.yml");
         inspection()
-                .assertIntExpected()
+                .assertInvalidValue(NUMBER_OR_EXPRESSION)
                 .check();
     }
 
@@ -806,7 +809,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         configureByFile("errors/tasks/021.concord.yml");
 
         inspection()
-                .assertIntExpected()
+                .assertInvalidValue(NUMBER_OR_EXPRESSION)
                 .check();
     }
 
@@ -1032,7 +1035,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         configureByFile("errors/flowCall/023.concord.yml");
 
         inspection()
-                .assertStringValueExpected()
+                .assertInvalidValue(STRING_OR_EXPRESSION)
                 .check();
     }
 
@@ -1906,6 +1909,20 @@ public class ErrorInspectionTests extends BaseInspectionTest {
                 .check();
     }
 
+    @Test
+    public void tesFlowCallInputParams_000() {
+        configureByFile("errors/flowCallInputParams/000.concord.yml");
+
+        inspection()
+                .assertInvalidValue(STRING_OR_EXPRESSION)
+                .assertInvalidValue(BOOLEAN_OR_EXPRESSION)
+                .assertInvalidValue(NUMBER_OR_EXPRESSION)
+                .assertInvalidValue(ARRAY_OR_EXPRESSION)
+                .assertInvalidValue(OBJECT_OR_EXPRESSION)
+                .assertInvalidValue(STRING_OR_EXPRESSION)
+                .check();
+    }
+
     private Inspection inspection() {
         return new Inspection(myFixture);
     }
@@ -1997,6 +2014,11 @@ public class ErrorInspectionTests extends BaseInspectionTest {
 
         public Inspection assertUnknownStep() {
             errors.add(ConcordBundle.message("StepElementMetaType.error.unknown.step"));
+            return this;
+        }
+
+        public Inspection assertInvalidValue(AnyOfType type) {
+            errors.add(ConcordBundle.message("invalid.value", type.expectedString()));
             return this;
         }
 

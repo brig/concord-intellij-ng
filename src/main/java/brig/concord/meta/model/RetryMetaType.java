@@ -45,8 +45,7 @@ public class RetryMetaType extends ConcordMetaType {
         }
 
         protected TimesType() {
-            super("times", List.of(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false)));
-            setDisplayName("[int|expression]");
+            super("times", "[int|expression]", List.of(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false)));
         }
 
         @Override
@@ -64,8 +63,7 @@ public class RetryMetaType extends ConcordMetaType {
         }
 
         protected DelayType() {
-            super("delay", List.of(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false)));
-            setDisplayName("[int|expression]");
+            super("delay", "[int|expression]", List.of(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false)));
         }
     }
 }

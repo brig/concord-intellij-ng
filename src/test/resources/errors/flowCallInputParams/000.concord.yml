@@ -1,0 +1,26 @@
+flows:
+  default:
+    - call: test
+      in:
+        k1: 1
+        k2: BOOM
+        k3: abc
+        k4: notArray
+        k5: notObject
+        k6: "${expr}"
+
+    - call: test
+      in:
+        k1:
+          k: v
+  ##
+  # in:
+  #   k2: boolean, optional, k2 definition
+  #   k1: string, mandatory, k1 definition
+  #   k3: number, k3 definition
+  #   k4: array, k4 definition
+  #   k5: object, k5 definition
+  #   k6: k6 definition
+  ##
+  test:
+    - log: me

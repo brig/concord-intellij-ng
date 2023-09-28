@@ -1,7 +1,10 @@
 package brig.concord.meta.model;
 
-import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.yaml.meta.model.YamlBooleanType;
+import org.jetbrains.yaml.psi.YAMLScalar;
+import org.jetbrains.yaml.psi.YAMLValue;
 
 @SuppressWarnings("UnstableApiUsage")
 public class BooleanMetaType extends YamlBooleanType {
@@ -13,14 +16,23 @@ public class BooleanMetaType extends YamlBooleanType {
     }
 
     public BooleanMetaType() {
-        super("yaml:boolean");
-        setDisplayName("boolean");
+        super("boolean");
         withLiterals("true", "false");
 
         withHiddenLiterals(new LiteralBuilder()
-                .withLiteral("true", StringUtil::toUpperCase, StringUtil::toTitleCase)
-                .withLiteral("false", StringUtil::toUpperCase, StringUtil::toTitleCase)
+                .withAllCasesOf("true")
+                .withAllCasesOf("false")
                 .withAllCasesOf("on", "off", "yes", "no")
                 .toArray());
+    }
+
+    @Override
+    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
+        super.validateValue(value, problemsHolder);
+    }
+
+    @Override
+    protected void validateScalarValue(@NotNull YAMLScalar scalarValue, @NotNull ProblemsHolder holder) {
+        super.validateScalarValue(scalarValue, holder);
     }
 }

@@ -1,6 +1,7 @@
 package brig.concord.meta;
 
 import brig.concord.ConcordBundle;
+import brig.concord.meta.model.AnyOfType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NonNls;
@@ -71,6 +72,10 @@ public abstract class ConcordMetaType extends YamlMetaType {
         }
 
         if (!(metaType instanceof YamlAnyOfType)) {
+            return new Field(name, metaType);
+        }
+
+        if (metaType instanceof AnyOfType) {
             return new Field(name, metaType);
         }
 

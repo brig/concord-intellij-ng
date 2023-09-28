@@ -1,0 +1,25 @@
+flows:
+  default:
+    - call: test
+      in:
+        k1: "str"
+        k2: true
+        k3: 123
+        k4:
+          - "one"
+          - "two"
+        k5:
+          k: v
+        k6: "${expr}"
+
+  ##
+  # in:
+  #   k2: boolean, optional, k2 definition
+  #   k1: string, mandatory, k1 definition
+  #   k3: number, k3 definition
+  #   k4: array, k4 definition
+  #   k5: object, k5 definition
+  #   k6: k6 definition
+  ##
+  test:
+    - log: me

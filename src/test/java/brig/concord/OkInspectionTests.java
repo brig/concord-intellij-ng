@@ -145,6 +145,18 @@ public class OkInspectionTests extends BaseInspectionTest {
         assertNoErrors();
     }
 
+    @Test
+    public void testFlowCallInputParams_000() {
+        configureByFile("ok/flowCallInputParams/000.concord.yml");
+        assertNoErrors();
+    }
+
+    @Test
+    public void testFlowCallInputParams_001() {
+        configureByFile("ok/flowCallInputParams/001.concord.yml");
+        assertNoErrors();
+    }
+
     private void assertNoErrors() {
         List<HighlightInfo> highlighting = myFixture.doHighlighting();
         if (!highlighting.isEmpty()) {

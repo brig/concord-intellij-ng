@@ -28,8 +28,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType {
         }
 
         protected ModeType() {
-            super("Mode");
-            setDisplayName("[cancel|cancelOld|wait]");
+            super("Mode", "[cancel|cancelOld|wait]");
             withLiterals("cancel", "cancelOld", "wait");
         }
     }
