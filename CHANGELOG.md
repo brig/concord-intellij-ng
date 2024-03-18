@@ -1,6 +1,8 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+
+## [0.4.0]
 - intellij idea version up
 
 ## [0.3.0]
