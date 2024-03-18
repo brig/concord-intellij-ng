@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [Unreleased]
+## [0.5.0]
 - intellij idea version up
 
 ## [0.4.0]
