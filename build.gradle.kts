@@ -61,6 +61,16 @@ intellijPlatform {
     pluginConfiguration {
         name = properties("pluginName")
     }
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
+        freeArgs = listOf(
+            "-mute",
+            "TemplateWordInPluginName,TemplateWordInPluginId"
+        )
+    }
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
