@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 ## [0.6.2]
+Fix publish repository channel
+
+## [0.6.2]
 - Fix publish repository channel
 
 ## [0.6.1]
