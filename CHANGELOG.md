@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [0.6.1]
+- 2024.2 compatibility
+
 ## [0.6.0]
 - intellij idea version up
 

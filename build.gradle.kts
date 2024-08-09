@@ -1,4 +1,5 @@
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -6,9 +7,9 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.7.10"
+    id("org.jetbrains.kotlin.jvm") version "2.0.20-RC"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij") version "1.15.0"
+    id("org.jetbrains.intellij.platform") version "2.0.0"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
@@ -21,29 +22,45 @@ version = properties("pluginVersion")
 // Configure project's dependencies
 repositories {
     mavenCentral()
+
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 dependencies {
+    intellijPlatform {
+        create(properties("platformType"), properties("platformVersion"))
+
+        intellijIdeaCommunity("2024.2")
+
+        bundledPlugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
+
+        pluginVerifier()
+        zipSigner()
+        instrumentationTools()
+
+        testFramework(TestFrameworkType.Platform)
+    }
+
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testImplementation("junit:junit:4.13.2")
 }
 
 kotlin {
     jvmToolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
-// Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    pluginName.set(properties("pluginName"))
-    version.set(properties("platformVersion"))
-    type.set(properties("platformType"))
-
-    // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
+// Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
+intellijPlatform {
+    pluginConfiguration {
+        name = properties("pluginName")
+    }
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
@@ -74,9 +91,9 @@ tasks {
     }
 
     patchPluginXml {
-        version.set(properties("pluginVersion"))
-        sinceBuild.set(properties("pluginSinceBuild"))
-        untilBuild.set(properties("pluginUntilBuild"))
+        version = properties("pluginVersion")
+        sinceBuild = properties("pluginSinceBuild")
+        untilBuild = properties("pluginUntilBuild")
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         pluginDescription.set(
@@ -99,15 +116,6 @@ tasks {
         })
     }
 
-    // Configure UI tests plugin
-    // Read more: https://github.com/JetBrains/intellij-ui-test-robot
-    runIdeForUiTests {
-        systemProperty("robot-server.port", "8082")
-        systemProperty("ide.mac.message.dialogs.as.sheets", "false")
-        systemProperty("jb.privacy.policy.text", "<!--999.999-->")
-        systemProperty("jb.consents.confirmation.enabled", "false")
-    }
-
     signPlugin {
         certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
         privateKey.set(System.getenv("PRIVATE_KEY"))
@@ -120,6 +128,23 @@ tasks {
         // pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
-        channels.set(listOf(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first()))
+        channels.set(listOf(properties("pluginVersion")))
+    }
+
+    val runIdeForUiTests by intellijPlatformTesting.runIde.registering {
+        task {
+            jvmArgumentProviders += CommandLineArgumentProvider {
+                listOf(
+                    "-Drobot-server.port=8082",
+                    "-Dide.mac.message.dialogs.as.sheets=false",
+                    "-Djb.privacy.policy.text=<!--999.999-->",
+                    "-Djb.consents.confirmation.enabled=false",
+                )
+            }
+        }
+
+        plugins {
+            robotServerPlugin()
+        }
     }
 }
