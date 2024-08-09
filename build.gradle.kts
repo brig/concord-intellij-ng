@@ -68,7 +68,7 @@ intellijPlatform {
         }
         freeArgs = listOf(
             "-mute",
-            "TemplateWordInPluginName,TemplateWordInPluginId"
+            "TemplateWordInPluginId"
         )
     }
 }
