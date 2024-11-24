@@ -23,6 +23,7 @@ public class StepElementMetaType extends IdentityElementMetaType {
             TaskStepMetaType.getInstance(),
             CallStepMetaType.getInstance(),
             LogStepMetaType.getInstance(),
+            LogYamlStepMetaType.getInstance(),
             IfStepMetaType.getInstance(),
             CheckpointStepMetaType.getInstance(),
             SetStepMetaType.getInstance(),

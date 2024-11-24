@@ -1,6 +1,8 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+- logYaml step
+- extraDependencies in Profile definition
 
 ## [0.6.2]
 - Fix publish repository channel

@@ -37,4 +37,13 @@ public class CompletionTest extends BasePlatformTestCase {
         assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "p1");
     }
+
+    @Test
+    public void testCompletionSteps() {
+        myFixture.configureByFiles("01.concord.yaml");
+        myFixture.complete(CompletionType.BASIC);
+        List<String> lookupElementStrings = myFixture.getLookupElementStrings();
+        assertNotNull(lookupElementStrings);
+        assertSameElements(lookupElementStrings, "block", "call", "checkpoint", "exit", "expr", "form", "if", "log", "logYaml", "parallel", "return", "script", "set", "suspend", "switch", "task", "throw", "try");
+    }
 }

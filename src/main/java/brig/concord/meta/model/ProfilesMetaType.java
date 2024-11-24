@@ -29,7 +29,7 @@ public class ProfilesMetaType extends MapMetaType {
         private static final ProfilesEntryMetaType INSTANCE = new ProfilesEntryMetaType();
 
         private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "configuration", ConfigurationMetaType::getInstance,
+                "configuration", ProfileConfigurationMetaType::getInstance,
                 "flows", FlowsMetaType::getInstance,
                 "forms", FormsMetaType::getInstance
         );
