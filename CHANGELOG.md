@@ -1,8 +1,11 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+
+## [0.10.0]
 - logYaml step
 - extraDependencies in Profile definition
+- Intellij version up
 
 ## [0.6.2]
 - Fix publish repository channel
