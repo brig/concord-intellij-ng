@@ -14,6 +14,7 @@ import com.intellij.psi.search.ProjectScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.indexing.FileBasedIndex;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.yaml.psi.*;
 
@@ -37,6 +38,14 @@ public class ProcessDefinition {
     @Nullable
     private YAMLSequence resources(String name) {
         return YamlPsiUtils.get(rootDoc, YAMLSequence.class, "resources", name);
+    }
+
+    public @NotNull List<YAMLSequenceItem> triggers() {
+        var seq = YamlPsiUtils.get(rootDoc, YAMLSequence.class, "triggers");
+        if (seq == null) {
+            return List.of();
+        }
+        return seq.getItems();
     }
 
     @Nullable

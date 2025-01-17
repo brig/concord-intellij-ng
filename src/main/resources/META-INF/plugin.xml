@@ -20,6 +20,9 @@
 <!--        <lang.findUsagesProvider language="Concord" order="before yamlFindUsagesProvider"-->
 <!--                                 implementationClass="brig.concord.FindUsageProvider"/>-->
 
+<!--        <annotator language="yaml" implementationClass="brig.concord.annotator.CronExpressionAnnotator"/>-->
+        <lang.foldingBuilder language="yaml" implementationClass="brig.concord.folding.CronExpressionFolding"/>
+
         <lang.findUsagesProvider language="yaml" order="before yamlFindUsagesProvider" implementationClass="brig.concord.FindUsageProvider"/>
         <usageTypeProvider implementation="brig.concord.FlowUsageTypeProvider"/>
 

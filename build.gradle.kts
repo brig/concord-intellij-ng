@@ -47,6 +47,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("junit:junit:4.13.2")
+
+    implementation("com.cronutils:cron-utils:9.2.0")
 }
 
 kotlin {

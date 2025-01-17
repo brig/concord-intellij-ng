@@ -1,6 +1,7 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+- folding for cron triggers spec 
 
 ## [0.10.0]
 - logYaml step
