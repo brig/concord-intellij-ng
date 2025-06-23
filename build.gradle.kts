@@ -9,7 +9,7 @@ plugins {
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "2.0.20-RC"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij.platform") version "2.2.1"
+    id("org.jetbrains.intellij.platform") version "2.6.0"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
@@ -33,7 +33,7 @@ dependencies {
     intellijPlatform {
         create(properties("platformType"), properties("platformVersion"))
 
-        intellijIdeaCommunity(providers.gradleProperty("platformVersion"))
+//        intellijIdeaCommunity(providers.gradleProperty("platformVersion"))
 
         bundledPlugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
@@ -50,8 +50,6 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     implementation("com.cronutils:cron-utils:9.2.0")
-
-    runtimeOnly("com.jetbrains.intellij.yaml:yaml-backend:251.26094.141")
 }
 
 kotlin {
