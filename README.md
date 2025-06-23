@@ -22,7 +22,7 @@ such as flow `call`, forms, etc.
 
 - Using IDE built-in plugin system:
   
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "test-plugin"</kbd> >
+  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "Concord"</kbd> >
   <kbd>Install Plugin</kbd>
   
 - Manually:
