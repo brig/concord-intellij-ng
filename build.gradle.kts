@@ -22,6 +22,7 @@ version = properties("pluginVersion")
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    maven("https://packages.jetbrains.team/maven/p/grazi/grazie-platform-public/")
 
     intellijPlatform {
         defaultRepositories()
@@ -49,6 +50,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     implementation("com.cronutils:cron-utils:9.2.0")
+
     runtimeOnly("com.jetbrains.intellij.yaml:yaml-backend:251.26094.141")
 }
 
