@@ -32,7 +32,7 @@ dependencies {
     intellijPlatform {
         create(properties("platformType"), properties("platformVersion"))
 
-        intellijIdeaCommunity("2024.2")
+        intellijIdeaCommunity(providers.gradleProperty("platformVersion"))
 
         bundledPlugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
@@ -49,6 +49,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     implementation("com.cronutils:cron-utils:9.2.0")
+    runtimeOnly("com.jetbrains.intellij.yaml:yaml-backend:251.26094.141")
 }
 
 kotlin {
