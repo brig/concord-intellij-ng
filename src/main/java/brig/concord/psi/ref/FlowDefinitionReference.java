@@ -8,7 +8,7 @@ import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.YAMLScalar;
 
 public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLScalar> implements PsiPolyVariantReference {
 

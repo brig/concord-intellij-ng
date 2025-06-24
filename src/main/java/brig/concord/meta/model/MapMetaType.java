@@ -5,10 +5,10 @@ import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 /**
  * Any key to object
  */
-@SuppressWarnings("UnstableApiUsage")
 public abstract class MapMetaType extends ConcordMetaType {
 
     protected MapMetaType(@NotNull String name) {

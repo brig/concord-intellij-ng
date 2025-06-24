@@ -6,13 +6,12 @@ import brig.concord.meta.model.StringMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class CallOutParamsMetaType extends YamlAnyOfType {
 
     private static final CallOutParamsMetaType INSTANCE = new CallOutParamsMetaType();

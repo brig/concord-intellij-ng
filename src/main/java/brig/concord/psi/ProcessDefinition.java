@@ -16,7 +16,7 @@ import com.intellij.util.CommonProcessors;
 import com.intellij.util.indexing.FileBasedIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.psi.*;
+import brig.concord.yaml.psi.*;
 
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;

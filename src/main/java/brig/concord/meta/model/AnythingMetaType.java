@@ -1,10 +1,9 @@
 package brig.concord.meta.model;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlAnything;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlAnything;
 
-@SuppressWarnings("UnstableApiUsage")
 public class AnythingMetaType extends YamlAnything {
 
     private static final AnythingMetaType INSTANCE = new AnythingMetaType();

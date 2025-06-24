@@ -17,19 +17,18 @@ import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.ModelAccess;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.ModelAccess;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 @Service
-@SuppressWarnings("UnstableApiUsage")
 public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
 
     private static final Logger LOG = Logger.getInstance(ConcordMetaTypeProvider.class);

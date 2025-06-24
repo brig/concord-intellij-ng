@@ -11,9 +11,8 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
+import brig.concord.yaml.psi.impl.YAMLPlainTextImpl;
 
-@SuppressWarnings("UnstableApiUsage")
 public class YAMLConcordPlainTextImpl extends YAMLPlainTextImpl implements PsiNamedElement {
 
     private transient PsiNamedElement delegate;

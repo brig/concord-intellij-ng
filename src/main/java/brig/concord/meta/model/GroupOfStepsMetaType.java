@@ -2,14 +2,13 @@ package brig.concord.meta.model;
 
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
     private final Map<String, Supplier<YamlMetaType>> features;

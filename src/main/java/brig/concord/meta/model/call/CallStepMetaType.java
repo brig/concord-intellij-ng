@@ -1,13 +1,12 @@
 package brig.concord.meta.model.call;
 
 import brig.concord.meta.model.*;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class CallStepMetaType extends IdentityMetaType {
 
     private static final CallStepMetaType INSTANCE = new CallStepMetaType();

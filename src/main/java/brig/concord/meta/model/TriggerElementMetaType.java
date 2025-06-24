@@ -2,8 +2,8 @@ package brig.concord.meta.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class TriggerElementMetaType extends IdentityElementMetaType {
 
     private static final List<IdentityMetaType> entries = List.of(

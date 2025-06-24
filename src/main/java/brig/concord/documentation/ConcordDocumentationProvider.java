@@ -9,14 +9,13 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiUtilCore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.YAMLTokenTypes;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
+import brig.concord.yaml.YAMLTokenTypes;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
 
 import static com.intellij.lang.documentation.DocumentationMarkup.*;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ConcordDocumentationProvider extends AbstractDocumentationProvider {
 
     @Override

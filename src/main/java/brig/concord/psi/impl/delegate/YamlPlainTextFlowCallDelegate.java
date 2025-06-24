@@ -5,10 +5,10 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.YAMLElementGenerator;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
+import brig.concord.yaml.YAMLElementGenerator;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.impl.YAMLPlainTextImpl;
 
 public class YamlPlainTextFlowCallDelegate extends YamlPlainTextDelegateAbstract implements PsiNamedElement {
 

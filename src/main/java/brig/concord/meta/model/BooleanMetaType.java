@@ -2,11 +2,10 @@ package brig.concord.meta.model;
 
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlBooleanType;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.YamlBooleanType;
+import brig.concord.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.YAMLValue;
 
-@SuppressWarnings("UnstableApiUsage")
 public class BooleanMetaType extends YamlBooleanType {
 
     private static final BooleanMetaType INSTANCE = new BooleanMetaType();

@@ -3,15 +3,14 @@ package brig.concord.meta.model;
 import com.intellij.codeInsight.lookup.LookupElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.*;
-import org.jetbrains.yaml.psi.YAMLScalar;
+import brig.concord.yaml.meta.model.*;
+import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class FormStepMetaType extends IdentityMetaType {
 
     private static final FormStepMetaType INSTANCE = new FormStepMetaType();

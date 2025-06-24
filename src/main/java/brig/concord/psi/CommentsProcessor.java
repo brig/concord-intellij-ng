@@ -3,7 +3,7 @@ package brig.concord.psi;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
-import org.jetbrains.yaml.YAMLElementTypes;
+import brig.concord.yaml.YAMLElementTypes;
 
 import java.util.Iterator;
 import java.util.Spliterator;

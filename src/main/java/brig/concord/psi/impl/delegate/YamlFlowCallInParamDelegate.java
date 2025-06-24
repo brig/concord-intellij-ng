@@ -3,7 +3,7 @@ package brig.concord.psi.impl.delegate;
 import brig.concord.psi.ref.CallInParamDefinitionReference;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLKeyValue;
 
 public class YamlFlowCallInParamDelegate extends YamlKeyValueDelegateAbstract implements PsiNamedElement {
 

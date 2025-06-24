@@ -7,10 +7,9 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
-import org.jetbrains.yaml.meta.impl.YamlMissingKeysInspectionBase;
+import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
+import brig.concord.yaml.meta.impl.YamlMissingKeysInspectionBase;
 
-@SuppressWarnings("UnstableApiUsage")
 public class MissingKeysInspection extends YamlMissingKeysInspectionBase {
 
     @Override

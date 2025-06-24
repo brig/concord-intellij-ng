@@ -7,7 +7,7 @@ import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.PsiCommentImpl;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.YAMLTokenTypes;
+import brig.concord.yaml.YAMLTokenTypes;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

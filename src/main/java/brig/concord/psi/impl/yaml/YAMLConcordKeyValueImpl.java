@@ -11,8 +11,8 @@ import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.YAMLUtil;
-import org.jetbrains.yaml.psi.impl.YAMLKeyValueImpl;
+import brig.concord.yaml.YAMLUtil;
+import brig.concord.yaml.psi.impl.YAMLKeyValueImpl;
 
 import java.util.Collection;
 

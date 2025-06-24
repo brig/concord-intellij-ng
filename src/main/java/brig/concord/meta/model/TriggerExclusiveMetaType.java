@@ -4,19 +4,18 @@ import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.YAMLBundle;
-import org.jetbrains.yaml.meta.model.YamlEnumType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.ConcordBundle;
+import brig.concord.yaml.meta.model.YamlEnumType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("UnstableApiUsage")
 public class TriggerExclusiveMetaType extends ConcordMetaType {
 
     public static class ModeType extends YamlEnumType {
@@ -62,7 +61,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType {
                     .collect(Collectors.toSet());
 
             if (!keys.contains("group") && !keys.contains("groupBy")) {
-                String msg = YAMLBundle.message("YamlMissingKeysInspectionBase.missing.keys", "group or groupBy");
+                String msg = ConcordBundle.message("YamlMissingKeysInspectionBase.missing.keys", "group or groupBy");
                 problemsHolder.registerProblem(m, msg, ProblemHighlightType.GENERIC_ERROR_OR_WARNING);
 
             }

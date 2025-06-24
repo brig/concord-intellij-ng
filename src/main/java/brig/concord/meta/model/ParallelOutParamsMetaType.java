@@ -2,12 +2,11 @@ package brig.concord.meta.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlAnyOfType;
 
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ParallelOutParamsMetaType extends YamlAnyOfType {
 
     private static final ParallelOutParamsMetaType INSTANCE = new ParallelOutParamsMetaType();

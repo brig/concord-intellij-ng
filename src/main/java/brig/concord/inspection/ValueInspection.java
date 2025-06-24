@@ -8,17 +8,16 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.YAMLBundle;
-import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
-import org.jetbrains.yaml.meta.impl.YamlMetaUtil;
-import org.jetbrains.yaml.meta.impl.YamlUnknownValuesInspectionBase;
-import org.jetbrains.yaml.meta.model.*;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLSequence;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.ConcordBundle;
+import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
+import brig.concord.yaml.meta.impl.YamlMetaUtil;
+import brig.concord.yaml.meta.impl.YamlUnknownValuesInspectionBase;
+import brig.concord.yaml.meta.model.*;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLSequence;
+import brig.concord.yaml.psi.YAMLValue;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ValueInspection extends YamlUnknownValuesInspectionBase {
 
     @Override
@@ -81,7 +80,7 @@ public class ValueInspection extends YamlUnknownValuesInspectionBase {
 
                 if (meta instanceof YamlMetaTypeProvider.FieldAndRelation far) {
                     if (far.getRelation() == Field.Relation.SEQUENCE_ITEM && !(value instanceof YAMLSequence)) {
-                        holder.registerProblem(value, YAMLBundle.message("YamlUnknownValuesInspectionBase.error.array.is.required"));
+                        holder.registerProblem(value, ConcordBundle.message("YamlUnknownValuesInspectionBase.error.array.is.required"));
                     }
                 }
 

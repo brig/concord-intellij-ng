@@ -9,8 +9,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.impl.YamlMetaTypeCompletionProviderBase;
-import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
+import brig.concord.yaml.meta.impl.YamlMetaTypeCompletionProviderBase;
+import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +45,6 @@ public class ConcordCompletions extends CompletionContributor {
         completionParametersHashMap.remove(parameters.getPosition());
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     static class KeyCompletion extends YamlMetaTypeCompletionProviderBase {
 
         @Override

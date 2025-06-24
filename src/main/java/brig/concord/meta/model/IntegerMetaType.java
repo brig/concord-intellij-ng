@@ -1,8 +1,7 @@
 package brig.concord.meta.model;
 
-import org.jetbrains.yaml.meta.model.YamlIntegerType;
+import brig.concord.yaml.meta.model.YamlIntegerType;
 
-@SuppressWarnings("UnstableApiUsage")
 public class IntegerMetaType extends YamlIntegerType {
 
     private static final IntegerMetaType INSTANCE = new IntegerMetaType();

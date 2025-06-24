@@ -4,12 +4,11 @@ import brig.concord.ConcordBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlScalarType;
-import org.jetbrains.yaml.psi.YAMLScalar;
+import brig.concord.yaml.meta.model.YamlScalarType;
+import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.regex.Pattern;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ExpressionMetaType extends YamlScalarType {
 
     private static final ExpressionMetaType INSTANCE = new ExpressionMetaType();

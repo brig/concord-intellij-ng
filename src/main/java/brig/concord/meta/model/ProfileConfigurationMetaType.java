@@ -4,16 +4,15 @@ import brig.concord.ConcordBundle;
 import brig.concord.documentation.Documented;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.call.CallMetaType;
-import org.jetbrains.yaml.meta.model.YamlBooleanType;
-import org.jetbrains.yaml.meta.model.YamlEnumType;
-import org.jetbrains.yaml.meta.model.YamlIntegerType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlBooleanType;
+import brig.concord.yaml.meta.model.YamlEnumType;
+import brig.concord.yaml.meta.model.YamlIntegerType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ProfileConfigurationMetaType extends ConcordMetaType implements Documented {
 
     private static final ProfileConfigurationMetaType INSTANCE = new ProfileConfigurationMetaType();

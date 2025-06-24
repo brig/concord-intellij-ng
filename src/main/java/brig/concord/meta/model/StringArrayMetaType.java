@@ -2,10 +2,9 @@ package brig.concord.meta.model;
 
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlArrayType;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.YamlArrayType;
+import brig.concord.yaml.psi.YAMLValue;
 
-@SuppressWarnings("UnstableApiUsage")
 public class StringArrayMetaType extends YamlArrayType {
 
     private static final StringArrayMetaType INSTANCE = new StringArrayMetaType();

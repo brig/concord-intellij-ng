@@ -1,8 +1,7 @@
 package brig.concord.meta.model;
 
-import org.jetbrains.yaml.meta.model.YamlArrayType;
+import brig.concord.yaml.meta.model.YamlArrayType;
 
-@SuppressWarnings("UnstableApiUsage")
 public class AnyArrayMetaType extends YamlArrayType {
 
     private static final AnyArrayMetaType INSTANCE = new AnyArrayMetaType();

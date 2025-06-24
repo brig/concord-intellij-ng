@@ -7,7 +7,7 @@ import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.impl.YAMLFileImpl;
+import brig.concord.yaml.psi.impl.YAMLFileImpl;
 
 public class ConcordFileImpl extends YAMLFileImpl implements ConcordFile {
 
