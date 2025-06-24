@@ -2,13 +2,12 @@ package brig.concord.meta.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.meta.model.YamlArrayType;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.YamlArrayType;
 
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class LoopItemsMetaType extends YamlAnyOfType {
 
     private static final LoopItemsMetaType INSTANCE = new LoopItemsMetaType();

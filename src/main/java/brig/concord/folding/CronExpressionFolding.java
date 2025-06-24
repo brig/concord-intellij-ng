@@ -13,8 +13,8 @@ import com.intellij.lang.folding.FoldingDescriptor;
 import com.intellij.openapi.editor.Document;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
 
 import java.util.List;
 import java.util.Locale;

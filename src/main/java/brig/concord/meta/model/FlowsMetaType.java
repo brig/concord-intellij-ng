@@ -2,13 +2,12 @@ package brig.concord.meta.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLMapping;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLMapping;
 
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class FlowsMetaType extends MapMetaType {
 
     private static final FlowsMetaType INSTANCE = new FlowsMetaType();

@@ -4,12 +4,11 @@ import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.DynamicMetaType;
 import brig.concord.meta.model.ExpressionMetaType;
 import com.intellij.psi.PsiElement;
-import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class CallInParamsMetaType extends YamlAnyOfType implements DynamicMetaType {
 
     private static final CallInParamsMetaType INSTANCE = new CallInParamsMetaType();

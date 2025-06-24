@@ -3,10 +3,9 @@ package brig.concord.meta.model.call;
 import brig.concord.meta.model.AnyMapMetaType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
-@SuppressWarnings("UnstableApiUsage")
 public class AnyMapInParamMetaType extends AnyMapMetaType implements CallInParamMetaType {
 
     private static final AnyMapInParamMetaType INSTANCE = new AnyMapInParamMetaType();

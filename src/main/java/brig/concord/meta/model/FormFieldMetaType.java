@@ -4,21 +4,20 @@ import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.YAMLBundle;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlBooleanType;
-import org.jetbrains.yaml.meta.model.YamlEnumType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.ConcordBundle;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlBooleanType;
+import brig.concord.yaml.meta.model.YamlEnumType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings("UnstableApiUsage")
 public class FormFieldMetaType extends ConcordMetaType {
 
     private static final FormFieldMetaType INSTANCE = new FormFieldMetaType();
@@ -131,7 +130,7 @@ public class FormFieldMetaType extends ConcordMetaType {
                 .map(YAMLKeyValue::getKey)
                 .filter(Objects::nonNull)
                 .forEach(k -> {
-                    String msg = YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", k.getText());
+                    String msg = ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", k.getText());
                     problemsHolder.registerProblem(k, msg, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
                 });
     }

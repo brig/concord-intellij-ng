@@ -5,30 +5,47 @@
     <vendor>brig</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends>org.jetbrains.plugins.yaml</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <lang.parserDefinition language="yaml" order="first"
-                               implementationClass="brig.concord.YamlConcordParserDefinition"/>
+        <virtualFileCustomDataProvider implementation="brig.concord.editing.CodeStyleSettingsCustomDataSynchronizer"/>
+        <langCodeStyleSettingsProvider implementation="brig.concord.editing.CodeStyleSettingsProvider"/>
+
+        <applicationService serviceImplementation="brig.concord.smart.YAMLEditorOptions"/>
+        <applicationSettings service="brig.concord.smart.YAMLEditorOptions"/>
+
+        <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
+
+        <lang.formatter language="Concord" implementationClass="brig.concord.formatter.YAMLFormattingModelBuilder"/>
+        <lang.commenter language="Concord" implementationClass="brig.concord.formatter.YAMLCommenter"/>
+        <lang.whiteSpaceFormattingStrategy language="Concord" implementationClass="brig.concord.formatter.YamlWhiteSpaceFormattingStrategy"/>
+        <lang.syntaxHighlighterFactory language="Concord" implementationClass="brig.concord.yaml.YAMLSyntaxHighlighterFactory"/>
+
+        <editor.backspaceModeOverride language="Concord" implementationClass="com.intellij.codeInsight.editorActions.SmartBackspaceDisabler"/>
+
+        <enterHandlerDelegate implementation="brig.concord.smart.YAMLEnterAtIndentHandler" order="first"/>
+        <stripTrailingSpacesFilterFactory implementation="brig.concord.formatter.YamlStripTrailingSpacesFilterFactory"/>
+
+        <colorSettingsPage implementation="brig.concord.yaml.YAMLColorsPage"/>
+
+        <!-- YAML -->
+        <additionalTextAttributes scheme="Default" file="colorSchemes/default.xml"/>
+
+        <lang.parserDefinition language="Concord"
+                               implementationClass="brig.concord.ConcordParserDefinition"/>
 
         <fileType name="Concord File" implementationClass="brig.concord.ConcordFileType"
                   fieldName="INSTANCE" language="Concord"
                   extensions="concord.yml" patterns="*.concord.yml;concord.yml;*.concord.yaml;concord.yaml"/>
 
-        <lang.parserDefinition language="Concord" implementationClass="brig.concord.ConcordParserDefinition"/>
-
-<!--        <lang.findUsagesProvider language="Concord" order="before yamlFindUsagesProvider"-->
-<!--                                 implementationClass="brig.concord.FindUsageProvider"/>-->
-
 <!--        <annotator language="yaml" implementationClass="brig.concord.annotator.CronExpressionAnnotator"/>-->
-        <lang.foldingBuilder language="yaml" implementationClass="brig.concord.folding.CronExpressionFolding"/>
+        <lang.foldingBuilder language="Concord" implementationClass="brig.concord.folding.CronExpressionFolding"/>
 
-        <lang.findUsagesProvider language="yaml" order="before yamlFindUsagesProvider" implementationClass="brig.concord.FindUsageProvider"/>
+        <lang.findUsagesProvider language="Concord" implementationClass="brig.concord.FindUsageProvider"/>
         <usageTypeProvider implementation="brig.concord.FlowUsageTypeProvider"/>
 
-        <psi.referenceContributor language="yaml" implementation="brig.concord.ConcordYamlReferenceContributor"/>
+        <psi.referenceContributor language="Concord" implementation="brig.concord.ConcordYamlReferenceContributor"/>
         <completion.contributor implementationClass="brig.concord.completion.ConcordCompletions"
-                                order="first" language="yaml"/>
+                                order="first" language="Concord"/>
 
         <!-- disabled: performance issues -->
 <!--        <documentationProvider order="first" implementation="brig.concord.documentation.ConcordDocumentationProvider" />-->
@@ -48,7 +65,11 @@
         <localInspection displayName="Scalar values" groupPath="Concord" language="Concord"
                          enabledByDefault="true" level="ERROR" groupName="Structure"
                          implementationClass="brig.concord.inspection.ValueInspection"/>
-
+        <localInspection language="Concord" bundle="messages.ConcordBundle"
+                         shortName="YAMLDuplicatedKeys" level="ERROR"
+                         key="inspections.duplicated.keys.name"
+                         groupKey="inspections.group.name" enabledByDefault="true"
+                         implementationClass="brig.concord.inspection.YAMLDuplicatedKeysInspection"/>
     </extensions>
 
 </idea-plugin>

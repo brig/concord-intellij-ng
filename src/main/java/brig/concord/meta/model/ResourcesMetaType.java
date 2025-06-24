@@ -1,12 +1,11 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 import java.util.Map;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ResourcesMetaType extends ConcordMetaType {
 
     private static final ResourcesMetaType INSTANCE = new ResourcesMetaType();

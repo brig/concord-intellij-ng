@@ -1,7 +1,7 @@
 package brig.concord.meta;
 
 import com.intellij.psi.PsiElement;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 public interface DynamicMetaType {
 

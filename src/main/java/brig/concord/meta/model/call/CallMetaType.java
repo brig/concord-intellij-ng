@@ -13,9 +13,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.CompletionContext;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.CompletionContext;
+import brig.concord.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import static brig.concord.meta.model.ExpressionMetaType.containsExpression;
 
-@SuppressWarnings("UnstableApiUsage")
 public class CallMetaType extends StringMetaType {
 
     private static final CallMetaType INSTANCE = new CallMetaType();

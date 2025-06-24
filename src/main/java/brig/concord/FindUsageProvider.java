@@ -12,8 +12,8 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.YAMLFindUsagesProvider;
-import org.jetbrains.yaml.YAMLWordsScanner;
+import brig.concord.yaml.YAMLFindUsagesProvider;
+import brig.concord.yaml.YAMLWordsScanner;
 
 public class FindUsageProvider extends YAMLFindUsagesProvider implements FindUsagesProvider {
 
@@ -34,7 +34,8 @@ public class FindUsageProvider extends YAMLFindUsagesProvider implements FindUsa
         }
 
         return psiElement instanceof YAMLConcordPlainTextImpl
-                || psiElement instanceof YAMLConcordQuotedTextImpl;
+                || psiElement instanceof YAMLConcordQuotedTextImpl
+                || psiElement instanceof YAMLConcordKeyValueImpl;
     }
 
     @Override

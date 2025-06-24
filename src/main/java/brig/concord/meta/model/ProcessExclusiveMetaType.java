@@ -5,15 +5,14 @@ import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlEnumType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLScalar;
+import brig.concord.yaml.meta.model.YamlEnumType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ProcessExclusiveMetaType extends ConcordMetaType {
 
     private static final ProcessExclusiveMetaType INSTANCE = new ProcessExclusiveMetaType();

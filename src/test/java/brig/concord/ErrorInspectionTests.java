@@ -3,7 +3,6 @@ package brig.concord;
 import brig.concord.meta.model.AnyOfType;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
-import org.jetbrains.yaml.YAMLBundle;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -1993,12 +1992,12 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         }
 
         private Inspection assertUnknownKey(String key) {
-            errors.add(YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
+            errors.add(ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
             return this;
         }
 
         private Inspection assertUnexpectedValue(String value) {
-            errors.add(YAMLBundle.message("YamlEnumType.validation.error.value.unknown", value));
+            errors.add(ConcordBundle.message("YamlEnumType.validation.error.value.unknown", value));
             return this;
         }
 
@@ -2008,7 +2007,7 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         }
 
         private Inspection assertUnexpectedKey(String key) {
-            errors.add(YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
+            errors.add(ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
             return this;
         }
 

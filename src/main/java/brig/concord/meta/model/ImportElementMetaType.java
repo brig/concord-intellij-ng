@@ -4,16 +4,15 @@ import brig.concord.ConcordBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ImportElementMetaType extends IdentityElementMetaType {
 
     private static final List<IdentityMetaType> entries = List.of(

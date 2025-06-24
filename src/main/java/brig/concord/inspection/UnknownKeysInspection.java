@@ -9,16 +9,15 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.YAMLBundle;
-import org.jetbrains.yaml.meta.impl.YamlMetaTypeInspectionBase;
-import org.jetbrains.yaml.meta.impl.YamlMetaTypeProvider;
-import org.jetbrains.yaml.meta.model.YamlArrayType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.meta.model.YamlScalarType;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.ConcordBundle;
+import brig.concord.yaml.meta.impl.YamlMetaTypeInspectionBase;
+import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
+import brig.concord.yaml.meta.model.YamlArrayType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlScalarType;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLValue;
 
-@SuppressWarnings("UnstableApiUsage")
 public class UnknownKeysInspection extends YamlMetaTypeInspectionBase {
 
     @Override
@@ -73,7 +72,7 @@ public class UnknownKeysInspection extends YamlMetaTypeInspectionBase {
                     }
                 }
 
-                String msg = YAMLBundle.message("YamlUnknownKeysInspectionBase.unknown.key", keyValue.getKeyText());
+                String msg = ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", keyValue.getKeyText());
                 myProblemsHolder.registerProblem(keyValue.getKey(), msg, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
             }
         }

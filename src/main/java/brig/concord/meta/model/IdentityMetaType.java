@@ -1,13 +1,12 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public abstract class IdentityMetaType extends ConcordMetaType {
 
     private final String identity;

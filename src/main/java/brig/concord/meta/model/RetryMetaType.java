@@ -3,16 +3,15 @@ package brig.concord.meta.model;
 import brig.concord.meta.ConcordMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.meta.model.YamlIntegerType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.YamlIntegerType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class RetryMetaType extends ConcordMetaType {
 
     private static final RetryMetaType INSTANCE = new RetryMetaType();

@@ -4,13 +4,12 @@ import brig.concord.ConcordBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlStringType;
-import org.jetbrains.yaml.psi.YAMLScalar;
+import brig.concord.yaml.meta.model.YamlStringType;
+import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.Arrays;
 import java.util.TimeZone;
 
-@SuppressWarnings("UnstableApiUsage")
 public class TimezoneMetaType extends YamlStringType {
 
     private static final TimezoneMetaType INSTANCE = new TimezoneMetaType();

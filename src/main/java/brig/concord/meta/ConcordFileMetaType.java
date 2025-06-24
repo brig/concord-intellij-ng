@@ -1,13 +1,12 @@
 package brig.concord.meta;
 
 import brig.concord.meta.model.*;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ConcordFileMetaType extends ConcordMetaType {
 
     private static final ConcordFileMetaType INSTANCE = new ConcordFileMetaType();

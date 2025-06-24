@@ -14,12 +14,11 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLPsiElement;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLPsiElement;
+import brig.concord.yaml.psi.impl.YAMLPlainTextImpl;
 
-@SuppressWarnings("UnstableApiUsage")
 public class ConcordYamlDelegateFactory {
 
     private static final Key<PsiNamedElement> DELEGATE = new Key<>("CONCORD_YAML_DELEGATE");

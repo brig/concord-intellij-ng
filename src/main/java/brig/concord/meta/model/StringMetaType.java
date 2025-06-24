@@ -4,12 +4,11 @@ import brig.concord.ConcordBundle;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.meta.model.YamlStringType;
-import org.jetbrains.yaml.psi.YAMLCompoundValue;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.YamlStringType;
+import brig.concord.yaml.psi.YAMLCompoundValue;
+import brig.concord.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.YAMLValue;
 
-@SuppressWarnings("UnstableApiUsage")
 public class StringMetaType extends YamlStringType {
 
     private static final StringMetaType INSTANCE = new StringMetaType();

@@ -2,10 +2,9 @@ package brig.concord.meta.model;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
-@SuppressWarnings("UnstableApiUsage")
 public class AnyMapMetaType extends MapMetaType {
 
     private static final AnyMapMetaType INSTANCE = new AnyMapMetaType();

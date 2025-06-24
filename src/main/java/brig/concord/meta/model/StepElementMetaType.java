@@ -8,15 +8,14 @@ import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.CompletionContext;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.YAMLSequenceItem;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.CompletionContext;
+import brig.concord.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.YAMLSequenceItem;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class StepElementMetaType extends IdentityElementMetaType {
 
     private static final List<IdentityMetaType> steps = List.of(

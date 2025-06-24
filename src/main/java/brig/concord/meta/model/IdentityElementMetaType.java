@@ -4,15 +4,14 @@ import brig.concord.psi.YamlPsiUtils;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.yaml.meta.model.Field;
-import org.jetbrains.yaml.meta.model.YamlAnyOfType;
-import org.jetbrains.yaml.psi.YAMLKeyValue;
-import org.jetbrains.yaml.psi.YAMLMapping;
-import org.jetbrains.yaml.psi.YAMLValue;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.*;
 
-@SuppressWarnings("UnstableApiUsage")
 public abstract class IdentityElementMetaType extends YamlAnyOfType {
 
     private final List<IdentityMetaType> entries;

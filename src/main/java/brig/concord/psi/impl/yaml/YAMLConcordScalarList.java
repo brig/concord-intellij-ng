@@ -4,8 +4,8 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.ElementManipulators;
 import com.intellij.psi.PsiLanguageInjectionHost;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.YAMLScalar;
-import org.jetbrains.yaml.psi.impl.YAMLScalarListImpl;
+import brig.concord.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.impl.YAMLScalarListImpl;
 
 import java.util.Arrays;
 import java.util.List;

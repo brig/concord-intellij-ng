@@ -1,10 +1,9 @@
 package brig.concord.meta.model;
 
-import org.jetbrains.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.YamlAnyOfType;
 
 import java.util.List;
 
-@SuppressWarnings("UnstableApiUsage")
 public class GroupOfStepsOutParamsMetaType extends YamlAnyOfType {
 
     private static final GroupOfStepsOutParamsMetaType INSTANCE = new GroupOfStepsOutParamsMetaType();

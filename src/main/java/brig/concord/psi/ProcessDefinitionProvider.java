@@ -2,7 +2,7 @@ package brig.concord.psi;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.util.AstLoadingFilter;
-import org.jetbrains.yaml.psi.YAMLDocument;
+import brig.concord.yaml.psi.YAMLDocument;
 
 public class ProcessDefinitionProvider {
 

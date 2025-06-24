@@ -33,8 +33,6 @@ dependencies {
     intellijPlatform {
         create(properties("platformType"), properties("platformVersion"))
 
-//        intellijIdeaCommunity(providers.gradleProperty("platformVersion"))
-
         bundledPlugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
 
         pluginVerifier()
@@ -97,7 +95,6 @@ tasks {
     patchPluginXml {
         version = properties("pluginVersion")
         sinceBuild = properties("pluginSinceBuild")
-        untilBuild = properties("pluginUntilBuild")
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         pluginDescription.set(

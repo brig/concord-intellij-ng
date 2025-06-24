@@ -1,14 +1,13 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
-import org.jetbrains.yaml.meta.model.YamlBooleanType;
-import org.jetbrains.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.meta.model.YamlBooleanType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-@SuppressWarnings("UnstableApiUsage")
 public class EventsMetaType extends ConcordMetaType {
 
     private static final EventsMetaType INSTANCE = new EventsMetaType();

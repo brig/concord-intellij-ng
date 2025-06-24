@@ -3,7 +3,7 @@ package brig.concord.psi.impl.delegate;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl;
+import brig.concord.yaml.psi.impl.YAMLPlainTextImpl;
 
 import java.util.Optional;
 
