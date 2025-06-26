@@ -55,6 +55,8 @@
 
         <enterHandlerDelegate implementation="brig.concord.smart.ConcordYamlEnterAtIndentHandler" order="first"/>
 
+        <annotator language="Concord" implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>
+
         <!-- inspections -->
         <localInspection displayName="Unknown keys" groupPath="Concord" language="Concord"
                          enabledByDefault="true" level="ERROR" groupName="Structure"
