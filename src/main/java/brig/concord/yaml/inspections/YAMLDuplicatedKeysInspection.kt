@@ -1,8 +1,17 @@
-package brig.concord.inspection;
+package brig.concord.yaml.inspections
 
-// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-
-import com.intellij.codeInspection.*
+import brig.concord.ConcordBundle
+import brig.concord.yaml.YAMLElementGenerator
+import brig.concord.yaml.YAMLTokenTypes
+import brig.concord.yaml.psi.YAMLKeyValue
+import brig.concord.yaml.psi.YAMLMapping
+import brig.concord.yaml.psi.YAMLSequence
+import brig.concord.yaml.psi.YamlPsiElementVisitor
+import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.codeInspection.LocalQuickFix
+import com.intellij.codeInspection.ProblemDescriptor
+import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiElementVisitor
@@ -11,13 +20,6 @@ import com.intellij.psi.util.elementType
 import com.intellij.psi.util.endOffset
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.annotations.Nls
-import brig.concord.ConcordBundle
-import brig.concord.yaml.YAMLElementGenerator
-import brig.concord.yaml.YAMLTokenTypes
-import brig.concord.yaml.psi.YAMLKeyValue
-import brig.concord.yaml.psi.YAMLMapping
-import brig.concord.yaml.psi.YAMLSequence
-import brig.concord.yaml.psi.YamlPsiElementVisitor
 import java.util.function.Consumer
 
 class YAMLDuplicatedKeysInspection : LocalInspectionTool() {
@@ -43,12 +45,14 @@ class YAMLDuplicatedKeysInspection : LocalInspectionTool() {
             val allLists = value.all { it.value is YAMLSequence }
             val fixes = if (allObjects || allLists) arrayOf(MergeDuplicatedSectionsQuickFix(), RemoveDuplicatedKeyQuickFix()) else arrayOf(RemoveDuplicatedKeyQuickFix())
             value.forEach(Consumer { duplicatedKey: YAMLKeyValue ->
-              checkNotNull(duplicatedKey.key)
-              checkNotNull(duplicatedKey.parentMapping) { "This key is gotten from mapping" }
-              holder.registerProblem(duplicatedKey.key!!,
-                                     ConcordBundle.message("YAMLDuplicatedKeysInspection.duplicated.key", key),
-                                     ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-                                     *fixes)
+                checkNotNull(duplicatedKey.key)
+                checkNotNull(duplicatedKey.parentMapping) { "This key is gotten from mapping" }
+                holder.registerProblem(
+                    duplicatedKey.key!!,
+                    ConcordBundle.message("YAMLDuplicatedKeysInspection.duplicated.key", key),
+                    ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+                    *fixes
+                )
             })
           }
         }
@@ -91,7 +95,8 @@ class YAMLDuplicatedKeysInspection : LocalInspectionTool() {
 
     private fun mergeMappings(mapping: YAMLMapping,
                               it: YAMLKeyValue,
-                              generator: YAMLElementGenerator): Boolean {
+                              generator: YAMLElementGenerator
+    ): Boolean {
       val currentMapping = it.value as? YAMLMapping ?: return false
       currentMapping.keyValues.forEach { pp ->
         mapping.getKeyValueByKey(pp.keyText)?.let {
@@ -114,7 +119,8 @@ class YAMLDuplicatedKeysInspection : LocalInspectionTool() {
 
     private fun mergeSequences(sequence: YAMLSequence,
                                it: YAMLKeyValue,
-                               generator: YAMLElementGenerator): Boolean {
+                               generator: YAMLElementGenerator
+    ): Boolean {
       val currentSequence = it.value as? YAMLSequence ?: return false
       currentSequence.items.forEach { pp ->
         if (pp.value != null) {

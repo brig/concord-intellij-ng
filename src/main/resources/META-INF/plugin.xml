@@ -37,8 +37,8 @@
                   fieldName="INSTANCE" language="Concord"
                   extensions="concord.yml" patterns="*.concord.yml;concord.yml;*.concord.yaml;concord.yaml"/>
 
-<!--        <annotator language="yaml" implementationClass="brig.concord.annotator.CronExpressionAnnotator"/>-->
         <lang.foldingBuilder language="Concord" implementationClass="brig.concord.folding.CronExpressionFolding"/>
+        <lang.foldingBuilder language="Concord" id="YAMLFolding" implementationClass="brig.concord.yaml.folding.YAMLFoldingBuilder"/>
 
         <lang.findUsagesProvider language="Concord" implementationClass="brig.concord.FindUsageProvider"/>
         <usageTypeProvider implementation="brig.concord.FlowUsageTypeProvider"/>
@@ -46,6 +46,9 @@
         <psi.referenceContributor language="Concord" implementation="brig.concord.ConcordYamlReferenceContributor"/>
         <completion.contributor implementationClass="brig.concord.completion.ConcordCompletions"
                                 order="first" language="Concord"/>
+
+<!--        <annotator language="Concord"-->
+<!--                   implementationClass="brig.concord.highlighter.HighlighterAnnotator"/>-->
 
         <!-- disabled: performance issues -->
 <!--        <documentationProvider order="first" implementation="brig.concord.documentation.ConcordDocumentationProvider" />-->
@@ -56,6 +59,7 @@
         <enterHandlerDelegate implementation="brig.concord.smart.ConcordYamlEnterAtIndentHandler" order="first"/>
 
         <annotator language="Concord" implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>
+
 
         <!-- inspections -->
         <localInspection displayName="Unknown keys" groupPath="Concord" language="Concord"
@@ -68,10 +72,10 @@
                          enabledByDefault="true" level="ERROR" groupName="Structure"
                          implementationClass="brig.concord.inspection.ValueInspection"/>
         <localInspection language="Concord" bundle="messages.ConcordBundle"
-                         shortName="YAMLDuplicatedKeys" level="ERROR"
+                         shortName="ConcordYAMLDuplicatedKeys" level="ERROR"
                          key="inspections.duplicated.keys.name"
                          groupKey="inspections.group.name" enabledByDefault="true"
-                         implementationClass="brig.concord.inspection.YAMLDuplicatedKeysInspection"/>
+                         implementationClass="brig.concord.yaml.inspections.YAMLDuplicatedKeysInspection"/>
     </extensions>
 
 </idea-plugin>
