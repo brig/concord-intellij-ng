@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- folding for flows
+- structure view
+
 ## [0.13.0]
 - folding for cron triggers spec
 

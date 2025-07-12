@@ -47,6 +47,8 @@
         <completion.contributor implementationClass="brig.concord.completion.ConcordCompletions"
                                 order="first" language="Concord"/>
 
+        <lang.psiStructureViewFactory language="Concord" implementationClass="brig.concord.structureView.ConcordStructureViewFactory"/>
+
 <!--        <annotator language="Concord"-->
 <!--                   implementationClass="brig.concord.highlighter.HighlighterAnnotator"/>-->
 
