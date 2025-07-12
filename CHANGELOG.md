@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+## [0.14.0]
 - folding for flows
 - structure view
 
