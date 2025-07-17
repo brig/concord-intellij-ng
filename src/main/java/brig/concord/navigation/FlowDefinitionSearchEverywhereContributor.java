@@ -120,7 +120,7 @@ public class FlowDefinitionSearchEverywhereContributor implements SearchEverywhe
                 if (file == null || !file.isValid()) {
                     continue;
                 }
-                
+
                 PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
                 if (psiFile == null) {
                     continue;
