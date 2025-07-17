@@ -1,6 +1,7 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
+- fix navigation error: target not valid 
 
 ## [0.14.0]
 - folding for flows
