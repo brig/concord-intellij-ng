@@ -117,6 +117,10 @@ public class FlowDefinitionSearchEverywhereContributor implements SearchEverywhe
                     filter);
 
             for (VirtualFile file : files.getResults()) {
+                if (file == null || !file.isValid()) {
+                    continue;
+                }
+                
                 PsiFile psiFile = PsiManager.getInstance(myProject).findFile(file);
                 if (psiFile == null) {
                     continue;

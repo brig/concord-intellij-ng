@@ -30,17 +30,20 @@ public class FlowDefinitionNavigationItem implements NavigationItem {
 
     @Override
     public void navigate(boolean requestFocus) {
+        if (!canNavigate()) {
+            return;
+        }
         myNavigatable.navigate(requestFocus);
     }
 
     @Override
     public boolean canNavigate() {
-        return true;
+        return myFile.isValid();
     }
 
     @Override
     public boolean canNavigateToSource() {
-        return true;
+        return canNavigate();
     }
 
     @NotNull
