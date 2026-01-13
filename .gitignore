@@ -3,3 +3,5 @@
 .idea
 .qodana
 build
+.kotlin
+.DS_Store
