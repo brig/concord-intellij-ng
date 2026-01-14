@@ -1,11 +1,14 @@
 package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
+import brig.concord.highlighting.ConcordHighlightingColors;
+import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallStepMetaType;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.CompletionContext;
@@ -15,8 +18,9 @@ import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-public class StepElementMetaType extends IdentityElementMetaType {
+public class StepElementMetaType extends IdentityElementMetaType implements HighlightProvider {
 
     private static final List<IdentityMetaType> steps = List.of(
             TaskStepMetaType.getInstance(),
@@ -73,5 +77,30 @@ public class StepElementMetaType extends IdentityElementMetaType {
             return result;
         }
         return Collections.emptyList();
+    }
+
+    private static final Set<String> CONTROL_KEYWORDS = Set.of("then", "else",  "default");
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        if (CONTROL_KEYWORDS.contains(key)) {
+            return ConcordHighlightingColors.STEP_KEYWORD;
+        }
+
+        for (var step : steps) {
+            if (step.getIdentity().equals(key)) {
+                return ConcordHighlightingColors.STEP_KEYWORD;
+            }
+        }
+
+        return ConcordHighlightingColors.DSL_KEY;
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getValueHighlight(String value) {
+        if ("return".equals(value) || "exit".equals(value)) {
+            return ConcordHighlightingColors.STEP_KEYWORD;
+        }
+        return null;
     }
 }

@@ -1,6 +1,8 @@
 package brig.concord.meta.model.call;
 
 import brig.concord.ConcordBundle;
+import brig.concord.highlighting.ConcordHighlightingColors;
+import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.StringMetaType;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
@@ -9,6 +11,7 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
@@ -23,12 +26,17 @@ import java.util.stream.Collectors;
 
 import static brig.concord.meta.model.ExpressionMetaType.containsExpression;
 
-public class CallMetaType extends StringMetaType {
+public class CallMetaType extends StringMetaType implements HighlightProvider {
 
     private static final CallMetaType INSTANCE = new CallMetaType();
 
     public static CallMetaType getInstance() {
         return INSTANCE;
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getValueHighlight(String value) {
+        return ConcordHighlightingColors.TARGET_IDENTIFIER;
     }
 
     @Override

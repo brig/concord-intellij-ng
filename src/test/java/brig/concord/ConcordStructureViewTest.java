@@ -38,7 +38,7 @@ public class ConcordStructureViewTest extends BasePlatformTestCase {
                 var root = svc.getTreeModel().getRoot();
                 assertNotNull(root);
 
-                printStructure(root, 0);
+//                printStructure(root, 0);
 
                 var children = root.getChildren();
                 assertNotNull(children);
@@ -79,7 +79,7 @@ public class ConcordStructureViewTest extends BasePlatformTestCase {
                 var root = svc.getTreeModel().getRoot();
                 assertNotNull(root);
 
-                printStructure(root, 0);
+//                printStructure(root, 0);
 
                 var children = root.getChildren();
                 assertNotNull(children);

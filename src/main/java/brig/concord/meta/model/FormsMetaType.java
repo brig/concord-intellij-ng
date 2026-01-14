@@ -1,5 +1,8 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
+import brig.concord.meta.HighlightProvider;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
@@ -9,7 +12,7 @@ import brig.concord.yaml.psi.YAMLMapping;
 
 import java.util.List;
 
-public class FormsMetaType extends MapMetaType {
+public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
     private static final FormsMetaType INSTANCE = new FormsMetaType();
 
@@ -33,7 +36,12 @@ public class FormsMetaType extends MapMetaType {
         return defaultCompletions;
     }
 
-    private static class FieldsWrapper extends MapMetaType {
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KIND;
+    }
+
+    private static class FieldsWrapper extends MapMetaType implements HighlightProvider {
 
         private static final FieldsWrapper INSTANCE = new FieldsWrapper();
 
@@ -55,6 +63,11 @@ public class FormsMetaType extends MapMetaType {
         @Override
         public @NotNull List<Field> computeKeyCompletions(@Nullable YAMLMapping existingMapping) {
             return defaultCompletions;
+        }
+
+        @Override
+        public @Nullable TextAttributesKey getKeyHighlight(String key) {
+            return ConcordHighlightingColors.DSL_KIND;
         }
     }
 

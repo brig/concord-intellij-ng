@@ -28,7 +28,7 @@ import brig.concord.yaml.psi.YAMLValue;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-@Service
+@Service(Service.Level.PROJECT)
 public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
 
     private static final Logger LOG = Logger.getInstance(ConcordMetaTypeProvider.class);

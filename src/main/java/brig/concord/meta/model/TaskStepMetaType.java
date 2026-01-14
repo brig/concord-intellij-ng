@@ -1,7 +1,11 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
+import brig.concord.meta.HighlightProvider;
 import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,8 +20,8 @@ public class TaskStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "task", StringMetaType::getInstance,
-            "name", StringMetaType::getInstance,
+            "task", TaskNameMetaType::getInstance,
+            "name", StepNameMetaType::getInstance,
             "in", InParamsMetaType::getInstance,
             "out", TaskOutParamsMetaType::getInstance,
             "ignoreErrors", YamlBooleanType::getSharedInstance,
@@ -34,5 +38,19 @@ public class TaskStepMetaType extends IdentityMetaType {
     @Override
     protected Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
+    }
+
+    static class TaskNameMetaType extends StringMetaType implements HighlightProvider {
+
+        private static final TaskNameMetaType INSTANCE = new TaskNameMetaType();
+
+        public static TaskNameMetaType getInstance() {
+            return INSTANCE;
+        }
+
+        @Override
+        public @Nullable TextAttributesKey getValueHighlight(String value) {
+            return ConcordHighlightingColors.TARGET_IDENTIFIER;
+        }
     }
 }

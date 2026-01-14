@@ -1,8 +1,16 @@
 # concord-intellij-plugin Changelog
 
 ## [Unreleased]
-- fix navigation error: target not valid 
 
+### Added
+- Implemented syntax highlighting support 
+([#25](https://github.com/brig/concord-intellij-ng/pull/25))
+
+### Changed
+- Updated supported IntelliJ IDEA version
+([#25](https://github.com/brig/concord-intellij-ng/pull/25))
+- Fixed navigation error where targets could become invalid  
+  
 ## [0.14.0]
 - folding for flows
 - structure view

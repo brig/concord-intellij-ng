@@ -1,18 +1,22 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.HighlightProvider;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlIntegerType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class RetryMetaType extends ConcordMetaType {
+public class RetryMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final RetryMetaType INSTANCE = new RetryMetaType();
 
@@ -33,6 +37,11 @@ public class RetryMetaType extends ConcordMetaType {
     @Override
     protected Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KEY;
     }
 
     private static class TimesType extends YamlAnyOfType {

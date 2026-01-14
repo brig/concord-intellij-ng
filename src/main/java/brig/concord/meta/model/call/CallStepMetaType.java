@@ -16,7 +16,7 @@ public class CallStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", StringMetaType::getInstance,
+            "name", StepNameMetaType::getInstance,
             "call", CallMetaType::getInstance,
             "in", CallInParamsMetaType::getInstance,
             "out", CallOutParamsMetaType::getInstance,

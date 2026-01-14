@@ -1,6 +1,7 @@
 package brig.concord;
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
+import com.intellij.lang.annotation.HighlightSeverity;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -160,7 +161,9 @@ public class OkInspectionTests extends BaseInspectionTest {
     }
 
     private void assertNoErrors() {
-        List<HighlightInfo> highlighting = myFixture.doHighlighting();
+        List<HighlightInfo> highlighting = myFixture.doHighlighting().stream()
+                .filter(info -> info.getSeverity() == HighlightSeverity.ERROR)
+                .toList();
         if (!highlighting.isEmpty()) {
             fail(dump(highlighting));
         }

@@ -15,7 +15,7 @@ public class ScriptStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", StringMetaType::getInstance,
+            "name", StepNameMetaType::getInstance,
             "script", StringMetaType::getInstance,
             "body", StringMetaType::getInstance,
             "in", InParamsMetaType::getInstance,

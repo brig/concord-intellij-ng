@@ -1,16 +1,20 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.yaml.meta.model.YamlArrayType;
 import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class GitTriggerEntryMetaType extends ConcordMetaType {
+public class GitTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final GitTriggerEntryMetaType INSTANCE = new GitTriggerEntryMetaType();
 
@@ -46,7 +50,12 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
         return required;
     }
 
-    private static class RepositoryInfoMetaType extends ConcordMetaType {
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KEY;
+    }
+
+    private static class RepositoryInfoMetaType extends ConcordMetaType implements HighlightProvider {
 
         private static final RepositoryInfoMetaType INSTANCE = new RepositoryInfoMetaType();
 
@@ -69,9 +78,14 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
         protected Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
+
+        @Override
+        public @Nullable TextAttributesKey getKeyHighlight(String key) {
+            return ConcordHighlightingColors.DSL_KEY;
+        }
     }
 
-    private static class FilesMetaType extends ConcordMetaType {
+    private static class FilesMetaType extends ConcordMetaType implements HighlightProvider {
 
         private static final FilesMetaType INSTANCE = new FilesMetaType();
 
@@ -94,9 +108,14 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
         protected Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
+
+        @Override
+        public @Nullable TextAttributesKey getKeyHighlight(String key) {
+            return ConcordHighlightingColors.DSL_KEY;
+        }
     }
 
-    private static class ConditionsMetaType extends ConcordMetaType {
+    private static class ConditionsMetaType extends ConcordMetaType implements HighlightProvider {
 
         private static final ConditionsMetaType INSTANCE = new ConditionsMetaType();
 
@@ -131,6 +150,11 @@ public class GitTriggerEntryMetaType extends ConcordMetaType {
         @Override
         protected Set<String> getRequiredFields() {
             return required;
+        }
+
+        @Override
+        public @Nullable TextAttributesKey getKeyHighlight(String key) {
+            return ConcordHighlightingColors.DSL_KEY;
         }
     }
 }

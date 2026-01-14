@@ -1,8 +1,11 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.HighlightProvider;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.ConcordBundle;
 import brig.concord.yaml.meta.model.YamlEnumType;
@@ -10,13 +13,14 @@ import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class TriggerExclusiveMetaType extends ConcordMetaType {
+public class TriggerExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
 
     public static class ModeType extends YamlEnumType {
 
@@ -51,6 +55,11 @@ public class TriggerExclusiveMetaType extends ConcordMetaType {
     @Override
     protected Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KEY;
     }
 
     @Override
