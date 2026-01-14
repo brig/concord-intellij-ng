@@ -1,5 +1,8 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
+import brig.concord.meta.HighlightProvider;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
@@ -11,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class TriggerElementMetaType extends IdentityElementMetaType {
+public class TriggerElementMetaType extends IdentityElementMetaType implements HighlightProvider {
 
     private static final List<IdentityMetaType> entries = List.of(
             new TriggerMetaType("github", GitTriggerEntryMetaType::getInstance),
@@ -45,6 +48,11 @@ public class TriggerElementMetaType extends IdentityElementMetaType {
 
     protected TriggerElementMetaType() {
         super("Triggers", entries);
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KIND;
     }
 
     @Override

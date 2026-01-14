@@ -1,19 +1,23 @@
 package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
+import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.HighlightProvider;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLScalar;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class ProcessExclusiveMetaType extends ConcordMetaType {
+public class ProcessExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final ProcessExclusiveMetaType INSTANCE = new ProcessExclusiveMetaType();
 
@@ -40,6 +44,11 @@ public class ProcessExclusiveMetaType extends ConcordMetaType {
     @Override
     protected Set<String> getRequiredFields() {
         return requiredFeatures;
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KEY;
     }
 
     private static class GroupMetaType extends StringMetaType {

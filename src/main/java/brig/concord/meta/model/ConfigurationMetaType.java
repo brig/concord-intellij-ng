@@ -2,18 +2,22 @@ package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
 import brig.concord.documentation.Documented;
+import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlIntegerType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class ConfigurationMetaType extends ConcordMetaType implements Documented {
+public class ConfigurationMetaType extends ConcordMetaType implements Documented, HighlightProvider {
 
     private static final ConfigurationMetaType INSTANCE = new ConfigurationMetaType();
 
@@ -52,5 +56,10 @@ public class ConfigurationMetaType extends ConcordMetaType implements Documented
     @Override
     public String getDescription() {
         return ConcordBundle.message("Configuration.description");
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KEY;
     }
 }

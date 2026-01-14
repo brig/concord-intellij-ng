@@ -1,12 +1,16 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.HighlightProvider;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class ProfilesMetaType extends MapMetaType {
+public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
 
     private static final ProfilesMetaType INSTANCE = new ProfilesMetaType();
 
@@ -23,7 +27,12 @@ public class ProfilesMetaType extends MapMetaType {
         return ProfilesEntryMetaType.getInstance();
     }
 
-    private static class ProfilesEntryMetaType extends ConcordMetaType {
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KIND;
+    }
+
+    private static class ProfilesEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
         private static final ProfilesEntryMetaType INSTANCE = new ProfilesEntryMetaType();
 
@@ -44,6 +53,11 @@ public class ProfilesMetaType extends MapMetaType {
         @Override
         protected Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
+        }
+
+        @Override
+        public @Nullable TextAttributesKey getKeyHighlight(String key) {
+            return ConcordHighlightingColors.DSL_SECTION;
         }
     }
 }

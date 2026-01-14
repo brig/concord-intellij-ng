@@ -1,19 +1,23 @@
 package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
+import brig.concord.highlighting.ConcordHighlightingColors;
+import brig.concord.meta.HighlightProvider;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class ImportElementMetaType extends IdentityElementMetaType {
+public class ImportElementMetaType extends IdentityElementMetaType implements HighlightProvider {
 
     private static final List<IdentityMetaType> entries = List.of(
             new ImportMetaType("dir", DirImportEntryMetaType::getInstance),
@@ -29,6 +33,11 @@ public class ImportElementMetaType extends IdentityElementMetaType {
 
     protected ImportElementMetaType() {
         super("Imports", entries);
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KIND;
     }
 
     private static class ImportMetaType extends IdentityMetaType {

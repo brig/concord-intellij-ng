@@ -2,6 +2,7 @@ package brig.concord;
 
 import brig.concord.meta.model.AnyOfType;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
+import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -2022,7 +2023,10 @@ public class ErrorInspectionTests extends BaseInspectionTest {
         }
 
         public void check() {
-            List<HighlightInfo> highlighting = new ArrayList<>(fixture.doHighlighting());
+            List<HighlightInfo> highlighting = new ArrayList<>(fixture.doHighlighting().stream()
+                    .filter(highlightInfo -> highlightInfo.getSeverity() == HighlightSeverity.ERROR)
+                    .toList());
+
             assertEquals(dump(highlighting) + "\n", errors.size(), highlighting.size());
 
             for (String error : errors) {

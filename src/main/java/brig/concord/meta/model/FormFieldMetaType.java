@@ -1,8 +1,11 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.HighlightProvider;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.ConcordBundle;
 import brig.concord.yaml.meta.model.Field;
@@ -12,13 +15,14 @@ import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class FormFieldMetaType extends ConcordMetaType {
+public class FormFieldMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final FormFieldMetaType INSTANCE = new FormFieldMetaType();
 
@@ -85,6 +89,11 @@ public class FormFieldMetaType extends ConcordMetaType {
     @Override
     protected Set<String> getRequiredFields() {
         return required;
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KEY;
     }
 
     @Override

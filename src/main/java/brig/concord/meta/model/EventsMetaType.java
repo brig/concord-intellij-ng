@@ -1,14 +1,18 @@
 package brig.concord.meta.model;
 
+import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
+import brig.concord.meta.HighlightProvider;
 import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class EventsMetaType extends ConcordMetaType {
+public class EventsMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final EventsMetaType INSTANCE = new EventsMetaType();
 
@@ -41,5 +45,10 @@ public class EventsMetaType extends ConcordMetaType {
     @Override
     protected Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
+    }
+
+    @Override
+    public @Nullable TextAttributesKey getKeyHighlight(String key) {
+        return ConcordHighlightingColors.DSL_KEY;
     }
 }

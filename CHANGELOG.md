@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 - fix navigation error: target not valid 
+- syntax highlighting
+- Intellij version up
 
 ## [0.14.0]
 - folding for flows

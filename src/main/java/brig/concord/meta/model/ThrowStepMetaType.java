@@ -17,7 +17,7 @@ public class ThrowStepMetaType extends IdentityMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "throw", YamlStringType::getInstance,
-            "name", StringMetaType::getInstance);
+            "name", StepNameMetaType::getInstance);
 
     protected ThrowStepMetaType() {
         super("Throw", "throw", Set.of("throw"));
