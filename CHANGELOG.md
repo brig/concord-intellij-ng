@@ -3,7 +3,9 @@
 ## [Unreleased]
 - fix navigation error: target not valid 
 - syntax highlighting
+([#25](https://github.com/brig/concord-intellij-ng/pull/25));
 - Intellij version up
+([#25](https://github.com/brig/concord-intellij-ng/pull/25));
 
 ## [0.14.0]
 - folding for flows
