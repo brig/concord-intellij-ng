@@ -7,7 +7,7 @@
 ([#25](https://github.com/brig/concord-intellij-ng/pull/25))
 
 ### Changed
-- Updated supported IntelliJ IDEA version
+- Updated supported IntelliJ IDEA version (2025.3.1)
 ([#25](https://github.com/brig/concord-intellij-ng/pull/25))
 - Fixed navigation error where targets could become invalid  
   
