@@ -10,6 +10,18 @@ import java.util.Collection;
 
 public class FindUsageTest extends BasePlatformTestCase {
 
+    @BeforeEach
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
+
+    @AfterEach
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+
     @Override
     protected String getTestDataPath() {
         return "./src/test/resources/findUsage";
