@@ -1,4 +1,4 @@
-package brig.concord;
+package brig.concord.structureView;
 
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;

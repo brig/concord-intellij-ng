@@ -1,8 +1,5 @@
-package brig.concord;
+package brig.concord.documentation;
 
-import brig.concord.documentation.FlowDefinitionDocumentationParser;
-import brig.concord.documentation.FlowDocumentation;
-import brig.concord.documentation.ParamType;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.PsiCommentImpl;

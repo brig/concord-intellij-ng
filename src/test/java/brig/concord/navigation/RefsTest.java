@@ -1,41 +1,22 @@
-package brig.concord;
+package brig.concord.navigation;
 
+import brig.concord.ConcordYamlTestBase;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import brig.concord.yaml.psi.YAMLKeyValue;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RefsTest extends BasePlatformTestCase {
-
-    @BeforeEach
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @AfterEach
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    @Override
-    protected String getTestDataPath() {
-        return "./src/test/resources/refs";
-    }
+public class RefsTest extends ConcordYamlTestBase {
 
     @Test
     public void testCallReference() {
-        myFixture.configureByFile("flowCall/concord.yml");
+        configureFromResource("/refs/flowCall/concord.yml");
 
         ReadAction.run(() -> {
             PsiElement elementAtCaret = myFixture.getElementAtCaret();
-            Assertions.assertTrue(elementAtCaret instanceof YAMLKeyValue);
+            Assertions.assertInstanceOf(YAMLKeyValue.class, elementAtCaret);
             YAMLKeyValue flowDef = (YAMLKeyValue)elementAtCaret;
             assertNotNull(flowDef);
             Assertions.assertEquals("test", flowDef.getKeyText());
@@ -53,11 +34,11 @@ public class RefsTest extends BasePlatformTestCase {
     }
 
     private void assertCallInParams(String file, String expectedComment) {
-        myFixture.configureByFile(file);
+        configureFromResource("/refs/" + file);
 
         ReadAction.run(() -> {
             PsiElement elementAtCaret = myFixture.getElementAtCaret();
-            Assertions.assertTrue(elementAtCaret instanceof PsiComment);
+            Assertions.assertInstanceOf(PsiComment.class, elementAtCaret);
             PsiComment inParamDef = (PsiComment)elementAtCaret;
             Assertions.assertEquals(expectedComment, inParamDef.getText());
         });
