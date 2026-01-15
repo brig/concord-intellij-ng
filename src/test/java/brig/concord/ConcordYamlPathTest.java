@@ -1,4 +1,4 @@
-package brig.concord.psi;
+package brig.concord;
 
 import brig.concord.yaml.psi.YAMLFile;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;

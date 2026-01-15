@@ -63,14 +63,14 @@ public class YamlAnyOfType extends YamlComposedTypeBase {
         if (value instanceof YAMLScalar) {
             types = listScalarSubTypes();
             if (types.isEmpty()) { // value kind does not match, let some scalar component to report it
-                types = Collections.singletonList(listNonScalarSubTypes().get(0));
+                types = firstOrEmpty(listNonScalarSubTypes());
             }
         }
         else {
             types = listNonScalarSubTypes();
             if (types.isEmpty()) {
                 // only scalar components, let one of them report it
-                types = Collections.singletonList(listScalarSubTypes().get(0));
+                types = firstOrEmpty(listScalarSubTypes());
             }
         }
         List<ProblemsHolder> allProblems = allProblemsOrEmpty(problemsHolder, types,
@@ -100,5 +100,9 @@ public class YamlAnyOfType extends YamlComposedTypeBase {
             problems.add(nextHolder);
         }
         return problems;
+    }
+
+    private static @NotNull List<YamlMetaType> firstOrEmpty(@NotNull List<YamlMetaType> list) {
+        return list.isEmpty() ? Collections.emptyList() : Collections.singletonList(list.getFirst());
     }
 }

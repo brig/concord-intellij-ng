@@ -75,12 +75,6 @@ public class ProcessDefinition {
         }
 
         return null;
-
-//        return allDefinitions().stream()
-//                .map(d -> flow(d, name))
-//                .filter(Objects::nonNull)
-//                .findFirst()
-//                .orElse(null);
     }
 
     public Set<String> flowNames() {

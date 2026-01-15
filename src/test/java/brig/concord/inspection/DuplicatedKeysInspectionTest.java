@@ -1,9 +1,7 @@
 package brig.concord.inspection;
 
-import brig.concord.psi.ConcordYamlPath;
 import brig.concord.yaml.psi.YAMLFile;
 import com.intellij.codeInspection.LocalInspectionTool;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
