@@ -4,6 +4,8 @@
 
 ### Changed
 
+- Improved inspection descriptions for Concord YAML files
+([#28](https://github.com/brig/concord-intellij-ng/pull/28))
 - Removed unused YAML syntax highlighting files and refactored `DuplicatedKeysInspection` inspection and tests
 ([#27](https://github.com/brig/concord-intellij-ng/pull/27))
 
