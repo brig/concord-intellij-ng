@@ -1,14 +1,15 @@
 package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.meta.model.YamlScalarType;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,16 @@ import java.util.stream.Stream;
 public class AnyOfType extends YamlAnyOfType {
 
     public static AnyOfType anyOf(YamlMetaType... types) {
-        String name = "AnyOf[" + Stream.of(types).map(YamlMetaType::getDisplayName).collect(Collectors.joining()) + "]";
+        if (types == null || types.length == 0) {
+            throw new IllegalArgumentException("AnyOfType.anyOf() requires at least one subtype");
+        }
+
+        // Make it readable in logs/debugging/UI
+        var display = Stream.of(types)
+                .map(YamlMetaType::getDisplayName)
+                .collect(Collectors.joining("|"));
+
+        var name = "AnyOf[" + display + "]";
         return new AnyOfType(name, flattenTypes(types));
     }
 
@@ -28,37 +38,66 @@ public class AnyOfType extends YamlAnyOfType {
 
     @Override
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        List<YamlMetaType> types;
-        if (value instanceof YAMLScalar) {
-            types = listScalarSubTypes();
-            if (types.isEmpty()) {
-                // value kind does not match, let some non scalar component to report it
-                types = Collections.singletonList(listNonScalarSubTypes().get(0));
-            }
-        }
-        else {
-            types = listNonScalarSubTypes();
-            if (types.isEmpty()) {
-                // only scalar components, let one of them report it
-                types = Collections.singletonList(listScalarSubTypes().get(0));
-            }
-        }
+        List<YamlMetaType> candidates = candidateTypesFor(value);
 
-//        List<ProblemsHolder> problems = new SmartList<>();
-        for (YamlMetaType nextType : types) {
+        for (YamlMetaType nextType : candidates) {
             ProblemsHolder nextHolder = makeCopy(problemsHolder);
             nextType.validateValue(value, nextHolder);
             if (!nextHolder.hasResults()) {
-                return;
+                return; // at least one subtype accepts the value
             }
-//            problems.add(nextHolder);
         }
 
-//        problems.stream()
-//                .flatMap(h -> h.getResults().stream())
-//                .forEach(problemsHolder::registerProblem);
+        problemsHolder.registerProblem(
+                value,
+                ConcordBundle.message("invalid.value", expectedString()),
+                ProblemHighlightType.ERROR
+        );
+    }
 
-        problemsHolder.registerProblem(value, ConcordBundle.message("invalid.value", expectedString()), ProblemHighlightType.ERROR);
+    @Override
+    public void validateKey(@NotNull YAMLKeyValue keyValue, @NotNull ProblemsHolder problemsHolder) {
+        // Keys are always scalar-ish in YAML, but leave it generic: try all subtypes.
+        for (YamlMetaType nextType : streamSubTypes().toList()) {
+            ProblemsHolder nextHolder = makeCopy(problemsHolder);
+            nextType.validateKey(keyValue, nextHolder);
+            if (!nextHolder.hasResults()) {
+                return; // accepted by at least one subtype
+            }
+        }
+
+        problemsHolder.registerProblem(
+                keyValue,
+                ConcordBundle.message("invalid.value", expectedString()),
+                ProblemHighlightType.ERROR
+        );
+    }
+
+    private @NotNull List<YamlMetaType> candidateTypesFor(@NotNull YAMLValue value) {
+        List<YamlMetaType> candidates;
+
+        if (value instanceof YAMLScalar) {
+            candidates = listScalarSubTypes();
+            if (candidates.isEmpty()) {
+                // kind mismatch: let one non-scalar type report its "expected kind" error
+                candidates = firstOrEmpty(listNonScalarSubTypes());
+            }
+        } else {
+            candidates = listNonScalarSubTypes();
+            if (candidates.isEmpty()) {
+                // only scalar types exist: let one scalar type report its "expected kind" error
+                candidates = firstOrEmpty(listScalarSubTypes());
+            }
+        }
+
+        if (candidates.isEmpty()) {
+            candidates = streamSubTypes().collect(Collectors.toList());
+        }
+        return candidates;
+    }
+
+    private static @NotNull List<YamlMetaType> firstOrEmpty(@NotNull List<YamlMetaType> list) {
+        return list.isEmpty() ? Collections.emptyList() : Collections.singletonList(list.getFirst());
     }
 
     public boolean isScalar() {
@@ -66,6 +105,8 @@ public class AnyOfType extends YamlAnyOfType {
     }
 
     public String expectedString() {
-        return streamSubTypes().map(YamlMetaType::getDisplayName).collect(Collectors.joining("|"));
+        return streamSubTypes()
+                .map(YamlMetaType::getDisplayName)
+                .collect(Collectors.joining("|"));
     }
 }

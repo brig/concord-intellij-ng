@@ -16,7 +16,7 @@ import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLSequenceItem;
 import brig.concord.yaml.psi.YAMLValue;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -68,15 +68,19 @@ public class StepElementMetaType extends IdentityElementMetaType implements High
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
-        if (insertedScalar.getParent() instanceof YAMLSequenceItem) {
-            List result = super.getValueLookups(insertedScalar, completionContext);
-            result.add(LookupElementBuilder.create("return"));
-            result.add(LookupElementBuilder.create("exit"));
-            return result;
+        if (!(insertedScalar.getParent() instanceof YAMLSequenceItem)) {
+            return List.of();
         }
-        return Collections.emptyList();
+
+        var result = new ArrayList<LookupElement>(
+                super.getValueLookups(insertedScalar, completionContext)
+        );
+
+        result.add(LookupElementBuilder.create("return"));
+        result.add(LookupElementBuilder.create("exit"));
+
+        return result;
     }
 
     private static final Set<String> CONTROL_KEYWORDS = Set.of("then", "else",  "default");

@@ -57,7 +57,7 @@ public final class YamlPsiUtils {
             return null;
         }
 
-        return rootDocs.get(0);
+        return rootDocs.getFirst();
     }
 
     public static <T extends PsiElement> T get(PsiElement root, Class<T> type, String... path) {

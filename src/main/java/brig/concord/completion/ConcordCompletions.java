@@ -5,44 +5,20 @@ import brig.concord.psi.ConcordFile;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
-import com.intellij.psi.PsiElement;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.impl.YamlMetaTypeCompletionProviderBase;
 import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
 
-import java.util.HashMap;
 import java.util.List;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 
 public class ConcordCompletions extends CompletionContributor {
 
-    private static final HashMap<PsiElement, CompletionParameters> completionParametersHashMap = new HashMap<>();
-
     public ConcordCompletions() {
         extend(CompletionType.BASIC, psiElement(), new KeyCompletion());
-    }
-
-    public static PsiElement getPlaceholderToken() {
-        return completionParametersHashMap.keySet().stream().findFirst().orElse(null);
-    }
-
-    public static CompletionParameters getPlaceholderCompletionParameters() {
-        return completionParametersHashMap.values().stream().findFirst().orElse(null);
-    }
-
-    public static CompletionParameters getCompletionParameters(PsiElement element) {
-        return completionParametersHashMap.get(element);
-    }
-
-    public static void registerCompletionParameters(CompletionParameters parameters) {
-        completionParametersHashMap.put(parameters.getPosition(), parameters);
-    }
-
-    public static void removeCompletionParameters(CompletionParameters parameters) {
-        completionParametersHashMap.remove(parameters.getPosition());
     }
 
     static class KeyCompletion extends YamlMetaTypeCompletionProviderBase {
@@ -61,12 +37,7 @@ public class ConcordCompletions extends CompletionContributor {
                 return;
             }
 
-            ConcordCompletions.registerCompletionParameters(params);
-            try {
-                super.addCompletions(params, context, result);
-            } finally {
-                ConcordCompletions.removeCompletionParameters(params);
-            }
+            super.addCompletions(params, context, result);
         }
 
         @Override

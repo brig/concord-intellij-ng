@@ -1,6 +1,5 @@
 package brig.concord;
 
-import brig.concord.psi.ConcordYamlPath;
 import brig.concord.yaml.psi.*;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;

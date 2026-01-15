@@ -18,8 +18,6 @@ import brig.concord.yaml.psi.impl.YAMLQuotedTextImpl;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class YAMLElementGenerator {
     private final Project myProject;
@@ -44,15 +42,6 @@ public class YAMLElementGenerator {
             }
         }
         return sb.toString();
-    }
-
-    public YAMLKeyValue createYamlKeyValueWithSequence(@NotNull String keyName, @NotNull Map<String, String> elementsMap) {
-        String yamlString = elementsMap
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(entry -> "%s: %s".formatted(entry.getKey(), entry.getValue()))
-                .collect(Collectors.joining("\n"));
-        return createYamlKeyValue(keyName, yamlString);
     }
 
     public @NotNull YAMLKeyValue createYamlKeyValue(@NotNull String keyName, @NotNull String valueText) {
@@ -106,57 +95,5 @@ public class YAMLElementGenerator {
         final PsiElement at = file.findElementAt("? foo ".length());
         assert at != null && at.getNode().getElementType() == YAMLTokenTypes.COLON;
         return at;
-    }
-
-    public @NotNull PsiElement createComma() {
-        final YAMLFile file = createDummyYamlWithText("[1,2]");
-        final PsiElement comma = file.findElementAt("[1".length());
-        assert comma != null && comma.getNode().getElementType() == YAMLTokenTypes.COMMA;
-        return comma;
-    }
-
-    public @NotNull PsiElement createDocumentMarker() {
-        final YAMLFile file = createDummyYamlWithText("---");
-        PsiElement at = file.findElementAt(0);
-        assert at != null && at.getNode().getElementType() == YAMLTokenTypes.DOCUMENT_MARKER;
-        return at;
-    }
-
-    public @NotNull YAMLSequence createEmptySequence() {
-        YAMLSequence sequence = PsiTreeUtil.findChildOfType(createDummyYamlWithText("- dummy"), YAMLSequence.class);
-        assert sequence != null;
-        sequence.deleteChildRange(sequence.getFirstChild(), sequence.getLastChild());
-        return sequence;
-    }
-
-    public @NotNull YAMLSequence createEmptyArray() {
-        YAMLSequence sequence = PsiTreeUtil.findChildOfType(createDummyYamlWithText("[]"), YAMLSequence.class);
-        assert sequence != null;
-        return sequence;
-    }
-
-    public @NotNull YAMLSequenceItem createEmptySequenceItem() {
-        YAMLSequenceItem sequenceItem = PsiTreeUtil.findChildOfType(createDummyYamlWithText("- dummy"), YAMLSequenceItem.class);
-        assert sequenceItem != null;
-        YAMLValue value = sequenceItem.getValue();
-        assert value != null;
-        value.deleteChildRange(value.getFirstChild(), value.getLastChild());
-        return sequenceItem;
-    }
-
-    public @NotNull YAMLSequenceItem createSequenceItem(String text) {
-        YAMLSequenceItem sequenceItem = PsiTreeUtil.findChildOfType(createDummyYamlWithText("- " + text), YAMLSequenceItem.class);
-        assert sequenceItem != null;
-        YAMLValue value = sequenceItem.getValue();
-        assert value != null;
-        return sequenceItem;
-    }
-
-    public @NotNull YAMLSequenceItem createArrayItem(String text) {
-        YAMLSequenceItem sequenceItem = PsiTreeUtil.findChildOfType(createDummyYamlWithText("[" + text + "]"), YAMLSequenceItem.class);
-        assert sequenceItem != null;
-        YAMLValue value = sequenceItem.getValue();
-        assert value != null;
-        return sequenceItem;
     }
 }
