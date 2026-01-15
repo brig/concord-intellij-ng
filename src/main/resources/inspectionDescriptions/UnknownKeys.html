@@ -1,5 +1,27 @@
 <html>
 <body>
-Reports unknown keys in Concord yaml files.
+
+<p>
+    Reports unknown keys in Concord YAML files.
+</p>
+
+<p>
+    Concord YAML supports a well-defined set of keys at each level of a flow definition.
+    Unknown or misspelled keys are invalid and cause a validation error in Concord.
+    This inspection highlights keys that are not recognized in the current context so you can fix typos
+    or remove unsupported entries.
+</p>
+
+<pre><code>configuration:
+  runtime: concord-v2
+  timeout: 10  # ← unknown key (maybe `processTimeout`?)
+</code></pre>
+
+<!-- tooltip end -->
+
+<p>
+    This inspection is applied only to Concord YAML files.
+</p>
+
 </body>
 </html>
