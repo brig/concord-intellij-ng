@@ -1,15 +1,13 @@
 package brig.concord;
 
 import brig.concord.psi.ConcordYamlPath;
-import brig.concord.yaml.psi.YAMLFile;
+import brig.concord.yaml.psi.*;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,11 +41,38 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         return configureFromText(loadResource(resourcePath));
     }
 
+    protected @NotNull AbstractTarget doc() {
+        return new AbstractTarget("/") {
+            @Override
+            public @NotNull String text() {
+                return ReadAction.compute(() -> document().getText());
+            }
+
+            @Override
+            public @NotNull TextRange range() {
+                return ReadAction.compute(() -> {
+                    var doc = myFixture.getEditor().getDocument();
+                    return TextRange.from(0, doc.getTextLength());
+                });
+            }
+        };
+    }
+
     protected @NotNull KeyTarget key(@NotNull String path) {
         if (yamlPath == null) {
             fail("yamlPath is null. Did you call configureFromText(...) ?");
         }
-        return new KeyTarget(path);
+        return new KeyTarget(path, 1);
+    }
+
+    protected @NotNull KeyTarget key(@NotNull String path, int occurrence) {
+        if (yamlPath == null) {
+            fail("yamlPath is null. Did you call configureFromText(...) ?");
+        }
+        if (occurrence < 1) {
+            fail("occurrence must be >= 1");
+        }
+        return new KeyTarget(path, occurrence);
     }
 
     protected @NotNull ValueTarget value(@NotNull String path) {
@@ -82,11 +107,6 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         /** Get the text range in the document */
         public abstract @NotNull TextRange range();
 
-        /** Get the PSI element at this target (if available) */
-        public @Nullable PsiElement psiElement() {
-            return null;
-        }
-
         public @NotNull String path() {
             return path;
         }
@@ -94,25 +114,79 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
 
     protected final class KeyTarget extends AbstractTarget {
 
-        private KeyTarget(String path) {
+        private final int occurrence;
+
+        private KeyTarget(String path, int occurrence) {
             super(path);
+            this.occurrence = occurrence;
         }
 
         @Override
         public @NotNull String text() {
-            return yamlPath.keyText(path);
+            if (occurrence == 1) {
+                return yamlPath.keyText(path);
+            } else {
+                return ReadAction.compute(() -> keyValue(path, occurrence).getKeyText());
+            }
         }
 
         @Override
         public @NotNull TextRange range() {
-            int start = yamlPath.keyStartOffset(path);
+            int start;
+            if (occurrence == 1) {
+                start = yamlPath.keyStartOffset(path);
+            } else {
+                start = keyStartOffset();
+            }
             return TextRange.from(start, text().length());
         }
 
-        @Override
-        public @Nullable PsiElement psiElement() {
-            return yamlPath.keyElement(path);
+        private  int keyStartOffset() {
+            return ReadAction.compute(() -> {
+                var key = keyValue(path, occurrence).getKey();
+                if (key == null) {
+                    throw new AssertionError("Null key for path: " + path);
+                }
+                return key.getTextRange().getStartOffset();
+            });
         }
+
+        private @NotNull YAMLKeyValue keyValue(String path, int occurrence) {
+            var split = splitParentAndName(path);
+            var parentPath = split.parentPath;
+            var name = split.name;
+
+            var parentValue = yamlPath.valueElement(parentPath);
+            if (!(parentValue instanceof YAMLMapping mapping)) {
+                throw new AssertionError("Expected mapping at parent path: " + parentPath + " (from " + path + ")");
+            }
+
+            var seen = 0;
+            for (var kv : mapping.getKeyValues()) {
+                if (name.equals(kv.getKeyText())) {
+                    seen++;
+                    if (seen == occurrence) {
+                        return kv;
+                    }
+                }
+            }
+
+            throw new AssertionError("Key '" + name + "' occurrence #" + occurrence + " not found under " + path);
+        }
+
+        private static Split splitParentAndName(String fullPath) {
+            var p = fullPath.trim();
+            if (p.endsWith("/")) p = p.substring(0, p.length() - 1);
+            int last = p.lastIndexOf('/');
+            if (last < 0 || last == p.length() - 1) {
+                throw new AssertionError("Invalid key path: " + fullPath + " (expected /.../name)");
+            }
+            var parent = (last == 0) ? "" : p.substring(0, last);
+            var name = p.substring(last + 1);
+            return new Split(parent, name);
+        }
+
+        private record Split(String parentPath, String name) {}
     }
 
     protected final class ValueTarget extends AbstractTarget {
@@ -123,7 +197,7 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
 
         @Override
         public @NotNull String text() {
-            return doc().getText(range());
+            return document().getText(range());
         }
 
         @Override
@@ -131,14 +205,9 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
             return yamlPath.valueRange(path);
         }
 
-        @Override
-        public @Nullable PsiElement psiElement() {
-            return yamlPath.valueElement(path);
-        }
-
         public @NotNull SubstringTarget substring(@NotNull String needle) {
             var vr = range();
-            var valueText = doc().getText(vr);
+            var valueText = document().getText(vr);
 
             var rel = valueText.indexOf(needle);
             if (rel < 0) {
@@ -170,7 +239,7 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         }
     }
 
-    private @NotNull Document doc() {
+    private @NotNull Document document() {
         return myFixture.getEditor().getDocument();
     }
 }

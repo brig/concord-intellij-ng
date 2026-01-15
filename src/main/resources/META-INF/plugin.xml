@@ -111,12 +111,12 @@
 
         <localInspection language="Concord"
                          bundle="messages.ConcordBundle"
-                         shortName="ConcordYAMLDuplicatedKeys"
+                         shortName="DuplicatedKeys"
                          level="ERROR"
                          key="inspections.duplicated.keys.name"
                          groupKey="inspections.group.name"
                          enabledByDefault="true"
-                         implementationClass="brig.concord.yaml.inspections.YAMLDuplicatedKeysInspection"/>
+                         implementationClass="brig.concord.inspection.DuplicatedKeysInspection"/>
     </extensions>
 
 </idea-plugin>
