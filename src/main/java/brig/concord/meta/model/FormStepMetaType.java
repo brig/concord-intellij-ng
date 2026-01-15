@@ -21,8 +21,8 @@ public class FormStepMetaType extends IdentityMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "form", StringMetaType::getInstance, // TODO: type for search
-            "yield", YamlBooleanType::getSharedInstance,
-            "saveSubmittedBy", YamlBooleanType::getSharedInstance,
+            "yield", BooleanMetaType::getInstance,
+            "saveSubmittedBy", BooleanMetaType::getInstance,
             "runAs", AnyMapMetaType::getInstance,
             "values", AnyMapMetaType::getInstance,
             "fields", FieldsType::getInstance

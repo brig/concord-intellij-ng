@@ -27,10 +27,7 @@ public abstract class YAMLBlockScalarTextEvaluator<T extends YAMLBlockScalarImpl
     }
 
     protected boolean shouldIncludeEolInRange(ASTNode child) {
-        if (isEol(child) && child.getTreeNext() == null && getChompingIndicator() == ChompingIndicator.KEEP) {
-            return true;
-        }
-        return false;
+        return isEol(child) && child.getTreeNext() == null && getChompingIndicator() == ChompingIndicator.KEEP;
     }
 
     protected boolean isEnding(@Nullable TextRange rangeInHost) {

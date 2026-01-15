@@ -38,7 +38,7 @@ public abstract class YamlPsiElementVisitor extends PsiElementVisitor {
         visitScalar(quotedText);
     }
 
-    public void visitScalar(@NotNull YAMLScalar scalar) {
+    public void visitScalar(YAMLScalar scalar) {
         visitValue(scalar);
     }
 

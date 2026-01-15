@@ -6,7 +6,6 @@ import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
-import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlIntegerType;
 import brig.concord.yaml.meta.model.YamlMetaType;
@@ -25,7 +24,7 @@ public class ConfigurationMetaType extends ConcordMetaType implements Documented
 
     static {
         features.put("runtime", () -> new YamlEnumType("runtime").withLiterals("concord-v2"));
-        features.put("debug", YamlBooleanType::getSharedInstance);
+        features.put("debug", BooleanMetaType::getInstance);
         features.put("entryPoint", CallMetaType::getInstance);
         features.put("dependencies", DependenciesMetaType::getInstance);
         features.put("arguments", AnyMapMetaType::getInstance);

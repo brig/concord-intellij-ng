@@ -9,6 +9,7 @@ import com.intellij.util.SmartList;
 import com.intellij.psi.tree.IElementType;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class YamlWhiteSpaceFormattingStrategy extends AbstractWhiteSpaceFormattingStrategy {
@@ -51,7 +52,7 @@ public class YamlWhiteSpaceFormattingStrategy extends AbstractWhiteSpaceFormatti
 
         CharSequence withIndent = split.stream()
                 .filter(s -> s.length() > 1)
-                .min((s1, s2) -> Integer.compare(s1.length(), s2.length()))
+                .min(Comparator.comparingInt(CharSequence::length))
                 .orElse(whiteSpaceText);
 
         StringBuilder result = new StringBuilder();

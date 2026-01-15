@@ -176,13 +176,13 @@ public abstract class YamlMetaTypeCompletionProviderBase extends CompletionProvi
             final Collection<List<Field>> paths = collectPaths(filteredList, !pattern.isEmpty() ? 10 : 1);
 
             for (List<Field> pathToInsert : paths) {
-                final Field lastField = pathToInsert.get(pathToInsert.size() - 1);
+                final Field lastField = pathToInsert.getLast();
                 if (StringUtil.toLowerCase(lastField.getName()).startsWith(pattern)) {
                     final YamlMetaType.ForcedCompletionPath completionPath = YamlMetaType.ForcedCompletionPath.forDeepCompletion(pathToInsert);
                     LookupElementBuilder l = LookupElementBuilder
                             .create(completionPath, completionPath.getName())
                             .withIcon(lastField.getLookupIcon())
-                            .withInsertHandler(createKeyInsertHandler(params.getPosition().getProject(), needsSequenceItemMark, pathToInsert.get(0)))
+                            .withInsertHandler(createKeyInsertHandler(params.getPosition().getProject(), needsSequenceItemMark, pathToInsert.getFirst()))
                             .withTypeText(lastField.getDefaultType().getDisplayName(), true)
                             .withStrikeoutness(lastField.isDeprecated());
                     result.addElement(l);

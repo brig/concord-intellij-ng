@@ -132,7 +132,7 @@ public abstract class YAMLScalarImpl extends YAMLValueImpl implements YAMLScalar
                 contentRanges = myHost.getContentRanges();
             }
             if (contentRanges.isEmpty()) return TextRange.EMPTY_RANGE;
-            return TextRange.create(contentRanges.get(0).getStartOffset(), contentRanges.get(contentRanges.size() - 1).getEndOffset());
+            return TextRange.create(contentRanges.getFirst().getStartOffset(), contentRanges.getLast().getEndOffset());
         }
 
         @Override
@@ -141,8 +141,8 @@ public abstract class YAMLScalarImpl extends YAMLValueImpl implements YAMLScalar
             int currentOffsetInDecoded = 0;
 
             TextRange last = null;
-            for (int i = 0; i < contentRanges.size(); i++) {
-                final TextRange range = rangeInsideHost.intersection(contentRanges.get(i));
+            for (TextRange contentRange : contentRanges) {
+                final TextRange range = rangeInsideHost.intersection(contentRange);
                 if (range == null) continue;
                 last = range;
 
@@ -155,8 +155,7 @@ public abstract class YAMLScalarImpl extends YAMLValueImpl implements YAMLScalar
                     int currentOffsetBeforeReplacement = currentOffsetInDecoded + deltaLength;
                     if (currentOffsetBeforeReplacement > offsetInDecoded) {
                         return range.getStartOffset() + encodedOffsetInCurrentLine + (offsetInDecoded - currentOffsetInDecoded);
-                    }
-                    else if (currentOffsetBeforeReplacement == offsetInDecoded && !replacement.getSecond().isEmpty()) {
+                    } else if (currentOffsetBeforeReplacement == offsetInDecoded && !replacement.getSecond().isEmpty()) {
                         return range.getStartOffset() + encodedOffsetInCurrentLine + (offsetInDecoded - currentOffsetInDecoded);
                     }
                     currentOffsetInDecoded += deltaLength + replacement.getSecond().length();

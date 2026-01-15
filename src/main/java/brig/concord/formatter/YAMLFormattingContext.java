@@ -89,11 +89,11 @@ class YAMLFormattingContext {
     }
 
     private static boolean isAfterSequenceMarker(ASTNode node) {
-        List<ASTNode> nodes = StreamEx.iterate(node, Objects::nonNull, n -> n.getTreePrev()).skip(1)
+        List<ASTNode> nodes = StreamEx.iterate(node, Objects::nonNull, ASTNode::getTreePrev).skip(1)
                 .filter(n -> !YAMLElementTypes.SPACE_ELEMENTS.contains(n.getElementType()))
                 .takeWhile(n -> !YAMLTokenTypes.EOL.equals(n.getElementType())).limit(2).toList();
         if (nodes.size() != 1) return false;
-        return YAMLTokenTypes.SEQUENCE_MARKER.equals(nodes.get(0).getElementType());
+        return YAMLTokenTypes.SEQUENCE_MARKER.equals(nodes.getFirst().getElementType());
     }
 
     private static boolean isAdjectiveToMinus(ASTNode node) {

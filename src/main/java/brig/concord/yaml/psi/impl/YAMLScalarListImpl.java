@@ -67,13 +67,9 @@ public class YAMLScalarListImpl extends YAMLBlockScalarImpl implements YAMLScala
                 }
 
                 ASTNode next = TreeUtil.findSibling(child.getTreeNext(), NON_SPACE_VALUES);
-                if (isEol(next) &&
-                        isEolOrNull(TreeUtil.findSibling(next.getTreeNext(), NON_SPACE_VALUES)) &&
-                        getChompingIndicator() == ChompingIndicator.STRIP) {
-                    return false;
-                }
-
-                return true;
+                return !isEol(next) ||
+                        !isEolOrNull(TreeUtil.findSibling(next.getTreeNext(), NON_SPACE_VALUES)) ||
+                        getChompingIndicator() != ChompingIndicator.STRIP;
             }
 
             private final TokenSet NON_SPACE_VALUES = TokenSet.orSet(YAMLElementTypes.SCALAR_VALUES, YAMLElementTypes.EOL_ELEMENTS);

@@ -5,7 +5,6 @@ import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.yaml.meta.model.YamlArrayType;
-import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.Nullable;
@@ -26,10 +25,10 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "entryPoint", CallMetaType::getInstance,
-            "useInitiator", YamlBooleanType::getSharedInstance,
+            "useInitiator", BooleanMetaType::getInstance,
             "activeProfiles", StringArrayMetaType::getInstance,
-            "useEventCommitId", YamlBooleanType::getSharedInstance,
-            "ignoreEmptyPush", YamlBooleanType::getSharedInstance,
+            "useEventCommitId", BooleanMetaType::getInstance,
+            "ignoreEmptyPush", BooleanMetaType::getInstance,
             "arguments", AnyMapMetaType::getInstance,
             "exclusive", TriggerExclusiveMetaType::getInstance,
             "conditions", ConditionsMetaType::getInstance,
@@ -72,7 +71,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
                 "repository", RegexpMetaType::getInstance,
                 "projectId", RegexpMetaType::getInstance,
                 "branch", RegexpMetaType::getInstance,
-                "enabled", YamlBooleanType::getSharedInstance);
+                "enabled", BooleanMetaType::getInstance);
 
         @Override
         protected Map<String, Supplier<YamlMetaType>> getFeatures() {

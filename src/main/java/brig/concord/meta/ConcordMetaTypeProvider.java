@@ -26,7 +26,6 @@ import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Service(Service.Level.PROJECT)
 public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
@@ -112,11 +111,5 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
         }
 
         return PsiTreeUtil.getParentOfType(psi, YAMLValue.class, false);
-    }
-
-    private static void debug(Supplier<String> textSupplier) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(textSupplier.get());
-        }
     }
 }

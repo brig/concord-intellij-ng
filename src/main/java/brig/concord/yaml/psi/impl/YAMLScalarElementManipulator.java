@@ -26,7 +26,7 @@ public class YAMLScalarElementManipulator extends AbstractElementManipulator<YAM
             return TextRange.EMPTY_RANGE;
         }
 
-        return TextRange.create(ranges.get(0).getStartOffset(), ranges.get(ranges.size() - 1).getEndOffset());
+        return TextRange.create(ranges.getFirst().getStartOffset(), ranges.getLast().getEndOffset());
     }
 
     @Override

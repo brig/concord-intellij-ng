@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.ConcordBundle;
 import brig.concord.yaml.meta.model.Field;
-import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
@@ -42,24 +41,24 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
             "pattern", RegexpMetaType::getInstance,
             "inputType", StringMetaType::getInstance,
             "placeholder", StringMetaType::getInstance,
-            "search", YamlBooleanType::getSharedInstance,
-            "readOnly", YamlBooleanType::getSharedInstance
+            "search", BooleanMetaType::getInstance,
+            "readOnly", BooleanMetaType::getInstance
     ));
 
     private static final Map<String, Supplier<YamlMetaType>> intFeatures = Map.of(
             "min", IntegerMetaType::getInstance,
             "max", IntegerMetaType::getInstance,
             "placeholder", StringMetaType::getInstance,
-            "readOnly", YamlBooleanType::getSharedInstance
+            "readOnly", BooleanMetaType::getInstance
     );
 
     private static final Map<String, Supplier<YamlMetaType>> booleanFeatures = Map.of(
-            "readOnly", YamlBooleanType::getSharedInstance
+            "readOnly", BooleanMetaType::getInstance
     );
 
     private static final Map<String, Supplier<YamlMetaType>> dateFeatures = Map.of(
             "popupPosition", StringMetaType::getInstance,
-            "readOnly", YamlBooleanType::getSharedInstance
+            "readOnly", BooleanMetaType::getInstance
     );
 
     private static final Map<String, Map<String, Supplier<YamlMetaType>>> featuresByType = Map.of(

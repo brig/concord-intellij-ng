@@ -29,10 +29,10 @@ public class FlowDefinitionDocumentationParserTest {
         FlowDocumentation doc = FlowDefinitionDocumentationParser.parse(toCommentElements(str));
         assertEquals("Flow Caption.", doc.description());
         assertEquals(1, doc.in().list().size());
-        assertEquals("p1", doc.in().list().get(0).name());
-        assertEquals(ParamType.STRING, doc.in().list().get(0).type());
+        assertEquals("p1", doc.in().list().getFirst().name());
+        assertEquals(ParamType.STRING, doc.in().list().getFirst().type());
         assertEquals(1, doc.out().size());
-        assertEquals("testOut", doc.out().get(0).name());
+        assertEquals("testOut", doc.out().getFirst().name());
     }
 
     @Test
@@ -51,10 +51,10 @@ public class FlowDefinitionDocumentationParserTest {
         FlowDocumentation doc = FlowDefinitionDocumentationParser.parse(toCommentElements(str));
         assertEquals("Flow Caption.", doc.description());
         assertEquals(1, doc.in().list().size());
-        assertEquals("p1", doc.in().list().get(0).name());
-        assertEquals(ParamType.STRING, doc.in().list().get(0).type());
+        assertEquals("p1", doc.in().list().getFirst().name());
+        assertEquals(ParamType.STRING, doc.in().list().getFirst().type());
         assertEquals(1, doc.out().size());
-        assertEquals("testOut", doc.out().get(0).name());
+        assertEquals("testOut", doc.out().getFirst().name());
     }
 
     @Test

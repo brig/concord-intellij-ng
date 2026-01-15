@@ -158,7 +158,7 @@ public class CodeStyleSettingsProvider
                 super.addComponents();
 
                 myIndentSequence = new JCheckBox(ConcordBundle.message("YAMLLanguageCodeStyleSettingsProvider.indent.sequence.value"));
-                add(myIndentSequence);
+                add(myIndentSequence, false);
             }
 
             @Override

@@ -71,15 +71,18 @@ public class YAMLKeyValueImpl extends YAMLPsiElementImpl implements YAMLKeyValue
     @Override
     public @NotNull String getKeyText() {
         final PsiElement keyElement = getKey();
-        if (keyElement == null) {
-            return "";
-        }
-
-        if (keyElement instanceof YAMLScalar) {
-            return ((YAMLScalar)keyElement).getTextValue();
-        }
-        if (keyElement instanceof YAMLCompoundValue) {
-            return ((YAMLCompoundValue)keyElement).getTextValue();
+        switch (keyElement) {
+            case null -> {
+                return "";
+            }
+            case YAMLScalar yamlScalar -> {
+                return yamlScalar.getTextValue();
+            }
+            case YAMLCompoundValue yamlCompoundValue -> {
+                return yamlCompoundValue.getTextValue();
+            }
+            default -> {
+            }
         }
 
         final String text = keyElement.getText();

@@ -25,7 +25,7 @@ public class YamlEnumType extends YamlScalarType {
 
 
     public YamlEnumType(@NotNull String typeName) {
-        super(typeName);
+        super(typeName, typeName);
     }
 
     public YamlEnumType(@NotNull String typeName, @NotNull String displayName) {

@@ -3,7 +3,6 @@ package brig.concord.meta.model;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
-import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.Nullable;
@@ -19,18 +18,18 @@ public class EventsMetaType extends ConcordMetaType implements HighlightProvider
     private static final Map<String, Supplier<YamlMetaType>> features = new HashMap<>();
 
     static {
-        features.put("recordEvents", YamlBooleanType::getSharedInstance);
-        features.put("recordTaskInVars", YamlBooleanType::getSharedInstance);
+        features.put("recordEvents", BooleanMetaType::getInstance);
+        features.put("recordTaskInVars", BooleanMetaType::getInstance);
         features.put("truncateMaxStringLength", IntegerMetaType::getInstance);
         features.put("truncateMaxArrayLength", IntegerMetaType::getInstance);
         features.put("truncateMaxDepth", IntegerMetaType::getInstance);
-        features.put("recordTaskOutVars", YamlBooleanType::getSharedInstance);
-        features.put("truncateInVars", YamlBooleanType::getSharedInstance);
-        features.put("truncateOutVars", YamlBooleanType::getSharedInstance);
+        features.put("recordTaskOutVars", BooleanMetaType::getInstance);
+        features.put("truncateInVars", BooleanMetaType::getInstance);
+        features.put("truncateOutVars", BooleanMetaType::getInstance);
         features.put("inVarsBlacklist", StringArrayMetaType::getInstance);
         features.put("outVarsBlacklist", StringArrayMetaType::getInstance);
-        features.put("recordTaskMeta", YamlBooleanType::getSharedInstance);
-        features.put("truncateMeta", YamlBooleanType::getSharedInstance);
+        features.put("recordTaskMeta", BooleanMetaType::getInstance);
+        features.put("truncateMeta", BooleanMetaType::getInstance);
         features.put("metaBlacklist", StringArrayMetaType::getInstance);
     }
 

@@ -2,7 +2,6 @@ package brig.concord.meta.model;
 
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
-import brig.concord.yaml.meta.model.YamlBooleanType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +23,7 @@ public class TaskStepMetaType extends IdentityMetaType {
             "name", StepNameMetaType::getInstance,
             "in", InParamsMetaType::getInstance,
             "out", TaskOutParamsMetaType::getInstance,
-            "ignoreErrors", YamlBooleanType::getSharedInstance,
+            "ignoreErrors", BooleanMetaType::getInstance,
             "loop", LoopMetaType::getInstance,
             "retry", RetryMetaType::getInstance,
             "meta", StepMetaMetaType::getInstance,

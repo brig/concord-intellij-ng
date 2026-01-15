@@ -59,9 +59,4 @@ public class YAMLConcordKeyValueImpl extends YAMLKeyValueImpl {
         referenceCollection.forEach(reference -> reference.handleElementRename(newName));
         return rename;
     }
-
-    @Override
-    public @Nullable String getName() {
-        return super.getName();
-    }
 }

@@ -8,7 +8,6 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.util.text.StringUtil;
@@ -27,7 +26,7 @@ import java.util.stream.Collectors;
 
 public abstract class YamlMetaType {
     private final @NotNull String myTypeName;
-    private @Nullable String myDisplayName;
+    private final @Nullable String myDisplayName;
 
     protected YamlMetaType(@NonNls @NotNull String typeName, @NonNls @NotNull String displayName) {
         myTypeName = typeName;
@@ -52,20 +51,6 @@ public abstract class YamlMetaType {
     @Contract(pure = true)
     public @NotNull Icon getIcon() {
         return AllIcons.Json.Object;
-    }
-
-    /**
-     * @deprecated initialise the {@code displayName} via constructor instead.
-     */
-    @Deprecated(forRemoval = true)
-    public void setDisplayName(@NonNls @NotNull String displayName) {
-        if (myDisplayName != null) {
-            Logger.getInstance(YamlMetaType.class)
-                    .error("reinitialising 'myDisplayName' with value '" + displayName + "', previous value: '" + myDisplayName + "'. " +
-                            "Please avoid calling the `setDisplayName` method out of initialisation step, or better switch to constructor " +
-                            "'YamlMetaType(String typeName, String displayName)' for initialisation");
-        }
-        myDisplayName = displayName;
     }
 
     public abstract @Nullable Field findFeatureByName(@NotNull String name);
@@ -240,9 +225,7 @@ public abstract class YamlMetaType {
         }
 
         public void newLineAndTabs(boolean withSequenceItemMark) {
-            if (withSequenceItemMark) {
-                assert myLevel > 0;
-            }
+            assert !withSequenceItemMark || myLevel > 0;
 
             append(CRLF_MARKUP);
             if (withSequenceItemMark) {
@@ -369,7 +352,7 @@ public abstract class YamlMetaType {
                 return null;
             }
 
-            return myCompletionPath.get(myCompletionPath.size() - 1);
+            return myCompletionPath.getLast();
         }
 
         public Iteration start() {

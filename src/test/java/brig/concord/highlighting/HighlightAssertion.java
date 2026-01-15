@@ -408,6 +408,10 @@ public class HighlightAssertion {
 
         parts.sort(Comparator.comparingInt(TextRange::getStartOffset).thenComparingInt(TextRange::getEndOffset));
 
+        return getTextRanges(parts);
+    }
+
+    private static @NotNull ArrayList<TextRange> getTextRanges(ArrayList<TextRange> parts) {
         var merged = new ArrayList<TextRange>();
         var cur = parts.getFirst();
 

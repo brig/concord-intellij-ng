@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.YAMLParserDefinition;
 
 import static brig.concord.yaml.YAMLElementTypes.*;
-import static brig.concord.yaml.YAMLElementTypes.SCALAR_QUOTED_STRING;
 
 public class ConcordParserDefinition extends YAMLParserDefinition implements ParserDefinition {
 

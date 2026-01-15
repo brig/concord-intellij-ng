@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class FindUsageTest extends BasePlatformTestCase {
 
     @BeforeEach

@@ -28,8 +28,8 @@ public class YAMLConcordScalarList extends YAMLScalarListImpl implements PsiLang
         List<String> strings = Arrays.stream(rows)
                 .map(String::trim)
                 .collect(Collectors.toList());
-        if (strings.get(0).equals("|")) {
-            strings.remove(0);
+        if (strings.getFirst().equals("|")) {
+            strings.removeFirst();
         }
         String trimmedText = String.join("\n", strings);
         if (text.endsWith("\n")) {
