@@ -19,11 +19,10 @@ public class MissingKeysInspection extends YamlMissingKeysInspectionBase {
 
     @Override
     public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly, @NotNull LocalInspectionToolSession session) {
-        if (holder.getFile() instanceof ConcordFile) {
-            return super.buildVisitor(holder, isOnTheFly, session);
-        } else {
-            return new PsiElementVisitor() {
-            };
+        if (!(holder.getFile() instanceof ConcordFile)) {
+            return PsiElementVisitor.EMPTY_VISITOR;
         }
+
+        return super.buildVisitor(holder, isOnTheFly, session);
     }
 }
