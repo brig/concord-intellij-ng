@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+- Removed unused YAML syntax highlighting files and refactored `DuplicatedKeysInspection` inspection and tests
+([#27](https://github.com/brig/concord-intellij-ng/pull/27))
+
 ## 0.15.0 - 2026-01-14
 
 ### Added
