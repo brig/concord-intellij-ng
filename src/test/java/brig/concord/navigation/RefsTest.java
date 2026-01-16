@@ -31,6 +31,7 @@ public class RefsTest extends ConcordYamlTestBase {
         assertCallInParams("flowCallInParams/4.concord.yml", "#   k4: array, k4 definition");
         assertCallInParams("flowCallInParams/5.concord.yml", "#   k5: object, k5 definition");
         assertCallInParams("flowCallInParams/6.concord.yml", "#   k6: k6 definition");
+        assertCallInParams("flowCallInParams/7.concord.yml", "#   k 1: string, k1 definition");
     }
 
     private void assertCallInParams(String file, String expectedComment) {
