@@ -6,20 +6,33 @@ flows:
         k2: true
         k3: 123
         k4:
+          k: v
+        k5: "${expr}"
+        k6:
           - "one"
           - "two"
-        k5:
-          k: v
-        k6: "${expr}"
+        k7: [1, 2, 3]
+        k8: [true, false]
+        k9:
+          - k91: v91
+          - k92: v92
+        k10:
+          - 1
+          - k
+          - true
 
   ##
   # in:
   #   k2: boolean, optional, k2 definition
   #   k1: string, mandatory, k1 definition
   #   k3: number, k3 definition
-  #   k4: array, k4 definition
-  #   k5: object, k5 definition
-  #   k6: k6 definition
+  #   k4: object, k5 definition
+  #   k5: any, k6 definition
+  #   k6: string[], k6 def
+  #   k7: int[], k7 def
+  #   k8: boolean[], k8 def
+  #   k9: object[], k9 def
+  #   k10: any[], k10
   ##
   test:
     - log: me

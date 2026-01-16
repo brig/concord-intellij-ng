@@ -1,9 +1,6 @@
 package brig.concord.meta.model;
 
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.meta.model.YamlArrayType;
-import brig.concord.yaml.psi.YAMLValue;
 
 public class StringArrayMetaType extends YamlArrayType {
 
@@ -15,10 +12,5 @@ public class StringArrayMetaType extends YamlArrayType {
 
     public StringArrayMetaType() {
         super(StringMetaType.getInstance());
-    }
-
-    @Override
-    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        super.validateValue(value, problemsHolder);
     }
 }

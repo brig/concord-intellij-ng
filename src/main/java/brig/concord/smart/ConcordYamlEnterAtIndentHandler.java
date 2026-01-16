@@ -1,18 +1,16 @@
 package brig.concord.smart;
 
-import brig.concord.documentation.FlowDefinitionDocumentationParser;
-import brig.concord.psi.CommentsProcessor;
 import brig.concord.psi.ConcordFile;
-import com.google.common.base.CharMatcher;
+import brig.concord.psi.FlowDocumentation;
 import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 public class ConcordYamlEnterAtIndentHandler extends EnterHandlerDelegateAdapter {
@@ -40,39 +38,50 @@ public class ConcordYamlEnterAtIndentHandler extends EnterHandlerDelegateAdapter
             return Result.Continue;
         }
 
-        if (!isInsideCommentBlock(element)) {
+        if (!isInsideFlowDocumentation(element)) {
             return Result.Continue;
         }
 
-        int indentSize = getIndentInComment(element);
+        int indentSize = getIndentSize(editor, caretOffset);
         editor.getDocument().insertString(caretOffset, "#" + StringUtil.repeat(" ", indentSize));
         editor.getCaretModel().moveToOffset(caretOffset + 1 + indentSize);
 
         return Result.Continue;
     }
 
-    private static boolean isInsideCommentBlock(PsiElement element) {
-        return CommentsProcessor.stream(element).filter(c -> "##".equals(c.getText())).count() == 1;
+    private static boolean isInsideFlowDocumentation(PsiElement element) {
+        return PsiTreeUtil.getParentOfType(element, FlowDocumentation.class) != null;
     }
 
-    private static int getIndentInComment(PsiElement element) {
-        PsiComment prevLine = CommentsProcessor.stream(element).findFirst().orElse(null);
-        if (prevLine == null) {
+    private static int getIndentSize(Editor editor, int caretOffset) {
+        // Get the previous line to determine indent
+        int lineNumber = editor.getDocument().getLineNumber(caretOffset);
+        if (lineNumber == 0) {
             return 1;
         }
 
-        String text = prevLine.getText();
-        if (FlowDefinitionDocumentationParser.isHeader(text)) {
+        int prevLineStart = editor.getDocument().getLineStartOffset(lineNumber - 1);
+        int prevLineEnd = editor.getDocument().getLineEndOffset(lineNumber - 1);
+        String prevLine = editor.getDocument().getText().substring(prevLineStart, prevLineEnd);
+
+        String trimmed = prevLine.trim();
+        if (trimmed.equals("##")) {
             return 1;
         }
 
-        String clean = CharMatcher.anyOf("#").trimLeadingFrom(prevLine.getText());
-        String trimmed = clean.trim();
-        if (FlowDefinitionDocumentationParser.isIn(trimmed) || FlowDefinitionDocumentationParser.isOut(trimmed)) {
-            return 2;
+        // Check for section headers (in: or out:)
+        String afterHash = trimmed.startsWith("#") ? trimmed.substring(1).trim() : trimmed;
+        if (afterHash.toLowerCase().startsWith("in:") || afterHash.toLowerCase().startsWith("out:")) {
+            return 3; // indent for parameters
         }
 
-        return countLeadingSpaces(clean);
+        // Count leading spaces after #
+        int hashIndex = prevLine.indexOf('#');
+        if (hashIndex >= 0 && hashIndex + 1 < prevLine.length()) {
+            return countLeadingSpaces(prevLine.substring(hashIndex + 1));
+        }
+
+        return 1;
     }
 
     private static int countLeadingSpaces(String str) {
@@ -84,6 +93,6 @@ public class ConcordYamlEnterAtIndentHandler extends EnterHandlerDelegateAdapter
                 break;
             }
         }
-        return count;
+        return Math.max(1, count);
     }
 }

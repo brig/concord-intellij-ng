@@ -5,3 +5,4 @@
 build
 .kotlin
 .DS_Store
+src/main/gen/

@@ -2,9 +2,10 @@ package brig.concord.psi.impl.delegate;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.LoopArrayItemMetaType;
+import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.meta.model.call.CallInParamsMetaType;
 import brig.concord.meta.model.call.CallMetaType;
-import brig.concord.psi.impl.yaml.YAMLQuotedTextImpl_;
+import brig.concord.yaml.psi.impl.YAMLQuotedTextImpl;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.Key;
@@ -37,8 +38,8 @@ public class ConcordYamlDelegateFactory {
             delegate = createKeyValueDelegate((YAMLKeyValue) psiElement);
         } else if (psiElement instanceof YAMLPlainTextImpl) {
             delegate = createPlainTextDelegate((YAMLPlainTextImpl) psiElement);
-        } else if (psiElement instanceof YAMLQuotedTextImpl_) {
-            delegate = createQuoteTextDelegate((YAMLQuotedTextImpl_) psiElement);
+        } else if (psiElement instanceof YAMLQuotedTextImpl) {
+            delegate = createQuoteTextDelegate((YAMLQuotedTextImpl) psiElement);
         }
 
         if (delegate == null) {
@@ -55,6 +56,16 @@ public class ConcordYamlDelegateFactory {
         if (valueMetaType instanceof CallInParamsMetaType) {
             return new YamlFlowCallInParamDelegate(keyValue);
         }
+
+        // Check if this key-value is inside a call in-params mapping
+        var parentMapping = keyValue.getParentMapping();
+        if (parentMapping != null) {
+            YamlMetaType parentMetaType = instance.getResolvedMetaType(parentMapping);
+            if (parentMetaType instanceof CallInParamMetaType) {
+                return new YamlFlowCallInParamDelegate(keyValue);
+            }
+        }
+
         return null;
     }
 
@@ -67,7 +78,7 @@ public class ConcordYamlDelegateFactory {
         return null;
     }
 
-    private static PsiNamedElement createQuoteTextDelegate(YAMLQuotedTextImpl_ quotedText) {
+    private static PsiNamedElement createQuoteTextDelegate(YAMLQuotedTextImpl quotedText) {
         ConcordMetaTypeProvider instance = ConcordMetaTypeProvider.getInstance(quotedText.getProject());
         YamlMetaType metaType = instance.getResolvedMetaType(quotedText);
         if (metaType instanceof CallMetaType || metaType instanceof LoopArrayItemMetaType) {

@@ -1,6 +1,7 @@
 package brig.concord.psi.impl.yaml;
 
 import brig.concord.psi.impl.delegate.ConcordYamlDelegateFactory;
+import brig.concord.yaml.psi.impl.YAMLQuotedTextImpl;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
@@ -8,7 +9,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
-public class YAMLConcordQuotedTextImpl extends YAMLQuotedTextImpl_ implements PsiNamedElement {
+public class YAMLConcordQuotedTextImpl extends YAMLQuotedTextImpl implements PsiNamedElement {
 
     private transient PsiNamedElement delegate;
 

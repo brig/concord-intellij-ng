@@ -1,6 +1,18 @@
-package brig.concord.yaml;
+package brig.concord.parser;
 
 import brig.concord.ConcordLanguage;
+import brig.concord.lexer.ConcordYAMLFlexLexer;
+import brig.concord.lexer.FlowDocElementTypes;
+import brig.concord.psi.impl.ConcordFileImpl;
+import brig.concord.psi.impl.FlowDocParameterImpl;
+import brig.concord.psi.impl.FlowDocumentationImpl;
+import brig.concord.psi.impl.yaml.YAMLConcordKeyValueImpl;
+import brig.concord.psi.impl.yaml.YAMLConcordPlainTextImpl;
+import brig.concord.psi.impl.yaml.YAMLConcordQuotedTextImpl;
+import brig.concord.psi.impl.yaml.YAMLConcordScalarList;
+import brig.concord.yaml.YAMLElementTypes;
+import brig.concord.yaml.psi.impl.*;
+import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.ParserDefinition;
 import com.intellij.lang.PsiParser;
@@ -13,22 +25,27 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.lexer.YAMLFlexLexer;
-import brig.concord.yaml.parser.YAMLParser;
-import brig.concord.yaml.psi.impl.*;
 
-public class YAMLParserDefinition implements ParserDefinition {
+import static brig.concord.yaml.YAMLElementTypes.*;
+import static brig.concord.yaml.YAMLElementTypes.SCALAR_QUOTED_STRING;
+
+public class ConcordYAMLParserDefinition implements ParserDefinition {
 
     public static final IFileElementType FILE = new IFileElementType(ConcordLanguage.INSTANCE);
 
     @Override
     public @NotNull Lexer createLexer(final Project project) {
-        return new YAMLFlexLexer();
+        return new ConcordYAMLFlexLexer();
     }
 
     @Override
     public @NotNull PsiParser createParser(final Project project) {
-        return new YAMLParser();
+        return new ConcordYAMLParser();
+    }
+
+    @Override
+    public @NotNull PsiFile createFile(@NotNull FileViewProvider viewProvider) {
+        return new ConcordFileImpl(viewProvider);
     }
 
     @Override
@@ -54,11 +71,24 @@ public class YAMLParserDefinition implements ParserDefinition {
     @Override
     public @NotNull PsiElement createElement(final ASTNode node) {
         final IElementType type = node.getElementType();
+        // Flow documentation elements
+        if (type == FlowDocElementTypes.FLOW_DOCUMENTATION) {
+            return new FlowDocumentationImpl(node);
+        }
+        if (type == FlowDocElementTypes.FLOW_DOC_PARAMETER) {
+            return new FlowDocParameterImpl(node);
+        }
+        if (type == FlowDocElementTypes.FLOW_DOC_IN_SECTION ||
+                type == FlowDocElementTypes.FLOW_DOC_OUT_SECTION ||
+                type == FlowDocElementTypes.FLOW_DOC_DESCRIPTION) {
+            return new ASTWrapperPsiElement(node);
+        }
+
         if (type == YAMLElementTypes.DOCUMENT){
             return new YAMLDocumentImpl(node);
         }
         if (type == YAMLElementTypes.KEY_VALUE_PAIR) {
-            return new YAMLKeyValueImpl(node);
+            return new YAMLConcordKeyValueImpl(node);
         }
         if (type == YAMLElementTypes.COMPOUND_VALUE) {
             return new YAMLCompoundValueImpl(node);
@@ -79,16 +109,16 @@ public class YAMLParserDefinition implements ParserDefinition {
             return new YAMLArrayImpl(node);
         }
         if (type == YAMLElementTypes.SCALAR_LIST_VALUE) {
-            return new YAMLScalarListImpl(node);
+            return new YAMLConcordScalarList(node);
         }
         if (type == YAMLElementTypes.SCALAR_TEXT_VALUE) {
             return new YAMLScalarTextImpl(node);
         }
         if (type == YAMLElementTypes.SCALAR_PLAIN_VALUE) {
-            return new YAMLPlainTextImpl(node);
+            return new YAMLConcordPlainTextImpl(node);
         }
         if (type == YAMLElementTypes.SCALAR_QUOTED_STRING) {
-            return new YAMLQuotedTextImpl(node);
+            return new YAMLConcordQuotedTextImpl(node);
         }
         if (type == YAMLElementTypes.ANCHOR_NODE) {
             return new YAMLAnchorImpl(node);
@@ -97,11 +127,6 @@ public class YAMLParserDefinition implements ParserDefinition {
             return new YAMLAliasImpl(node);
         }
         return new YAMLPsiElementImpl(node);
-    }
-
-    @Override
-    public @NotNull PsiFile createFile(final @NotNull FileViewProvider viewProvider) {
-        return new YAMLFileImpl(viewProvider);
     }
 
     @Override

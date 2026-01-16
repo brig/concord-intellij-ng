@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nls
 import brig.concord.ConcordBundle
 import brig.concord.yaml.YAMLTokenTypes
 import brig.concord.yaml.YAMLUtil
+import brig.concord.psi.FlowDocumentation
 import brig.concord.yaml.psi.YAMLAnchor
 import brig.concord.yaml.psi.YAMLKeyValue
 import brig.concord.yaml.psi.YAMLSequenceItem
@@ -96,7 +97,7 @@ private class YAMLInvalidBlockChildrenErrorAnnotator : Annotator, DumbAware {
         else ConcordBundle.message("inspections.invalid.child.in.block.sequence")
 
     private fun isValidBlockMapChild(element: PsiElement?): Boolean =
-        element.let { it is YAMLKeyValue || it is YAMLAnchor || it is LeafPsiElement }
+        element.let { it is YAMLKeyValue || it is YAMLAnchor || it is LeafPsiElement || it is FlowDocumentation }
 
     private fun isValidBlockSequenceChild(element: PsiElement?): Boolean =
         element.let { it is YAMLSequenceItem || it is YAMLAnchor || it is LeafPsiElement }
