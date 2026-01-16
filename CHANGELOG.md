@@ -4,6 +4,9 @@
 
 ### Changed
 
+- Improved call in-params reference resolution for quoted keys.
+Added caching for flow documentation and in-params reference resolution
+([#30](https://github.com/brig/concord-intellij-ng/pull/30))
 - Improved inspection descriptions for Concord YAML files
 ([#28](https://github.com/brig/concord-intellij-ng/pull/28))
 - Removed unused YAML syntax highlighting files and refactored `DuplicatedKeysInspection` inspection and tests
