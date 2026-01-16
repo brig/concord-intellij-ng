@@ -1,8 +1,10 @@
 package brig.concord.psi.ref;
 
 import brig.concord.completion.provider.FlowCallParamsProvider;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
+import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
@@ -11,42 +13,40 @@ import brig.concord.yaml.psi.YAMLKeyValue;
 
 public class CallInParamDefinitionReference extends PsiReferenceBase.Poly<YAMLKeyValue> implements PsiPolyVariantReference {
 
+    private static final Key<CachedValue<PsiElement>> IN_PARAM_DEF_CACHE = Key.create("concord.call.in.param.def");
+
     public CallInParamDefinitionReference(YAMLKeyValue element) {
-        super(element, TextRange.allOf(element.getKeyText()), false);
+        super(element,
+                element.getKey() != null ? element.getKey().getTextRangeInParent()
+                        : TextRange.allOf(element.getKeyText()),
+                false);
     }
 
     @Override
     public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
-        PsiElement inParamDef = CachedValuesManager.getCachedValue(getElement(), new InParamsDefinitionCachedValueProvider(getElement()));
+        var el = getElement();
 
-        if (inParamDef == null) {
-            return ResolveResult.EMPTY_ARRAY;
-        }
+        var inParamDef = CachedValuesManager.getCachedValue(el, IN_PARAM_DEF_CACHE, () -> {
+            var callKv = FlowCallParamsProvider.findCallKv(el);
 
-        return PsiElementResolveResult.createResults(inParamDef);
-    }
-
-    private static final class InParamsDefinitionCachedValueProvider implements CachedValueProvider<PsiElement> {
-
-        private final YAMLKeyValue inParamElement;
-
-        private InParamsDefinitionCachedValueProvider(YAMLKeyValue inParamElement) {
-            this.inParamElement = inParamElement;
-        }
-
-        @Override
-        public Result<PsiElement> compute() {
-            PsiElement callDefinition = FlowCallParamsProvider.findCallKv(inParamElement);
-            if (callDefinition != null) {
-                return CachedValueProvider.Result.create(resolveInner(), PsiModificationTracker.MODIFICATION_COUNT, callDefinition);
+            if (callKv != null) {
+                var resolved = FlowCallParamsProvider.getInstance().inParamDefinition(el);
+                return CachedValueProvider.Result.create(
+                        resolved,
+                        PsiModificationTracker.MODIFICATION_COUNT,
+                        el,
+                        callKv
+                );
             } else {
-                return CachedValueProvider.Result.create(null, PsiModificationTracker.MODIFICATION_COUNT, inParamElement);
+                return CachedValueProvider.Result.create(
+                        null,
+                        PsiModificationTracker.MODIFICATION_COUNT,
+                        el
+                );
             }
-        }
+        });
 
-        private PsiElement resolveInner() {
-            return FlowCallParamsProvider.getInstance().inParamDefinition(inParamElement);
-        }
+        return inParamDef == null ? ResolveResult.EMPTY_ARRAY : PsiElementResolveResult.createResults(inParamDef);
     }
 }
 
