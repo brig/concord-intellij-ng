@@ -1,7 +1,8 @@
-package brig.concord.yaml.parser;
+package brig.concord.parser;
 
-// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-
+import brig.concord.ConcordBundle;
+import brig.concord.yaml.YAMLElementTypes;
+import brig.concord.yaml.YAMLTokenTypes;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
@@ -11,13 +12,12 @@ import com.intellij.psi.tree.TokenSet;
 import com.intellij.util.containers.Stack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import brig.concord.ConcordBundle;
-import brig.concord.yaml.YAMLElementTypes;
-import brig.concord.yaml.YAMLTokenTypes;
 
 import java.util.List;
 
-public class YAMLParser implements PsiParser, LightPsiParser, YAMLTokenTypes {
+import static brig.concord.lexer.FlowDocTokenTypes.*;
+
+public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTypes {
     public static final TokenSet HASH_STOP_TOKENS = TokenSet.create(RBRACE, COMMA);
     public static final TokenSet ARRAY_STOP_TOKENS = TokenSet.create(RBRACKET, COMMA);
     private PsiBuilder myBuilder;
@@ -72,7 +72,6 @@ public class YAMLParser implements PsiParser, LightPsiParser, YAMLTokenTypes {
     }
 
     private void parseBlockNode(int indent, boolean insideSequence) {
-        // Preserve most test and current behaviour for most general cases without comments
         if (getTokenType() == EOL) {
             advanceLexer();
             if (getTokenType() == INDENT) {
@@ -83,9 +82,12 @@ public class YAMLParser implements PsiParser, LightPsiParser, YAMLTokenTypes {
         final PsiBuilder.Marker marker = mark();
         passJunk();
 
+        if (getTokenType() == FLOW_DOC_MARKER) {
+            YAMLParserFlowDocExtension.parseFlowDocumentation(myBuilder);
+        }
+
         PsiBuilder.Marker endOfNodeMarker = null;
         IElementType nodeType = null;
-
 
         // It looks like tag for a block node should be located on a separate line
         if (getTokenType() == YAMLTokenTypes.TAG && myBuilder.lookAhead(1) == YAMLTokenTypes.EOL) {
@@ -102,6 +104,15 @@ public class YAMLParser implements PsiParser, LightPsiParser, YAMLTokenTypes {
             if (!myStopTokensStack.isEmpty() && myStopTokensStack.peek().contains(getTokenType())) {
                 rollBackToEol();
                 break;
+            }
+
+            // Check for flow documentation before each item
+            if (getTokenType() == FLOW_DOC_MARKER) {
+                YAMLParserFlowDocExtension.parseFlowDocumentation(myBuilder);
+                // After parsing flow doc, continue to parse the associated key-value
+                if (isJunk()) {
+                    continue;
+                }
             }
 
             numberOfItems++;

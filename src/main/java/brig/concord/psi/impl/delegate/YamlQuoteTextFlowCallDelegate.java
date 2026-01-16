@@ -1,7 +1,7 @@
 package brig.concord.psi.impl.delegate;
 
-import brig.concord.psi.impl.yaml.YAMLQuotedTextImpl_;
 import brig.concord.psi.ref.FlowDefinitionReference;
+import brig.concord.yaml.psi.impl.YAMLQuotedTextImpl;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
@@ -14,7 +14,7 @@ public class YamlQuoteTextFlowCallDelegate extends YamlQuoteTextDelegateAbstract
 
     private final transient YAMLScalar flow;
 
-    public YamlQuoteTextFlowCallDelegate(YAMLQuotedTextImpl_ flow) {
+    public YamlQuoteTextFlowCallDelegate(YAMLQuotedTextImpl flow) {
         super(flow.getNode());
         this.flow = flow;
     }

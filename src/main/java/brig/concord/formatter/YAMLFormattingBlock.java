@@ -73,10 +73,22 @@ class YAMLFormattingBlock extends AbstractBlock {
 
     private @NotNull List<Block> buildSubBlocks(@NotNull YAMLFormattingContext context, @NotNull ASTNode node) {
         List<Block> res = new SmartList<>();
+
+        // FlowDocumentation elements are treated as leaf blocks - don't process their children
+        // This avoids formatter errors about gaps when whitespace inside is skipped
+        IElementType nodeType = PsiUtilCore.getElementType(node);
+        if (YAMLElementTypes.FLOW_DOC_ELEMENTS.contains(nodeType)) {
+            return res;
+        }
+
         for (ASTNode subNode = node.getFirstChildNode(); subNode != null; subNode = subNode.getTreeNext()) {
             IElementType subNodeType = PsiUtilCore.getElementType(subNode);
             if (YAMLElementTypes.SPACE_ELEMENTS.contains(subNodeType)) {
                 // just skip them (comment processed above)
+            }
+            else if (YAMLElementTypes.FLOW_DOC_ELEMENTS.contains(subNodeType)) {
+                // Flow documentation elements are treated as a single block
+                res.add(YAMLFormattingModelBuilder.createBlock(context, subNode));
             }
             else if (YAMLElementTypes.SCALAR_QUOTED_STRING == subNodeType) {
                 res.addAll(buildSubBlocks(context, subNode));

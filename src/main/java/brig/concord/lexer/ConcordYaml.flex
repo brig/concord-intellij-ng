@@ -1,14 +1,18 @@
-package brig.concord;
+package brig.concord.lexer;
 
 import com.intellij.psi.tree.IElementType;
+
+import brig.concord.lexer.FlowDocTokenTypes;
+import brig.concord.yaml.YAMLTokenTypes;
+import com.intellij.lexer.FlexLexer;
 
 /* Auto generated File */
 %%
 
 // Language specification could be found here: http://www.yaml.org/spec/1.2/spec.html
 
-%class _YAMLLexer
-%implements FlexLexer, YAMLTokenTypes
+%class _ConcordYAMLLexer
+%implements FlexLexer, YAMLTokenTypes, FlowDocTokenTypes
 %unicode
 %public
 %column
@@ -227,6 +231,20 @@ Better to support more general c-indentation-indicator as sequence of digits and
 */
 C_B_BLOCK_HEADER = ( [:digit:]* ( "-" | "+" )? ) | ( ( "-" | "+" )? [:digit:]* )
 
+// Flow doc patterns
+FLOW_DOC_INDENT = [ \t]*
+FLOW_DOC_HASH = "#"
+FLOW_DOC_MARKER = "##"
+
+// Flow doc patterns
+FLOW_DOC_MARKER = "##"
+// Parameter names can contain spaces (e.g., "k 1" from quoted YAML keys)
+FLOW_DOC_PARAM_NAME = [a-zA-Z_][a-zA-Z0-9_. ]*[a-zA-Z0-9_]|[a-zA-Z_]
+FLOW_DOC_TYPE_SIMPLE = "string" | "int" | "number" | "boolean" | "object" | "any"
+FLOW_DOC_TYPE_ARRAY = {FLOW_DOC_TYPE_SIMPLE} "[]"
+FLOW_DOC_KEYWORD = "mandatory" | "optional"
+FLOW_DOC_SECTION = "in:" | "out:"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// STATES DECLARATIONS //////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -253,6 +271,19 @@ C_B_BLOCK_HEADER = ( [:digit:]* ( "-" | "+" )? ) | ( ( "-" | "+" )? [:digit:]* )
 
 // Block scalar states
 %xstate BS_HEADER_TAIL_STATE, BS_BODY_STATE
+
+// Flow documentation states
+%xstate FLOW_DOC_STATE
+%xstate FLOW_DOC_LINE_START_STATE
+%xstate FLOW_DOC_LINE_STATE
+%xstate FLOW_DOC_PARAMS_STATE
+%xstate FLOW_DOC_PARAMS_LINE_START_STATE
+%xstate FLOW_DOC_PARAM_LINE_STATE
+%xstate FLOW_DOC_PARAM_AFTER_NAME_STATE
+%xstate FLOW_DOC_PARAM_TYPE_STATE
+%xstate FLOW_DOC_PARAM_KEYWORD_STATE
+%xstate FLOW_DOC_PARAM_DESC_STATE
+%xstate FLOW_DOC_PARAM_FALLBACK_STATE
 
 %%
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -315,6 +346,12 @@ C_B_BLOCK_HEADER = ( [:digit:]* ( "-" | "+" )? ) | ( ( "-" | "+" )? [:digit:]* )
 
 // Common block and flow rules
 <BLOCK_STATE, FLOW_STATE> {
+  // Flow documentation must be checked BEFORE regular comments
+  {FLOW_DOC_MARKER} / ({WHITE_SPACE}* {EOL}) {
+        yybegin(FLOW_DOC_STATE);
+        return FLOW_DOC_MARKER;
+      }
+
   {COMMENT} { return COMMENT; }
 
   {WHITE_SPACE} { return getWhitespaceType(); }
@@ -531,4 +568,265 @@ C_B_BLOCK_HEADER = ( [:digit:]* ( "-" | "+" )? ) | ( ( "-" | "+" )? [:digit:]* )
       }
 
   [^] { return TEXT; } // It is a bug here. TODO: how to report it
+}
+
+// Inside flow documentation block
+<FLOW_DOC_STATE> {
+  {WHITE_SPACE} { return WHITESPACE; }
+
+  // After EOL, go to line start state to handle indent/content disambiguation
+  {EOL} {
+        yybegin(FLOW_DOC_LINE_START_STATE);
+        return EOL;
+      }
+}
+
+// Start of a line inside flow documentation - handle indent and decide what follows
+<FLOW_DOC_LINE_START_STATE> {
+  // Whitespace/indent at start of line - return as INDENT
+  {WHITE_SPACE}+ {
+        return INDENT;
+      }
+
+  // Closing marker ## (after any indent has been consumed)
+  {FLOW_DOC_MARKER} {
+        yybegin(BLOCK_STATE);
+        return FLOW_DOC_MARKER;
+      }
+
+  // Single # followed by space - content line prefix, consume # and spaces
+  {FLOW_DOC_HASH} {WHITE_SPACE}+ {
+        yybegin(FLOW_DOC_LINE_STATE);
+        return WHITESPACE;
+      }
+
+  // Single # followed by EOL - empty line
+  {FLOW_DOC_HASH} / {EOL} {
+        yybegin(FLOW_DOC_STATE);
+        return FLOW_DOC_CONTENT;
+      }
+
+  // EOL without content (blank line in flow doc)
+  {EOL} {
+        return EOL;
+      }
+
+  // Fallback: if line doesn't start with # or ##, exit flow doc mode
+  // This handles unclosed flow doc blocks
+  [^] {
+        yypushback(1);
+        yybegin(BLOCK_STATE);
+      }
+}
+
+// Processing flow documentation line content (description before in:/out:)
+<FLOW_DOC_LINE_STATE> {
+  // Section headers - switch to params mode
+  "in:" {
+        yybegin(FLOW_DOC_PARAMS_STATE);
+        return FLOW_DOC_SECTION_HEADER;
+      }
+
+  "out:" {
+        yybegin(FLOW_DOC_PARAMS_STATE);
+        return FLOW_DOC_SECTION_HEADER;
+      }
+
+  // Description text (everything else on this line)
+  [^\n]+ {
+        yybegin(FLOW_DOC_STATE);
+        return FLOW_DOC_CONTENT;
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_LINE_START_STATE);
+        return EOL;
+      }
+}
+
+// After section header (in: or out:), we expect parameter lines
+<FLOW_DOC_PARAMS_STATE> {
+  {WHITE_SPACE} { return WHITESPACE; }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+}
+
+// Start of a line in params section
+<FLOW_DOC_PARAMS_LINE_START_STATE> {
+  // Whitespace/indent at start of line
+  {WHITE_SPACE}+ {
+        return INDENT;
+      }
+
+  // Closing marker ##
+  {FLOW_DOC_MARKER} {
+        yybegin(BLOCK_STATE);
+        return FLOW_DOC_MARKER;
+      }
+
+  // Single # followed by space - parameter line prefix
+  {FLOW_DOC_HASH} {WHITE_SPACE}+ {
+        yybegin(FLOW_DOC_PARAM_LINE_STATE);
+        return WHITESPACE;
+      }
+
+  // Another section header (e.g., out: after in:)
+  {FLOW_DOC_HASH} {WHITE_SPACE}* / ("in:" | "out:") {
+        // This is a section header line, need to consume just the # prefix
+        yybegin(FLOW_DOC_LINE_STATE);
+        return WHITESPACE;
+      }
+
+  // Single # followed by EOL - empty line
+  {FLOW_DOC_HASH} / {EOL} {
+        yybegin(FLOW_DOC_PARAMS_STATE);
+        return FLOW_DOC_CONTENT;
+      }
+
+  // EOL without content (blank line)
+  {EOL} {
+        return EOL;
+      }
+
+  // Fallback: if line doesn't start with # or ##, exit flow doc mode
+  // This handles unclosed flow doc blocks
+  [^] {
+        yypushback(1);
+        yybegin(BLOCK_STATE);
+      }
+}
+
+// Processing parameter line: name: type, mandatory, description
+// State for immediately after the # prefix on a parameter line
+// We expect a parameter name here - if first char doesn't match, fall back to text
+<FLOW_DOC_PARAM_LINE_STATE> {
+  // Parameter name - this is the first thing we expect
+  {FLOW_DOC_PARAM_NAME} {
+        yybegin(FLOW_DOC_PARAM_AFTER_NAME_STATE);
+        return FLOW_DOC_PARAM_NAME;
+      }
+
+  // If first char doesn't match param name pattern, switch to fallback
+  [^a-zA-Z_\n] {
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+}
+
+// Fallback when line doesn't look like a parameter
+<FLOW_DOC_PARAM_FALLBACK_STATE> {
+  [^\n]+ {
+        yybegin(FLOW_DOC_PARAMS_STATE);
+        return FLOW_DOC_TEXT;
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+}
+
+// After parameter name, expect colon
+<FLOW_DOC_PARAM_AFTER_NAME_STATE> {
+  // Colon after param name - consume and move to type state
+  {WHITE_SPACE}* ":" {WHITE_SPACE}* {
+        yybegin(FLOW_DOC_PARAM_TYPE_STATE);
+        return WHITESPACE;
+      }
+
+  // No colon - go to description
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+
+  // Anything else - treat as invalid, skip to description
+  . {
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_DESC_STATE);
+      }
+}
+
+// Expect type after colon
+<FLOW_DOC_PARAM_TYPE_STATE> {
+  // Array types (must come before simple types to match longer pattern first)
+  {FLOW_DOC_TYPE_ARRAY} {
+        yybegin(FLOW_DOC_PARAM_KEYWORD_STATE);
+        return FLOW_DOC_ARRAY_TYPE;
+      }
+
+  // Simple types
+  {FLOW_DOC_TYPE_SIMPLE} {
+        yybegin(FLOW_DOC_PARAM_KEYWORD_STATE);
+        return FLOW_DOC_TYPE;
+      }
+
+  // No type - skip to keyword state
+  "," {WHITE_SPACE}* {
+        yybegin(FLOW_DOC_PARAM_KEYWORD_STATE);
+        return WHITESPACE;
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+
+  // Anything else - go to description
+  . {
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_DESC_STATE);
+      }
+}
+
+// Expect mandatory/optional keyword
+<FLOW_DOC_PARAM_KEYWORD_STATE> {
+  // Comma before keyword
+  {WHITE_SPACE}* "," {WHITE_SPACE}* {
+        return WHITESPACE;
+      }
+
+  // Mandatory/optional keyword
+  {FLOW_DOC_KEYWORD} {
+        yybegin(FLOW_DOC_PARAM_DESC_STATE);
+        return FLOW_DOC_MANDATORY;
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+
+  // Anything else starts description
+  . {
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_DESC_STATE);
+      }
+}
+
+// Expect description (rest of line)
+<FLOW_DOC_PARAM_DESC_STATE> {
+  // Comma before description
+  {WHITE_SPACE}* "," {WHITE_SPACE}* {
+        return WHITESPACE;
+      }
+
+  // Rest of line is description
+  [^\n]+ {
+        yybegin(FLOW_DOC_PARAMS_STATE);
+        return FLOW_DOC_TEXT;
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
 }

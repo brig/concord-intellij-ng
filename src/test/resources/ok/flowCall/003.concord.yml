@@ -8,7 +8,7 @@ flows:
   ##
   #  in:
   #    p1: string, mandatory, param
-  #    <any>: any, any other param
+  #    p2: any, optional, any other param
   ##
   myFlow:
     - log: "my"

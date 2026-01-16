@@ -4,6 +4,7 @@ package brig.concord.formatter;
 
 import brig.concord.ConcordFileType;
 import brig.concord.ConcordLanguage;
+import brig.concord.parser.ConcordYAMLParserDefinition;
 import brig.concord.yaml.formatter.YAMLCodeStyleSettings;
 import com.intellij.formatting.*;
 import com.intellij.lang.ASTNode;
@@ -261,7 +262,7 @@ class YAMLFormattingContext {
                 return Indent.getContinuationWithoutFirstIndent();
             }
             return DIRECT_NORMAL_INDENT;
-        } else if (nodeType == YAMLParserDefinition.FILE) {
+        } else if (nodeType == ConcordYAMLParserDefinition.FILE) {
             return SAME_AS_PARENT_INDENT;
         } else if (YAMLElementTypes.SCALAR_VALUES.contains(nodeType)) {
             return DIRECT_NORMAL_INDENT;

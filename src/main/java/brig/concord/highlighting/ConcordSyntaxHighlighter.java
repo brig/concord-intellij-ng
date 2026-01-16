@@ -1,7 +1,7 @@
 package brig.concord.highlighting;
 
 import brig.concord.yaml.YAMLTokenTypes;
-import brig.concord.yaml.lexer.YAMLFlexLexer;
+import brig.concord.lexer.ConcordYAMLFlexLexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
@@ -63,7 +63,7 @@ public final class ConcordSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @Override
     public @NotNull Lexer getHighlightingLexer() {
-        return new YAMLFlexLexer();
+        return new ConcordYAMLFlexLexer();
     }
 
     @Override

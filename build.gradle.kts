@@ -5,16 +5,12 @@ import org.jetbrains.changelog.Changelog
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
-    // Java support
     id("java")
-    // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "2.2.0"
-    // Gradle IntelliJ Plugin
     id("org.jetbrains.intellij.platform") version "2.10.4"
-    // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "2.5.0"
-    // Gradle Qodana Plugin
     id("org.jetbrains.qodana") version "2025.3.1"
+    id("org.jetbrains.grammarkit") version "2023.3.0.1"
 }
 
 group = properties("pluginGroup")
@@ -27,6 +23,15 @@ repositories {
 
     intellijPlatform {
         defaultRepositories()
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs("src/main/java")
+            srcDir("src/main/gen")
+        }
     }
 }
 
@@ -80,7 +85,25 @@ changelog {
     groups = emptyList()
 }
 
+grammarKit {
+    jflexRelease.set("1.9.2")
+}
+
 tasks {
+    generateLexer {
+        sourceFile.set(file("src/main/java/brig/concord/lexer/ConcordYaml.flex"))
+        targetOutputDir.set(file("src/main/gen/brig/concord/lexer"))
+        purgeOldFiles.set(true)
+    }
+
+    compileJava {
+        dependsOn(generateLexer)
+    }
+
+    compileKotlin {
+        dependsOn(generateLexer)
+    }
+
     test {
         useJUnitPlatform()
     }

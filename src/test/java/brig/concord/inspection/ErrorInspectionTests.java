@@ -2035,6 +2035,8 @@ public class ErrorInspectionTests extends InspectionTestBase {
                     .filter(highlightInfo -> highlightInfo.getSeverity() == HighlightSeverity.ERROR)
                     .toList());
 
+            System.out.println(dump(highlighting));
+
             assertEquals(dump(highlighting) + "\n", errors.size(), highlighting.size());
 
             for (String error : errors) {

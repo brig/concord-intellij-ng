@@ -1,29 +1,24 @@
 package brig.concord.completion.provider;
 
-import brig.concord.documentation.FlowDefinitionDocumentationParser;
-import brig.concord.documentation.FlowDocumentation;
-import brig.concord.documentation.ParamType;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.AnyOfType;
 import brig.concord.meta.model.ExpressionMetaType;
 import brig.concord.meta.model.call.*;
-import brig.concord.psi.CommentsProcessor;
+import brig.concord.psi.FlowDocumentation;
 import brig.concord.psi.YamlPsiUtils;
 import brig.concord.psi.ref.FlowDefinitionReference;
 import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.CachedValue;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
-
-import com.intellij.openapi.util.Key;
-import com.intellij.psi.util.CachedValue;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiModificationTracker;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,19 +48,18 @@ public class FlowCallParamsProvider {
             return null;
         }
 
-        var documentation = flowDocumentation(in);
-        if (documentation == null || documentation.in().list().isEmpty()) {
+        var documentation = findFlowDocumentation(in);
+        if (documentation == null || documentation.getInputParameters().isEmpty()) {
             return null;
         }
-
 
         var inParamName = in.getKeyText();
-        var paramDef = documentation.in().find(inParamName);
-        if (paramDef == null) {
-            return null;
+        for (var param : documentation.getInputParameters()) {
+            if (inParamName.equals(param.getName())) {
+                return param;
+            }
         }
-
-        return paramDef.element();
+        return null;
     }
 
     public YamlMetaType inParams(PsiElement element) {
@@ -73,22 +67,21 @@ public class FlowCallParamsProvider {
             return DEFAULT_OBJECT_TYPE;
         }
 
-        var documentation = flowDocumentation(element);
-        if (documentation == null || documentation.in().list().isEmpty()) {
+        var documentation = findFlowDocumentation(element);
+        if (documentation == null || documentation.getInputParameters().isEmpty()) {
             return DEFAULT_OBJECT_TYPE;
         }
 
-        return new MT(documentation);
+        return new FlowDocMetaType(documentation);
     }
 
-    static class MT extends ConcordMetaType implements CallInParamMetaType {
+    static class FlowDocMetaType extends ConcordMetaType implements CallInParamMetaType {
 
         private final FlowDocumentation documentation;
         private volatile Map<String, Supplier<YamlMetaType>> features;
 
-        public MT(FlowDocumentation documentation) {
+        public FlowDocMetaType(FlowDocumentation documentation) {
             super("call in params");
-
             this.documentation = documentation;
         }
 
@@ -100,9 +93,9 @@ public class FlowCallParamsProvider {
             }
 
             Map<String, Supplier<YamlMetaType>> result = new HashMap<>();
-            for (var p : documentation.in().list()) {
-                var metaType = toMetaType(p.type());
-                result.put(p.name(), () -> metaType);
+            for (var param : documentation.getInputParameters()) {
+                var metaType = toMetaType(param.getBaseType());
+                result.put(param.getName(), () -> metaType);
             }
             this.features = Map.copyOf(result);
             return this.features;
@@ -110,12 +103,12 @@ public class FlowCallParamsProvider {
 
         @Override
         public @Nullable Field findFeatureByName(@NotNull String name) {
-            var def = documentation.in().find(name);
-            if (def == null) {
-                return null;
+            for (var param : documentation.getInputParameters()) {
+                if (name.equals(param.getName())) {
+                    return metaTypeToField(toMetaType(param.getBaseType()), name);
+                }
             }
-
-            return metaTypeToField(toMetaType(def.type()), name);
+            return null;
         }
     }
 
@@ -134,30 +127,21 @@ public class FlowCallParamsProvider {
         return null;
     }
 
-    private static YamlMetaType toMetaType(ParamType type) {
-        switch (type) {
-            case ARRAY -> {
-                return ARRAY_OR_EXPRESSION;
-            }
-            case STRING -> {
-                return STRING_OR_EXPRESSION;
-            }
-            case BOOLEAN -> {
-                return BOOLEAN_OR_EXPRESSION;
-            }
-            case OBJECT -> {
-                return OBJECT_OR_EXPRESSION;
-            }
-            case NUMBER -> {
-                return NUMBER_OR_EXPRESSION;
-            }
-            default -> {
-                return AnyInParamMetaType.getInstance();
-            }
+    private static YamlMetaType toMetaType(String type) {
+        if (type == null) {
+            return AnyInParamMetaType.getInstance();
         }
+        return switch (type.toLowerCase()) {
+            case "array" -> ARRAY_OR_EXPRESSION;
+            case "string" -> STRING_OR_EXPRESSION;
+            case "boolean" -> BOOLEAN_OR_EXPRESSION;
+            case "object" -> OBJECT_OR_EXPRESSION;
+            case "number", "int", "integer" -> NUMBER_OR_EXPRESSION;
+            default -> AnyInParamMetaType.getInstance();
+        };
     }
 
-    private static FlowDocumentation flowDocumentation(PsiElement element) {
+    private static @Nullable FlowDocumentation findFlowDocumentation(PsiElement element) {
         var callKv = findCallKv(element);
         if (callKv == null) {
             return null;
@@ -168,24 +152,31 @@ public class FlowCallParamsProvider {
             return null;
         }
 
-        var flowRefs = flowName.getReferences();
-        for (var ref : flowRefs) {
+        for (var ref : flowName.getReferences()) {
             if (ref instanceof FlowDefinitionReference fdr) {
                 var definition = fdr.resolve();
                 if (definition != null) {
                     return CachedValuesManager.getCachedValue(definition, FLOW_DOC_CACHE, () -> {
-                        var start = CommentsProcessor.findFirst(definition.getPrevSibling());
-                        var doc = FlowDefinitionDocumentationParser.parse(start);
-
+                        var doc = findFlowDocumentationBefore(definition);
                         var file = definition.getContainingFile();
-                        if (file != null) {
-                            return CachedValueProvider.Result.create(doc, file);
-                        }
-
-                        return CachedValueProvider.Result.create(doc, PsiModificationTracker.MODIFICATION_COUNT, definition);
+                        return CachedValueProvider.Result.create(doc, file != null ? file : definition);
                     });
                 }
             }
+        }
+        return null;
+    }
+
+    private static @Nullable FlowDocumentation findFlowDocumentationBefore(PsiElement flowDefinition) {
+        var sibling = flowDefinition.getPrevSibling();
+        while (sibling != null) {
+            if (sibling instanceof FlowDocumentation doc) {
+                return doc;
+            }
+            if (sibling.getTextLength() > 0 && !sibling.getText().isBlank()) {
+                break;
+            }
+            sibling = sibling.getPrevSibling();
         }
         return null;
     }
