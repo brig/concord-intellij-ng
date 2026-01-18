@@ -1,4 +1,4 @@
-package brig.concord.inspection;
+package brig.concord.assertions;
 
 import brig.concord.ConcordBundle;
 import brig.concord.ConcordYamlTestBase;
@@ -10,20 +10,37 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class InspectionAssertion {
+public class InspectionAssertions {
 
     private final CodeInsightTestFixture myFixture;
     private final ConcordYamlTestBase.AbstractTarget target;
+    private List<HighlightInfo> cachedHighlights;
 
-    public InspectionAssertion(CodeInsightTestFixture myFixture, ConcordYamlTestBase.AbstractTarget target) {
+    public InspectionAssertions(CodeInsightTestFixture myFixture, ConcordYamlTestBase.AbstractTarget target) {
         this.myFixture = myFixture;
         this.target = target;
     }
 
-    public InspectionAssertion expectDuplicateKey() {
+    public static void assertNoErrors(CodeInsightTestFixture fixture) {
+        List<HighlightInfo> highlighting = fixture.doHighlighting().stream()
+                .filter(info -> info.getSeverity().compareTo(HighlightSeverity.ERROR) >= 0)
+                .toList();
+        if (!highlighting.isEmpty()) {
+            fail(dump(highlighting));
+        }
+    }
+
+    public static String dump(List<HighlightInfo> highlighting) {
+        return "------ highlighting ------\n"
+                + highlighting.stream().map(HighlightInfo::toString).collect(Collectors.joining("\n"))
+                + "\n------ highlighting ------";
+    }
+
+    public InspectionAssertions expectDuplicateKey() {
         var keyName = target.text();
         var expected = ConcordBundle.message(
                 "inspection.duplicate.keys.message", keyName);
@@ -31,7 +48,7 @@ public class InspectionAssertion {
         return expectHighlight(expected);
     }
 
-    public InspectionAssertion expectHighlight(String expected) {
+    public InspectionAssertions expectHighlight(String expected) {
         var infos = assertHighlightAtRange(target.range());
 
         var ok = infos.stream()
@@ -56,7 +73,7 @@ public class InspectionAssertion {
         return this;
     }
 
-    public InspectionAssertion expectNoProblems() {
+    public InspectionAssertions expectNoErrors() {
         var infos = findHighlightsAt(target.range()).stream()
                 .filter(info -> info.getSeverity() == HighlightSeverity.ERROR)
                 .toList();
@@ -87,10 +104,12 @@ public class InspectionAssertion {
 
     private @NotNull List<HighlightInfo> findHighlightsAt(@NotNull TextRange range) {
         var result = new ArrayList<HighlightInfo>();
-        var infos = myFixture.doHighlighting();
+        var infos = highlighting();
 
         for (var i : infos) {
-            if (i == null) continue;
+            if (i == null) {
+                continue;
+            }
 
             if (i.startOffset == range.getStartOffset()
                     && i.endOffset == range.getEndOffset()) {
@@ -98,5 +117,13 @@ public class InspectionAssertion {
             }
         }
         return result;
+    }
+
+
+    private List<HighlightInfo> highlighting() {
+        if (cachedHighlights == null) {
+            cachedHighlights = myFixture.doHighlighting();
+        }
+        return cachedHighlights;
     }
 }

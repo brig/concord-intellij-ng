@@ -111,7 +111,7 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         }
     }
 
-    protected final class KeyTarget extends AbstractTarget {
+    public final class KeyTarget extends AbstractTarget {
 
         private final int occurrence;
 

@@ -6,7 +6,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.lexer.YAMLGrammarCharUtil;
+import brig.concord.lexer.YAMLGrammarCharUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -57,7 +57,7 @@ public final class ConcordYamlPath {
     }
 
     /** Safe: returns the PSI element of a value at path. */
-    @Nullable
+    @NotNull
     public PsiElement valueElement(@NotNull String path) {
         return ReadAction.compute(() -> {
             var kv = resolve(path).key();

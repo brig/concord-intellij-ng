@@ -14,7 +14,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.YAMLTokenTypes;
 import brig.concord.yaml.YAMLUtil;
-import brig.concord.yaml.lexer.YAMLGrammarCharUtil;
+import brig.concord.lexer.YAMLGrammarCharUtil;
 import brig.concord.yaml.psi.YAMLQuotedText;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;
 
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class YAMLQuotedTextImpl extends YAMLScalarImpl implements YAMLQuotedText {
+public class YAMLQuotedTextImpl extends YAMLScalarImpl implements YAMLQuotedText {
     private final boolean myIsSingleQuoted;
 
     public YAMLQuotedTextImpl(@NotNull ASTNode node) {

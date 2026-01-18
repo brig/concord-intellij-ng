@@ -49,7 +49,7 @@
 
         <!-- Language / file type -->
         <lang.parserDefinition language="Concord"
-                               implementationClass="brig.concord.ConcordParserDefinition"/>
+                               implementationClass="brig.concord.parser.ConcordYAMLParserDefinition"/>
 
         <fileType name="Concord File"
                   implementationClass="brig.concord.ConcordFileType"

@@ -38,7 +38,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
                         """
         );
 
-        inspection(doc()).expectNoProblems();
+        inspection(doc()).expectNoErrors();
     }
 
     @Test
@@ -50,7 +50,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
               c: 3
             """);
 
-        inspection(doc()).expectNoProblems();
+        inspection(doc()).expectNoErrors();
     }
 
     @Test
@@ -62,7 +62,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
               a: 2
             """);
 
-        inspection(doc()).expectNoProblems();
+        inspection(doc()).expectNoErrors();
     }
 
     @Test
@@ -100,7 +100,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
               a: 3
             """);
 
-        inspection(key("/configuration/a", 1)).expectNoProblems();
+        inspection(key("/configuration/a", 1)).expectNoErrors();
         inspection(key("/configuration/a", 2)).expectDuplicateKey();
         inspection(key("/configuration/a", 3)).expectDuplicateKey();
     }
@@ -143,6 +143,6 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
         );
         assertFalse(file instanceof YAMLFile);
 
-        inspection(doc()).expectNoProblems();
+        inspection(doc()).expectNoErrors();
     }
 }

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.YAMLTokenTypes;
 import brig.concord.yaml.YAMLUtil;
-import brig.concord.yaml.lexer.YAMLGrammarCharUtil;
+import brig.concord.lexer.YAMLGrammarCharUtil;
 import brig.concord.yaml.psi.YAMLBlockScalar;
 import brig.concord.yaml.psi.YAMLScalarText;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;

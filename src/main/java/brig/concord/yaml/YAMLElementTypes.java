@@ -1,5 +1,8 @@
 package brig.concord.yaml;
 
+import brig.concord.lexer.FlowDocElementTypes;
+import brig.concord.lexer.FlowDocTokenTypes;
+import brig.concord.parser.ConcordYAMLParserDefinition;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.TokenSet;
 
@@ -53,6 +56,23 @@ public interface YAMLElementTypes {
             YAMLTokenTypes.COMMENT
     ));
 
+    // Flow documentation elements (treated as comments for formatting purposes)
+    TokenSet FLOW_DOC_ELEMENTS = TokenSet.create(
+            FlowDocElementTypes.FLOW_DOCUMENTATION,
+            FlowDocElementTypes.FLOW_DOC_DESCRIPTION,
+            FlowDocElementTypes.FLOW_DOC_IN_SECTION,
+            FlowDocElementTypes.FLOW_DOC_OUT_SECTION,
+            FlowDocElementTypes.FLOW_DOC_PARAMETER,
+            FlowDocTokenTypes.FLOW_DOC_MARKER,
+            FlowDocTokenTypes.FLOW_DOC_SECTION_HEADER,
+            FlowDocTokenTypes.FLOW_DOC_PARAM_NAME,
+            FlowDocTokenTypes.FLOW_DOC_TYPE,
+            FlowDocTokenTypes.FLOW_DOC_ARRAY_TYPE,
+            FlowDocTokenTypes.FLOW_DOC_MANDATORY,
+            FlowDocTokenTypes.FLOW_DOC_TEXT,
+            FlowDocTokenTypes.FLOW_DOC_CONTENT
+    );
+
     TokenSet CONTAINERS = TokenSet.create(
             SCALAR_LIST_VALUE,
             SCALAR_TEXT_VALUE,
@@ -76,7 +96,7 @@ public interface YAMLElementTypes {
     );
 
     TokenSet TOP_LEVEL = TokenSet.create(
-            YAMLParserDefinition.FILE,
+             ConcordYAMLParserDefinition.FILE,
             DOCUMENT
     );
 

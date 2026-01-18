@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static brig.concord.completion.provider.FlowCallParamsProvider.*;
+import static brig.concord.assertions.InspectionAssertions.dump;
 
 public class ErrorInspectionTests extends InspectionTestBase {
 
@@ -1925,7 +1926,7 @@ public class ErrorInspectionTests extends InspectionTestBase {
                 .assertInvalidValue(STRING_OR_EXPRESSION)
                 .assertInvalidValue(BOOLEAN_OR_EXPRESSION)
                 .assertInvalidValue(NUMBER_OR_EXPRESSION)
-                .assertInvalidValue(ARRAY_OR_EXPRESSION)
+                .assertInvalidValue(OBJECT_ARRAY_OR_EXPRESSION)
                 .assertInvalidValue(OBJECT_OR_EXPRESSION)
                 .assertInvalidValue(STRING_OR_EXPRESSION)
                 .check();

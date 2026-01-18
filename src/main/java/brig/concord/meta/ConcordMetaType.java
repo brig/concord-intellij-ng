@@ -74,7 +74,13 @@ public abstract class ConcordMetaType extends YamlMetaType {
             return new Field(name, metaType);
         }
 
-        if (metaType instanceof AnyOfType) {
+// AnyOfType: only set SEQUENCE_ITEM type (for arrays), keep AnyOfType for SCALAR_VALUE validation
+        if (metaType instanceof AnyOfType anyOfType) {
+            YamlArrayType arrayType = findArrayType(anyOfType);
+            if (arrayType != null) {
+                return new Field(name, metaType)
+                        .withRelationSpecificType(Field.Relation.SEQUENCE_ITEM, arrayType.getElementType());
+            }
             return new Field(name, metaType);
         }
 
@@ -107,16 +113,16 @@ public abstract class ConcordMetaType extends YamlMetaType {
                 }
                 return def;
             }
-
-            private static YamlArrayType findArrayType(YamlAnyOfType anyType) {
-                for (YamlMetaType t : anyType.getSubTypes()) {
-                    if (t instanceof YamlArrayType) {
-                        return (YamlArrayType) t;
-                    }
-                }
-                return null;
-            }
         };
+    }
+
+    private static YamlArrayType findArrayType(YamlAnyOfType anyType) {
+        for (YamlMetaType t : anyType.getSubTypes()) {
+            if (t instanceof YamlArrayType) {
+                return (YamlArrayType) t;
+            }
+        }
+        return null;
     }
 
     @Override
