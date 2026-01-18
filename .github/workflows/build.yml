@@ -1,17 +1,3 @@
-# GitHub Actions Workflow created for testing and preparing the plugin release in following steps:
-# - validate Gradle Wrapper,
-# - run 'test' and 'verifyPlugin' tasks,
-# - run Qodana inspections,
-# - run 'buildPlugin' task and prepare artifact for the further tests,
-# - run 'runPluginVerifier' task,
-# - create a draft release.
-#
-# Workflow is triggered on push and pull_request events.
-#
-# GitHub Actions reference: https://help.github.com/en/actions
-#
-## JBIJPPTPL
-
 name: Build
 on:
   # Trigger the workflow on pushes to only the 'main' branch (this avoids duplicate checks being run e.g. for dependabot pull requests)
@@ -19,6 +5,10 @@ on:
     branches: [main]
   # Trigger the workflow on any pull request
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
@@ -28,6 +18,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    if: >
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'don''t test')
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
@@ -49,26 +42,33 @@ jobs:
         with:
           distribution: zulu
           java-version: 21
+          cache: gradle
+
+      - name: Gradle Wrapper Validation
+        uses: gradle/wrapper-validation-action@v2
 
       # Set environment variables
       - name: Export Properties
         id: properties
         shell: bash
         run: |
-          PROPERTIES="$(./gradlew properties --console=plain -q)"
-          VERSION="$(echo "$PROPERTIES" | grep "^version:" | cut -f2- -d ' ')"
-          NAME="$(echo "$PROPERTIES" | grep "^pluginName:" | cut -f2- -d ' ')"
-          CHANGELOG="$(./gradlew getChangelog --unreleased --no-header --console=plain -q)"
+          set -euo pipefail
+
+          VERSION="$(./gradlew printVersion -q)"
+          NAME="$(./gradlew printPluginName -q)"
+          CHANGELOG="$(./gradlew printUnreleasedChangelog -q)"
+
+          # Escape changelog for $GITHUB_OUTPUT
           CHANGELOG="${CHANGELOG//'%'/'%25'}"
           CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
           CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
 
-          echo "version=$VERSION" >>$GITHUB_OUTPUT
-          echo "name=$NAME" >>$GITHUB_OUTPUT
-          echo "changelog=$CHANGELOG" >>$GITHUB_OUTPUT
-          echo "pluginVerifierHomeDir=~/.pluginVerifier" >>$GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
+          echo "pluginVerifierHomeDir=~/.pluginVerifier" >> "$GITHUB_OUTPUT"
 
-          ./gradlew printProductsReleases # prepare list of IDEs for Plugin Verifier
+          ./gradlew printProductsReleases -q # prepare list of IDEs for Plugin Verifier
 
       # Run tests
       - name: Run Tests
@@ -151,14 +151,13 @@ jobs:
       - name: Create Release Draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
+          set -euo pipefail
           NOTES_FILE="release-notes.md"
-          
-          cat > "$NOTES_FILE" <<'EOF'
-            ${{ needs.build.outputs.changelog }}
-          EOF
-          
+          printf "%s\n" "${{ needs.build.outputs.changelog }}" > "$NOTES_FILE"
+
           gh release create "v${{ needs.build.outputs.version }}" \
-          --draft \
-          --title "v${{ needs.build.outputs.version }}" \
-          --notes-file "$NOTES_FILE"
+            --draft \
+            --title "v${{ needs.build.outputs.version }}" \
+            --notes-file "$NOTES_FILE"
