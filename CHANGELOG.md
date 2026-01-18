@@ -2,28 +2,33 @@
 
 ## Unreleased
 
+### Added
+
+- support for flow documentation blocks in Concord YAML files
+([#31](https://github.com/brig/concord-intellij-ng/pull/31))
+
 ### Changed
 
-- Improved call in-params reference resolution for quoted keys.
+- improved call in-params reference resolution for quoted keys.
 Added caching for flow documentation and in-params reference resolution
 ([#30](https://github.com/brig/concord-intellij-ng/pull/30))
-- Improved inspection descriptions for Concord YAML files
+- improved inspection descriptions for Concord YAML files
 ([#28](https://github.com/brig/concord-intellij-ng/pull/28))
-- Removed unused YAML syntax highlighting files and refactored `DuplicatedKeysInspection` inspection and tests
+- removed unused YAML syntax highlighting files and refactored `DuplicatedKeysInspection` inspection and tests
 ([#27](https://github.com/brig/concord-intellij-ng/pull/27))
 
 ## 0.15.0 - 2026-01-14
 
 ### Added
 
-- Implemented syntax highlighting support 
+- implemented syntax highlighting support 
 ([#25](https://github.com/brig/concord-intellij-ng/pull/25))
 
 ### Changed
 
-- Updated supported IntelliJ IDEA version (2025.3.1)
+- updated supported IntelliJ IDEA version (2025.3.1)
 ([#25](https://github.com/brig/concord-intellij-ng/pull/25))
-- Fixed navigation error where targets could become invalid
+- fixed navigation error where targets could become invalid
 
 ## 0.14.0
 
