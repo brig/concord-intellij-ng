@@ -9,6 +9,8 @@
 
 ### Changed
 
+- project: improved CI reliability and performance by reducing duplicate runs and hardening build scripts
+([#33](https://github.com/brig/concord-intellij-ng/pull/33))  
 - improved call in-params reference resolution for quoted keys.
 Added caching for flow documentation and in-params reference resolution
 ([#30](https://github.com/brig/concord-intellij-ng/pull/30))
