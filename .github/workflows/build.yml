@@ -155,7 +155,7 @@ jobs:
         run: |
           set -euo pipefail
           NOTES_FILE="release-notes.md"
-          printf "%s\n" "${{ needs.build.outputs.changelog }}" > "$NOTES_FILE"
+          echo "${{ needs.build.outputs.changelog }}" > "$NOTES_FILE"
 
           gh release create "v${{ needs.build.outputs.version }}" \
             --draft \
