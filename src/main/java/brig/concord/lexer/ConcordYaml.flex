@@ -236,8 +236,6 @@ FLOW_DOC_INDENT = [ \t]*
 FLOW_DOC_HASH = "#"
 FLOW_DOC_MARKER = "##"
 
-// Flow doc patterns
-FLOW_DOC_MARKER = "##"
 // Parameter names can contain spaces (e.g., "k 1" from quoted YAML keys)
 FLOW_DOC_PARAM_NAME = [a-zA-Z_][a-zA-Z0-9_. ]*[a-zA-Z0-9_]|[a-zA-Z_]
 FLOW_DOC_TYPE_SIMPLE = "string" | "int" | "number" | "boolean" | "object" | "any"
