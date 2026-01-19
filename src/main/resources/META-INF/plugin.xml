@@ -117,6 +117,15 @@
                          groupKey="inspections.group.name"
                          enabledByDefault="true"
                          implementationClass="brig.concord.inspection.DuplicatedKeysInspection"/>
+
+        <localInspection language="Concord"
+                         bundle="messages.ConcordBundle"
+                         shortName="FlowDocumentation"
+                         level="WARNING"
+                         key="inspections.flow.documentation.name"
+                         groupKey="inspections.group.name"
+                         enabledByDefault="true"
+                         implementationClass="brig.concord.inspection.FlowDocumentationInspection"/>
     </extensions>
 
 </idea-plugin>

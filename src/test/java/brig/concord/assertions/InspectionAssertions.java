@@ -48,6 +48,28 @@ public class InspectionAssertions {
         return expectHighlight(expected);
     }
 
+    public InspectionAssertions expectDuplicateFlowDocParam(String paramName, String section) {
+        var expected = ConcordBundle.message(
+                "inspection.flow.doc.duplicate.param", paramName, section);
+        return expectHighlight(expected);
+    }
+
+    public InspectionAssertions expectUnknownType(String typeName) {
+        var expected = ConcordBundle.message(
+                "inspection.flow.doc.unknown.type", typeName);
+        return expectHighlight(expected);
+    }
+
+    public InspectionAssertions expectOrphanedFlowDoc() {
+        var expected = ConcordBundle.message("inspection.flow.doc.orphaned");
+        return expectHighlight(expected);
+    }
+
+    public InspectionAssertions expectUnknownKeyword(String keyword) {
+        var expected = ConcordBundle.message("inspection.flow.doc.unknown.keyword", keyword);
+        return expectHighlight(expected);
+    }
+
     public InspectionAssertions expectHighlight(String expected) {
         var infos = assertHighlightAtRange(target.range());
 

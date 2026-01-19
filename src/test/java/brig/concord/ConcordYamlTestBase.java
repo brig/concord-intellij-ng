@@ -1,10 +1,14 @@
 package brig.concord;
 
+import brig.concord.lexer.FlowDocTokenTypes;
+import brig.concord.psi.FlowDocParameter;
+import brig.concord.psi.FlowDocumentation;
 import brig.concord.yaml.psi.*;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -12,6 +16,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
 
@@ -240,5 +246,192 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
 
     private @NotNull Document document() {
         return myFixture.getEditor().getDocument();
+    }
+
+    /**
+     * Get flow documentation target for the flow at the given path.
+     * @param flowPath path to the flow key (e.g., "/flows/myFlow")
+     * @return target for the FlowDocumentation element before this flow
+     */
+    protected @NotNull FlowDocTarget flowDoc(@NotNull String flowPath) {
+        return new FlowDocTarget(flowPath);
+    }
+
+    /**
+     * Get the nth FlowDocumentation element in the file (0-indexed).
+     * Useful for testing orphaned documentation.
+     */
+    protected @NotNull FlowDocByIndexTarget flowDocByIndex(int index) {
+        return new FlowDocByIndexTarget(index);
+    }
+
+    /**
+     * Get a parameter target from flow documentation.
+     * @param flowPath path to the flow key
+     * @param paramName name of the parameter
+     * @return target for the FlowDocParameter element
+     */
+    protected @NotNull FlowDocParamTarget flowDocParam(@NotNull String flowPath, @NotNull String paramName) {
+        return new FlowDocParamTarget(flowPath, paramName);
+    }
+
+    /**
+     * Get a parameter target by occurrence (for duplicates).
+     * @param flowPath path to the flow key
+     * @param paramName name of the parameter
+     * @param occurrence 1-based occurrence index
+     * @return target for the FlowDocParameter element
+     */
+    protected @NotNull FlowDocParamTarget flowDocParam(@NotNull String flowPath, @NotNull String paramName, int occurrence) {
+        return new FlowDocParamTarget(flowPath, paramName, occurrence);
+    }
+
+    /**
+     * Get target for unknown keyword in flow doc parameter.
+     * @param flowPath path to the flow key
+     * @param paramName name of the parameter
+     * @return target for the FLOW_DOC_UNKNOWN_KEYWORD token
+     */
+    protected @NotNull UnknownKeywordTarget unknownKeyword(@NotNull String flowPath, @NotNull String paramName) {
+        return new UnknownKeywordTarget(flowPath, paramName);
+    }
+
+    public final class FlowDocTarget extends AbstractTarget {
+
+        private FlowDocTarget(String flowPath) {
+            super(flowPath);
+        }
+
+        @Override
+        public @NotNull String text() {
+            return ReadAction.compute(() -> getFlowDoc().getText());
+        }
+
+        @Override
+        public @NotNull TextRange range() {
+            return ReadAction.compute(() -> getFlowDoc().getTextRange());
+        }
+
+        public @NotNull FlowDocumentation getFlowDoc() {
+            var kv = yamlPath.keyElement(path).getParent();
+            var sibling = kv.getPrevSibling();
+            while (sibling != null && !(sibling instanceof FlowDocumentation)) {
+                sibling = sibling.getPrevSibling();
+            }
+            if (sibling == null) {
+                throw new AssertionError("FlowDocumentation not found before: " + path);
+            }
+            return (FlowDocumentation) sibling;
+        }
+    }
+
+    public final class FlowDocParamTarget extends AbstractTarget {
+
+        private final String paramName;
+        private final int occurrence;
+
+        private FlowDocParamTarget(String flowPath, String paramName) {
+            this(flowPath, paramName, 1);
+        }
+
+        private FlowDocParamTarget(String flowPath, String paramName, int occurrence) {
+            super(flowPath);
+            this.paramName = paramName;
+            this.occurrence = occurrence;
+        }
+
+        @Override
+        public @NotNull String text() {
+            return ReadAction.compute(() -> getParam().getText());
+        }
+
+        @Override
+        public @NotNull TextRange range() {
+            return ReadAction.compute(() -> getParam().getTextRange());
+        }
+
+        public @NotNull FlowDocParameter getParam() {
+            var doc = new FlowDocTarget(path).getFlowDoc();
+            var allParams = new ArrayList<FlowDocParameter>();
+            allParams.addAll(doc.getInputParameters());
+            allParams.addAll(doc.getOutputParameters());
+
+            var matching = allParams.stream()
+                    .filter(p -> paramName.equals(p.getName()))
+                    .toList();
+
+            if (matching.isEmpty()) {
+                throw new AssertionError("Parameter '" + paramName + "' not found in flow doc for: " + path);
+            }
+            if (occurrence > matching.size()) {
+                throw new AssertionError("Parameter '" + paramName + "' occurrence #" + occurrence +
+                        " not found (only " + matching.size() + " found)");
+            }
+            return matching.get(occurrence - 1);
+        }
+    }
+
+    public class FlowDocByIndexTarget extends AbstractTarget {
+
+        private final int index;
+
+        private FlowDocByIndexTarget(int index) {
+            super("flowDoc[" + index + "]");
+            this.index = index;
+        }
+
+        @Override
+        public @NotNull String text() {
+            return ReadAction.compute(() -> getFlowDoc().getText());
+        }
+
+        @Override
+        public @NotNull TextRange range() {
+            return ReadAction.compute(() -> getFlowDoc().getTextRange());
+        }
+
+        public @NotNull FlowDocumentation getFlowDoc() {
+            var docs = PsiTreeUtil.findChildrenOfType(myFixture.getFile(), FlowDocumentation.class);
+            var list = new ArrayList<>(docs);
+            if (index >= list.size()) {
+                throw new AssertionError("FlowDocumentation at index " + index + " not found (only " + list.size() + " found)");
+            }
+            return list.get(index);
+        }
+    }
+
+    public final class UnknownKeywordTarget extends AbstractTarget {
+
+        private final String paramName;
+
+        private UnknownKeywordTarget(String flowPath, String paramName) {
+            super(flowPath);
+            this.paramName = paramName;
+        }
+
+        @Override
+        public @NotNull String text() {
+            return ReadAction.compute(() -> {
+                var node = getUnknownKeywordNode();
+                return node.getText();
+            });
+        }
+
+        @Override
+        public @NotNull TextRange range() {
+            return ReadAction.compute(() -> {
+                var node = getUnknownKeywordNode();
+                return node.getTextRange();
+            });
+        }
+
+        private @NotNull com.intellij.lang.ASTNode getUnknownKeywordNode() {
+            var param = new FlowDocParamTarget(path, paramName).getParam();
+            var node = param.getNode().findChildByType(FlowDocTokenTypes.FLOW_DOC_UNKNOWN_KEYWORD);
+            if (node == null) {
+                throw new AssertionError("FLOW_DOC_UNKNOWN_KEYWORD not found in parameter '" + paramName + "'");
+            }
+            return node;
+        }
     }
 }
