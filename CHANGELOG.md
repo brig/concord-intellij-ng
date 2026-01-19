@@ -17,6 +17,8 @@
 
 ### Changed
 
+- updated the CodeStyleSettingsProvider example configuration
+([#38](https://github.com/brig/concord-intellij-ng/pull/38))  
 - project: improved CI reliability and performance by reducing duplicate runs and hardening build scripts
 ([#33](https://github.com/brig/concord-intellij-ng/pull/33))  
 - improved call in-params reference resolution for quoted keys.
