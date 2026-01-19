@@ -4,6 +4,8 @@
 
 ### Added
 
+- implemented autocompletion support for flow documentation syntax in Concord YAML files
+([#37](https://github.com/brig/concord-intellij-ng/pull/37))
 - implemented inspection for flow documentation blocks in Concord YAML files
 ([#36](https://github.com/brig/concord-intellij-ng/pull/36)) 
 - implemented syntax highlighting for flow documentation blocks in Concord YAML files
