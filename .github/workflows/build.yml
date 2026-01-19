@@ -18,6 +18,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: >
       github.event_name != 'pull_request' ||
       !contains(github.event.pull_request.labels.*.name, "don't test")
@@ -45,7 +46,7 @@ jobs:
           cache: gradle
 
       - name: Gradle Wrapper Validation
-        uses: gradle/wrapper-validation-action@v2
+        uses: gradle/wrapper-validation-action@v3
 
       # Set environment variables
       - name: Export Properties
@@ -58,15 +59,15 @@ jobs:
           NAME="$(./gradlew printPluginName -q)"
           CHANGELOG="$(./gradlew printUnreleasedChangelog -q)"
 
-          # Escape changelog for $GITHUB_OUTPUT
-          CHANGELOG="${CHANGELOG//'%'/'%25'}"
-          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
-          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
-
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
-          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
-          echo "pluginVerifierHomeDir=~/.pluginVerifier" >> "$GITHUB_OUTPUT"
+          echo "pluginVerifierHomeDir=$HOME/.pluginVerifier" >> "$GITHUB_OUTPUT"
+
+          {
+            echo 'changelog<<EOF'
+            echo "$CHANGELOG"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
           ./gradlew printProductsReleases -q # prepare list of IDEs for Plugin Verifier
 
@@ -130,6 +131,7 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:
