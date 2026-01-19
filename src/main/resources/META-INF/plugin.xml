@@ -83,6 +83,14 @@
         <fileBasedIndex implementation="brig.concord.navigation.FlowNamesIndex"/>
         <searchEverywhereContributor implementation="brig.concord.navigation.FlowDefinitionSearchEverywhereContributor$Factory"/>
 
+        <codeInsight.inlayProvider
+                implementationClass="brig.concord.inlay.call.CallInlayHintsProvider"
+                language="Concord"/>
+
+        <codeInsight.parameterInfo
+                language="Concord"
+                implementationClass="brig.concord.inlay.call.ConcordCallParameterInfoHandler"/>
+
         <!-- Validation -->
         <annotator language="Concord"
                    implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>
