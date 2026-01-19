@@ -73,6 +73,8 @@
         <completion.contributor language="Concord"
                                 implementationClass="brig.concord.completion.ConcordCompletions"
                                 order="first"/>
+        <completion.contributor language="Concord"
+                                implementationClass="brig.concord.completion.FlowDocCompletionContributor"/>
 
         <lang.psiStructureViewFactory language="Concord"
                                       implementationClass="brig.concord.structureView.ConcordStructureViewFactory"/>
