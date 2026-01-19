@@ -4,16 +4,11 @@ import brig.concord.meta.model.IdentityElementMetaType;
 import brig.concord.meta.model.IdentityMetaType;
 import brig.concord.psi.ConcordFile;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileSystemItem;
-import com.intellij.psi.util.CachedValue;
-import com.intellij.psi.util.CachedValueProvider;
-import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,10 +24,6 @@ import java.util.Optional;
 
 @Service(Service.Level.PROJECT)
 public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
-
-    private static final Logger LOG = Logger.getInstance(ConcordMetaTypeProvider.class);
-
-    private static final Key<CachedValue<MetaTypeProxy>> META_TYPE_PROXY = new Key<>("META_TYPE_PROXY");
 
     private static final ModificationTracker YAML_MODIFICATION_TRACKER = ModificationTracker.NEVER_CHANGED;
 
@@ -70,14 +61,8 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
     @Nullable
     @Override
     public MetaTypeProxy getMetaTypeProxy(@NotNull PsiElement element) {
-        return CachedValuesManager.getCachedValue(element, META_TYPE_PROXY, () ->
-                new CachedValueProvider.Result<>(resolveMetaTypeProxy(element), element.getContainingFile()));
-    }
-
-    private MetaTypeProxy resolveMetaTypeProxy(@NotNull PsiElement element) {
         MetaTypeProxy result = super.getMetaTypeProxy(element);
         if (result == null) {
-            LOG.info("resolveMetaTypeProxy -> null for: " + element.getText());
             return null;
         }
 

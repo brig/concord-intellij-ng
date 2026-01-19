@@ -1,13 +1,8 @@
 package brig.concord.lexer;
 
-import com.intellij.psi.tree.IElementType;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static brig.concord.assertions.TokenAssertions.assertTokens;
 
 public class FlowDocLexerTest {
 
@@ -26,10 +21,9 @@ public class FlowDocLexerTest {
                 - task: s3
             """;
 
-        var tokens = tokenize(yaml);
-
-        assertTrue(countTokens(tokens, "FLOW_DOC_MARKER") > 0,
-                "Should find FLOW_DOC_MARKER tokens. Output:\n" + formatTokens(tokens));
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasCount("FLOW_DOC_COMMENT_PREFIX", 5);
     }
 
     @Test
@@ -53,11 +47,8 @@ public class FlowDocLexerTest {
                 - log: "2"
             """;
 
-        var tokens = tokenize(yaml);
-        var markerCount = countTokens(tokens, "FLOW_DOC_MARKER");
-
-        assertEquals(4, markerCount,
-                "Should find 4 FLOW_DOC_MARKER tokens (2 open + 2 close). Output:\n" + formatTokens(tokens));
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 4);
     }
 
     @Test
@@ -74,19 +65,10 @@ public class FlowDocLexerTest {
                 - task: s3
             """;
 
-        var tokens = tokenize(yaml, 200);
-
-        var markerCount = countTokens(tokens, "FLOW_DOC_MARKER");
-        assertEquals(2, markerCount,
-                "Should find 2 FLOW_DOC_MARKER tokens. Output:\n" + formatTokens(tokens));
-
-        // Check that "tags" is NOT parsed as FLOW_DOC_PARAM_NAME
-        var paramNameTokens = tokens.stream()
-                .filter(t -> t.type().toString().equals("FLOW_DOC_PARAM_NAME"))
-                .toList();
-
-        assertEquals(1, paramNameTokens.size(),
-                "Should find only 1 param name (s3Bucket). Found: " + paramNameTokens + "\n\nAll tokens:\n" + formatTokens(tokens));
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasCount("FLOW_DOC_PARAM_NAME", 1)
+                .token("FLOW_DOC_PARAM_NAME").hasText("s3Bucket");
     }
 
     @Test
@@ -102,61 +84,131 @@ public class FlowDocLexerTest {
               # out:
               #   processed: int, mandatory, Files processed count
               #
+              # tags: 1, 2, 3
               ##
               processS3:
                 - task: s3
             """;
 
-        var tokens = tokenize(yaml);
-        var markerCount = countTokens(tokens, "FLOW_DOC_MARKER");
-
-        assertEquals(2, markerCount,
-                "Should find 2 FLOW_DOC_MARKER tokens (1 open + 1 close). Output:\n" + formatTokens(tokens));
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2);
     }
 
-    record TokenInfo(IElementType type, int state, int start, int end, String text) {
-        @Override
-        @NotNull
-        public String toString() {
-            var escapedText = text.replace("\n", "\\n").replace("\t", "\\t");
-            return String.format("%-25s state=%-3d [%3d-%3d]: '%s'", type, state, start, end, escapedText);
-        }
+    @Test
+    public void testCommentPrefixIsSeparateToken() {
+        var yaml = """
+            flows:
+              ##
+              # Description
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_COMMENT_PREFIX", 1)
+                .token("FLOW_DOC_COMMENT_PREFIX").hasText("#").followedBy("whitespace")
+                .and()
+                .token("FLOW_DOC_CONTENT").hasText("Description");
     }
 
-    private static List<TokenInfo> tokenize(String yaml) {
-        return tokenize(yaml, 100);
+    @Test
+    public void testHashWithoutSpaceInDescription() {
+        var yaml = """
+            flows:
+              ##
+              #NoSpace
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasCount("FLOW_DOC_COMMENT_PREFIX", 1)
+                .token("FLOW_DOC_CONTENT").hasText("NoSpace");
     }
 
-    private static List<TokenInfo> tokenize(String yaml, int maxTokens) {
-        var lexer = new ConcordYAMLFlexLexer();
-        lexer.start(yaml, 0, yaml.length(), 0);
+    @Test
+    public void testHashWithoutSpaceInParams() {
+        var yaml = """
+            flows:
+              ##
+              # in:
+              #   param1: string, mandatory
+              #NoSpaceTag
+              ##
+              myFlow:
+                - log: "test"
+            """;
 
-        var tokens = new ArrayList<TokenInfo>();
-        IElementType token;
-
-        while ((token = lexer.getTokenType()) != null && tokens.size() < maxTokens) {
-            tokens.add(new TokenInfo(
-                    token,
-                    lexer.getState(),
-                    lexer.getTokenStart(),
-                    lexer.getTokenEnd(),
-                    yaml.substring(lexer.getTokenStart(), lexer.getTokenEnd())
-            ));
-            lexer.advance();
-        }
-
-        return tokens;
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasCount("FLOW_DOC_PARAM_NAME", 1)
+                .token("FLOW_DOC_PARAM_NAME").hasText("param1")
+                .and()
+                .token("FLOW_DOC_TEXT").hasText("NoSpaceTag");
     }
 
-    private static long countTokens(List<TokenInfo> tokens, String tokenName) {
-        return tokens.stream()
-                .filter(t -> t.type().toString().equals(tokenName))
-                .count();
+    @Test
+    public void testMandatoryAndOptionalTokens() {
+        var yaml = """
+            flows:
+              ##
+              # in:
+              #   param1: string, mandatory, Required param
+              #   param2: int, optional, Optional param
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MANDATORY", 1)
+                .hasCount("FLOW_DOC_OPTIONAL", 1)
+                .token("FLOW_DOC_MANDATORY").hasText("mandatory")
+                .and()
+                .token("FLOW_DOC_OPTIONAL").hasText("optional");
     }
 
-    private static String formatTokens(List<TokenInfo> tokens) {
-        var sb = new StringBuilder();
-        tokens.forEach(t -> sb.append(t).append("\n"));
-        return sb.toString();
+    @Test
+    public void testEmptyCommentLine() {
+        var yaml = """
+            flows:
+              ##
+              # Description
+              #
+              # in:
+              #   param1: string, mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_COMMENT_PREFIX", 4)
+                .hasCount("FLOW_DOC_MARKER", 2);
+    }
+
+    @Test
+    public void testColonAndCommaTokens() {
+        var yaml = """
+            flows:
+              ##
+              # in:
+              #   param1: string, mandatory, Description
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_COLON", 1)
+                .hasCount("FLOW_DOC_COMMA", 2)
+                .token("FLOW_DOC_COLON").hasText(":")
+                .and()
+                .token("FLOW_DOC_COMMA", 0).hasText(",")
+                .and()
+                .token("FLOW_DOC_COMMA", 1).hasText(",");
     }
 }

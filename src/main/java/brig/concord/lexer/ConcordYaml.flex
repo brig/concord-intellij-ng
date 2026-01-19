@@ -240,7 +240,8 @@ FLOW_DOC_MARKER = "##"
 FLOW_DOC_PARAM_NAME = [a-zA-Z_][a-zA-Z0-9_. ]*[a-zA-Z0-9_]|[a-zA-Z_]
 FLOW_DOC_TYPE_SIMPLE = "string" | "int" | "number" | "boolean" | "object" | "any"
 FLOW_DOC_TYPE_ARRAY = {FLOW_DOC_TYPE_SIMPLE} "[]"
-FLOW_DOC_KEYWORD = "mandatory" | "optional"
+FLOW_DOC_KEYWORD_MANDATORY = "mandatory"
+FLOW_DOC_KEYWORD_OPTIONAL = "optional"
 FLOW_DOC_SECTION = "in:" | "out:"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,13 +274,18 @@ FLOW_DOC_SECTION = "in:" | "out:"
 // Flow documentation states
 %xstate FLOW_DOC_STATE
 %xstate FLOW_DOC_LINE_START_STATE
+%xstate FLOW_DOC_AFTER_HASH_STATE
 %xstate FLOW_DOC_LINE_STATE
 %xstate FLOW_DOC_PARAMS_STATE
 %xstate FLOW_DOC_PARAMS_LINE_START_STATE
+%xstate FLOW_DOC_PARAMS_AFTER_HASH_STATE
 %xstate FLOW_DOC_PARAM_LINE_STATE
 %xstate FLOW_DOC_PARAM_AFTER_NAME_STATE
+%xstate FLOW_DOC_PARAM_AFTER_COLON_STATE
 %xstate FLOW_DOC_PARAM_TYPE_STATE
+%xstate FLOW_DOC_PARAM_AFTER_TYPE_STATE
 %xstate FLOW_DOC_PARAM_KEYWORD_STATE
+%xstate FLOW_DOC_PARAM_AFTER_KEYWORD_STATE
 %xstate FLOW_DOC_PARAM_DESC_STATE
 %xstate FLOW_DOC_PARAM_FALLBACK_STATE
 
@@ -592,16 +598,10 @@ FLOW_DOC_SECTION = "in:" | "out:"
         return FLOW_DOC_MARKER;
       }
 
-  // Single # followed by space - content line prefix, consume # and spaces
-  {FLOW_DOC_HASH} {WHITE_SPACE}+ {
-        yybegin(FLOW_DOC_LINE_STATE);
-        return WHITESPACE;
-      }
-
-  // Single # followed by EOL - empty line
-  {FLOW_DOC_HASH} / {EOL} {
-        yybegin(FLOW_DOC_STATE);
-        return FLOW_DOC_CONTENT;
+  // Single # - return as comment prefix, handle what follows in next state
+  {FLOW_DOC_HASH} {
+        yybegin(FLOW_DOC_AFTER_HASH_STATE);
+        return FLOW_DOC_COMMENT_PREFIX;
       }
 
   // EOL without content (blank line in flow doc)
@@ -614,6 +614,27 @@ FLOW_DOC_SECTION = "in:" | "out:"
   [^] {
         yypushback(1);
         yybegin(BLOCK_STATE);
+      }
+}
+
+// After # in description area - handle spaces and content
+<FLOW_DOC_AFTER_HASH_STATE> {
+  // Spaces after # - return as whitespace, then parse content
+  {WHITE_SPACE}+ {
+        yybegin(FLOW_DOC_LINE_STATE);
+        return WHITESPACE;
+      }
+
+  // EOL right after # - empty comment line
+  {EOL} {
+        yybegin(FLOW_DOC_LINE_START_STATE);
+        return EOL;
+      }
+
+  // Fallback: unexpected character after #, treat rest of line as content
+  [^] {
+        yypushback(1);
+        yybegin(FLOW_DOC_LINE_STATE);
       }
 }
 
@@ -665,31 +686,10 @@ FLOW_DOC_SECTION = "in:" | "out:"
         return FLOW_DOC_MARKER;
       }
 
-  // Another section header (e.g., out: after in:)
-  {FLOW_DOC_HASH} {WHITE_SPACE}* / ("in:" | "out:") {
-        // This is a section header line, need to consume just the # prefix
-        yybegin(FLOW_DOC_LINE_STATE);
-        return WHITESPACE;
-      }
-
-  // Parameter line: # followed by 2+ spaces (indented content)
-  // This is the pattern for actual parameters like "#   param: type"
-  {FLOW_DOC_HASH} {WHITE_SPACE}{WHITE_SPACE}+ {
-        yybegin(FLOW_DOC_PARAM_LINE_STATE);
-        return WHITESPACE;
-      }
-
-  // User text line: # followed by exactly 1 space and then non-whitespace
-  // This is for custom tags or user text like "# tags: value"
-  {FLOW_DOC_HASH} " " / [^ \t\n] {
-        yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
-        return WHITESPACE;
-      }
-
-  // Single # followed by EOL - empty line
-  {FLOW_DOC_HASH} / {EOL} {
-        yybegin(FLOW_DOC_PARAMS_STATE);
-        return FLOW_DOC_CONTENT;
+  // Single # - return as comment prefix, handle what follows in next state
+  {FLOW_DOC_HASH} {
+        yybegin(FLOW_DOC_PARAMS_AFTER_HASH_STATE);
+        return FLOW_DOC_COMMENT_PREFIX;
       }
 
   // EOL without content (blank line)
@@ -702,6 +702,39 @@ FLOW_DOC_SECTION = "in:" | "out:"
   [^] {
         yypushback(1);
         yybegin(BLOCK_STATE);
+      }
+}
+
+// After # in params section - decide if it's a parameter, section header, or user text
+<FLOW_DOC_PARAMS_AFTER_HASH_STATE> {
+  // Section header with space: "# in:" or "# out:"
+  " " / ("in:" | "out:") {
+        yybegin(FLOW_DOC_LINE_STATE);
+        return WHITESPACE;
+      }
+
+  // Parameter line: 2+ spaces (indented content like "#   param: type")
+  {WHITE_SPACE}{WHITE_SPACE}+ {
+        yybegin(FLOW_DOC_PARAM_LINE_STATE);
+        return WHITESPACE;
+      }
+
+  // User text line: exactly 1 space and then non-whitespace (like "# tags: value")
+  " " / [^ \t\n] {
+        yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
+        return WHITESPACE;
+      }
+
+  // EOL right after # - empty comment line
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+
+  // Fallback: unexpected character after #, treat as user text
+  [^] {
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
       }
 }
 
@@ -742,10 +775,15 @@ FLOW_DOC_SECTION = "in:" | "out:"
 
 // After parameter name, expect colon
 <FLOW_DOC_PARAM_AFTER_NAME_STATE> {
-  // Colon after param name - consume and move to type state
-  {WHITE_SPACE}* ":" {WHITE_SPACE}* {
-        yybegin(FLOW_DOC_PARAM_TYPE_STATE);
+  // Whitespace before colon
+  {WHITE_SPACE}+ {
         return WHITESPACE;
+      }
+
+  // Colon after param name
+  ":" {
+        yybegin(FLOW_DOC_PARAM_AFTER_COLON_STATE);
+        return FLOW_DOC_COLON;
       }
 
   // No colon - go to description
@@ -761,24 +799,66 @@ FLOW_DOC_SECTION = "in:" | "out:"
       }
 }
 
+// After colon, whitespace before type
+<FLOW_DOC_PARAM_AFTER_COLON_STATE> {
+  {WHITE_SPACE}+ {
+        yybegin(FLOW_DOC_PARAM_TYPE_STATE);
+        return WHITESPACE;
+      }
+
+  // No whitespace - go directly to type state
+  [^ \t\n] {
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_TYPE_STATE);
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+}
+
 // Expect type after colon
 <FLOW_DOC_PARAM_TYPE_STATE> {
   // Array types (must come before simple types to match longer pattern first)
   {FLOW_DOC_TYPE_ARRAY} {
-        yybegin(FLOW_DOC_PARAM_KEYWORD_STATE);
+        yybegin(FLOW_DOC_PARAM_AFTER_TYPE_STATE);
         return FLOW_DOC_ARRAY_TYPE;
       }
 
   // Simple types
   {FLOW_DOC_TYPE_SIMPLE} {
-        yybegin(FLOW_DOC_PARAM_KEYWORD_STATE);
+        yybegin(FLOW_DOC_PARAM_AFTER_TYPE_STATE);
         return FLOW_DOC_TYPE;
       }
 
-  // No type - skip to keyword state
-  "," {WHITE_SPACE}* {
+  // No type - comma goes to keyword state
+  "," {
         yybegin(FLOW_DOC_PARAM_KEYWORD_STATE);
+        return FLOW_DOC_COMMA;
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+
+  // Anything else - go to description
+  . {
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_DESC_STATE);
+      }
+}
+
+// After type, expect comma or EOL
+<FLOW_DOC_PARAM_AFTER_TYPE_STATE> {
+  {WHITE_SPACE}+ {
         return WHITESPACE;
+      }
+
+  "," {
+        yybegin(FLOW_DOC_PARAM_KEYWORD_STATE);
+        return FLOW_DOC_COMMA;
       }
 
   {EOL} {
@@ -795,15 +875,21 @@ FLOW_DOC_SECTION = "in:" | "out:"
 
 // Expect mandatory/optional keyword
 <FLOW_DOC_PARAM_KEYWORD_STATE> {
-  // Comma before keyword
-  {WHITE_SPACE}* "," {WHITE_SPACE}* {
+  // Whitespace before keyword
+  {WHITE_SPACE}+ {
         return WHITESPACE;
       }
 
-  // Mandatory/optional keyword
-  {FLOW_DOC_KEYWORD} {
-        yybegin(FLOW_DOC_PARAM_DESC_STATE);
+  // Mandatory keyword
+  {FLOW_DOC_KEYWORD_MANDATORY} {
+        yybegin(FLOW_DOC_PARAM_AFTER_KEYWORD_STATE);
         return FLOW_DOC_MANDATORY;
+      }
+
+  // Optional keyword
+  {FLOW_DOC_KEYWORD_OPTIONAL} {
+        yybegin(FLOW_DOC_PARAM_AFTER_KEYWORD_STATE);
+        return FLOW_DOC_OPTIONAL;
       }
 
   {EOL} {
@@ -818,10 +904,33 @@ FLOW_DOC_SECTION = "in:" | "out:"
       }
 }
 
+// After keyword, expect comma or EOL
+<FLOW_DOC_PARAM_AFTER_KEYWORD_STATE> {
+  {WHITE_SPACE}+ {
+        return WHITESPACE;
+      }
+
+  "," {
+        yybegin(FLOW_DOC_PARAM_DESC_STATE);
+        return FLOW_DOC_COMMA;
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
+      }
+
+  // Anything else - go to description
+  . {
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_DESC_STATE);
+      }
+}
+
 // Expect description (rest of line)
 <FLOW_DOC_PARAM_DESC_STATE> {
-  // Comma before description
-  {WHITE_SPACE}* "," {WHITE_SPACE}* {
+  // Whitespace before description
+  {WHITE_SPACE}+ {
         return WHITESPACE;
       }
 

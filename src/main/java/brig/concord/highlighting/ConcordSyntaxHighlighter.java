@@ -1,5 +1,6 @@
 package brig.concord.highlighting;
 
+import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.yaml.YAMLTokenTypes;
 import brig.concord.lexer.ConcordYAMLFlexLexer;
 import com.intellij.lexer.Lexer;
@@ -57,6 +58,45 @@ public final class ConcordSyntaxHighlighter extends SyntaxHighlighterBase {
         m.put(YAMLTokenTypes.RBRACE,   brackets);
         m.put(YAMLTokenTypes.LBRACKET, brackets);
         m.put(YAMLTokenTypes.RBRACKET, brackets);
+
+        // flow documentation
+        m.put(FlowDocTokenTypes.FLOW_DOC_MARKER, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_MARKER
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_COMMENT_PREFIX, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_COMMENT_PREFIX
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_SECTION_HEADER, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_SECTION
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_PARAM_NAME, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_PARAM_NAME
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_TYPE, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_TYPE
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_ARRAY_TYPE, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_TYPE
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_MANDATORY, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_MANDATORY
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_OPTIONAL, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_OPTIONAL
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_TEXT, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_TEXT
+        });
+        m.put(FlowDocTokenTypes.FLOW_DOC_CONTENT, new TextAttributesKey[]{
+                ConcordHighlightingColors.FLOW_DOC_TEXT
+        });
+
+        // flow documentation punctuation
+        TextAttributesKey[] flowDocPunctuation = {
+                ConcordHighlightingColors.FLOW_DOC_PUNCTUATION
+        };
+        m.put(FlowDocTokenTypes.FLOW_DOC_COLON, flowDocPunctuation);
+        m.put(FlowDocTokenTypes.FLOW_DOC_COMMA, flowDocPunctuation);
 
         return Map.copyOf(m);
     }

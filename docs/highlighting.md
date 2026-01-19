@@ -6,7 +6,8 @@ in the Concord DSL IntelliJ plugin.
 The goal of the model is:
 - semantic correctness (names reflect real DSL meaning),
 - consistency across sections (flows / imports / triggers),
-- extensibility without introducing new colors unnecessarily.
+- extensibility without introducing new colors unnecessarily,
+- support for structured documentation embedded in comments.
 
 ---
 
@@ -16,6 +17,8 @@ The goal of the model is:
 - User-defined keys are visually distinct from DSL-defined keys.
 - Color usage is intentionally limited to avoid visual noise.
 - Different semantic roles may reuse the same color with different font styles.
+- Documentation blocks are treated as structured content, not plain comments.
+- Documentation highlighting must never compete visually with executable DSL code.
 
 ---
 
@@ -216,9 +219,176 @@ CONCORD_COMMENT
 # this is a comment
 ```
 
+**Meaning**  
+Unstructured comments with no semantic meaning.
+
 ---
 
-### 2.11 User-defined keys
+## 2.11 Flow documentation (structured comments)
+
+Flow documentation is a structured, semantically rich block embedded in YAML
+comments. It is not executable DSL, but it describes the input/output contract of a flow.
+
+Documentation blocks are delimited by a marker and interpreted as a separate
+documentation layer.
+
+Documentation blocks are parsed and highlighted separately from regular DSL
+elements, but share the same lexical space.
+
+---
+
+### 2.11.1 Documentation marker
+
+**Constant**
+```
+CONCORD_FLOW_DOC_MARKER
+```
+
+**Examples**
+```yaml
+##
+```
+
+**Meaning**  
+Marks the beginning and end of a flow documentation block.  
+Acts as a visual anchor for the documentation region.
+
+---
+
+### 2.11.2 Documentation comment prefix
+
+**Constant**
+```
+CONCORD_FLOW_DOC_COMMENT_PREFIX
+```
+
+**Examples**
+```yaml
+#
+```
+
+**Meaning**  
+YAML comment prefix used inside a documentation block.
+Rendered with minimal visual weight to reduce YAML noise.
+
+---
+
+### 2.11.3 Documentation sections
+
+**Constant**
+```
+CONCORD_FLOW_DOC_SECTION
+```
+
+**Examples**
+```yaml
+# in:
+# out:
+```
+
+**Meaning**  
+Structural sections of flow documentation.  
+Define input and output parameter groups.
+
+---
+
+### 2.11.4 Documentation parameter names
+
+**Constant**
+```
+CONCORD_FLOW_DOC_PARAM_NAME
+```
+
+**Examples**
+```yaml
+# file:
+# interpolateArgs:
+```
+
+**Meaning**  
+Names of input or output parameters.  
+This is the primary visual anchor within documentation lines.
+
+---
+
+### 2.11.5 Documentation parameter types
+
+**Constant**
+```
+CONCORD_FLOW_DOC_TYPE
+```
+
+**Examples**
+```yaml
+# string
+# object
+# boolean
+```
+
+**Meaning**  
+Declared parameter data types.  
+Used for documentation, validation, and future tooling support.
+
+---
+
+### 2.11.6 Documentation modifiers
+
+**Constants**
+```
+CONCORD_FLOW_DOC_MANDATORY
+CONCORD_FLOW_DOC_OPTIONAL
+```
+
+**Examples**
+```yaml
+# mandatory
+# optional
+```
+
+**Meaning**  
+Parameter cardinality modifiers.  
+Indicate whether a parameter is required or optional.
+
+---
+
+### 2.11.7 Documentation text / descriptions
+
+**Constant**
+```
+CONCORD_FLOW_DOC_TEXT
+```
+
+**Examples**
+```yaml
+# k8s manifest file to delete
+```
+
+**Meaning**  
+Free-form human-readable descriptions.  
+Visually subdued to avoid competing with parameter names.
+
+---
+
+### 2.11.8 Documentation punctuation
+
+**Constant**
+```
+CONCORD_FLOW_DOC_PUNCTUATION
+```
+
+**Examples**
+```yaml
+# :
+# ,
+```
+
+**Meaning**  
+Separators inside documentation lines.  
+Purely syntactic, visually minimized.
+
+---
+
+### 2.12 User-defined keys
 
 **Constant**
 ```
@@ -230,36 +400,49 @@ Keys not recognized as part of the Concord DSL schema.
 
 ---
 
-### 2.12 Structural / auxiliary tokens
+### 2.13 Structural / auxiliary tokens
 
 These tokens are purely syntactic and do not carry DSL semantics.
 
-| Constant | Meaning |
-|--------|--------|
-| `CONCORD_COLON` | Colon separator (`:`) |
-| `CONCORD_BRACKETS` | Brackets and braces (`[]`, `{}`) |
+| Constant                | Meaning                          |
+|-------------------------|----------------------------------|
+| `CONCORD_COLON`         | Colon separator (`:`)            |
+| `CONCORD_BRACKETS`      | Brackets and braces (`[]`, `{}`) |
 | `CONCORD_BAD_CHARACTER` | Invalid or unexpected characters |
 
 
 ## 3. Summary
 
-| Category              | Constant                  |
-|-----------------------|---------------------------|
-| Top-level sections    | CONCORD_DSL_SECTION       |
-| Flow names            | CONCORD_FLOW_IDENTIFIER   |
-| Step keywords         | CONCORD_STEP_KEYWORD      |
-| Import / Trigger kind | CONCORD_DSL_KIND          |
-| Predefined DSL keys   | CONCORD_DSL_KEY           |
-| Labels                | CONCORD_DSL_LABEL         |
-| Step targets          | CONCORD_TARGET_IDENTIFIER |
-| Expressions           | CONCORD_EXPRESSION        |
-| Comments              | CONCORD_COMMENT           |
-| User keys             | CONCORD_USER_KEY          |
+| Category              | Constant                        |
+|-----------------------|---------------------------------|
+| Top-level sections    | CONCORD_DSL_SECTION             |
+| Flow names            | CONCORD_FLOW_IDENTIFIER         |
+| Step keywords         | CONCORD_STEP_KEYWORD            |
+| Import / Trigger kind | CONCORD_DSL_KIND                |
+| Predefined DSL keys   | CONCORD_DSL_KEY                 |
+| Labels                | CONCORD_DSL_LABEL               |
+| Step targets          | CONCORD_TARGET_IDENTIFIER       |
+| Expressions           | CONCORD_EXPRESSION              |
+| Comments              | CONCORD_COMMENT                 |
+| User keys             | CONCORD_USER_KEY                |
+| Doc marker            | CONCORD_FLOW_DOC_MARKER         |
+| Doc comment prefix    | CONCORD_FLOW_DOC_COMMENT_PREFIX |
+| Doc section           | CONCORD_FLOW_DOC_SECTION        |
+| Doc param name        | CONCORD_FLOW_DOC_PARAM_NAME     |
+| Doc type              | CONCORD_FLOW_DOC_TYPE           |
+| Doc mandatory         | CONCORD_FLOW_DOC_MANDATORY      |
+| Doc optional          | CONCORD_FLOW_DOC_OPTIONAL       |
+| Doc text              | CONCORD_FLOW_DOC_TEXT           |
+| Doc punctuation       | CONCORD_FLOW_DOC_PUNCTUATION    |
 
 ---
 
 ## 4. Notes
 
+- Documentation highlighting is intentionally subtle.
+- Documentation must never visually dominate executable DSL code.
 - No additional colors should be introduced unless a new semantic role appears.
 - New DSL features should map to existing categories whenever possible.
+- Flow documentation tokens are allowed to reuse comment-adjacent colors only.
 - Visual consistency is preferred over maximal differentiation.
+- Documentation tokens must not introduce new parsing ambiguities in YAML.
