@@ -77,7 +77,7 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
 
             // Check for unknown types
             var type = param.getType();
-            if (!VALID_TYPES.contains(type)) {
+            if (type != null && !type.isBlank() && !VALID_TYPES.contains(type)) {
                 holder.registerProblem(
                         param,
                         ConcordBundle.message("inspection.flow.doc.unknown.type", type),
