@@ -64,7 +64,8 @@ public class YAMLParserFlowDocExtension {
         while (builder.getTokenType() == WHITESPACE ||
                 builder.getTokenType() == INDENT ||
                 builder.getTokenType() == EOL ||
-                builder.getTokenType() == FLOW_DOC_CONTENT) {
+                builder.getTokenType() == FLOW_DOC_CONTENT ||
+                builder.getTokenType() == FLOW_DOC_TEXT) {
 
             if (builder.getTokenType() == FLOW_DOC_SECTION_HEADER ||
                     builder.getTokenType() == FLOW_DOC_MARKER) {
