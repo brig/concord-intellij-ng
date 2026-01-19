@@ -25,11 +25,7 @@ public class YAMLParserFlowDocExtension {
             builder.advanceLexer();
         }
 
-        while (builder.getTokenType() == WHITESPACE ||
-                builder.getTokenType() == INDENT ||
-                builder.getTokenType() == EOL) {
-            builder.advanceLexer();
-        }
+        skipWhitespaceAndPrefix(builder);
 
         parseFlowDocDescription(builder);
 
@@ -65,7 +61,8 @@ public class YAMLParserFlowDocExtension {
                 builder.getTokenType() == INDENT ||
                 builder.getTokenType() == EOL ||
                 builder.getTokenType() == FLOW_DOC_CONTENT ||
-                builder.getTokenType() == FLOW_DOC_TEXT) {
+                builder.getTokenType() == FLOW_DOC_TEXT ||
+                builder.getTokenType() == FLOW_DOC_COMMENT_PREFIX) {
 
             if (builder.getTokenType() == FLOW_DOC_SECTION_HEADER ||
                     builder.getTokenType() == FLOW_DOC_MARKER) {
@@ -76,6 +73,7 @@ public class YAMLParserFlowDocExtension {
     }
 
     private static void parseFlowDocDescription(PsiBuilder builder) {
+        // Description starts with FLOW_DOC_CONTENT (after FLOW_DOC_COMMENT_PREFIX and WHITESPACE are skipped)
         if (builder.getTokenType() != FLOW_DOC_CONTENT) {
             return;
         }
@@ -94,23 +92,32 @@ public class YAMLParserFlowDocExtension {
             builder.advanceLexer();
         }
 
-        while (builder.getTokenType() == WHITESPACE ||
-                builder.getTokenType() == INDENT ||
-                builder.getTokenType() == EOL) {
-            builder.advanceLexer();
-        }
+        skipToParamOrEnd(builder);
 
         while (builder.getTokenType() == FLOW_DOC_PARAM_NAME) {
             parseFlowDocParameter(builder);
-
-            while (builder.getTokenType() == WHITESPACE ||
-                    builder.getTokenType() == INDENT ||
-                    builder.getTokenType() == EOL) {
-                builder.advanceLexer();
-            }
+            skipToParamOrEnd(builder);
         }
 
         sectionMarker.done(sectionType);
+    }
+
+    private static void skipToParamOrEnd(PsiBuilder builder) {
+        while (builder.getTokenType() == WHITESPACE ||
+                builder.getTokenType() == INDENT ||
+                builder.getTokenType() == EOL ||
+                builder.getTokenType() == FLOW_DOC_COMMENT_PREFIX) {
+            builder.advanceLexer();
+        }
+    }
+
+    private static void skipWhitespaceAndPrefix(PsiBuilder builder) {
+        while (builder.getTokenType() == WHITESPACE ||
+                builder.getTokenType() == INDENT ||
+                builder.getTokenType() == EOL ||
+                builder.getTokenType() == FLOW_DOC_COMMENT_PREFIX) {
+            builder.advanceLexer();
+        }
     }
 
     private static void parseFlowDocParameter(PsiBuilder builder) {
@@ -120,19 +127,34 @@ public class YAMLParserFlowDocExtension {
             builder.advanceLexer();
         }
 
+        skipParamWhitespaceAndPunctuation(builder);
+
         if (builder.getTokenType() == FLOW_DOC_TYPE ||
                 builder.getTokenType() == FLOW_DOC_ARRAY_TYPE) {
             builder.advanceLexer();
         }
 
-        if (builder.getTokenType() == FLOW_DOC_MANDATORY) {
+        skipParamWhitespaceAndPunctuation(builder);
+
+        if (builder.getTokenType() == FLOW_DOC_MANDATORY ||
+                builder.getTokenType() == FLOW_DOC_OPTIONAL) {
             builder.advanceLexer();
         }
+
+        skipParamWhitespaceAndPunctuation(builder);
 
         if (builder.getTokenType() == FLOW_DOC_TEXT) {
             builder.advanceLexer();
         }
 
         paramMarker.done(FlowDocElementTypes.FLOW_DOC_PARAMETER);
+    }
+
+    private static void skipParamWhitespaceAndPunctuation(PsiBuilder builder) {
+        while (builder.getTokenType() == WHITESPACE ||
+                builder.getTokenType() == FLOW_DOC_COLON ||
+                builder.getTokenType() == FLOW_DOC_COMMA) {
+            builder.advanceLexer();
+        }
     }
 }

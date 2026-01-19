@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list>
-    <!-- Top-Level Sections: Purple #7B1FA2, bold -->
+    <!-- Top-Level Sections -->
     <option name="CONCORD_DSL_SECTION">
         <value>
             <option name="FOREGROUND" value="7B1FA2"/>
@@ -8,7 +8,7 @@
         </value>
     </option>
 
-    <!-- Step keywords: Blue #1565C0, bold -->
+    <!-- Step keywords -->
     <option name="CONCORD_STEP_KEYWORD">
         <value>
             <option name="FOREGROUND" value="1565C0"/>
@@ -16,7 +16,7 @@
         </value>
     </option>
 
-    <!-- Predefined DSL keys: Teal #00796B, normal -->
+    <!-- Predefined DSL keys -->
     <option name="CONCORD_DSL_KEY">
         <value>
             <option name="FOREGROUND" value="00796B"/>
@@ -24,7 +24,7 @@
         </value>
     </option>
 
-    <!-- DSL label (e.g. "name"): Teal #00796B, italic -->
+    <!-- DSL label (e.g. "name") -->
     <option name="CONCORD_DSL_LABEL">
         <value>
             <option name="FOREGROUND" value="00796B"/>
@@ -32,7 +32,7 @@
         </value>
     </option>
 
-    <!-- Flow identifiers: Brown #5D4037, bold -->
+    <!-- Flow identifiers -->
     <option name="CONCORD_FLOW_IDENTIFIER">
         <value>
             <option name="FOREGROUND" value="5D4037"/>
@@ -40,7 +40,7 @@
         </value>
     </option>
 
-    <!-- Target identifiers (task/call values): Brown #5D4037, bold -->
+    <!-- Target identifiers (task/call values) -->
     <option name="CONCORD_TARGET_IDENTIFIER">
         <value>
             <option name="FOREGROUND" value="5D4037"/>
@@ -48,7 +48,7 @@
         </value>
     </option>
 
-    <!-- DSL kinds (imports/triggers): Brown #5D4037, bold -->
+    <!-- DSL kinds (imports/triggers) -->
     <option name="CONCORD_DSL_KIND">
         <value>
             <option name="FOREGROUND" value="5D4037"/>
@@ -56,7 +56,7 @@
         </value>
     </option>
 
-    <!-- User-defined keys: Gray #374151, normal -->
+    <!-- User-defined keys -->
     <option name="CONCORD_USER_KEY">
         <value>
             <option name="FOREGROUND" value="374151"/>
@@ -64,7 +64,7 @@
         </value>
     </option>
 
-    <!-- Expressions ${}: 5A6F99, normal -->
+    <!-- Expressions ${} -->
     <option name="CONCORD_EXPRESSION">
         <value>
             <option name="FOREGROUND" value="5A6F99"/>
@@ -72,7 +72,7 @@
         </value>
     </option>
 
-    <!-- String values: Green #2E7D32 -->
+    <!-- String values -->
     <option name="CONCORD_STRING">
         <value>
             <option name="FOREGROUND" value="2E7D32"/>
@@ -80,7 +80,7 @@
         </value>
     </option>
 
-    <!-- Number values: Cyan #0097A7 -->
+    <!-- Number values -->
     <option name="CONCORD_NUMBER">
         <value>
             <option name="FOREGROUND" value="0097A7"/>
@@ -88,7 +88,7 @@
         </value>
     </option>
 
-    <!-- Boolean values: Stone #8D6E63 -->
+    <!-- Boolean values -->
     <option name="CONCORD_BOOLEAN">
         <value>
             <option name="FOREGROUND" value="8D6E63"/>
@@ -96,7 +96,7 @@
         </value>
     </option>
 
-    <!-- Null: Gray #757575 -->
+    <!-- Null -->
     <option name="CONCORD_NULL">
         <value>
             <option name="FOREGROUND" value="757575"/>
@@ -104,11 +104,84 @@
         </value>
     </option>
 
-    <!-- Comments: Gray #8C8C8C, italic -->
+    <!-- Comments -->
     <option name="CONCORD_COMMENT">
         <value>
             <option name="FOREGROUND" value="8C8C8C"/>
             <option name="FONT_TYPE" value="2"/>
+        </value>
+    </option>
+
+    <!-- Flow Documentation -->
+    <!-- Marker ## -->
+    <option name="CONCORD_FLOW_DOC_MARKER">
+        <value>
+            <option name="FOREGROUND" value="6A6F7A"/>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+
+    <!-- Comment prefix # -->
+    <option name="CONCORD_FLOW_DOC_COMMENT_PREFIX">
+        <value>
+            <option name="FOREGROUND" value="434851"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Section in:/out -->
+    <option name="CONCORD_FLOW_DOC_SECTION">
+        <value>
+            <option name="FOREGROUND" value="647070"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Param name -->
+    <option name="CONCORD_FLOW_DOC_PARAM_NAME">
+        <value>
+            <option name="FOREGROUND" value="6E6A63"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Type -->
+    <option name="CONCORD_FLOW_DOC_TYPE">
+        <value>
+            <option name="FOREGROUND" value="667480"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Mandatory -->
+    <option name="CONCORD_FLOW_DOC_MANDATORY">
+        <value>
+            <option name="FOREGROUND" value="6A6468"/>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+
+    <!-- Optional -->
+    <option name="CONCORD_FLOW_DOC_OPTIONAL">
+        <value>
+            <option name="FOREGROUND" value="545A63"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Text/description -->
+    <option name="CONCORD_FLOW_DOC_TEXT">
+        <value>
+            <option name="FOREGROUND" value="5F6672"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Punctuation (: ,) -->
+    <option name="CONCORD_FLOW_DOC_PUNCTUATION">
+        <value>
+            <option name="FOREGROUND" value="4E545C"/>
+            <option name="FONT_TYPE" value="0"/>
         </value>
     </option>
 </list>

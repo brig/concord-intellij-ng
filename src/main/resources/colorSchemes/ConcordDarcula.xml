@@ -111,4 +111,77 @@
             <option name="FONT_TYPE" value="2"/>
         </value>
     </option>
+
+    <!-- Flow Documentation -->
+    <!-- Marker ##  -->
+    <option name="CONCORD_FLOW_DOC_MARKER">
+        <value>
+            <option name="FOREGROUND" value="6A6F7A"/>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+
+    <!-- Comment prefix # -->
+    <option name="CONCORD_FLOW_DOC_COMMENT_PREFIX">
+        <value>
+            <option name="FOREGROUND" value="434851"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Section in:/out: bold -->
+    <option name="CONCORD_FLOW_DOC_SECTION">
+        <value>
+            <option name="FOREGROUND" value="647070"/>
+            <option name="FONT_TYPE" value="1"/>
+        </value>
+    </option>
+
+    <!-- Param name -->
+    <option name="CONCORD_FLOW_DOC_PARAM_NAME">
+        <value>
+            <option name="FOREGROUND" value="6E6A63"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Type -->
+    <option name="CONCORD_FLOW_DOC_TYPE">
+        <value>
+            <option name="FOREGROUND" value="5F6D79"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Mandatory -->
+    <option name="CONCORD_FLOW_DOC_MANDATORY">
+        <value>
+            <option name="FOREGROUND" value="60585C"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Optional -->
+    <option name="CONCORD_FLOW_DOC_OPTIONAL">
+        <value>
+            <option name="FOREGROUND" value="545A63"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Text/description -->
+    <option name="CONCORD_FLOW_DOC_TEXT">
+        <value>
+            <option name="FOREGROUND" value="5F6672"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
+
+    <!-- Punctuation (: ,): normal -->
+    <option name="CONCORD_FLOW_DOC_PUNCTUATION">
+        <value>
+            <option name="FOREGROUND" value="4E545C"/>
+            <option name="FONT_TYPE" value="0"/>
+        </value>
+    </option>
 </list>

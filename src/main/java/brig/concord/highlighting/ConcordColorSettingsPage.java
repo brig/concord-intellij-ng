@@ -55,6 +55,25 @@ public class ConcordColorSettingsPage implements ColorSettingsPage {
             new AttributesDescriptor("YAML//Brackets / braces",
                     ConcordHighlightingColors.BRACKETS),
 
+            new AttributesDescriptor("Flow documentation//Marker (##)",
+                    ConcordHighlightingColors.FLOW_DOC_MARKER),
+            new AttributesDescriptor("Flow documentation//Comment prefix (#)",
+                    ConcordHighlightingColors.FLOW_DOC_COMMENT_PREFIX),
+            new AttributesDescriptor("Flow documentation//Section (in:/out:)",
+                    ConcordHighlightingColors.FLOW_DOC_SECTION),
+            new AttributesDescriptor("Flow documentation//Parameter name",
+                    ConcordHighlightingColors.FLOW_DOC_PARAM_NAME),
+            new AttributesDescriptor("Flow documentation//Type",
+                    ConcordHighlightingColors.FLOW_DOC_TYPE),
+            new AttributesDescriptor("Flow documentation//Mandatory",
+                    ConcordHighlightingColors.FLOW_DOC_MANDATORY),
+            new AttributesDescriptor("Flow documentation//Optional",
+                    ConcordHighlightingColors.FLOW_DOC_OPTIONAL),
+            new AttributesDescriptor("Flow documentation//Description text",
+                    ConcordHighlightingColors.FLOW_DOC_TEXT),
+            new AttributesDescriptor("Flow documentation//Punctuation (: ,)",
+                    ConcordHighlightingColors.FLOW_DOC_PUNCTUATION),
+
             new AttributesDescriptor("Bad character",
                     ConcordHighlightingColors.BAD_CHARACTER),
     };
@@ -86,13 +105,21 @@ public class ConcordColorSettingsPage implements ColorSettingsPage {
   - <string>"deploy"</string>
 
 <section>flows</section>:
+  <fdmarker>##</fdmarker>
+  <fdprefix>#</fdprefix> <fdtext>Process data and return results</fdtext>
+  <fdprefix>#</fdprefix> <fdsection>in:</fdsection>
+  <fdprefix>#</fdprefix>   <fdparam>inputData</fdparam><fdpunct>:</fdpunct> <fdtype>object</fdtype><fdpunct>,</fdpunct> <fdmandatory>mandatory</fdmandatory><fdpunct>,</fdpunct> <fdtext>Input data to process</fdtext>
+  <fdprefix>#</fdprefix>   <fdparam>maxItems</fdparam><fdpunct>:</fdpunct> <fdtype>int</fdtype><fdpunct>,</fdpunct> <fdoptional>optional</fdoptional><fdpunct>,</fdpunct> <fdtext>Maximum items to process</fdtext>
+  <fdprefix>#</fdprefix> <fdsection>out:</fdsection>
+  <fdprefix>#</fdprefix>   <fdparam>result</fdparam><fdpunct>:</fdpunct> <fdtype>object</fdtype><fdpunct>,</fdpunct> <fdtext>Processing result</fdtext>
+  <fdmarker>##</fdmarker>
   <flowname>main</flowname>:
     <comment># Task call with full configuration</comment>
     - <label>name</label>: <string>"Fetch API Data"</string>
       <step>task</step>: <target>"http"</target>
       <dslkey>in</dslkey>:
-        <dslkey>url</dslkey>: <expr>${apiUrl}</expr>
-        <dslkey>method</dslkey>: <string>"GET"</string>
+        <userkey>url</userkey>: <expr>${apiUrl}</expr>
+        <userkey>method</userkey>: <string>"GET"</string>
         <userkey>headers</userkey>:
           <userkey>Authorization</userkey>: <expr>${authToken}</expr>
       <dslkey>out</dslkey>: <userkey>response</userkey>
@@ -222,7 +249,17 @@ public class ConcordColorSettingsPage implements ColorSettingsPage {
             Map.entry("bool", ConcordHighlightingColors.BOOLEAN),
             Map.entry("null", ConcordHighlightingColors.NULL),
 
-            Map.entry("comment", ConcordHighlightingColors.COMMENT)
+            Map.entry("comment", ConcordHighlightingColors.COMMENT),
+
+            Map.entry("fdmarker", ConcordHighlightingColors.FLOW_DOC_MARKER),
+            Map.entry("fdprefix", ConcordHighlightingColors.FLOW_DOC_COMMENT_PREFIX),
+            Map.entry("fdsection", ConcordHighlightingColors.FLOW_DOC_SECTION),
+            Map.entry("fdparam", ConcordHighlightingColors.FLOW_DOC_PARAM_NAME),
+            Map.entry("fdtype", ConcordHighlightingColors.FLOW_DOC_TYPE),
+            Map.entry("fdmandatory", ConcordHighlightingColors.FLOW_DOC_MANDATORY),
+            Map.entry("fdoptional", ConcordHighlightingColors.FLOW_DOC_OPTIONAL),
+            Map.entry("fdtext", ConcordHighlightingColors.FLOW_DOC_TEXT),
+            Map.entry("fdpunct", ConcordHighlightingColors.FLOW_DOC_PUNCTUATION)
     );
 
     @Nullable

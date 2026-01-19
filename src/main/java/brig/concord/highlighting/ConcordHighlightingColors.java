@@ -127,6 +127,78 @@ public final class ConcordHighlightingColors {
     );
 
     /**
+     * Flow doc marker: ##
+     */
+    public static final TextAttributesKey FLOW_DOC_MARKER = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_MARKER",
+            DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP
+    );
+
+    /**
+     * Flow doc comment prefix: # inside flow doc block
+     */
+    public static final TextAttributesKey FLOW_DOC_COMMENT_PREFIX = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_COMMENT_PREFIX",
+            DefaultLanguageHighlighterColors.DOC_COMMENT_MARKUP
+    );
+
+    /**
+     * Flow doc section headers: in:, out:
+     */
+    public static final TextAttributesKey FLOW_DOC_SECTION = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_SECTION",
+            DefaultLanguageHighlighterColors.DOC_COMMENT_TAG
+    );
+
+    /**
+     * Flow doc parameter name.
+     */
+    public static final TextAttributesKey FLOW_DOC_PARAM_NAME = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_PARAM_NAME",
+            DefaultLanguageHighlighterColors.DOC_COMMENT_TAG_VALUE
+    );
+
+    /**
+     * Flow doc type: string, boolean, int, object, any.
+     */
+    public static final TextAttributesKey FLOW_DOC_TYPE = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_TYPE",
+            DefaultLanguageHighlighterColors.KEYWORD
+    );
+
+    /**
+     * Flow doc mandatory modifier.
+     */
+    public static final TextAttributesKey FLOW_DOC_MANDATORY = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_MANDATORY",
+            DefaultLanguageHighlighterColors.KEYWORD
+    );
+
+    /**
+     * Flow doc optional modifier.
+     */
+    public static final TextAttributesKey FLOW_DOC_OPTIONAL = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_OPTIONAL",
+            DefaultLanguageHighlighterColors.DOC_COMMENT
+    );
+
+    /**
+     * Flow doc description text.
+     */
+    public static final TextAttributesKey FLOW_DOC_TEXT = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_TEXT",
+            DefaultLanguageHighlighterColors.DOC_COMMENT
+    );
+
+    /**
+     * Flow doc punctuation: colon and comma separators.
+     */
+    public static final TextAttributesKey FLOW_DOC_PUNCTUATION = createTextAttributesKey(
+            "CONCORD_FLOW_DOC_PUNCTUATION",
+            DefaultLanguageHighlighterColors.DOC_COMMENT
+    );
+
+    /**
      * Colon separator.
      */
     public static final TextAttributesKey COLON = createTextAttributesKey(
