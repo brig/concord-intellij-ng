@@ -46,7 +46,7 @@ jobs:
           cache: gradle
 
       - name: Gradle Wrapper Validation
-        uses: gradle/wrapper-validation-action@v4
+        uses: gradle/wrapper-validation-action@v3
 
       # Set environment variables
       - name: Export Properties
