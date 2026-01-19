@@ -1,0 +1,38 @@
+<html>
+<body>
+
+<p>
+    Reports issues in flow documentation blocks.
+</p>
+
+<p>
+    Flow documentation uses special <code>##</code> markers to document flow parameters with types.
+    This inspection checks for:
+</p>
+
+<ul>
+    <li>Duplicate parameter names in <code>in:</code> or <code>out:</code> sections</li>
+    <li>Unknown parameter types (valid types: string, boolean, int, integer, number, object, any and their array variants)</li>
+    <li>Orphaned documentation blocks that are not followed by a flow definition</li>
+</ul>
+
+<pre><code>
+flows:
+  ##
+  # in:
+  #   bucket: string, mandatory
+  #   bucket: int, optional   &lt;-- duplicate parameter
+  #   count: foo              &lt;-- unknown type
+  ##
+  processS3:
+    - task: s3
+</code></pre>
+
+<!-- tooltip end -->
+
+<p>
+    This inspection is applied only to Concord YAML files.
+</p>
+
+</body>
+</html>

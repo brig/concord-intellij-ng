@@ -137,7 +137,8 @@ public class YAMLParserFlowDocExtension {
         skipParamWhitespaceAndPunctuation(builder);
 
         if (builder.getTokenType() == FLOW_DOC_MANDATORY ||
-                builder.getTokenType() == FLOW_DOC_OPTIONAL) {
+                builder.getTokenType() == FLOW_DOC_OPTIONAL ||
+                builder.getTokenType() == FLOW_DOC_UNKNOWN_KEYWORD) {
             builder.advanceLexer();
         }
 

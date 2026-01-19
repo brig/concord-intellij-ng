@@ -238,10 +238,13 @@ FLOW_DOC_MARKER = "##"
 
 // Parameter names can contain spaces (e.g., "k 1" from quoted YAML keys)
 FLOW_DOC_PARAM_NAME = [a-zA-Z_][a-zA-Z0-9_. ]*[a-zA-Z0-9_]|[a-zA-Z_]
-FLOW_DOC_TYPE_SIMPLE = "string" | "int" | "number" | "boolean" | "object" | "any"
+// Accept any identifier as type - validation is done by inspection
+FLOW_DOC_TYPE_SIMPLE = [a-zA-Z_][a-zA-Z0-9_]*
 FLOW_DOC_TYPE_ARRAY = {FLOW_DOC_TYPE_SIMPLE} "[]"
 FLOW_DOC_KEYWORD_MANDATORY = "mandatory"
 FLOW_DOC_KEYWORD_OPTIONAL = "optional"
+// Any identifier at keyword position (for catching typos)
+FLOW_DOC_KEYWORD_ANY = [a-zA-Z_][a-zA-Z0-9_]*
 FLOW_DOC_SECTION = "in:" | "out:"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -890,6 +893,12 @@ FLOW_DOC_SECTION = "in:" | "out:"
   {FLOW_DOC_KEYWORD_OPTIONAL} {
         yybegin(FLOW_DOC_PARAM_AFTER_KEYWORD_STATE);
         return FLOW_DOC_OPTIONAL;
+      }
+
+  // Unknown keyword (typos like "mandatry", "requred", etc.)
+  {FLOW_DOC_KEYWORD_ANY} {
+        yybegin(FLOW_DOC_PARAM_AFTER_KEYWORD_STATE);
+        return FLOW_DOC_UNKNOWN_KEYWORD;
       }
 
   {EOL} {
