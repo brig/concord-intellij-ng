@@ -129,7 +129,7 @@
         </value>
     </option>
 
-    <!-- Section in:/out: bold -->
+    <!-- Section in:/out -->
     <option name="CONCORD_FLOW_DOC_SECTION">
         <value>
             <option name="FOREGROUND" value="647070"/>
