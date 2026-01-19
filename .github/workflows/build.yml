@@ -59,15 +59,25 @@ jobs:
           NAME="$(./gradlew printPluginName -q --console=plain)"
           CHANGELOG="$(./gradlew printUnreleasedChangelog -q --console=plain)"
 
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
-          echo "pluginVerifierHomeDir=$HOME/.pluginVerifier" >> "$GITHUB_OUTPUT"
+          echo "::group::Debug Exported Properties"
+          
+          echo "VERSION >>>${VERSION}<<<"
+          echo "NAME    >>>${NAME}<<<"
+          
+          echo "CHANGELOG >>>"
+          printf '%s\n' "$CHANGELOG"
+          echo "<<< END CHANGELOG"
+          
+          echo "::endgroup::"
 
-          # Multiline changelog with random delimiter to avoid conflicts
-          DELIMITER=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "changelog<<$DELIMITER" >> "$GITHUB_OUTPUT"
-          echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
-          echo "$DELIMITER" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$VERSION"
+            echo "name=$NAME"
+            echo "pluginVerifierHomeDir=$HOME/.pluginVerifier"
+            echo "changelog<<EOF"
+            printf '%s\n' "$CHANGELOG"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
           ./gradlew printProductsReleases -q # prepare list of IDEs for Plugin Verifier
 
