@@ -19,9 +19,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    if: >
-      github.event_name != 'pull_request' ||
-      !contains(github.event.pull_request.labels.*.name, 'don''t test')
+    if: ${{ github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'don''t test') }}
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
@@ -43,10 +41,12 @@ jobs:
         with:
           distribution: zulu
           java-version: 21
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Gradle Wrapper Validation
-        uses: gradle/wrapper-validation-action@v3
+        uses: gradle/actions/wrapper-validation@v5
 
       # Set environment variables
       - name: Export Properties
@@ -55,20 +55,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          VERSION="$(./gradlew printVersion -q --console=plain)"
-          NAME="$(./gradlew printPluginName -q --console=plain)"
-          CHANGELOG="$(./gradlew printUnreleasedChangelog -q --console=plain)"
-
-          echo "::group::Debug Exported Properties"
-          
-          echo "VERSION >>>${VERSION}<<<"
-          echo "NAME    >>>${NAME}<<<"
-          
-          echo "CHANGELOG >>>"
-          printf '%s\n' "$CHANGELOG"
-          echo "<<< END CHANGELOG"
-          
-          echo "::endgroup::"
+          VERSION="$(./gradlew printVersion -q --console=plain 2>&1 | tr -d '\r' | awk 'NF{last=$0} END{print last}')"
+          NAME="$(./gradlew printPluginName -q --console=plain 2>&1 | tr -d '\r' | awk 'NF{last=$0} END{print last}')"
+          CHANGELOG="$(./gradlew printUnreleasedChangelog -q --console=plain 2>&1 | tr -d '\r')"
 
           {
             echo "version=$VERSION"
