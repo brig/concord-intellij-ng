@@ -62,7 +62,7 @@ public class CodeStyleSettingsProvider
 
                 @Override
                 public String getHelpTopic() {
-                    return "reference.settingsdialog.codestyle.yaml";
+                    return "reference.settingsdialog.codestyle.concord.yaml";
                 }
             };
         }
@@ -245,7 +245,7 @@ public class CodeStyleSettingsProvider
         }
 
         @Override
-        public void apply(@NotNull CodeStyleSettings settings) throws ConfigurationException {
+        public void apply(@NotNull CodeStyleSettings settings) {
             myCommenterForm.apply(settings);
         }
 
