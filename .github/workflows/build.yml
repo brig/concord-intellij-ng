@@ -44,9 +44,14 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
 
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@v5
+
+      - name: Warm up Gradle distribution
+        run: ./gradlew --version --console=plain
 
       # Set environment variables
       - name: Export Properties
@@ -56,6 +61,11 @@ jobs:
           set -euo pipefail
 
           ./gradlew printVersion
+          echo "1"
+          ./gradlew printPluginName
+          echo "2"
+          ./gradlew printUnreleasedChangelog
+          echo "3"
 
           VERSION="$(./gradlew printVersion -q --console=plain 2>&1 | tr -d '\r' | awk 'NF{last=$0} END{print last}')"
           NAME="$(./gradlew printPluginName -q --console=plain 2>&1 | tr -d '\r' | awk 'NF{last=$0} END{print last}')"
