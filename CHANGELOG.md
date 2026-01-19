@@ -4,6 +4,8 @@
 
 ### Added
 
+- implemented flow documentation for validating structured documentation blocks in Concord YAML files
+([#36](https://github.com/brig/concord-intellij-ng/pull/36)) 
 - implemented syntax highlighting for flow documentation in Concord YAML files
 ([#35](https://github.com/brig/concord-intellij-ng/pull/35)) 
 - allow custom text/tags in flow documentation
