@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 30
     if: >
       github.event_name != 'pull_request' ||
-      !contains(github.event.pull_request.labels.*.name, "don't test")
+      !contains(github.event.pull_request.labels.*.name, 'don''t test')
     outputs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
