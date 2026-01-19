@@ -61,6 +61,35 @@ public class FlowDocLexerTest {
     }
 
     @Test
+    public void testCustomTagsInFlowDoc() {
+        var yaml = """
+            flows:
+              ##
+              # Process S3 files
+              # in:
+              #   s3Bucket: string, mandatory, S3 bucket name
+              # tags: not in param, just user tag
+              ##
+              processS3:
+                - task: s3
+            """;
+
+        var tokens = tokenize(yaml, 200);
+
+        var markerCount = countTokens(tokens, "FLOW_DOC_MARKER");
+        assertEquals(2, markerCount,
+                "Should find 2 FLOW_DOC_MARKER tokens. Output:\n" + formatTokens(tokens));
+
+        // Check that "tags" is NOT parsed as FLOW_DOC_PARAM_NAME
+        var paramNameTokens = tokens.stream()
+                .filter(t -> t.type().toString().equals("FLOW_DOC_PARAM_NAME"))
+                .toList();
+
+        assertEquals(1, paramNameTokens.size(),
+                "Should find only 1 param name (s3Bucket). Found: " + paramNameTokens + "\n\nAll tokens:\n" + formatTokens(tokens));
+    }
+
+    @Test
     public void testFlowDocWithEmptyLines() {
         var yaml = """
             flows:

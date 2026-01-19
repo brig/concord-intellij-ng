@@ -665,16 +665,24 @@ FLOW_DOC_SECTION = "in:" | "out:"
         return FLOW_DOC_MARKER;
       }
 
-  // Single # followed by space - parameter line prefix
-  {FLOW_DOC_HASH} {WHITE_SPACE}+ {
-        yybegin(FLOW_DOC_PARAM_LINE_STATE);
-        return WHITESPACE;
-      }
-
   // Another section header (e.g., out: after in:)
   {FLOW_DOC_HASH} {WHITE_SPACE}* / ("in:" | "out:") {
         // This is a section header line, need to consume just the # prefix
         yybegin(FLOW_DOC_LINE_STATE);
+        return WHITESPACE;
+      }
+
+  // Parameter line: # followed by 2+ spaces (indented content)
+  // This is the pattern for actual parameters like "#   param: type"
+  {FLOW_DOC_HASH} {WHITE_SPACE}{WHITE_SPACE}+ {
+        yybegin(FLOW_DOC_PARAM_LINE_STATE);
+        return WHITESPACE;
+      }
+
+  // User text line: # followed by exactly 1 space and then non-whitespace
+  // This is for custom tags or user text like "# tags: value"
+  {FLOW_DOC_HASH} " " / [^ \t\n] {
+        yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
         return WHITESPACE;
       }
 

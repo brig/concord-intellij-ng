@@ -232,6 +232,30 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
                 .param("output1").isOutput());
     }
 
+    @Test
+    public void testCustomTagsInFlowDocumentation() {
+        var yaml = """
+            flows:
+              ##
+              # Process S3 files
+              # in:
+              #   s3Bucket: string, mandatory, S3 bucket name
+              # tags: not in param, just user tag
+              ##
+              processS3:
+                - task: s3
+            """;
+
+        configureFromText(yaml);
+
+        flowDocFor(key("/flows/processS3"), doc -> doc
+                .hasFlowName("processS3")
+                .hasDescription("Process S3 files")
+                .hasInputCount(1)
+                .hasOutputCount(0)
+                .param("s3Bucket").hasType("string").isMandatory().hasDescription("S3 bucket name"));
+    }
+
     private void flowDocFor(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
         FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
     }

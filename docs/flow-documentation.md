@@ -76,10 +76,13 @@ process:
 
 Parameters are declared inside `in:` and `out:` sections.
 
+**Important:** Parameter lines must have **extra indentation** (2+ spaces after
+`#`). Lines with only 1 space after `#` are treated as user text and ignored.
+
 ### Parameter format
 
 ```
-name: type, mandatory|optional, description
+#   name: type, mandatory|optional, description
 ```
 
 Only the parameter name and type are required.
@@ -145,10 +148,38 @@ connect:
 
 ---
 
-## 6. Notes and limitations
+## 6. Custom tags and user text
+
+Lines inside `in:` or `out:` sections that do **not** have extra indentation
+(i.e., only one space after `#`) are treated as user text and ignored.
+
+This allows you to add custom tags, notes, or additional metadata without
+affecting parameter parsing.
+
+```yaml
+##
+# Process S3 files
+# in:
+#   s3Bucket: string, mandatory, S3 bucket name
+# tags: internal, deprecated
+# see: https://example.com/docs
+##
+processS3:
+  - task: s3
+```
+
+In this example:
+- `s3Bucket` is parsed as a parameter (has 3 spaces after `#`)
+- `tags:` and `see:` are ignored (only 1 space after `#`)
+
+---
+
+## 7. Notes and limitations
 
 - Documentation blocks are parsed **only** when placed directly above a flow
   under `flows:`
 - Documentation blocks are comments and **do not affect execution**
+- Parameters must be indented with **2 or more spaces** after `#`
+- Lines with only 1 space after `#` inside sections are treated as user text
 - Unknown or custom types are treated as free text
 - Malformed lines are ignored gracefully
