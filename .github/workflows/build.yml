@@ -60,13 +60,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          ./gradlew printVersion
-          echo "1"
-          ./gradlew printPluginName
-          echo "2"
-          ./gradlew printUnreleasedChangelog
-          echo "3"
-
           VERSION="$(./gradlew printVersion -q --console=plain 2>&1 | tr -d '\r' | awk 'NF{last=$0} END{print last}')"
           NAME="$(./gradlew printPluginName -q --console=plain 2>&1 | tr -d '\r' | awk 'NF{last=$0} END{print last}')"
           CHANGELOG="$(./gradlew printUnreleasedChangelog -q --console=plain 2>&1 | tr -d '\r')"
