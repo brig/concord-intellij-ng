@@ -177,7 +177,7 @@
         </value>
     </option>
 
-    <!-- Punctuation (: ,): normal -->
+    <!-- Punctuation (: ,) -->
     <option name="CONCORD_FLOW_DOC_PUNCTUATION">
         <value>
             <option name="FOREGROUND" value="4E545C"/>
