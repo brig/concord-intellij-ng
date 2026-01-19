@@ -157,20 +157,26 @@ tasks {
         channels.set(listOf("default"))
     }
 
-    val runIdeForUiTests by intellijPlatformTesting.runIde.registering {
-        task {
-            jvmArgumentProviders += CommandLineArgumentProvider {
-                listOf(
-                    "-Drobot-server.port=8082",
-                    "-Dide.mac.message.dialogs.as.sheets=false",
-                    "-Djb.privacy.policy.text=<!--999.999-->",
-                    "-Djb.consents.confirmation.enabled=false",
-                )
-            }
-        }
+    register("printVersion") {
+        group = "help"
+        description = "Prints project version"
+        doLast { println(version) }
+    }
 
-        plugins {
-            robotServerPlugin()
+    register("printPluginName") {
+        group = "help"
+        description = "Prints IntelliJ plugin name"
+        doLast {
+            println(properties("pluginName"))
+        }
+    }
+
+    register("printUnreleasedChangelog") {
+        group = "help"
+        description = "Prints unreleased changelog (plain text, no header)"
+        doLast {
+            val unreleased = changelog.getUnreleased()
+            println(changelog.renderItem(unreleased, Changelog.OutputType.MARKDOWN))
         }
     }
 }
