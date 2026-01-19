@@ -4,6 +4,8 @@
 
 ### Added
 
+- allow custom text/tags in flow documentation
+([#34](https://github.com/brig/concord-intellij-ng/pull/34)) 
 - support for flow documentation blocks in Concord YAML files
 ([#31](https://github.com/brig/concord-intellij-ng/pull/31))
 
