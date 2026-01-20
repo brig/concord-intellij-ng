@@ -21,9 +21,7 @@
                                       implementationClass="com.intellij.codeInsight.editorActions.SmartBackspaceDisabler"/>
 
         <!-- Editor smart actions -->
-        <enterHandlerDelegate implementation="brig.concord.smart.YAMLEnterAtIndentHandler" order="first"/>
-        <!-- NOTE: this is a second enter handler; ensure ordering/conditions are intended -->
-        <enterHandlerDelegate implementation="brig.concord.smart.ConcordYamlEnterAtIndentHandler" order="first"/>
+        <enterHandlerDelegate implementation="brig.concord.smart.ConcordEnterAtIndentHandler" order="first"/>
 
         <!-- Services / settings -->
         <applicationService serviceImplementation="brig.concord.smart.YAMLEditorOptions"/>
