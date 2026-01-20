@@ -126,11 +126,6 @@ public class CodeStyleSettingsProvider
                         "BLOCK_MAPPING_ON_NEW_LINE",
                         ConcordBundle.message("YAMLLanguageCodeStyleSettingsProvider.block.mapping.on.new.line"),
                         ConcordBundle.message("YAMLLanguageCodeStyleSettingsProvider.group.sequence.value"));
-
-                consumer.showCustomOption(YAMLCodeStyleSettings.class,
-                        "AUTOINSERT_SEQUENCE_MARKER",
-                        ConcordBundle.message("YAMLLanguageCodeStyleSettingsProvider.autoinsert.sequence.marker"),
-                        ConcordBundle.message("YAMLLanguageCodeStyleSettingsProvider.group.sequence.value"));
             }
             else if (settingsType == SettingsType.COMMENTER_SETTINGS) {
                 consumer.showStandardOptions(
