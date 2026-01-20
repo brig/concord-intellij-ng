@@ -32,7 +32,7 @@ public class ConcordEnterAtIndentHandler implements EnterHandlerDelegate {
             return Result.Continue;
         }
 
-        int caretOffset = editor.getCaretModel().getOffset();
+        var caretOffset = editor.getCaretModel().getOffset();
         if (caretOffset <= 0) {
             return Result.Continue;
         }
@@ -53,10 +53,10 @@ public class ConcordEnterAtIndentHandler implements EnterHandlerDelegate {
     }
 
     private boolean handleFlowDocumentation(PsiFile file, Editor editor, int caretOffset) {
-        PsiElement element = file.findElementAt(caretOffset - 1);
+        var element = file.findElementAt(caretOffset - 1);
         if (element != null && isInsideFlowDocumentation(element)) {
-            int indentSize = getIndentSize(editor, caretOffset);
-            String textToInsert = "#" + StringUtil.repeat(" ", indentSize);
+            var indentSize = getIndentSize(editor, caretOffset);
+            var textToInsert = "#" + StringUtil.repeat(" ", indentSize);
             editor.getDocument().insertString(caretOffset, textToInsert);
             editor.getCaretModel().moveToOffset(caretOffset + textToInsert.length());
             return true;
@@ -65,14 +65,14 @@ public class ConcordEnterAtIndentHandler implements EnterHandlerDelegate {
     }
 
     private boolean handleBasicIndentation(Editor editor, int caretOffset) {
-        Document document = editor.getDocument();
-        int lineNumber = document.getLineNumber(caretOffset);
-        int lineStart = document.getLineStartOffset(lineNumber);
+        var document = editor.getDocument();
+        var lineNumber = document.getLineNumber(caretOffset);
+        var lineStart = document.getLineStartOffset(lineNumber);
 
         if (caretOffset == lineStart) {
-            String prevLine = getPreviousLine(document, lineNumber);
+            var prevLine = getPreviousLine(document, lineNumber);
             if (prevLine != null) {
-                String indent = getLeadingWhitespace(prevLine);
+                var indent = getLeadingWhitespace(prevLine);
                 if (!indent.isEmpty()) {
                     document.insertString(caretOffset, indent);
                     editor.getCaretModel().moveToOffset(caretOffset + indent.length());
@@ -84,18 +84,18 @@ public class ConcordEnterAtIndentHandler implements EnterHandlerDelegate {
     }
 
     private static String getPreviousLine(Document document, int currentLineNumber) {
-        int prevLineNumber = currentLineNumber - 1;
+        var prevLineNumber = currentLineNumber - 1;
         if (prevLineNumber >= 0) {
-            int prevLineStart = document.getLineStartOffset(prevLineNumber);
-            int prevLineEnd = document.getLineEndOffset(prevLineNumber);
+            var prevLineStart = document.getLineStartOffset(prevLineNumber);
+            var prevLineEnd = document.getLineEndOffset(prevLineNumber);
             return document.getText().substring(prevLineStart, prevLineEnd);
         }
         return null;
     }
 
     private static String getLeadingWhitespace(String str) {
-        int count = 0;
-        for (int i = 0; i < str.length(); i++) {
+        var count = 0;
+        for (var i = 0; i < str.length(); i++) {
             if (Character.isWhitespace(str.charAt(i))) {
                 count++;
             } else {
@@ -110,26 +110,24 @@ public class ConcordEnterAtIndentHandler implements EnterHandlerDelegate {
     }
 
     private static int getIndentSize(Editor editor, int caretOffset) {
-        int lineNumber = editor.getDocument().getLineNumber(caretOffset);
-        String prevLine = getPreviousLine(editor.getDocument(), lineNumber);
-        
+        var lineNumber = editor.getDocument().getLineNumber(caretOffset);
+        var prevLine = getPreviousLine(editor.getDocument(), lineNumber);
+
         if (prevLine == null) {
             return 1;
         }
 
-        String trimmed = prevLine.trim();
+        var trimmed = prevLine.trim();
         if (trimmed.equals("##")) {
             return 1;
         }
 
-        // Check for section headers (in: or out:)
-        String afterHash = trimmed.startsWith("#") ? trimmed.substring(1).trim() : trimmed;
+        var afterHash = trimmed.startsWith("#") ? trimmed.substring(1).trim() : trimmed;
         if (StringUtil.startsWithIgnoreCase(afterHash, "in:") || StringUtil.startsWithIgnoreCase(afterHash, "out:")) {
             return 3; // indent for parameters
         }
 
-        // Count leading spaces after #
-        int hashIndex = prevLine.indexOf('#');
+        var hashIndex = prevLine.indexOf('#');
         if (hashIndex >= 0 && hashIndex + 1 < prevLine.length()) {
             return countLeadingSpaces(prevLine.substring(hashIndex + 1));
         }
@@ -138,8 +136,8 @@ public class ConcordEnterAtIndentHandler implements EnterHandlerDelegate {
     }
 
     private static int countLeadingSpaces(String str) {
-        int count = 0;
-        for (int i = 0; i < str.length(); i++) {
+        var count = 0;
+        for (var i = 0; i < str.length(); i++) {
             if (Character.isWhitespace(str.charAt(i))) {
                 count++;
             } else {
