@@ -2,6 +2,7 @@ package brig.concord.psi.impl;
 
 import brig.concord.ConcordFileType;
 import brig.concord.psi.ConcordFile;
+import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.YAMLElementTypes;
 import brig.concord.yaml.psi.*;
 import com.intellij.openapi.fileTypes.FileType;
@@ -29,7 +30,7 @@ public class ConcordFileImpl extends YAMLFileImpl implements ConcordFile {
     @Override
     @NotNull
     public SearchScope getUseScope() {
-        return GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(getProject()), ConcordFileType.INSTANCE);
+        return ConcordScopeService.getInstance(getProject()).createSearchScope(this);
     }
 
     @Override

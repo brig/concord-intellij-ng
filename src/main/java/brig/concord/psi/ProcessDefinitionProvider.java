@@ -22,22 +22,5 @@ public class ProcessDefinitionProvider {
             return null;
         }
         return new ProcessDefinition(currentDoc);
-
-// TODO: find root, process resources configuration...
-//        YAMLDocument rootDoc;
-//
-//        VirtualFile rootFile = YamlPsiUtils.rootConcordYaml(element);
-//        if (rootFile != null) {
-//            PsiFile rootPsiFile = PsiManager.getInstance(element.getProject()).findFile(rootFile);
-//            rootDoc = YamlPsiUtils.getDocument(rootPsiFile);
-//        } else {
-//            rootDoc = currentDoc;
-//        }
-//
-//        if (rootDoc == null || rootDoc.getContainingFile() == null || rootDoc.getContainingFile().getVirtualFile() == null) {
-//            return null;
-//        }
-//
-//        return new ProcessDefinition(rootDoc);
     }
 }

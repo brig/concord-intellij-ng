@@ -1,6 +1,5 @@
 package brig.concord.folding;
 
-import brig.concord.yaml.psi.YAMLSequence;
 import com.cronutils.descriptor.CronDescriptor;
 import com.cronutils.model.CronType;
 import com.cronutils.model.definition.CronDefinitionBuilder;
@@ -42,7 +41,7 @@ public class CronExpressionFolding extends CustomFoldingBuilder {
                 .stream()
                 .flatMap(seq -> seq.getItems().stream())
                 .flatMap(i -> i.getKeysValues().stream())
-                
+
                 .filter(kv -> kv.getKey() != null && "cron".equals(kv.getKey().getText()))
                 .map(YAMLKeyValue::getValue)
                 .filter(YAMLMapping.class::isInstance)
