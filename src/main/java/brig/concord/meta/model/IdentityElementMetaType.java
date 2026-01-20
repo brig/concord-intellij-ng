@@ -137,7 +137,6 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
             if (matches > maxMatches) {
                 maxMatches = matches;
                 result = s;
-                // Early exit if all keys match
                 if (maxMatches == existingKeysSize) {
                     return result;
                 }

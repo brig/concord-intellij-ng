@@ -76,15 +76,4 @@ public class ProcessDefinition {
     private static PsiElement flow(PsiElement root, String name) {
         return YamlPsiUtils.get(root, YAMLPsiElement.class, "flows", name);
     }
-
-//    private List<YAMLDocument> allDefinitions() {
-//        List<PathMatcher> resources = resourcePatterns("concord");
-//        return Stream.concat(
-//                        FileUtils.findFiles(rootDoc.getProject(), resources).stream() // TODO: sort
-//                                .map(e -> PsiTreeUtil.getChildOfType(e, YAMLDocument.class))
-//                                .filter(Objects::nonNull),
-//                        Stream.of(rootDoc))
-//                .collect(Collectors.toList());
-//    }
-
 }

@@ -41,7 +41,6 @@ public class CronExpressionFolding extends CustomFoldingBuilder {
                 .stream()
                 .flatMap(seq -> seq.getItems().stream())
                 .flatMap(i -> i.getKeysValues().stream())
-
                 .filter(kv -> kv.getKey() != null && "cron".equals(kv.getKey().getText()))
                 .map(YAMLKeyValue::getValue)
                 .filter(YAMLMapping.class::isInstance)
