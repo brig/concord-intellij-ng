@@ -2,11 +2,9 @@ package brig.concord.psi.impl;
 
 import brig.concord.ConcordFileType;
 import brig.concord.psi.ConcordFile;
-import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.YAMLElementTypes;
 import brig.concord.yaml.psi.*;
 import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -31,11 +29,7 @@ public class ConcordFileImpl extends YAMLFileImpl implements ConcordFile {
     @Override
     @NotNull
     public SearchScope getUseScope() {
-        VirtualFile vf = getVirtualFile();
-        if (vf != null) {
-            return ConcordScopeService.getInstance(getProject()).createSearchScope(vf);
-        }
-        return GlobalSearchScope.projectScope(getProject());
+        return GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(getProject()), ConcordFileType.INSTANCE);
     }
 
     @Override
