@@ -21,6 +21,8 @@
 
 ### Changed
 
+- refactored enter handler functionality, added tests
+([#41](https://github.com/brig/concord-intellij-ng/pull/41))  
 - updated the CodeStyleSettingsProvider example configuration
 ([#38](https://github.com/brig/concord-intellij-ng/pull/38))  
 - project: improved CI reliability and performance by reducing duplicate runs and hardening build scripts
