@@ -2,6 +2,7 @@ package brig.concord.psi;
 
 import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLSequence;
 import com.intellij.psi.PsiFile;
 
 import java.util.Optional;
@@ -36,5 +37,7 @@ public interface ConcordFile extends PsiFile {
 
     Optional<YAMLKeyValue> publicFlows();
 
-    Optional<YAMLKeyValue> triggers();
+    Optional<YAMLKeyValue> triggersKv();
+
+    Optional<YAMLSequence> triggers();
 }
