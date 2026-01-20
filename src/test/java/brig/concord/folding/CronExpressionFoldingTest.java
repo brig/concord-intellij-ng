@@ -6,20 +6,15 @@ import com.cronutils.descriptor.CronDescriptor;
 import com.cronutils.model.CronType;
 import com.cronutils.model.definition.CronDefinitionBuilder;
 import com.cronutils.parser.CronParser;
-import com.intellij.lang.folding.FoldingBuilder;
-import com.intellij.util.KeyedLazyInstance;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class CronExpressionFoldingTest extends ConcordYamlTestBase {
 
     private Locale previousLocale;
-    private final List<KeyedLazyInstance<FoldingBuilder>> removedExtensions = new ArrayList<>();
 
     @Override
     @BeforeEach
