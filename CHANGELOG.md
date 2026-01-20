@@ -4,6 +4,8 @@
 
 ### Added
 
+-  test coverage for cron expression folding functionality and code cleanup associated code cleanup
+([#38](https://github.com/brig/concord-intellij-ng/pull/38))
 - implemented autocompletion support for flow documentation syntax in Concord YAML files
 ([#37](https://github.com/brig/concord-intellij-ng/pull/37))
 - implemented inspection for flow documentation blocks in Concord YAML files
