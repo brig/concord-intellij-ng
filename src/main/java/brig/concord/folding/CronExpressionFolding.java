@@ -1,6 +1,6 @@
 package brig.concord.folding;
 
-import brig.concord.psi.ProcessDefinitionProvider;
+import brig.concord.yaml.psi.YAMLSequence;
 import com.cronutils.descriptor.CronDescriptor;
 import com.cronutils.model.CronType;
 import com.cronutils.model.definition.CronDefinitionBuilder;
@@ -34,17 +34,20 @@ public class CronExpressionFolding extends CustomFoldingBuilder {
 
     @Override
     protected void buildLanguageFoldRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root, @NotNull Document document, boolean quick) {
-        if (!(root.getContainingFile() instanceof ConcordFile)) {
+        if (!(root.getContainingFile() instanceof ConcordFile concordFile)) {
             return;
         }
 
-        ProcessDefinitionProvider.getInstance().get(root).triggers().stream()
-                .flatMap(seqItem -> seqItem.getKeysValues().stream())
+        concordFile.triggers()
+                .stream()
+                .flatMap(seq -> seq.getItems().stream())
+                .flatMap(i -> i.getKeysValues().stream())
+                
                 .filter(kv -> kv.getKey() != null && "cron".equals(kv.getKey().getText()))
                 .map(YAMLKeyValue::getValue)
-                .filter(v -> v instanceof YAMLMapping)
+                .filter(YAMLMapping.class::isInstance)
                 .map(YAMLMapping.class::cast)
-                .map(mapping -> mapping.getKeyValueByKey("spec"))
+                .map(m -> m.getKeyValueByKey("spec"))
                 .filter(Objects::nonNull)
                 .map(YAMLKeyValue::getValue)
                 .filter(Objects::nonNull)

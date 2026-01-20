@@ -20,7 +20,7 @@ public class ConcordStructureViewFile extends PsiTreeElementBase<ConcordFile> {
             (ConcordFile concordFile) -> concordFile.forms().map(FormsView::new),
             (ConcordFile concordFile) -> concordFile.resources().map(ResourcesView::new),
             (ConcordFile concordFile) -> concordFile.imports().map(ImportsView::new),
-            (ConcordFile concordFile) -> concordFile.triggers().map(TriggersView::new),
+            (ConcordFile concordFile) -> concordFile.triggersKv().map(TriggersView::new),
             (ConcordFile concordFile) -> concordFile.publicFlows().map(PublicFlowsView::new),
             (ConcordFile concordFile) -> concordFile.profiles().map(ProfilesView::new)
     );
@@ -32,10 +32,6 @@ public class ConcordStructureViewFile extends PsiTreeElementBase<ConcordFile> {
     @Override
     public @NotNull Collection<StructureViewTreeElement> getChildrenBase() {
         var file = Objects.requireNonNull(getElement());
-
-//        var topElements = Map.of(
-//                "profiles", Pair.create(file.profiles(), AllIcons.Nodes.Annotationtype),
-//        );
 
         return viewElementProducers.stream()
                 .map(p -> p.produce(file))

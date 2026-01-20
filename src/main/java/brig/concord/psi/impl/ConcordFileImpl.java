@@ -3,11 +3,10 @@ package brig.concord.psi.impl;
 import brig.concord.ConcordFileType;
 import brig.concord.psi.ConcordFile;
 import brig.concord.yaml.YAMLElementTypes;
-import brig.concord.yaml.psi.YAMLDocument;
-import brig.concord.yaml.psi.YAMLKeyValue;
-import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.*;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.util.ObjectUtils;
@@ -75,11 +74,23 @@ public class ConcordFileImpl extends YAMLFileImpl implements ConcordFile {
     }
 
     @Override
-    public Optional<YAMLKeyValue> triggers() {
+    public Optional<YAMLSequence> triggers() {
+        return topLevelValue("triggers", YAMLSequence.class);
+    }
+
+    @Override
+    public Optional<YAMLKeyValue> triggersKv() {
         return topLevelKv("triggers");
     }
 
-    private Optional<YAMLKeyValue> topLevelKv(String key) {
+    private <T extends PsiElement> Optional<T> topLevelValue(@NotNull String key, @NotNull Class<T> type) {
+        return topLevelKv(key)
+                .map(YAMLKeyValue::getValue)
+                .filter(type::isInstance)
+                .map(type::cast);
+    }
+
+    private Optional<YAMLKeyValue> topLevelKv(@NotNull String key) {
         return getDocument()
                 .map(YAMLDocument::getTopLevelValue)
                 .map(v -> ObjectUtils.tryCast(v, YAMLMapping.class))
