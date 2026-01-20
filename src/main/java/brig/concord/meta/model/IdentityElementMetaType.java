@@ -125,9 +125,10 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
         }
 
         int maxMatches = 0;
+        int existingKeysSize = existingKeys.size();
         for (IdentityMetaType s : entries) {
-            int matches = 0;
             Set<String> features = s.getFeatures().keySet();
+            int matches = 0;
             for (String k : existingKeys) {
                 if (features.contains(k)) {
                     matches++;
@@ -136,6 +137,9 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
             if (matches > maxMatches) {
                 maxMatches = matches;
                 result = s;
+                if (maxMatches == existingKeysSize) {
+                    return result;
+                }
             }
         }
 

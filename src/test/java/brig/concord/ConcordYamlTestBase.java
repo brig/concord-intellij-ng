@@ -7,6 +7,7 @@ import brig.concord.yaml.psi.*;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
 
@@ -44,6 +44,12 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
 
     protected PsiFile configureFromResource(@NotNull String resourcePath) {
         return configureFromText(loadResource(resourcePath));
+    }
+
+    protected void configureFromExistingFile(@NotNull PsiFile file) {
+        myFixture.configureFromExistingVirtualFile(file.getVirtualFile());
+        var yaml = Assertions.assertInstanceOf(YAMLFile.class, file);
+        yamlPath = new ConcordYamlPath(yaml);
     }
 
     protected @NotNull AbstractTarget doc() {
@@ -208,6 +214,10 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         @Override
         public @NotNull TextRange range() {
             return yamlPath.valueRange(path);
+        }
+
+        public @NotNull PsiElement element() {
+            return yamlPath.valueElement(path);
         }
 
         public @NotNull SubstringTarget substring(@NotNull String needle) {

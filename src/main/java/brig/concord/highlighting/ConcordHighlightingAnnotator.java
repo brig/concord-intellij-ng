@@ -145,28 +145,27 @@ public class ConcordHighlightingAnnotator implements Annotator {
         String value = originalValue.toLowerCase(Locale.ROOT);
         char first = value.charAt(0);
 
-        if (Character.isDigit(first) || first == '-' || first == '+') {
+        // Check special YAML number literals first
+        if (".inf".equals(value) || "-.inf".equals(value) || "+.inf".equals(value) || ".nan".equals(value)) {
+            return true;
+        }
+
+        // Check hex/octal
+        if (value.startsWith("0x") || value.startsWith("0o")) {
+            return true;
+        }
+
+        // Try to parse as a number
+        if (Character.isDigit(first) || first == '-' || first == '+' || first == '.') {
+            // For values starting with '.', check next char is digit
+            if (first == '.' && (value.length() <= 1 || !Character.isDigit(value.charAt(1)))) {
+                return false;
+            }
             try {
                 Double.parseDouble(originalValue);
                 return true;
             } catch (NumberFormatException e) {
-                return value.startsWith("0x") || value.startsWith("0o") ||
-                        ".inf".equals(value) || "-.inf".equals(value) || "+.inf".equals(value) ||
-                        ".nan".equals(value);
-            }
-        }
-
-        if (first == '.') {
-            if (".inf".equals(value) || ".nan".equals(value)) {
-                return true;
-            }
-            if (value.length() > 1 && Character.isDigit(value.charAt(1))) {
-                try {
-                    Double.parseDouble(originalValue);
-                    return true;
-                } catch (NumberFormatException e) {
-                    return false;
-                }
+                return false;
             }
         }
 

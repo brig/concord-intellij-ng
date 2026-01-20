@@ -52,6 +52,7 @@ flows:
 
 📘 **Full documentation:**
 - [Flow documentation blocks](docs/flow-documentation.md)
+- [Project Scopes & Isolation](docs/scopes.md)
 
 ---
 

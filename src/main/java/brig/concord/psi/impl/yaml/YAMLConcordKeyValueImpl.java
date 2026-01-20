@@ -10,7 +10,6 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.YAMLUtil;
 import brig.concord.yaml.psi.impl.YAMLKeyValueImpl;
 

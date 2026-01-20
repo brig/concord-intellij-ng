@@ -12,9 +12,9 @@ import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class YamlPsiUtils {
 
@@ -109,9 +109,16 @@ public final class YamlPsiUtils {
             return Collections.emptySet();
         }
 
-        return element.getKeyValues().stream()
-                .map(k -> k.getKeyText().trim())
-                .collect(Collectors.toSet());
+        var keyValues = element.getKeyValues();
+        if (keyValues.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        Set<String> result = new HashSet<>(keyValues.size());
+        for (var kv : keyValues) {
+            result.add(kv.getKeyText().trim());
+        }
+        return result;
     }
 
     private YamlPsiUtils() {
