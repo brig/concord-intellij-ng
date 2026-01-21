@@ -46,6 +46,13 @@ import com.intellij.lexer.FlexLexer;
   /** This flag is set after the first plain scalar line until it ends */
   private boolean myPossiblePlainTextScalarContinue = false;
 
+  /** Indent of current flow doc section (in:/out:) - number of spaces after # before section keyword.
+   *  Initialized to MAX_VALUE so the first section is always recognized. */
+  private int myFlowDocSectionIndent = Integer.MAX_VALUE;
+
+  /** Indent of current line in flow doc - number of spaces after # */
+  private int myFlowDocCurrentLineIndent = 0;
+
   //-------------------------------------------------------------------------------------------------------------------
 
   public boolean isCleanState() {
@@ -241,7 +248,7 @@ FLOW_DOC_PARAM_NAME = [a-zA-Z_][a-zA-Z0-9_. ]*[a-zA-Z0-9_]|[a-zA-Z_]
 // Accept any identifier as type - validation is done by inspection
 FLOW_DOC_TYPE_SIMPLE = [a-zA-Z_][a-zA-Z0-9_]*
 FLOW_DOC_TYPE_ARRAY = {FLOW_DOC_TYPE_SIMPLE} "[]"
-FLOW_DOC_KEYWORD_MANDATORY = "mandatory"
+FLOW_DOC_KEYWORD_MANDATORY = "mandatory" | "required"
 FLOW_DOC_KEYWORD_OPTIONAL = "optional"
 // Any identifier at keyword position (for catching typos)
 FLOW_DOC_KEYWORD_ANY = [a-zA-Z_][a-zA-Z0-9_]*
@@ -282,6 +289,7 @@ FLOW_DOC_SECTION = "in:" | "out:"
 %xstate FLOW_DOC_PARAMS_STATE
 %xstate FLOW_DOC_PARAMS_LINE_START_STATE
 %xstate FLOW_DOC_PARAMS_AFTER_HASH_STATE
+%xstate FLOW_DOC_PARAMS_AFTER_INDENT_STATE
 %xstate FLOW_DOC_PARAM_LINE_STATE
 %xstate FLOW_DOC_PARAM_AFTER_NAME_STATE
 %xstate FLOW_DOC_PARAM_AFTER_COLON_STATE
@@ -355,6 +363,7 @@ FLOW_DOC_SECTION = "in:" | "out:"
 <BLOCK_STATE, FLOW_STATE> {
   // Flow documentation must be checked BEFORE regular comments
   {FLOW_DOC_MARKER} / ({WHITE_SPACE}* {EOL}) {
+        myFlowDocSectionIndent = Integer.MAX_VALUE;
         yybegin(FLOW_DOC_STATE);
         return FLOW_DOC_MARKER;
       }
@@ -622,8 +631,9 @@ FLOW_DOC_SECTION = "in:" | "out:"
 
 // After # in description area - handle spaces and content
 <FLOW_DOC_AFTER_HASH_STATE> {
-  // Spaces after # - return as whitespace, then parse content
+  // Spaces after # - save indent for potential section header, then parse content
   {WHITE_SPACE}+ {
+        myFlowDocCurrentLineIndent = yylength();
         yybegin(FLOW_DOC_LINE_STATE);
         return WHITESPACE;
       }
@@ -636,6 +646,7 @@ FLOW_DOC_SECTION = "in:" | "out:"
 
   // Fallback: unexpected character after #, treat rest of line as content
   [^] {
+        myFlowDocCurrentLineIndent = 0;
         yypushback(1);
         yybegin(FLOW_DOC_LINE_STATE);
       }
@@ -643,13 +654,15 @@ FLOW_DOC_SECTION = "in:" | "out:"
 
 // Processing flow documentation line content (description before in:/out:)
 <FLOW_DOC_LINE_STATE> {
-  // Section headers - switch to params mode
+  // Section headers - switch to params mode and save section indent
   "in:" {
+        myFlowDocSectionIndent = myFlowDocCurrentLineIndent;
         yybegin(FLOW_DOC_PARAMS_STATE);
         return FLOW_DOC_SECTION_HEADER;
       }
 
   "out:" {
+        myFlowDocSectionIndent = myFlowDocCurrentLineIndent;
         yybegin(FLOW_DOC_PARAMS_STATE);
         return FLOW_DOC_SECTION_HEADER;
       }
@@ -708,23 +721,12 @@ FLOW_DOC_SECTION = "in:" | "out:"
       }
 }
 
-// After # in params section - decide if it's a parameter, section header, or user text
+// After # in params section - save indent and decide what follows
 <FLOW_DOC_PARAMS_AFTER_HASH_STATE> {
-  // Section header with space: "# in:" or "# out:"
-  " " / ("in:" | "out:") {
-        yybegin(FLOW_DOC_LINE_STATE);
-        return WHITESPACE;
-      }
-
-  // Parameter line: 2+ spaces (indented content like "#   param: type")
-  {WHITE_SPACE}{WHITE_SPACE}+ {
-        yybegin(FLOW_DOC_PARAM_LINE_STATE);
-        return WHITESPACE;
-      }
-
-  // User text line: exactly 1 space and then non-whitespace (like "# tags: value")
-  " " / [^ \t\n] {
-        yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
+  // Whitespace after # - save indent and check what follows
+  {WHITE_SPACE}+ {
+        myFlowDocCurrentLineIndent = yylength();
+        yybegin(FLOW_DOC_PARAMS_AFTER_INDENT_STATE);
         return WHITESPACE;
       }
 
@@ -734,10 +736,63 @@ FLOW_DOC_SECTION = "in:" | "out:"
         return EOL;
       }
 
-  // Fallback: unexpected character after #, treat as user text
+  // Fallback: no whitespace after #, treat as user text
+  [^] {
+        myFlowDocCurrentLineIndent = 0;
+        yypushback(1);
+        yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
+      }
+}
+
+// After whitespace in params section - decide if it's a parameter, section header, or user text
+// Based on content and indent comparison with section indent
+// Section headers are only recognized if indent <= current section indent (not nested)
+<FLOW_DOC_PARAMS_AFTER_INDENT_STATE> {
+  // Section headers - only if not nested (indent <= current section indent)
+  "in:" {
+        if (myFlowDocCurrentLineIndent <= myFlowDocSectionIndent) {
+          myFlowDocSectionIndent = myFlowDocCurrentLineIndent;
+          yybegin(FLOW_DOC_PARAMS_STATE);
+          return FLOW_DOC_SECTION_HEADER;
+        } else {
+          // Nested in:/out: is treated as parameter or text
+          yypushback(3);
+          yybegin(FLOW_DOC_PARAM_LINE_STATE);
+        }
+      }
+
+  "out:" {
+        if (myFlowDocCurrentLineIndent <= myFlowDocSectionIndent) {
+          myFlowDocSectionIndent = myFlowDocCurrentLineIndent;
+          yybegin(FLOW_DOC_PARAMS_STATE);
+          return FLOW_DOC_SECTION_HEADER;
+        } else {
+          // Nested in:/out: is treated as parameter or text
+          yypushback(4);
+          yybegin(FLOW_DOC_PARAM_LINE_STATE);
+        }
+      }
+
+  // If indent is greater than section indent and starts with param name char - it's a parameter
+  [a-zA-Z_] {
+        if (myFlowDocCurrentLineIndent > myFlowDocSectionIndent) {
+          yypushback(1);
+          yybegin(FLOW_DOC_PARAM_LINE_STATE);
+        } else {
+          yypushback(1);
+          yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
+        }
+      }
+
+  // Everything else - user text
   [^] {
         yypushback(1);
         yybegin(FLOW_DOC_PARAM_FALLBACK_STATE);
+      }
+
+  {EOL} {
+        yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
+        return EOL;
       }
 }
 

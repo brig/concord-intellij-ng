@@ -76,8 +76,9 @@ process:
 
 Parameters are declared inside `in:` and `out:` sections.
 
-**Important:** Parameter lines must have **extra indentation** (2+ spaces after
-`#`). Lines with only 1 space after `#` are treated as user text and ignored.
+**Important:** Parameter lines must have **greater indentation** than the section
+header (`in:` or `out:`). Lines with equal or smaller indentation are treated as
+user text and ignored.
 
 ### Parameter format
 
@@ -87,7 +88,7 @@ Parameters are declared inside `in:` and `out:` sections.
 
 Only the parameter name and type are required.
 
-- `mandatory` / `optional` is optional
+- `mandatory` (or `required`) / `optional` is optional
 - If omitted, the parameter is treated as **optional**
 - The description is optional but strongly recommended
 
@@ -150,8 +151,8 @@ connect:
 
 ## 6. Custom tags and user text
 
-Lines inside `in:` or `out:` sections that do **not** have extra indentation
-(i.e., only one space after `#`) are treated as user text and ignored.
+Lines inside `in:` or `out:` sections that have **equal or smaller indentation**
+than the section header are treated as user text and ignored.
 
 This allows you to add custom tags, notes, or additional metadata without
 affecting parameter parsing.
@@ -169,17 +170,66 @@ processS3:
 ```
 
 In this example:
-- `s3Bucket` is parsed as a parameter (has 3 spaces after `#`)
-- `tags:` and `see:` are ignored (only 1 space after `#`)
+- `in:` has 1 space after `#` (indent = 1)
+- `s3Bucket` is parsed as a parameter (indent = 3 > 1)
+- `tags:` and `see:` are ignored (indent = 1, not greater than section indent)
+
+The same works with any indentation style:
+
+```yaml
+##
+#     in:
+#       bucket: string, mandatory
+#     out:
+#       result: int, mandatory
+# tags: value
+##
+```
+
+Here `in:` and `out:` have indent = 5, parameters have indent = 7, and `tags:`
+has indent = 1, so it's correctly ignored.
 
 ---
 
-## 7. Notes and limitations
+## 7. Section nesting rules
+
+Section headers (`in:` and `out:`) are only recognized if their indentation is
+**equal to or less than** the current section's indentation. If a section header
+has greater indentation, it is treated as nested content (parameter or text).
+
+```yaml
+##
+# in:                    # indent = 1, new section
+#   param1: string       # indent = 3 > 1, parameter of in:
+#     out:               # indent = 5 > 1, NOT a section! (nested in in:)
+#       param2: int      # indent = 7 > 1, also parameter of in:
+##
+```
+
+In this example, `out:` is nested inside `in:` because its indent (5) is greater
+than `in:`'s indent (1). Both `param1` and `param2` become input parameters.
+
+To have separate `in:` and `out:` sections, they must have equal indentation:
+
+```yaml
+##
+#   in:                  # indent = 3, new section
+#     param1: string     # indent = 5 > 3, parameter of in:
+#   out:                 # indent = 3 <= 3, new section
+#     param2: int        # indent = 5 > 3, parameter of out:
+##
+```
+
+---
+
+## 8. Notes and limitations
 
 - Documentation blocks are parsed **only** when placed directly above a flow
   under `flows:`
 - Documentation blocks are comments and **do not affect execution**
-- Parameters must be indented with **2 or more spaces** after `#`
-- Lines with only 1 space after `#` inside sections are treated as user text
+- Parameters must have **greater indentation** than the section header (`in:`/`out:`)
+- Lines with equal or smaller indentation inside sections are treated as user text
+- Nested section headers (with greater indent) become parameters, not new sections
+- Arbitrary indentation is supported — use any consistent style you prefer
 - Unknown or custom types are treated as free text
 - Malformed lines are ignored gracefully

@@ -109,11 +109,8 @@ public class FlowDocParameterImpl extends ASTWrapperPsiElement implements FlowDo
 
     @Override
     public boolean isMandatory() {
-        var mandatoryNode = getNode().findChildByType(FLOW_DOC_MANDATORY);
-        if (mandatoryNode != null) {
-            return "mandatory".equals(mandatoryNode.getText());
-        }
-        return false; // default to optional if not specified
+        // FLOW_DOC_MANDATORY token matches both "mandatory" and "required"
+        return getNode().findChildByType(FLOW_DOC_MANDATORY) != null;
     }
 
     @Override

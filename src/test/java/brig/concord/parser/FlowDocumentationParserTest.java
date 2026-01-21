@@ -37,6 +37,33 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
+    public void testBasicFlowDocumentationWithArbitraryIndent() {
+        // Arbitrary indentation is allowed, but sections must be at same or lesser indent level
+        var yaml = """
+            flows:
+              ##
+              #     Process S3 files
+              #   in:
+              #      s3Bucket: string, mandatory, S3 bucket name
+              #   out:
+              #      processed: int, mandatory, Files processed count
+              ##
+              processS3:
+                - task: s3
+            """;
+
+        configureFromText(yaml);
+
+        flowDocFor(key("/flows/processS3"), doc -> doc
+                .hasFlowName("processS3")
+                .hasDescription("Process S3 files")
+                .hasInputCount(1)
+                .hasOutputCount(1)
+                .param("s3Bucket").hasType("string").isMandatory().hasDescription("S3 bucket name").and()
+                .param("processed").hasType("int").isMandatory());
+    }
+
+    @Test
     public void testBasicFlowDocumentationWithExtraComments() {
         var yaml = """
             flows:
@@ -254,6 +281,149 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
                 .hasInputCount(1)
                 .hasOutputCount(0)
                 .param("s3Bucket").hasType("string").isMandatory().hasDescription("S3 bucket name"));
+    }
+
+    @Test
+    public void testArbitraryIndentationInSections() {
+        var yaml = """
+            flows:
+              ##
+              #     in:
+              #       bucket: string, mandatory, S3 bucket name
+              #       prefix: string, optional, Filter prefix
+              #     out:
+              #       count: int, mandatory, Processed count
+              ##
+              processS3:
+                - task: s3
+            """;
+
+        configureFromText(yaml);
+
+        flowDocFor(key("/flows/processS3"), doc -> doc
+                .hasFlowName("processS3")
+                .hasInputCount(2)
+                .hasOutputCount(1)
+                .param("bucket").hasType("string").isMandatory().and()
+                .param("prefix").hasType("string").isOptional().and()
+                .param("count").hasType("int").isMandatory());
+    }
+
+    @Test
+    public void testUserTagWithSameIndentAsSection() {
+        // tags: has same indent as in: so should NOT be a parameter
+        var yaml = """
+            flows:
+              ##
+              #   in:
+              #     param1: string, mandatory
+              #   tags: internal, deprecated
+              #   see: docs/readme.md
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        configureFromText(yaml);
+
+        flowDocFor(key("/flows/myFlow"), doc -> doc
+                .hasInputCount(1)
+                .hasOutputCount(0)
+                .param("param1").hasType("string").isMandatory());
+    }
+
+    @Test
+    public void testUserTagWithSmallerIndentThanSection() {
+        // tags: has smaller indent than in: so should NOT be a parameter
+        var yaml = """
+            flows:
+              ##
+              #     in:
+              #       param1: string, mandatory
+              # tags: value
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        configureFromText(yaml);
+
+        flowDocFor(key("/flows/myFlow"), doc -> doc
+                .hasInputCount(1)
+                .hasOutputCount(0)
+                .param("param1").hasType("string").isMandatory());
+    }
+
+    @Test
+    public void testNestedOutIsNotSection() {
+        // out: with greater indent than in: is nested, so NOT a new section
+        // Everything nested belongs to the parent section
+        var yaml = """
+            flows:
+              ##
+              # in:
+              #   input1: string, mandatory
+              #     out:
+              #       output1: int, mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        configureFromText(yaml);
+
+        // out: is nested in in:, so both out and output1 become input parameters
+        flowDocFor(key("/flows/myFlow"), doc -> doc
+                .hasInputCount(3)
+                .hasOutputCount(0)
+                .param("input1").hasType("string").isInput().and()
+                .param("out").isInput().and()
+                .param("output1").hasType("int").isInput());
+    }
+
+    @Test
+    public void testSameIndentForInAndOut() {
+        // in: and out: with same indent are both sections
+        var yaml = """
+            flows:
+              ##
+              #   in:
+              #     input1: string, mandatory
+              #   out:
+              #     output1: int, mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        configureFromText(yaml);
+
+        flowDocFor(key("/flows/myFlow"), doc -> doc
+                .hasInputCount(1)
+                .hasOutputCount(1)
+                .param("input1").hasType("string").isInput().and()
+                .param("output1").hasType("int").isOutput());
+    }
+
+    @Test
+    public void testRequiredAsAliasForMandatory() {
+        var yaml = """
+            flows:
+              ##
+              # in:
+              #   param1: string, required, This param uses required
+              #   param2: string, mandatory, This param uses mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        configureFromText(yaml);
+
+        flowDocFor(key("/flows/myFlow"), doc -> doc
+                .hasInputCount(2)
+                .param("param1").hasType("string").isMandatory().and()
+                .param("param2").hasType("string").isMandatory());
     }
 
     private void flowDocFor(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
