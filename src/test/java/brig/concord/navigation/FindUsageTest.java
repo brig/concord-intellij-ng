@@ -1,5 +1,6 @@
 package brig.concord.navigation;
 
+import brig.concord.ConcordYamlTestBase;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
@@ -11,19 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-public class FindUsageTest extends BasePlatformTestCase {
-
-    @BeforeEach
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @AfterEach
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+public class FindUsageTest extends ConcordYamlTestBase {
 
     @Override
     protected String getTestDataPath() {
@@ -32,25 +21,21 @@ public class FindUsageTest extends BasePlatformTestCase {
 
     @Test
     public void findUsageTest() {
-        var usageInfos = myFixture.testFindUsagesUsingAction("concord.yaml");
-        for (var usage : usageInfos) {
-            System.out.println(usage);
-            System.out.println(usage.getClass());
-            if (usage instanceof UsageInfo2UsageAdapter uia) {
-                System.out.println(uia.getFile());
+        configureFromResource("/findUsage/concord.yaml");
 
-                var f = uia.getFile();
-                if (f != null) {
-                    ReadAction.run(() -> {
-                        var doc = FileDocumentManager.getInstance().getDocument(f);
-                        if (doc != null) {
-                            var text = doc.getText();
-                            System.out.println("text: " + text);
-                        }
-                    });
-                }
+
+        var usageInfos = ReadAction.compute(() -> {
+            var target = myFixture.getElementAtCaret();
+            var result = myFixture.findUsages(target);
+            for (var usage : result) {
+                System.out.println(">> usage: " + usage);
+                System.out.println("file: " + usage.getFile());
+                System.out.println("firtual file: " + usage.getVirtualFile());
+                System.out.println("element: " + usage.getElement());
             }
-        }
+            return result;
+        });
+
         assertEquals(1, usageInfos.size());
     }
 }
