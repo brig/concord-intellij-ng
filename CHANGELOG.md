@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Added
-- add quick fix for missing closing ## marker in flow documentation
+- added quick fix for missing closing ## marker in flow documentation
 ([#45](https://github.com/brig/concord-intellij-ng/pull/45))  
 - added rename refactoring support for Concord flow definitions
 ([#44](https://github.com/brig/concord-intellij-ng/pull/44)) 
