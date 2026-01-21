@@ -10,6 +10,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.testFramework.EdtTestUtil;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
@@ -56,6 +57,13 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         yamlPath = new ConcordYamlPath(yaml);
     }
 
+    protected void openFileInEditor(@NotNull PsiFile file) {
+        EdtTestUtil.runInEdtAndWait(() ->
+                myFixture.openFileInEditor(file.getVirtualFile())
+        );
+        yamlPath = new ConcordYamlPath((YAMLFile)file);
+    }
+
     protected @NotNull AbstractTarget doc() {
         return new AbstractTarget("/") {
             @Override
@@ -71,6 +79,14 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
                 });
             }
         };
+    }
+
+    protected void moveCaretTo(@NotNull AbstractTarget target) {
+        EdtTestUtil.runInEdtAndWait(() -> {
+            var offset = target.range().getStartOffset();
+            Assertions.assertTrue( offset >= 0, target + " not found in test file");
+            myFixture.getEditor().getCaretModel().moveToOffset(offset);
+        });
     }
 
     protected @NotNull KeyTarget key(@NotNull String path) {
@@ -123,6 +139,11 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         public abstract @NotNull TextRange range();
 
         public @NotNull String path() {
+            return path;
+        }
+
+        @Override
+        public String toString() {
             return path;
         }
     }
