@@ -40,9 +40,9 @@ public class ValueInspection extends YamlUnknownValuesInspectionBase {
             @Override
             protected void validateMultiplicity(YamlMetaTypeProvider.@NotNull MetaTypeProxy meta, @NotNull YAMLValue value) {
                 if (meta.getMetaType() instanceof YamlAnyOfType) {
-                    boolean hasArray = false;
-                    boolean hasScalar = false;
-                    for (YamlMetaType subType : ((YamlAnyOfType) meta.getMetaType()).getSubTypes()) {
+                    var hasArray = false;
+                    var hasScalar = false;
+                    for (var subType : ((YamlAnyOfType) meta.getMetaType()).getSubTypes()) {
                         if (subType instanceof YamlArrayType) {
                             hasArray = true;
                         } else if (subType instanceof YamlScalarType) {
@@ -66,12 +66,12 @@ public class ValueInspection extends YamlUnknownValuesInspectionBase {
                     return;
                 }
 
-                YamlMetaTypeProvider.MetaTypeProxy meta = metaTypeProvider.getKeyValueMetaType(keyValue);
+                var meta = metaTypeProvider.getKeyValueMetaType(keyValue);
                 if (meta == null) {
                     return;
                 }
 
-                YAMLValue value = keyValue.getValue();
+                var value = keyValue.getValue();
                 if (value == null || YamlMetaUtil.isNull(value)) {
                     validateEmptyValue(meta.getField(), keyValue);
                     return;
@@ -83,9 +83,9 @@ public class ValueInspection extends YamlUnknownValuesInspectionBase {
                     }
                 }
 
-                int before = holder.getResultCount();
+                var before = holder.getResultCount();
                 validateMultiplicity(meta, value);
-                int after = holder.getResultCount();
+                var after = holder.getResultCount();
                 if (before != after) {
                     return;
                 }

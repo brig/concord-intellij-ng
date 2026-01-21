@@ -25,9 +25,17 @@ public class InspectionAssertions {
         this.target = target;
     }
 
+    public static void assertNoWarnings(CodeInsightTestFixture fixture) {
+        assertNoProblems(fixture, HighlightSeverity.WARNING);
+    }
+
     public static void assertNoErrors(CodeInsightTestFixture fixture) {
+        assertNoProblems(fixture, HighlightSeverity.ERROR);
+    }
+
+    public static void assertNoProblems(CodeInsightTestFixture fixture, HighlightSeverity severity) {
         List<HighlightInfo> highlighting = fixture.doHighlighting().stream()
-                .filter(info -> info.getSeverity().compareTo(HighlightSeverity.ERROR) >= 0)
+                .filter(info -> info.getSeverity().compareTo(severity) >= 0)
                 .toList();
         if (!highlighting.isEmpty()) {
             fail(dump(highlighting));
@@ -70,6 +78,12 @@ public class InspectionAssertions {
         return expectHighlight(expected);
     }
 
+    public InspectionAssertions expectDuplicateFlowName(String flowName, String otherFile) {
+        var expected = ConcordBundle.message(
+                "inspection.duplicate.flow.name.message", flowName, otherFile);
+        return expectHighlight(expected);
+    }
+
     public InspectionAssertions expectHighlight(String expected) {
         var infos = assertHighlightAtRange(target.range());
 
@@ -96,8 +110,16 @@ public class InspectionAssertions {
     }
 
     public InspectionAssertions expectNoErrors() {
+        return expectNoProblems(HighlightSeverity.ERROR);
+    }
+
+    public InspectionAssertions expectNoWarnings() {
+        return expectNoProblems(HighlightSeverity.WARNING);
+    }
+
+    public InspectionAssertions expectNoProblems(HighlightSeverity severity) {
         var infos = findHighlightsAt(target.range()).stream()
-                .filter(info -> info.getSeverity() == HighlightSeverity.ERROR)
+                .filter(info -> info.getSeverity().compareTo(severity) >= 0)
                 .toList();
         if (!infos.isEmpty()) {
             var sb = new StringBuilder();

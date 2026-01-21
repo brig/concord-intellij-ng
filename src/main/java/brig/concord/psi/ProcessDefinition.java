@@ -3,7 +3,6 @@ package brig.concord.psi;
 import brig.concord.navigation.FlowNamesIndex;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -11,6 +10,7 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.indexing.FileBasedIndex;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.psi.*;
 
@@ -18,20 +18,62 @@ import java.util.*;
 
 public class ProcessDefinition {
 
-    private final YAMLDocument currentDocument;
+    private static final String FLOWS_KEY = "flows";
 
-    public ProcessDefinition(YAMLDocument currentDocument) {
-        this.currentDocument = currentDocument;
+    private final PsiElement element;
+
+    public ProcessDefinition(PsiElement element) {
+        this.element = element;
+    }
+
+    /**
+     * Checks if the given key-value element is a flow definition.
+     * A flow definition is a direct child of the root-level 'flows' mapping.
+     * Structure: YAMLDocument -> YAMLMapping -> YAMLKeyValue(flows) -> YAMLMapping -> YAMLKeyValue(flow definition)
+     */
+    public static boolean isFlowDefinition(@NotNull YAMLKeyValue keyValue) {
+        var parent = keyValue.getParent();
+        if (!(parent instanceof YAMLMapping)) {
+            return false;
+        }
+
+        var flowsKv = parent.getParent();
+        if (!(flowsKv instanceof YAMLKeyValue flowsKeyValue)) {
+            return false;
+        }
+
+        var rootMapping = flowsKv.getParent();
+        if (!(rootMapping instanceof YAMLMapping)) {
+            return false;
+        }
+
+        if (!(rootMapping.getParent() instanceof YAMLDocument)) {
+            return false;
+        }
+
+        return FLOWS_KEY.equals(flowsKeyValue.getKeyText());
     }
 
     @Nullable
     public PsiElement flow(String name) {
-        var project = currentDocument.getProject();
+        var flows = flows(name);
+        return flows.isEmpty() ? null : flows.getFirst();
+    }
+
+    /**
+     * Returns all flow definitions with the given name in the current scope.
+     * Multiple flows with the same name can exist across different files in the scope.
+     *
+     * @param name the flow name to search for
+     * @return list of all flow definition elements (YAMLKeyValue) with this name
+     */
+    public List<PsiElement> flows(String name) {
+        var project = element.getProject();
         if (ActionUtil.isDumbMode(project)) {
-            return null;
+            return List.of();
         }
 
-        var scope = ConcordScopeService.getInstance(project).createSearchScope(currentDocument);
+        var scope = ConcordScopeService.getInstance(project).createSearchScope(element);
 
         var files = new CommonProcessors.CollectProcessor<VirtualFile>();
         FileBasedIndex.getInstance().getFilesWithKey(FlowNamesIndex.KEY,
@@ -39,6 +81,7 @@ public class ProcessDefinition {
                 files,
                 scope);
 
+        List<PsiElement> result = new ArrayList<>();
         for (var file : files.getResults()) {
             var psiFile = PsiManager.getInstance(project).findFile(file);
             if (psiFile == null) {
@@ -46,25 +89,25 @@ public class ProcessDefinition {
             }
 
             var doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
-            var result = flow(doc, name);
-            if (result != null) {
-                return result.getParent();
+            var flowKey = flow(doc, name);
+            if (flowKey != null) {
+                result.add(flowKey.getParent());
             }
         }
 
-        return null;
+        return result;
     }
 
     public Set<String> flowNames() {
-        Project project = currentDocument.getProject();
+        var project = element.getProject();
         if (ActionUtil.isDumbMode(project)) {
             return Collections.emptySet();
         }
 
-        var scope = ConcordScopeService.getInstance(project).createSearchScope(currentDocument);
+        var scope = ConcordScopeService.getInstance(project).createSearchScope(element);
 
         return ApplicationManager.getApplication().runReadAction((Computable<Set<String>>) () -> {
-            Set<String> result = new HashSet<>();
+            var result = new HashSet<String>();
             FileBasedIndex.getInstance().processAllKeys(FlowNamesIndex.KEY, key -> {
                 result.add(key);
                 return true;
@@ -74,6 +117,6 @@ public class ProcessDefinition {
     }
 
     private static PsiElement flow(PsiElement root, String name) {
-        return YamlPsiUtils.get(root, YAMLPsiElement.class, "flows", name);
+        return YamlPsiUtils.get(root, YAMLPsiElement.class, FLOWS_KEY, name);
     }
 }
