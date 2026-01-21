@@ -171,7 +171,6 @@ public class OkInspectionTests extends InspectionTestBase {
                 flows:
                   main:
                     - call: myFlow
-                
                   myFlow:
                     - log: "Root"
                 """);
