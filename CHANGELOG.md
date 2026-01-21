@@ -27,6 +27,8 @@
 
 ### Changed
 
+- support arbitrary indentation in flow documentation
+([#45](https://github.com/brig/concord-intellij-ng/pull/45))  
 - refactored enter handler functionality, added tests
 ([#41](https://github.com/brig/concord-intellij-ng/pull/41))  
 - updated the CodeStyleSettingsProvider example configuration
