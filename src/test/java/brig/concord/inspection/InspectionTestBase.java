@@ -19,6 +19,10 @@ public abstract class InspectionTestBase extends ConcordYamlTestBase {
 
     protected abstract Collection<Class<? extends LocalInspectionTool>> enabledInspections();
 
+    protected void assertNoWarnings() {
+        InspectionAssertions.assertNoWarnings(this.myFixture);
+    }
+
     protected void assertNoErrors() {
         InspectionAssertions.assertNoErrors(this.myFixture);
     }

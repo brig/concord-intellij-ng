@@ -35,6 +35,10 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         super.tearDown();
     }
 
+    protected PsiFile createFile(String path, String content) {
+        return myFixture.addFileToProject(path, content);
+    }
+
     protected YAMLFile configureFromText(@NotNull String content) {
         var file = myFixture.configureByText(ConcordFileType.INSTANCE, content);
         var yaml = Assertions.assertInstanceOf(YAMLFile.class, file);
@@ -150,6 +154,16 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
                 start = keyStartOffset();
             }
             return TextRange.from(start, text().length());
+        }
+
+        public @NotNull PsiElement element() {
+            return yamlPath.keyElement(path);
+        }
+
+        public @NotNull YAMLKeyValue asKeyValue() {
+            var psi = yamlPath.keyElement(path).getParent();
+            Assertions.assertInstanceOf(YAMLKeyValue.class, psi);
+            return (YAMLKeyValue) psi;
         }
 
         private  int keyStartOffset() {

@@ -180,3 +180,9 @@ tasks {
         }
     }
 }
+
+val runIdeNoK8s by intellijPlatformTesting.runIde.registering {
+    plugins {
+        disablePlugin("com.intellij.kubernetes")
+    }
+}

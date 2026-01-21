@@ -1,0 +1,51 @@
+<html>
+<body>
+<p>
+    Reports a warning when the same flow name is defined more than once within the same Concord scope.
+    A Concord scope is determined by the nearest <code>concord.yaml</code> root and its resources configuration
+    (the set of files included into the process/project scope).
+</p>
+
+<p>
+    Duplicate flow names create ambiguity for navigation (Ctrl+B), completion, reference resolving, and flow execution,
+    because the IDE may pick a different definition than you expect.
+</p>
+
+<h2>What is checked</h2>
+<ul>
+    <li>Only flow definitions are inspected (a YAML key under <code>flows:</code> that resolves to a Concord step/flow meta type).</li>
+    <li>The inspection searches for other files in the same Concord scope that also define the same flow name.</li>
+    <li>If at least one duplicate is found, a warning is reported on the flow name key.</li>
+</ul>
+
+<h2>Example</h2>
+<p><b>Problematic:</b></p>
+<pre>
+# project-a/concord/utils.concord.yaml
+flows:
+  utilsFlow:
+    - log: "Utils A"
+</pre>
+
+<pre>
+# project-a/concord/more-utils.concord.yaml
+flows:
+  utilsFlow:
+    - log: "Utils B"
+</pre>
+
+<p><b>Result:</b> the second (and subsequent) definition(s) of <code>utilsFlow</code> in the same scope will be highlighted.</p>
+
+<h2>How to fix</h2>
+<ul>
+    <li>Rename one of the flows so that names are unique within the scope.</li>
+    <li>Alternatively, move one of the definitions outside the scope (adjust <code>resources</code> patterns in <code>concord.yaml</code>).</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+    <li>The message includes a relative path to one of the duplicate definitions found in the scope.</li>
+    <li>No quick-fix is provided (renaming typically requires choosing the intended target and updating call sites).</li>
+</ul>
+</body>
+</html>
