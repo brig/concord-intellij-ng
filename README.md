@@ -22,7 +22,8 @@ and flow documentation blocks.
 - Navigation between flow elements, including `call` targets and forms
 - Structure view for flows, forms, and triggers
 - Structured flow documentation blocks with parameter metadata
-
+- Support for multiple isolated Concord project scopes within a single IntelliJ project
+  
 ---
 
 ## Documentation
