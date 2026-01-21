@@ -12,7 +12,6 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,8 +64,7 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
         PsiReference[] flowRefs = value.getReferences();
         for (PsiReference ref : flowRefs) {
             if (ref instanceof FlowDefinitionReference fdr) {
-                PsiElement definition = fdr.resolve();
-                if (definition != null) {
+                if (fdr.multiResolve(false).length > 0) {
                     return;
                 }
             }

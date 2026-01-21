@@ -162,4 +162,30 @@ public class OkInspectionTests extends InspectionTestBase {
         configureFromResource("/ok/flowCallInputParams/001.concord.yml");
         assertNoErrors();
     }
+
+    @Test
+    public void testFlowCallMultiDefinition() {
+        var rootA = createFile("project-a/concord.yaml", """
+                configuration:
+                  runtime: concord-v2
+                flows:
+                  main:
+                    - call: myFlow
+                
+                  myFlow:
+                    - log: "Root"
+                """);
+
+        createFile("project-a/concord/a.concord.yaml", """
+                flows:
+                  myFlow:
+                    - log: "A"
+                """);
+
+        configureFromExistingFile(rootA);
+
+        inspection(value("/flows/main[0]/call")).expectNoWarnings();
+
+        assertNoWarnings();
+    }
 }

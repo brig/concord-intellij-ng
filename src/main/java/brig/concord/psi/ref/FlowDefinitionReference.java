@@ -11,9 +11,11 @@ import com.intellij.psi.util.PsiModificationTracker;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.psi.YAMLScalar;
 
+import java.util.List;
+
 public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLScalar> implements PsiPolyVariantReference {
 
-    private static final Key<CachedValue<PsiElement>> FLOW_DEF_CACHE = Key.create("concord.flow.def");
+    private static final Key<CachedValue<List<PsiElement>>> FLOW_DEFS_CACHE = Key.create("concord.flow.defs");
 
     public FlowDefinitionReference(YAMLScalar element) {
         super(element, TextRange.allOf(element.getText()), false);
@@ -23,8 +25,8 @@ public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLScalar> i
     public ResolveResult @NotNull [] multiResolve(boolean incompleteCode) {
         var el = getElement();
 
-        var flowDef = CachedValuesManager.getCachedValue(el, FLOW_DEF_CACHE, () -> {
-            var resolved = resolveInner(el);
+        var flowDefs = CachedValuesManager.getCachedValue(el, FLOW_DEFS_CACHE, () -> {
+            var resolved = resolveAll(el);
 
             return CachedValueProvider.Result.create(
                     resolved,
@@ -33,17 +35,28 @@ public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLScalar> i
             );
         });
 
-        return flowDef == null ? ResolveResult.EMPTY_ARRAY : PsiElementResolveResult.createResults(flowDef);
+        if (flowDefs.isEmpty()) {
+            return ResolveResult.EMPTY_ARRAY;
+        }
+        return PsiElementResolveResult.createResults(flowDefs.toArray(PsiElement[]::new));
     }
 
-    private static PsiElement resolveInner(@NotNull YAMLScalar callElement) {
+    private static List<PsiElement> resolveAll(@NotNull YAMLScalar callElement) {
         var process = ProcessDefinitionProvider.getInstance().get(callElement);
         if (process == null) {
-            return null;
+            return List.of();
         }
 
         var flowName = callElement.getTextValue();
-        return process.flow(flowName);
+        return process.flows(flowName);
+    }
+
+    @Override
+    public PsiElement handleElementRename(@NotNull String newElementName) {
+        var el = getElement();
+        var generator = brig.concord.yaml.YAMLElementGenerator.getInstance(el.getProject());
+        var newElement = generator.createYamlScalar(newElementName);
+        return el.replace(newElement);
     }
 }
 

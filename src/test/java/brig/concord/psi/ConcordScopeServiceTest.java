@@ -3,6 +3,7 @@ package brig.concord.psi;
 import brig.concord.ConcordYamlTestBase;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiPolyVariantReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -298,7 +299,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                     - log: "Utils from project A (main)"
                 """);
 
-        createFile("project-a/concord/utils.concord.yaml", """
+        var utilsA = createFile("project-a/concord/utils.concord.yaml", """
                 flows:
                   utilsFlow:
                     - log: "Utils from project A"
@@ -315,7 +316,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                     - log: "Utils from project B (main)"
                 """);
 
-        createFile("project-b/concord/utils.concord.yaml", """
+        var utilsB = createFile("project-b/concord/utils.concord.yaml", """
                 flows:
                   utilsFlow:
                     - log: "Utils from project B"
@@ -323,11 +324,11 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
 
         // Verify Project A
         configureFromExistingFile(rootA);
-        assertCallResolvesTo("/flows/main[0]/call", rootA);
+        assertCallResolvesTo("/flows/main[0]/call", rootA, utilsA);
 
         // Verify Project B
         configureFromExistingFile(rootB);
-        assertCallResolvesTo("/flows/main[0]/call", rootB);
+        assertCallResolvesTo("/flows/main[0]/call", rootB, utilsB);
     }
 
     @Test
@@ -380,22 +381,51 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         Assertions.assertFalse(scopeB.contains(utilsA.getVirtualFile()), "Scope B should NOT contain utilsA");
     }
 
-    private void assertCallResolvesTo(String jsonPath, PsiFile expectedFile) {
+    private void assertCallResolvesTo(String jsonPath, PsiFile ... expectedFiles) {
         var callValue = value(jsonPath).element();
         Assertions.assertNotNull(callValue, "Should find call value at " + jsonPath);
 
         ReadAction.run(() -> {
             var reference = callValue.getReference();
             Assertions.assertNotNull(reference, "Call value should have a reference");
+            Assertions.assertInstanceOf(PsiPolyVariantReference.class, reference, "Flow definition reference should implement PsiPolyVariantReference");
 
-            var resolved = reference.resolve();
-            Assertions.assertNotNull(resolved, "Reference should resolve");
+            var results = ((PsiPolyVariantReference)reference).multiResolve(false);
+            Assertions.assertTrue(results.length > 0, "Reference should resolve");
 
-            var resolvedFile = resolved.getContainingFile().getVirtualFile();
-            Assertions.assertEquals(
-                    expectedFile.getVirtualFile().getPath(),
-                    resolvedFile.getPath(),
-                    "Call should resolve to correct file");
+            var resolvedPaths = new java.util.HashSet<String>();
+            for (var r : results) {
+                if (r == null) {
+                    continue;
+                }
+                var el = r.getElement();
+                if (el == null) {
+                    continue;
+                }
+                var file = el.getContainingFile();
+                if (file == null) {
+                    continue;
+                }
+                var vf = file.getVirtualFile();
+                if (vf == null) {
+                    continue;
+                }
+                resolvedPaths.add(vf.getPath());
+            }
+
+            Assertions.assertFalse(resolvedPaths.isEmpty(), "Reference resolved only to null elements");
+
+            for (var f : expectedFiles) {
+                Assertions.assertNotNull(f, "Expected file is null");
+                var vf = f.getVirtualFile();
+                Assertions.assertNotNull(vf, "Expected file has no VirtualFile: " + f);
+
+                var expectedPath = vf.getPath();
+                Assertions.assertTrue(
+                        resolvedPaths.contains(expectedPath),
+                        "Reference should resolve to " + expectedPath + ", but resolved to: " + resolvedPaths
+                );
+            }
         });
     }
 }

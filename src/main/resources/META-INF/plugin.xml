@@ -66,6 +66,9 @@
         <lang.findUsagesProvider language="Concord" implementationClass="brig.concord.FindUsageProvider"/>
         <usageTypeProvider implementation="brig.concord.FlowUsageTypeProvider"/>
 
+        <!-- Refactoring -->
+        <renamePsiElementProcessor implementation="brig.concord.refactoring.FlowDefinitionRenameProcessor"/>
+
         <!-- References / completion / structure view -->
         <psi.referenceContributor language="Concord" implementation="brig.concord.ConcordYamlReferenceContributor"/>
         <completion.contributor language="Concord"
