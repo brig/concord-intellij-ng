@@ -2,6 +2,7 @@ package brig.concord.inspection.fix;
 
 import brig.concord.ConcordYamlTestBase;
 import brig.concord.inspection.DuplicateFlowNameInspection;
+import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +41,7 @@ public class ShowAllDuplicateFlowsFixTest extends ConcordYamlTestBase {
 
         Assertions.assertDoesNotThrow(() -> {
             myFixture.getIntentionPreviewText(intention);
+            ReadAction.run(() -> intention.invoke(getProject(), myFixture.getEditor(), myFixture.getFile()));
         });
     }
 

@@ -55,46 +55,53 @@ public class ShowAllDuplicateFlowsFix implements LocalQuickFix {
                 return null;
             }
 
-            var kv = PsiTreeUtil.getParentOfType(element, YAMLKeyValue.class);
-            if (kv == null || !kv.isValid()) {
-                return null;
-            }
-
-            var flowName = kv.getKeyText();
+            var flowName = element.getText();
             if (flowName == null || flowName.isBlank()) {
                 return null;
             }
 
-            var process = ProcessDefinitionProvider.getInstance().get(kv);
-            if (process == null) return null;
+            var process = ProcessDefinitionProvider.getInstance().get(element);
+            if (process == null) {
+                return null;
+            }
 
-            List<Usage> usages = new ArrayList<>();
+            var usages = new ArrayList<Usage>();
             for (var flowDef : process.flows(flowName)) {
-                if (flowDef == null || !flowDef.isValid()) continue;
+                if (flowDef == null || !flowDef.isValid()) {
+                    continue;
+                }
 
                 var defKv = (flowDef instanceof YAMLKeyValue)
                         ? (YAMLKeyValue) flowDef
                         : PsiTreeUtil.getParentOfType(flowDef, YAMLKeyValue.class, false);
 
-                if (defKv == null) continue;
+                if (defKv == null) {
+                    continue;
+                }
 
                 var keyEl = defKv.getKey();
-                if (keyEl == null) continue;
+                if (keyEl == null) {
+                    continue;
+                }
 
                 usages.add(new UsageInfo2UsageAdapter(new UsageInfo(keyEl)));
             }
 
-            if (usages.size() < 2) return null;
+            if (usages.size() < 2) {
+                return null;
+            }
 
             var presentation = new UsageViewPresentation();
             presentation.setTabText("Duplicate flows: " + flowName);
             presentation.setTabName("Duplicate flows: " + flowName);
-            presentation.setUsagesString("duplicates");
+            presentation.setSearchString("Duplicates");
 
             return new Object[]{usages, presentation};
         });
 
-        if (data == null) return;
+        if (data == null) {
+            return;
+        }
 
         @SuppressWarnings("unchecked")
         var usages = (List<Usage>) data[0];
