@@ -1,6 +1,7 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
+import brig.concord.inspection.fix.ShowAllDuplicateFlowsFix;
 import brig.concord.psi.*;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLSequence;
@@ -71,7 +72,8 @@ public class DuplicateFlowNameInspection extends LocalInspectionTool {
                 holder.registerProblem(
                         keyElement,
                         ConcordBundle.message("inspection.duplicate.flow.name.message", flowName, relativePath),
-                        ProblemHighlightType.WARNING
+                        ProblemHighlightType.WARNING,
+                        new ShowAllDuplicateFlowsFix()
                 );
                 // Only report first duplicate to avoid noise
                 break;
