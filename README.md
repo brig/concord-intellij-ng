@@ -19,11 +19,12 @@ and flow documentation blocks.
 - Concord-aware syntax highlighting for sections, steps, keys, and expressions
 - Schema-driven completion for Concord YAML fields (flows, steps, imports, triggers, params)
 - Inspections and validation for unknown keys, missing required keys, duplicates, and invalid values
-- Navigation between flow elements, including `call` targets and forms
+- Navigation between flow elements, including call targets and forms
+- Safe rename refactoring for Concord flow definitions with automatic update of call references
 - Structure view for flows, forms, and triggers
 - Structured flow documentation blocks with parameter metadata
 - Support for multiple isolated Concord project scopes within a single IntelliJ project
-  
+-   
 ---
 
 ## Documentation
