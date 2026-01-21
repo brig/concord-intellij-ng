@@ -1,10 +1,12 @@
 package brig.concord.inspection;
 
+import brig.concord.assertions.FlowDocAssertions;
 import com.intellij.codeInspection.LocalInspectionTool;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class FlowDocumentationInspectionTest extends InspectionTestBase {
 
@@ -242,5 +244,31 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
 
         inspection(unknownKeyword("/flows/myFlow", "bucket"))
                 .expectUnknownKeyword("required");
+    }
+
+    @Test
+    public void testSameParamInOut() {
+        configureFromText("""
+            flows:
+              ##
+              #  in:
+              #    outFile: string, optional, interpolated file name
+              #  out:
+              #    outFile: string, optional, path to interpolated file
+              ##
+              myFlow:
+                - log: "test: ${bucket}"
+            """);
+
+        flowDocFor(key("/flows/myFlow"), doc -> doc
+                .hasFlowName("myFlow")
+                .hasInputCount(1)
+                .hasOutputCount(1));
+
+        inspection(doc()).expectNoWarnings();
+    }
+
+    private void flowDocFor(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
+        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
     }
 }

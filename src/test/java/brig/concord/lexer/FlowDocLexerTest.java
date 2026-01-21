@@ -211,4 +211,126 @@ public class FlowDocLexerTest {
                 .and()
                 .token("FLOW_DOC_COMMA", 1).hasText(",");
     }
+
+    @Test
+    public void testArbitraryIndentation() {
+        // Section headers can have any indentation, parameters must have greater indent
+        var yaml = """
+            flows:
+              ##
+              #     in:
+              #       param1: string, mandatory
+              #       param2: int, optional
+              #     out:
+              #       result: boolean, mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasCount("FLOW_DOC_SECTION_HEADER", 2)
+                .hasCount("FLOW_DOC_PARAM_NAME", 3)
+                .token("FLOW_DOC_PARAM_NAME", 0).hasText("param1")
+                .and()
+                .token("FLOW_DOC_PARAM_NAME", 1).hasText("param2")
+                .and()
+                .token("FLOW_DOC_PARAM_NAME", 2).hasText("result");
+    }
+
+    @Test
+    public void testUserTagWithSameIndentAsSection() {
+        // User tag with same indent as section should NOT be treated as parameter
+        var yaml = """
+            flows:
+              ##
+              #   in:
+              #     param1: string, mandatory
+              #   tags: internal
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_PARAM_NAME", 1)
+                .token("FLOW_DOC_PARAM_NAME").hasText("param1")
+                .and()
+                .token("FLOW_DOC_TEXT").hasText("tags: internal");
+    }
+
+    @Test
+    public void testUserTagWithSmallerIndentThanSection() {
+        // User tag with smaller indent than section should NOT be treated as parameter
+        var yaml = """
+            flows:
+              ##
+              #     in:
+              #       param1: string, mandatory
+              # tags: value
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_PARAM_NAME", 1)
+                .token("FLOW_DOC_PARAM_NAME").hasText("param1")
+                .and()
+                .token("FLOW_DOC_TEXT").hasText("tags: value");
+    }
+
+    @Test
+    public void testNestedSectionIsNotRecognized() {
+        // out: with greater indent than in: is nested, NOT a new section
+        // All nested content becomes parameters of the parent section
+        var yaml = """
+            flows:
+              ##
+              # in:
+              #   inputParam: string, mandatory
+              #     out:
+              #       outputParam: int, mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        // Only 1 section header (in:), out: is nested so treated as param name
+        // outputParam also becomes a param in the in: section
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_SECTION_HEADER", 1)
+                .hasCount("FLOW_DOC_PARAM_NAME", 3)
+                .token("FLOW_DOC_SECTION_HEADER").hasText("in:")
+                .and()
+                .token("FLOW_DOC_PARAM_NAME", 0).hasText("inputParam")
+                .and()
+                .token("FLOW_DOC_PARAM_NAME", 1).hasText("out")
+                .and()
+                .token("FLOW_DOC_PARAM_NAME", 2).hasText("outputParam");
+    }
+
+    @Test
+    public void testSameIndentSectionsRecognized() {
+        // in: and out: with same indent are both sections
+        var yaml = """
+            flows:
+              ##
+              #   in:
+              #     inputParam: string, mandatory
+              #   out:
+              #     outputParam: int, mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_SECTION_HEADER", 2)
+                .hasCount("FLOW_DOC_PARAM_NAME", 2)
+                .token("FLOW_DOC_PARAM_NAME", 0).hasText("inputParam")
+                .and()
+                .token("FLOW_DOC_PARAM_NAME", 1).hasText("outputParam");
+    }
 }
