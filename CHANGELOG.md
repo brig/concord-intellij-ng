@@ -4,6 +4,8 @@
 
 ### Added
 
+- added a quick fix feature that allows users to view all duplicate flow definitions in a usage view panel
+([#43](https://github.com/brig/concord-intellij-ng/pull/43)) 
 - added inspection to detect duplicate flow names
 ([#42](https://github.com/brig/concord-intellij-ng/pull/42))
 - added project scopes to support multiple isolated Concord projects within a single IntelliJ project window
