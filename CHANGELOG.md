@@ -4,6 +4,8 @@
 
 ### Added
 
+- added inspection to detect duplicate flow names
+([#42](https://github.com/brig/concord-intellij-ng/pull/42))
 - added project scopes to support multiple isolated Concord projects within a single IntelliJ project window
 ([#40](https://github.com/brig/concord-intellij-ng/pull/40))
 - test coverage for cron expression folding functionality and code cleanup associated code cleanup
