@@ -96,23 +96,22 @@ public class ShowAllDuplicateFlowsFix implements LocalQuickFix {
             presentation.setTabName("Duplicate flows: " + flowName);
             presentation.setSearchString("Duplicates");
 
-            return new Object[]{usages, presentation};
+            return new DuplicateFlowsData(usages, presentation);
         });
 
         if (data == null) {
             return;
         }
 
-        @SuppressWarnings("unchecked")
-        var usages = (List<Usage>) data[0];
-        var presentation = (UsageViewPresentation) data[1];
-
         ApplicationManager.getApplication().invokeLater(() -> {
             UsageViewManager.getInstance(project).showUsages(
                     UsageTarget.EMPTY_ARRAY,
-                    usages.toArray(Usage[]::new),
-                    presentation
+                    data.usages().toArray(Usage[]::new),
+                    data.presentation()
             );
         });
+    }
+
+    private record DuplicateFlowsData(List<Usage> usages, UsageViewPresentation presentation) {
     }
 }
