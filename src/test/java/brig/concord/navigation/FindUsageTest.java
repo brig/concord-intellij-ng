@@ -30,6 +30,10 @@ public class FindUsageTest extends BasePlatformTestCase {
     @Test
     public void findUsageTest() {
         Collection<Usage> usageInfos = myFixture.testFindUsagesUsingAction("concord.yaml");
+        for (var usage : usageInfos) {
+            System.out.println(usage);
+            System.out.println(">>>" + usage.getLocation());
+        }
         assertEquals(1, usageInfos.size());
     }
 }
