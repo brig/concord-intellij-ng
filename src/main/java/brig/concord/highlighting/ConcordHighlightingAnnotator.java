@@ -1,5 +1,7 @@
 package brig.concord.highlighting;
 
+import brig.concord.inspection.fix.InsertClosingMarkerFix;
+import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.ExpressionMetaType;
@@ -14,6 +16,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +30,28 @@ public class ConcordHighlightingAnnotator implements Annotator {
             annotateKey(keyValue, holder);
         } else if (element instanceof YAMLScalar scalar) {
             annotateValue(scalar, holder);
+        } else if (element instanceof PsiErrorElement errorElement) {
+            annotateError(errorElement, holder);
         }
+    }
+
+    private static void annotateError(@NotNull PsiErrorElement errorElement, @NotNull AnnotationHolder holder) {
+        var errorDescription = errorElement.getErrorDescription();
+        if (!"Expected closing ## marker".equals(errorDescription)) {
+            return;
+        }
+
+        // Verify parent is FLOW_DOCUMENTATION element
+        var parent = errorElement.getParent();
+        if (parent == null || parent.getNode().getElementType() != FlowDocElementTypes.FLOW_DOCUMENTATION) {
+            return;
+        }
+
+        // Add quick fix without creating a new error (parser already shows the error)
+        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+                .range(errorElement)
+                .withFix(new InsertClosingMarkerFix(errorElement))
+                .create();
     }
 
     @Nullable
@@ -79,7 +103,7 @@ public class ConcordHighlightingAnnotator implements Annotator {
             var doc = PsiDocumentManager.getInstance(scalar.getProject()).getDocument(scalar.getContainingFile());
             if (doc != null) {
                 var ranges = ConcordExpressionInDocRanges.findInScalarText(doc, scalar);
-                for (TextRange r : ranges) {
+                for (var r : ranges) {
                     highlight(holder, r, ConcordHighlightingColors.EXPRESSION);
                 }
             }
@@ -142,8 +166,8 @@ public class ConcordHighlightingAnnotator implements Annotator {
             return false;
         }
 
-        String value = originalValue.toLowerCase(Locale.ROOT);
-        char first = value.charAt(0);
+        var value = originalValue.toLowerCase(Locale.ROOT);
+        var first = value.charAt(0);
 
         // Check special YAML number literals first
         if (".inf".equals(value) || "-.inf".equals(value) || "+.inf".equals(value) || ".nan".equals(value)) {
