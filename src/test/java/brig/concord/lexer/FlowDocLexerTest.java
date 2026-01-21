@@ -172,6 +172,26 @@ public class FlowDocLexerTest {
     }
 
     @Test
+    public void testRequiredAsAliasForMandatory() {
+        var yaml = """
+            flows:
+              ##
+              # in:
+              #   param1: string, required, This is required
+              #   param2: string, mandatory, This is mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MANDATORY", 2)
+                .token("FLOW_DOC_MANDATORY", 0).hasText("required")
+                .and()
+                .token("FLOW_DOC_MANDATORY", 1).hasText("mandatory");
+    }
+
+    @Test
     public void testEmptyCommentLine() {
         var yaml = """
             flows:

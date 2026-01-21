@@ -248,7 +248,7 @@ FLOW_DOC_PARAM_NAME = [a-zA-Z_][a-zA-Z0-9_. ]*[a-zA-Z0-9_]|[a-zA-Z_]
 // Accept any identifier as type - validation is done by inspection
 FLOW_DOC_TYPE_SIMPLE = [a-zA-Z_][a-zA-Z0-9_]*
 FLOW_DOC_TYPE_ARRAY = {FLOW_DOC_TYPE_SIMPLE} "[]"
-FLOW_DOC_KEYWORD_MANDATORY = "mandatory"
+FLOW_DOC_KEYWORD_MANDATORY = "mandatory" | "required"
 FLOW_DOC_KEYWORD_OPTIONAL = "optional"
 // Any identifier at keyword position (for catching typos)
 FLOW_DOC_KEYWORD_ANY = [a-zA-Z_][a-zA-Z0-9_]*

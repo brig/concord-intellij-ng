@@ -236,14 +236,14 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
             flows:
               ##
               # in:
-              #   bucket: string, required
+              #   bucket: string, requred
               ##
               myFlow:
                 - log: "test"
             """);
 
         inspection(unknownKeyword("/flows/myFlow", "bucket"))
-                .expectUnknownKeyword("required");
+                .expectUnknownKeyword("requred");
     }
 
     @Test

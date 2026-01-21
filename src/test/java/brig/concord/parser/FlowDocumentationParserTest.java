@@ -405,6 +405,27 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
                 .param("output1").hasType("int").isOutput());
     }
 
+    @Test
+    public void testRequiredAsAliasForMandatory() {
+        var yaml = """
+            flows:
+              ##
+              # in:
+              #   param1: string, required, This param uses required
+              #   param2: string, mandatory, This param uses mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """;
+
+        configureFromText(yaml);
+
+        flowDocFor(key("/flows/myFlow"), doc -> doc
+                .hasInputCount(2)
+                .param("param1").hasType("string").isMandatory().and()
+                .param("param2").hasType("string").isMandatory());
+    }
+
     private void flowDocFor(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
         FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
     }

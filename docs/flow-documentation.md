@@ -88,7 +88,7 @@ user text and ignored.
 
 Only the parameter name and type are required.
 
-- `mandatory` / `optional` is optional
+- `mandatory` (or `required`) / `optional` is optional
 - If omitted, the parameter is treated as **optional**
 - The description is optional but strongly recommended
 
