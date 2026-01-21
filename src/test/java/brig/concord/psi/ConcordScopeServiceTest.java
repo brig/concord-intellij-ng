@@ -381,7 +381,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         Assertions.assertFalse(scopeB.contains(utilsA.getVirtualFile()), "Scope B should NOT contain utilsA");
     }
 
-    private void assertCallResolvesTo(String jsonPath, PsiFile ... expectedFiles) {
+    private void assertCallResolvesTo(String jsonPath, PsiFile... expectedFiles) {
         var callValue = value(jsonPath).element();
         Assertions.assertNotNull(callValue, "Should find call value at " + jsonPath);
 
