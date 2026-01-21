@@ -96,4 +96,10 @@ public class YAMLElementGenerator {
         assert at != null && at.getNode().getElementType() == YAMLTokenTypes.COLON;
         return at;
     }
+
+    public @NotNull YAMLScalar createYamlScalar(@NotNull String text) {
+        final YAMLFile file = createDummyYamlWithText("foo: " + text);
+        YAMLKeyValue kv = PsiTreeUtil.collectElementsOfType(file, YAMLKeyValue.class).iterator().next();
+        return (YAMLScalar) kv.getValue();
+    }
 }
