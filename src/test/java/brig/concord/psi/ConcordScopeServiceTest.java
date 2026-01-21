@@ -380,10 +380,6 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         Assertions.assertFalse(scopeB.contains(utilsA.getVirtualFile()), "Scope B should NOT contain utilsA");
     }
 
-    private PsiFile createFile(String path, String content) {
-        return myFixture.addFileToProject(path, content);
-    }
-
     private void assertCallResolvesTo(String jsonPath, PsiFile expectedFile) {
         var callValue = value(jsonPath).element();
         Assertions.assertNotNull(callValue, "Should find call value at " + jsonPath);
