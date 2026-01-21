@@ -41,11 +41,13 @@ public class FindUsageTest extends BasePlatformTestCase {
 
                 var f = uia.getFile();
                 if (f != null) {
-                    var doc = FileDocumentManager.getInstance().getDocument(f);
-                    if (doc != null) {
-                        var text = doc.getText();
-                        System.out.println("text: " + text);
-                    }
+                    ReadAction.run(() -> {
+                        var doc = FileDocumentManager.getInstance().getDocument(f);
+                        if (doc != null) {
+                            var text = doc.getText();
+                            System.out.println("text: " + text);
+                        }
+                    });
                 }
             }
         }
