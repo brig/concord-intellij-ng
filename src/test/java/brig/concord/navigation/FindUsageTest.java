@@ -1,5 +1,6 @@
 package brig.concord.navigation;
 
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.testFramework.fixtures.BasePlatformTestCase;
 import com.intellij.usages.Usage;
 import org.junit.jupiter.api.AfterEach;
@@ -32,7 +33,7 @@ public class FindUsageTest extends BasePlatformTestCase {
         Collection<Usage> usageInfos = myFixture.testFindUsagesUsingAction("concord.yaml");
         for (var usage : usageInfos) {
             System.out.println(usage);
-            System.out.println(">>>" + usage.getLocation());
+            ReadAction.run(() -> System.out.println(">>>" + usage.getLocation()));
         }
         assertEquals(1, usageInfos.size());
     }
