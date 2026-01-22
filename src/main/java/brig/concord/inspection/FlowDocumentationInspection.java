@@ -80,8 +80,8 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
             // Check for unknown types
             var type = param.getType();
             if (!type.isBlank() && !VALID_TYPES.contains(type)) {
-                List<LocalQuickFix> fixes = new ArrayList<>();
-                for (String suggestion : getSuggestions(type)) {
+                var fixes = new ArrayList<LocalQuickFix>();
+                for (var suggestion : getSuggestions(type)) {
                     fixes.add(new ReplaceFlowDocTypeQuickFix(suggestion));
                 }
 
@@ -106,15 +106,23 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
     }
 
     private List<String> getSuggestions(String invalidType) {
-        List<String> suggestions = new ArrayList<>();
+        var suggestions = new ArrayList<String>();
         // 1. Common abbreviations
-        if (invalidType.equalsIgnoreCase("str")) suggestions.add("string");
-        if (invalidType.equalsIgnoreCase("bool")) suggestions.add("boolean");
-        if (invalidType.equalsIgnoreCase("obj")) suggestions.add("object");
-        if (invalidType.equalsIgnoreCase("num")) suggestions.add("number");
+        if (invalidType.equalsIgnoreCase("str")) {
+            suggestions.add("string");
+        }
+        if (invalidType.equalsIgnoreCase("bool")) {
+            suggestions.add("boolean");
+        }
+        if (invalidType.equalsIgnoreCase("obj")) {
+            suggestions.add("object");
+        }
+        if (invalidType.equalsIgnoreCase("num")) {
+            suggestions.add("number");
+        }
 
         // 2. Case insensitive match
-        for (String valid : VALID_TYPES) {
+        for (var valid : VALID_TYPES) {
             if (valid.equalsIgnoreCase(invalidType)) {
                 suggestions.add(valid);
             }
