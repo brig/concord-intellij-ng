@@ -1,6 +1,7 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
+import brig.concord.inspection.fix.ReplaceFlowDocKeywordQuickFix;
 import brig.concord.inspection.fix.ReplaceFlowDocTypeQuickFix;
 import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.psi.ConcordFile;
@@ -96,10 +97,23 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
             // Check for unknown keywords (typos in mandatory/optional)
             var unknownKeywordNode = param.getNode().findChildByType(FlowDocTokenTypes.FLOW_DOC_UNKNOWN_KEYWORD);
             if (unknownKeywordNode != null) {
+                var fixes = new ArrayList<LocalQuickFix>();
+                var text = unknownKeywordNode.getText().toLowerCase();
+
+                if (text.startsWith("opt")) {
+                    fixes.add(new ReplaceFlowDocKeywordQuickFix("optional"));
+                } else if (text.startsWith("req") || text.startsWith("man")) {
+                    fixes.add(new ReplaceFlowDocKeywordQuickFix("mandatory"));
+                } else {
+                    fixes.add(new ReplaceFlowDocKeywordQuickFix("mandatory"));
+                    fixes.add(new ReplaceFlowDocKeywordQuickFix("optional"));
+                }
+
                 holder.registerProblem(
                         unknownKeywordNode.getPsi(),
                         ConcordBundle.message("inspection.flow.doc.unknown.keyword", unknownKeywordNode.getText()),
-                        ProblemHighlightType.WARNING
+                        ProblemHighlightType.WARNING,
+                        fixes.toArray(LocalQuickFix.EMPTY_ARRAY)
                 );
             }
         }

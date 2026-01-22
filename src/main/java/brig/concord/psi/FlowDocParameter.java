@@ -21,10 +21,16 @@ public interface FlowDocParameter extends YAMLPsiElement, PsiNamedElement {
     /**
      * Set parameter type
      * @param type new type (e.g., "string")
-     * @return the updated element
      * @throws IncorrectOperationException if modification fails
      */
-    PsiElement setType(@NotNull String type) throws IncorrectOperationException;
+    PsiElement setType(@NotNull String type);
+
+    /**
+     * Set parameter keyword (mandatory/optional)
+     * @param keyword new keyword
+     * @return the updated element
+     */
+    PsiElement setKeyword(@NotNull String keyword);
 
     /**
      * Get parameter type
