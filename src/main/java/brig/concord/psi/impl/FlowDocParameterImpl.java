@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +17,9 @@ import org.jetbrains.annotations.Nullable;
 import static brig.concord.lexer.FlowDocTokenTypes.*;
 
 public class FlowDocParameterImpl extends ASTWrapperPsiElement implements FlowDocParameter {
+
+    private static final IElementType[] TYPE_TOKENS = {FLOW_DOC_TYPE, FLOW_DOC_ARRAY_TYPE};
+    private static final IElementType[] KEYWORD_TOKENS = {FLOW_DOC_UNKNOWN_KEYWORD, FLOW_DOC_MANDATORY, FLOW_DOC_OPTIONAL};
 
     public FlowDocParameterImpl(@NotNull ASTNode node) {
         super(node);
@@ -34,65 +38,37 @@ public class FlowDocParameterImpl extends ASTWrapperPsiElement implements FlowDo
             throw new IncorrectOperationException(ConcordBundle.message("rename.same.name"));
         }
 
-        var nameNode = getNode().findChildByType(FLOW_DOC_PARAM_NAME);
-        if (nameNode == null) {
-            throw new IncorrectOperationException("Cannot find parameter name node");
-        }
-
         var generator = YAMLElementGenerator.getInstance(getProject());
         var dummyParam = generator.createFlowDocParameter(name, "string");
-        var dummyNameNode = dummyParam.getNode().findChildByType(FLOW_DOC_PARAM_NAME);
-        if (dummyNameNode == null) {
-            throw new IncorrectOperationException("Failed to get dummy parameter name node");
-        }
 
-        // Replace the old name node with the new one
-        nameNode.getPsi().replace(dummyNameNode.getPsi());
+        replaceNode(FLOW_DOC_PARAM_NAME, dummyParam, FLOW_DOC_PARAM_NAME, "Cannot find parameter name node");
         return this;
     }
 
     @Override
     public PsiElement setType(@NotNull String type) throws IncorrectOperationException {
-        var node = getNode();
-        var typeNode = node.findChildByType(FLOW_DOC_TYPE);
-        if (typeNode == null) {
-            typeNode = node.findChildByType(FLOW_DOC_ARRAY_TYPE);
-        }
-
-        if (typeNode == null) {
-            throw new IncorrectOperationException("Cannot find parameter type node");
-        }
-
         var generator = YAMLElementGenerator.getInstance(getProject());
         var dummyParam = generator.createFlowDocParameter("dummy", type);
 
-        var dummyTypeNode = dummyParam.getNode().findChildByType(FLOW_DOC_TYPE);
-        if (dummyTypeNode == null) {
-            dummyTypeNode = dummyParam.getNode().findChildByType(FLOW_DOC_ARRAY_TYPE);
-        }
+        replaceNode(TYPE_TOKENS, dummyParam, TYPE_TOKENS, "Cannot find parameter type node");
+        return this;
+    }
 
-        if (dummyTypeNode == null) {
-            throw new IncorrectOperationException("Failed to create dummy parameter type node");
-        }
+    @Override
+    public PsiElement setKeyword(@NotNull String keyword) throws IncorrectOperationException {
+        var generator = YAMLElementGenerator.getInstance(getProject());
+        // Create a dummy parameter with the new keyword.
+        var dummyParam = generator.createFlowDocParameter("dummy", "string, " + keyword);
 
-        node.replaceChild(typeNode, dummyTypeNode);
+        replaceNode(KEYWORD_TOKENS, dummyParam, KEYWORD_TOKENS, "Cannot find parameter keyword node");
         return this;
     }
 
     @Override
     @NotNull
     public String getType() {
-        var typeNode = getNode().findChildByType(FLOW_DOC_TYPE);
-        if (typeNode != null) {
-            return typeNode.getText();
-        }
-
-        var arrayTypeNode = getNode().findChildByType(FLOW_DOC_ARRAY_TYPE);
-        if (arrayTypeNode != null) {
-            return arrayTypeNode.getText();
-        }
-
-        return "any";
+        var typeNode = findChildByTypes(TYPE_TOKENS);
+        return typeNode != null ? typeNode.getText() : "any";
     }
 
     @Override
@@ -164,5 +140,40 @@ public class FlowDocParameterImpl extends ASTWrapperPsiElement implements FlowDo
     @Override
     public String toString() {
         return "FlowDocParameter(" + getName() + ": " + getType() + ")";
+    }
+
+    private void replaceNode(IElementType typeToReplace, FlowDocParameter dummyParam, IElementType dummyTypeToFind, String errorMessage) {
+        replaceNode(new IElementType[]{typeToReplace}, dummyParam, new IElementType[]{dummyTypeToFind}, errorMessage);
+    }
+
+    private void replaceNode(IElementType[] typesToReplace, FlowDocParameter dummyParam, IElementType[] dummyTypesToFind, String errorMessage) {
+        var node = getNode();
+        var nodeToReplace = findChildByTypes(node, typesToReplace);
+        if (nodeToReplace == null) {
+            throw new IncorrectOperationException(errorMessage);
+        }
+
+        var dummyNode = findChildByTypes(dummyParam.getNode(), dummyTypesToFind);
+        if (dummyNode == null) {
+            throw new IncorrectOperationException("Failed to create replacement node: " + errorMessage);
+        }
+
+        node.replaceChild(nodeToReplace, dummyNode);
+    }
+
+    @Nullable
+    private ASTNode findChildByTypes(IElementType[] types) {
+        return findChildByTypes(getNode(), types);
+    }
+
+    @Nullable
+    private static ASTNode findChildByTypes(ASTNode node, IElementType[] types) {
+        for (var type : types) {
+            var child = node.findChildByType(type);
+            if (child != null) {
+                return child;
+            }
+        }
+        return null;
     }
 }
