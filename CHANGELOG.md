@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Added
+
+- added quick fix to replace invalid parameter types with valid suggestions in flow documentation
+([#49](https://github.com/brig/concord-intellij-ng/pull/49))  
 - added quick fix for missing closing ## marker in flow documentation
 ([#45](https://github.com/brig/concord-intellij-ng/pull/45))  
 - added rename refactoring support for Concord flow definitions
