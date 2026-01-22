@@ -53,6 +53,9 @@ import com.intellij.lexer.FlexLexer;
   /** Indent of current line in flow doc - number of spaces after # */
   private int myFlowDocCurrentLineIndent = 0;
 
+  /** Flag indicating we are inside the flows: section where flow documentation is valid */
+  private boolean myInsideFlowsSection = false;
+
   //-------------------------------------------------------------------------------------------------------------------
 
   public boolean isCleanState() {
@@ -76,6 +79,7 @@ import com.intellij.lexer.FlexLexer;
   private void prepareForNewDocument() {
     myPrevElementIndent = 0;
     myPossiblePlainTextScalarContinue = false;
+    myInsideFlowsSection = false;
   }
 
   //-------------------------------------------------------------------------------------------------------------------
@@ -143,6 +147,11 @@ import com.intellij.lexer.FlexLexer;
    * @return scalar key token
    */
   private IElementType processScalarKey(int returnState) {
+    // Track flows section for flow documentation recognition
+    if (yycolumn == 0) {
+      String keyText = yytext().toString();
+      myInsideFlowsSection = "flows".equals(keyText);
+    }
     myPrevElementIndent = yycolumn;
     myReturnState = returnState;
     yybegin(KEY_MODE);
@@ -362,10 +371,16 @@ FLOW_DOC_SECTION = "in:" | "out:"
 // Common block and flow rules
 <BLOCK_STATE, FLOW_STATE> {
   // Flow documentation must be checked BEFORE regular comments
+  // Only recognize ## as flow doc marker when inside flows: section
   {FLOW_DOC_MARKER} / ({WHITE_SPACE}* {EOL}) {
-        myFlowDocSectionIndent = Integer.MAX_VALUE;
-        yybegin(FLOW_DOC_STATE);
-        return FLOW_DOC_MARKER;
+        if (myInsideFlowsSection) {
+          myFlowDocSectionIndent = Integer.MAX_VALUE;
+          yybegin(FLOW_DOC_STATE);
+          return FLOW_DOC_MARKER;
+        } else {
+          // Outside flows section, treat as regular comment
+          return COMMENT;
+        }
       }
 
   {COMMENT} { return COMMENT; }
@@ -604,8 +619,8 @@ FLOW_DOC_SECTION = "in:" | "out:"
         return INDENT;
       }
 
-  // Closing marker ## (after any indent has been consumed)
-  {FLOW_DOC_MARKER} {
+  // Closing marker ## (must be followed only by whitespace and EOL)
+  {FLOW_DOC_MARKER} / ({WHITE_SPACE}* {EOL}) {
         yybegin(BLOCK_STATE);
         return FLOW_DOC_MARKER;
       }
@@ -687,6 +702,11 @@ FLOW_DOC_SECTION = "in:" | "out:"
         yybegin(FLOW_DOC_PARAMS_LINE_START_STATE);
         return EOL;
       }
+
+  // Handle any remaining text on the same line as section header (e.g., "out: artifact")
+  [^\n]+ {
+        return FLOW_DOC_TEXT;
+      }
 }
 
 // Start of a line in params section
@@ -696,8 +716,8 @@ FLOW_DOC_SECTION = "in:" | "out:"
         return INDENT;
       }
 
-  // Closing marker ##
-  {FLOW_DOC_MARKER} {
+  // Closing marker ## (must be followed only by whitespace and EOL)
+  {FLOW_DOC_MARKER} / ({WHITE_SPACE}* {EOL}) {
         yybegin(BLOCK_STATE);
         return FLOW_DOC_MARKER;
       }

@@ -6,6 +6,7 @@ import brig.concord.psi.FlowDocumentation;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -104,7 +105,7 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
 
     @Override
     public String toString() {
-        var flowName = getFlowName();
+        var flowName = ReadAction.compute(this::getFlowName);
         return "FlowDocumentation" + (flowName != null ? " for " + flowName : "");
     }
 

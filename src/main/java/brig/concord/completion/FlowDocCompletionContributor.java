@@ -24,7 +24,7 @@ public class FlowDocCompletionContributor extends CompletionContributor {
             "string[]", "boolean[]", "int[]", "integer[]", "number[]", "object[]", "any[]"
     );
 
-    private static final List<String> KEYWORDS = List.of("mandatory", "optional");
+    private static final List<String> KEYWORDS = List.of("mandatory", "required", "optional");
 
     public FlowDocCompletionContributor() {
         // Type completion - after colon in flow doc parameter
@@ -129,7 +129,7 @@ public class FlowDocCompletionContributor extends CompletionContributor {
             for (var keyword : KEYWORDS) {
                 result.addElement(LookupElementBuilder.create(keyword)
                         .withTypeText("keyword")
-                        .withBoldness("mandatory".equals(keyword)));
+                        .withBoldness("mandatory".equals(keyword) || "required".equals(keyword)));
             }
         }
     }

@@ -1,0 +1,11 @@
+flows:
+  # --------------------------------------------------------------------------
+  ## Github Create Repository
+  ## ------------------------------------------------------------------------------
+  ##
+  ##  - name: githubTokenSecret
+  ##    description: Github Token Secret used to perform actions
+  ##
+  ##----
+  githubRepoCreate:
+    - task: "github"

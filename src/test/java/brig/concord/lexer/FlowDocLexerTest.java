@@ -353,4 +353,297 @@ public class FlowDocLexerTest {
                 .and()
                 .token("FLOW_DOC_PARAM_NAME", 1).hasText("outputParam");
     }
+
+    @Test
+    public void testCommentsUnderConfiguration() {
+        var yaml = """
+                # ---------------------------------------------------------------------
+                ## Github Create Repository
+                ## --------------------------------------------------------------------
+                ## Secrets:
+                ##
+                ##  - name: githubTokenSecret
+                configuration:
+                    arguments:
+                        key: value
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 0);
+    }
+
+    @Test
+    public void testCommentsUnderFlowName() {
+        var yaml = """
+                flows:
+                    # ---------------------------------------------------------------------
+                    ## Github Create Repository
+                    ## --------------------------------------------------------------------
+                    ## Secrets:
+                    ##
+                    ##  - name: githubTokenSecret
+                    default:
+                        - log: "ME"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 1);  // Only opening ##, no closing marker
+    }
+
+    @Test
+    public void testTripleHashInsideFlowDoc() {
+        // ### inside flow doc should be treated as # (comment prefix) + ## (content)
+        var yaml = """
+                flows:
+                  ##
+                  # Description
+                  ### This has triple hash
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasCount("FLOW_DOC_COMMENT_PREFIX", 2)  // # from "# Description" and # from "###..."
+                .hasToken("FLOW_DOC_CONTENT");
+    }
+
+    @Test
+    public void testFlowDocWithYamlLikeContent() {
+        // Content that looks like YAML should NOT be parsed as YAML
+        var yaml = """
+                flows:
+                  ##
+                  # in:
+                  #   - item1
+                  #   - item2
+                  #   key: value
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasCount("-", 1)  // Only the actual YAML sequence marker, not the ones in comments
+                .hasCount("scalar key", 3);  // flows, myFlow, log - NOT "key" from comment
+    }
+
+    @Test
+    public void testFlowDocMarkerWithTabs() {
+        // ## followed by tabs should still close flow doc
+        var yaml = "flows:\n  ##\n  # desc\n  ##\t\n  myFlow:\n    - log: test\n";
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2);
+    }
+
+    @Test
+    public void testFlowDocMarkerFollowedBySpacesAndContent() {
+        // ##   content should NOT be a closing marker
+        var yaml = """
+                flows:
+                  ##
+                  ##   This has spaces then content
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)  // open and close, middle line is content
+                .tokenHasText("FLOW_DOC_CONTENT", "#   This has spaces then content");
+    }
+
+    @Test
+    public void testEmptyFlowDoc() {
+        // Just ## ## with nothing in between
+        var yaml = """
+                flows:
+                  ##
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2);
+    }
+
+    @Test
+    public void testFlowDocAtEndOfFile() {
+        // Flow doc at EOF without closing marker
+        var yaml = """
+                flows:
+                  ##
+                  # description
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 1)  // Only opening, closes implicitly
+                .hasToken("scalar key");  // myFlow should still be parsed
+    }
+
+    @Test
+    public void testFlowDocAtEndOfFile2() {
+        // Flow doc at EOF without closing marker
+        var yaml = """
+                flows:
+                  ##
+                  # description
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 1);  // myFlow should still be parsed
+    }
+
+    @Test
+    public void testFlowDocOutsideFlowsSection() {
+        // ## outside flows section should be regular comment
+        var yaml = """
+                configuration:
+                  ##
+                  ## This is just a comment
+                  ##
+                  runtime: concord-v2
+                flows:
+                  default:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 0)  // No flow doc markers
+                .hasCount("comment", 3);  // All ## lines are comments
+    }
+
+    @Test
+    public void testFlowDocWithColonInDescription() {
+        // Colons in description should not break parsing
+        var yaml = """
+                flows:
+                  ##
+                  # Note: this has a colon
+                  # in:
+                  #   param: string, mandatory, Value with: colons: inside
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasToken("FLOW_DOC_PARAM_NAME")
+                .hasToken("FLOW_DOC_TEXT");  // description with colons
+    }
+
+    @Test
+    public void testConsecutiveFlowDocs() {
+        // Two flow docs back to back
+        var yaml = """
+                flows:
+                  ##
+                  # First doc
+                  ##
+                  ##
+                  # Second doc
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 4);  // 2 open + 2 close
+    }
+
+    @Test
+    public void testFlowDocWithOnlyMarkers() {
+        // Multiple ## markers in sequence
+        var yaml = """
+                flows:
+                  ##
+                  ##
+                  ##
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        // First ## opens, second ## closes, third ## opens, fourth ## closes
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 4);
+    }
+
+    @Test
+    public void testHashHashHashHash() {
+        // #### - should be # (prefix) + ### (content) when inside flow doc
+        var yaml = """
+                flows:
+                  ##
+                  ####
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2);
+    }
+
+    @Test
+    public void testFlowDocInsideQuotedString() {
+        // ## inside quoted string should NOT trigger flow doc
+        var yaml = """
+                flows:
+                  default:
+                    - log: "## This is not a marker ##"
+                    - set:
+                        msg: '##'
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 0)
+                .hasToken("scalar dstring")
+                .hasToken("scalar string");
+    }
+
+    @Test
+    public void testFlowDocWithDashDashContent() {
+        // ##---- should be treated as # + #---- content, not as closing marker
+        var yaml = """
+                flows:
+                  ##
+                  ##----
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)  // open and close
+                .hasToken("FLOW_DOC_CONTENT");  // the ##---- line becomes content
+    }
+
+    @Test
+    public void testTwoFlowsWithHashHashComments() {
+        // ## with content is just a comment, not a flow doc marker
+        // Both flow names should be parsed correctly
+        var yaml = """
+                flows:
+                  ## First flow description
+                  firstFlow:
+                    - log: "first"
+                  ## Second flow description
+                  secondFlow:
+                    - log: "second"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 0)  // No flow doc - ## has content after it
+                .hasCount("comment", 2)  // Both ## lines are regular comments
+                .token("scalar key", 1).hasText("firstFlow").and()
+                .token("scalar key", 3).hasText("secondFlow");
+    }
 }
