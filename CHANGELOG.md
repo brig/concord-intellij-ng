@@ -4,6 +4,8 @@
 
 ### Added
 
+- added quick fix feature for unknown flow documentation keywords, enabling users to automatically correct typos in mandatory and optional keywords
+([#50](https://github.com/brig/concord-intellij-ng/pull/50))  
 - added quick fix to replace invalid parameter types with valid suggestions in flow documentation
 ([#49](https://github.com/brig/concord-intellij-ng/pull/49))  
 - added quick fix for missing closing ## marker in flow documentation
