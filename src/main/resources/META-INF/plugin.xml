@@ -88,6 +88,9 @@
         <annotator language="Concord"
                    implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>
 
+        <statusBarWidgetFactory
+                id="ConcordStatusWidget"
+                implementation="brig.concord.ui.status.ConcordStatusWidgetFactory"/>
 
         <!-- inspections -->
         <localInspection language="Concord"
