@@ -1,6 +1,6 @@
 package brig.concord.navigation;
 
-import brig.concord.ConcordFileBasedIndexUtil;
+import brig.concord.ConcordFileType;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.StepElementMetaType;
 import brig.concord.psi.ConcordFile;
@@ -90,7 +90,7 @@ public final class FlowNamesIndex extends FileBasedIndexExtension<String, Intege
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return ConcordFileBasedIndexUtil.INPUT_FILTER;
+        return new DefaultFileTypeSpecificInputFilter(ConcordFileType.INSTANCE);
     }
 
     @Override
