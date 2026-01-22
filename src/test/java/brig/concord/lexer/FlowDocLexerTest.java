@@ -9,17 +9,17 @@ public class FlowDocLexerTest {
     @Test
     public void testFlowDocTokens() {
         var yaml = """
-            flows:
-              ##
-              # Process S3 files
-              # in:
-              #   s3Bucket: string, mandatory, S3 bucket name
-              # out:
-              #   processed: int, mandatory, Files processed count
-              ##
-              processS3:
-                - task: s3
-            """;
+                flows:
+                  ##
+                  # Process S3 files
+                  # in:
+                  #   s3Bucket: string, mandatory, S3 bucket name
+                  # out:
+                  #   processed: int, mandatory, Files processed count
+                  ##
+                  processS3:
+                    - task: s3
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 2)
@@ -29,23 +29,23 @@ public class FlowDocLexerTest {
     @Test
     public void testMultipleFlowDocs() {
         var yaml = """
-            flows:
-              ##
-              # First flow
-              # in:
-              #   param1: string, mandatory
-              ##
-              flow1:
-                - log: "1"
-
-              ##
-              # Second flow
-              # in:
-              #   param2: int, optional
-              ##
-              flow2:
-                - log: "2"
-            """;
+                flows:
+                  ##
+                  # First flow
+                  # in:
+                  #   param1: string, mandatory
+                  ##
+                  flow1:
+                    - log: "1"
+                
+                  ##
+                  # Second flow
+                  # in:
+                  #   param2: int, optional
+                  ##
+                  flow2:
+                    - log: "2"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 4);
@@ -54,16 +54,16 @@ public class FlowDocLexerTest {
     @Test
     public void testCustomTagsInFlowDoc() {
         var yaml = """
-            flows:
-              ##
-              # Process S3 files
-              # in:
-              #   s3Bucket: string, mandatory, S3 bucket name
-              # tags: not in param, just user tag
-              ##
-              processS3:
-                - task: s3
-            """;
+                flows:
+                  ##
+                  # Process S3 files
+                  # in:
+                  #   s3Bucket: string, mandatory, S3 bucket name
+                  # tags: not in param, just user tag
+                  ##
+                  processS3:
+                    - task: s3
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 2)
@@ -74,21 +74,21 @@ public class FlowDocLexerTest {
     @Test
     public void testFlowDocWithEmptyLines() {
         var yaml = """
-            flows:
-              ##
-              # Process S3 files
-              #
-              # in:
-              #   s3Bucket: string, mandatory, S3 bucket name
-              #
-              # out:
-              #   processed: int, mandatory, Files processed count
-              #
-              # tags: 1, 2, 3
-              ##
-              processS3:
-                - task: s3
-            """;
+                flows:
+                  ##
+                  # Process S3 files
+                  #
+                  # in:
+                  #   s3Bucket: string, mandatory, S3 bucket name
+                  #
+                  # out:
+                  #   processed: int, mandatory, Files processed count
+                  #
+                  # tags: 1, 2, 3
+                  ##
+                  processS3:
+                    - task: s3
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 2);
@@ -97,13 +97,13 @@ public class FlowDocLexerTest {
     @Test
     public void testCommentPrefixIsSeparateToken() {
         var yaml = """
-            flows:
-              ##
-              # Description
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  # Description
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_COMMENT_PREFIX", 1)
@@ -115,13 +115,13 @@ public class FlowDocLexerTest {
     @Test
     public void testHashWithoutSpaceInDescription() {
         var yaml = """
-            flows:
-              ##
-              #NoSpace
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  #NoSpace
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 2)
@@ -132,15 +132,15 @@ public class FlowDocLexerTest {
     @Test
     public void testHashWithoutSpaceInParams() {
         var yaml = """
-            flows:
-              ##
-              # in:
-              #   param1: string, mandatory
-              #NoSpaceTag
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  # in:
+                  #   param1: string, mandatory
+                  #NoSpaceTag
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 2)
@@ -153,15 +153,15 @@ public class FlowDocLexerTest {
     @Test
     public void testMandatoryAndOptionalTokens() {
         var yaml = """
-            flows:
-              ##
-              # in:
-              #   param1: string, mandatory, Required param
-              #   param2: int, optional, Optional param
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  # in:
+                  #   param1: string, mandatory, Required param
+                  #   param2: int, optional, Optional param
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MANDATORY", 1)
@@ -174,15 +174,15 @@ public class FlowDocLexerTest {
     @Test
     public void testRequiredAsAliasForMandatory() {
         var yaml = """
-            flows:
-              ##
-              # in:
-              #   param1: string, required, This is required
-              #   param2: string, mandatory, This is mandatory
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  # in:
+                  #   param1: string, required, This is required
+                  #   param2: string, mandatory, This is mandatory
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MANDATORY", 2)
@@ -194,16 +194,16 @@ public class FlowDocLexerTest {
     @Test
     public void testEmptyCommentLine() {
         var yaml = """
-            flows:
-              ##
-              # Description
-              #
-              # in:
-              #   param1: string, mandatory
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  # Description
+                  #
+                  # in:
+                  #   param1: string, mandatory
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_COMMENT_PREFIX", 4)
@@ -213,14 +213,14 @@ public class FlowDocLexerTest {
     @Test
     public void testColonAndCommaTokens() {
         var yaml = """
-            flows:
-              ##
-              # in:
-              #   param1: string, mandatory, Description
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  # in:
+                  #   param1: string, mandatory, Description
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_COLON", 1)
@@ -236,17 +236,17 @@ public class FlowDocLexerTest {
     public void testArbitraryIndentation() {
         // Section headers can have any indentation, parameters must have greater indent
         var yaml = """
-            flows:
-              ##
-              #     in:
-              #       param1: string, mandatory
-              #       param2: int, optional
-              #     out:
-              #       result: boolean, mandatory
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  #     in:
+                  #       param1: string, mandatory
+                  #       param2: int, optional
+                  #     out:
+                  #       result: boolean, mandatory
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 2)
@@ -263,15 +263,15 @@ public class FlowDocLexerTest {
     public void testUserTagWithSameIndentAsSection() {
         // User tag with same indent as section should NOT be treated as parameter
         var yaml = """
-            flows:
-              ##
-              #   in:
-              #     param1: string, mandatory
-              #   tags: internal
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  #   in:
+                  #     param1: string, mandatory
+                  #   tags: internal
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_PARAM_NAME", 1)
@@ -284,15 +284,15 @@ public class FlowDocLexerTest {
     public void testUserTagWithSmallerIndentThanSection() {
         // User tag with smaller indent than section should NOT be treated as parameter
         var yaml = """
-            flows:
-              ##
-              #     in:
-              #       param1: string, mandatory
-              # tags: value
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  #     in:
+                  #       param1: string, mandatory
+                  # tags: value
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_PARAM_NAME", 1)
@@ -306,16 +306,16 @@ public class FlowDocLexerTest {
         // out: with greater indent than in: is nested, NOT a new section
         // All nested content becomes parameters of the parent section
         var yaml = """
-            flows:
-              ##
-              # in:
-              #   inputParam: string, mandatory
-              #     out:
-              #       outputParam: int, mandatory
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  # in:
+                  #   inputParam: string, mandatory
+                  #     out:
+                  #       outputParam: int, mandatory
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         // Only 1 section header (in:), out: is nested so treated as param name
         // outputParam also becomes a param in the in: section
@@ -335,16 +335,16 @@ public class FlowDocLexerTest {
     public void testSameIndentSectionsRecognized() {
         // in: and out: with same indent are both sections
         var yaml = """
-            flows:
-              ##
-              #   in:
-              #     inputParam: string, mandatory
-              #   out:
-              #     outputParam: int, mandatory
-              ##
-              myFlow:
-                - log: "test"
-            """;
+                flows:
+                  ##
+                  #   in:
+                  #     inputParam: string, mandatory
+                  #   out:
+                  #     outputParam: int, mandatory
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_SECTION_HEADER", 2)
@@ -662,5 +662,203 @@ public class FlowDocLexerTest {
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 2)
                 .tokenHasText("FLOW_DOC_TYPE", "invalid param with space");
+    }
+
+    @Test
+    public void testFlowDocMarkerInsideFlowSteps() {
+        var yaml = """
+                flows:
+                  myFlow:
+                      ##
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 0);
+    }
+
+    @Test
+    public void testFlowDocMarkerOnlyAtFlowDefLevel() {
+        // ## at flow definition level should be FLOW_DOC_MARKER
+        // ## inside flow steps should be regular comment
+        var yaml = """
+                flows:
+                  ##
+                  # First flow doc
+                  ##
+                  firstFlow:
+                    ##
+                    - log: "inside flow - comment"
+                  ##
+                  # Second flow doc
+                  ##
+                  secondFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 4)
+                .hasCount("comment", 1);
+    }
+
+    @Test
+    public void testFlowDocMarkerDeeplyNested() {
+        // ## deeply nested should always be comment, not flow doc marker
+        var yaml = """
+                flows:
+                  myFlow:
+                    - if: true
+                      then:
+                        ##
+                        - log: "nested"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 0)
+                .hasCount("comment", 1);
+    }
+
+    @Test
+    public void testFlowDocFlowsQuoted() {
+        var yaml = """
+                "flows":
+                    ##
+                    # Flow description
+                    ##
+                    myFlow:
+                        - log: "nested"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .tokenHasText("FLOW_DOC_CONTENT", "Flow description");
+    }
+
+    @Test
+    public void testFlowDocFlowsSpace() {
+        var yaml = """
+                flows :
+                    ##
+                    # Flow description
+                    ##
+                    myFlow:
+                        - log: "nested"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .tokenHasText("FLOW_DOC_CONTENT", "Flow description");
+    }
+
+    @Test
+    public void testFlowDocFlowsInitialIndent() {
+        var yaml = "    flows:\n" +
+                   "        ##\n" +
+                   "        # Flow description\n" +
+                   "        ##\n" +
+                   "        myFlow:\n" +
+                   "            - log: \"nested\"\n";
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .tokenHasText("FLOW_DOC_CONTENT", "Flow description");
+    }
+
+    @Test
+    public void testFlowDocFlowsSingleQuoted() {
+        var yaml = """
+                'flows':
+                    ##
+                    # Flow description
+                    ##
+                    myFlow:
+                        - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .tokenHasText("FLOW_DOC_CONTENT", "Flow description");
+    }
+
+    @Test
+    public void testFlowDocExitOnNextTopLevelKey() {
+        // ## after configuration: should NOT be flow doc marker
+        var yaml = """
+                flows:
+                  ##
+                  # Flow doc
+                  ##
+                  myFlow:
+                    - log: "test"
+                configuration:
+                  ##
+                  runtime: concord-v2
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .hasCount("comment", 1);
+    }
+
+    @Test
+    public void testFlowDocInProfiles() {
+        // flows inside profiles should NOT support flow doc
+        var yaml = """
+                profiles:
+                  myProfile:
+                    flows:
+                      ##
+                      # Profile flow doc
+                      ##
+                      profileFlow:
+                        - log: "in profile"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 0);
+    }
+
+    @Test
+    public void testFlowDocMultipleFlowsSections() {
+        // Only top-level `flows` should work
+        var yaml = """
+                flows:
+                  ##
+                  # Top level flow
+                  ##
+                  topFlow:
+                    - log: "top"
+                profiles:
+                  dev:
+                    flows:
+                      ##
+                      # Profile flow
+                      ##
+                      devFlow:
+                        - log: "dev"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2);
+    }
+
+    @Test
+    public void testNonFlowDocInConfigurationSection() {
+        var yaml = """
+                flows:
+                  myFlow:
+                    - log: "test"
+                configuration:
+                  runtime: concord-v2
+                  flows:
+                    ##
+                    # Not a flow DOC
+                    ##
+                    myFlow:
+                      - log: "BOOM"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 0);
     }
 }

@@ -56,6 +56,16 @@ import com.intellij.lexer.FlexLexer;
   /** Flag indicating we are inside the flows: section where flow documentation is valid */
   private boolean myInsideFlowsSection = false;
 
+  /** Indent level of the 'flows' key itself. -1 means not inside flows section. */
+  private int myFlowsIndent = -1;
+
+  /** Indent of the root keys in the document. -1 means not yet determined. */
+  private int myRootIndent = -1;
+
+  /** Indent level of flow definitions (e.g., flowName:). -1 means not yet determined.
+   *  Flow doc markers are only recognized at this indent level. */
+  private int myFlowDefIndent = -1;
+
   //-------------------------------------------------------------------------------------------------------------------
 
   public boolean isCleanState() {
@@ -80,6 +90,25 @@ import com.intellij.lexer.FlexLexer;
     myPrevElementIndent = 0;
     myPossiblePlainTextScalarContinue = false;
     myInsideFlowsSection = false;
+    myFlowsIndent = -1;
+    myRootIndent = -1;
+    myFlowDefIndent = -1;
+    myBraceCount = 0;
+    myBlockScalarType = null;
+    myFlowDocSectionIndent = Integer.MAX_VALUE;
+    myReturnState = YYINITIAL;
+  }
+
+  /** Strip quotes from a key text if present */
+  private String stripQuotes(String text) {
+    if (text.length() >= 2) {
+      char first = text.charAt(0);
+      char last = text.charAt(text.length() - 1);
+      if ((first == '"' && last == '"') || (first == '\'' && last == '\'')) {
+        return text.substring(1, text.length() - 1);
+      }
+    }
+    return text;
   }
 
   //-------------------------------------------------------------------------------------------------------------------
@@ -147,11 +176,32 @@ import com.intellij.lexer.FlexLexer;
    * @return scalar key token
    */
   private IElementType processScalarKey(int returnState) {
-    // Track flows section for flow documentation recognition
-    if (yycolumn == 0) {
-      String keyText = yytext().toString();
-      myInsideFlowsSection = "flows".equals(keyText);
+    // 1. Determine root indent based on the first key found at top level (braceCount == 0)
+    if (myRootIndent == -1 && myBraceCount == 0) {
+      myRootIndent = yycolumn;
     }
+
+    // Track flows section for flow documentation recognition
+    String keyText = stripQuotes(yytext().toString());
+
+    // Only recognize "flows" if it is at the root level
+    if ("flows".equals(keyText) && myBraceCount == 0 && yycolumn == myRootIndent) {
+      // Entering flows section
+      myInsideFlowsSection = true;
+      myFlowsIndent = yycolumn;
+      myFlowDefIndent = -1;
+    } else if (myInsideFlowsSection) {
+      if (yycolumn <= myFlowsIndent) {
+        // Key at same or lower level as 'flows' - exiting flows section
+        myInsideFlowsSection = false;
+        myFlowsIndent = -1;
+        myFlowDefIndent = -1;
+      } else if (myFlowDefIndent == -1) {
+        // First scalar key inside flows: section - this is the flow definition level
+        myFlowDefIndent = yycolumn;
+      }
+    }
+
     myPrevElementIndent = yycolumn;
     myReturnState = returnState;
     yybegin(KEY_MODE);
@@ -329,6 +379,7 @@ FLOW_DOC_SECTION = "in:" | "out:"
       }
 
   "..." {
+        prepareForNewDocument();
         return DOCUMENT_END;
       }
 
@@ -375,16 +426,22 @@ FLOW_DOC_SECTION = "in:" | "out:"
 // Common block and flow rules
 <BLOCK_STATE, FLOW_STATE> {
   // Flow documentation must be checked BEFORE regular comments
-  // Only recognize ## as flow doc marker when inside flows: section
+  // Only recognize ## as flow doc marker when at flow definition level inside flows: section
   {FLOW_DOC_MARKER} / ({WHITE_SPACE}* {EOL}) {
         if (myInsideFlowsSection) {
-          myFlowDocSectionIndent = Integer.MAX_VALUE;
-          yybegin(FLOW_DOC_STATE);
-          return FLOW_DOC_MARKER;
-        } else {
-          // Outside flows section, treat as regular comment
-          return COMMENT;
+          // Determine flow def indent from first ## if not yet set
+          if (myFlowDefIndent == -1) {
+            myFlowDefIndent = yycolumn;
+          }
+          // Only recognize as flow doc marker at flow definition level
+          if (yycolumn == myFlowDefIndent) {
+            myFlowDocSectionIndent = Integer.MAX_VALUE;
+            yybegin(FLOW_DOC_STATE);
+            return FLOW_DOC_MARKER;
+          }
         }
+        // Outside flows section or wrong indent - treat as regular comment
+        return COMMENT;
       }
 
   {COMMENT} { return COMMENT; }
