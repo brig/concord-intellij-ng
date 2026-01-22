@@ -105,7 +105,7 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
         }
     }
 
-    private List<String> getSuggestions(String invalidType) {
+    private Collection<String> getSuggestions(String invalidType) {
         var suggestions = new ArrayList<String>();
         // 1. Common abbreviations
         if (invalidType.equalsIgnoreCase("str")) {
@@ -139,7 +139,7 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
 
         if (!suggestions.isEmpty()) {
             // deduplicate preserving order
-            return new ArrayList<>(new LinkedHashSet<>(suggestions));
+            return new LinkedHashSet<>(suggestions);
         }
 
         // Fallback: Return commonly used types
