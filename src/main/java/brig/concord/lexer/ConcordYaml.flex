@@ -254,9 +254,13 @@ FLOW_DOC_MARKER = "##"
 
 // Parameter names can contain spaces (e.g., "k 1" from quoted YAML keys)
 FLOW_DOC_PARAM_NAME = [a-zA-Z_][a-zA-Z0-9_. ]*[a-zA-Z0-9_]|[a-zA-Z_]
-// Accept any identifier as type - validation is done by inspection
-FLOW_DOC_TYPE_SIMPLE = [a-zA-Z_][a-zA-Z0-9_]*
-FLOW_DOC_TYPE_ARRAY = {FLOW_DOC_TYPE_SIMPLE} "[]"
+// Type can contain spaces - validation is done by inspection
+// Characters allowed in type (excluding brackets, comma, whitespace, newline)
+FLOW_DOC_TYPE_BASE_CHAR = [^ \t\n,\[\]]
+// Base type: starts and ends with non-whitespace, may contain spaces in middle
+FLOW_DOC_TYPE_BASE = {FLOW_DOC_TYPE_BASE_CHAR} ( ({FLOW_DOC_TYPE_BASE_CHAR}|[ \t])* {FLOW_DOC_TYPE_BASE_CHAR} )?
+// Array type is base type followed by []
+FLOW_DOC_TYPE_ARRAY_PATTERN = {FLOW_DOC_TYPE_BASE} "[]"
 FLOW_DOC_KEYWORD_MANDATORY = "mandatory" | "required"
 FLOW_DOC_KEYWORD_OPTIONAL = "optional"
 // Any identifier at keyword position (for catching typos)
@@ -899,13 +903,13 @@ FLOW_DOC_SECTION = "in:" | "out:"
 // Expect type after colon
 <FLOW_DOC_PARAM_TYPE_STATE> {
   // Array types (must come before simple types to match longer pattern first)
-  {FLOW_DOC_TYPE_ARRAY} {
+  {FLOW_DOC_TYPE_ARRAY_PATTERN} {
         yybegin(FLOW_DOC_PARAM_AFTER_TYPE_STATE);
         return FLOW_DOC_ARRAY_TYPE;
       }
 
-  // Simple types
-  {FLOW_DOC_TYPE_SIMPLE} {
+  // Simple types - anything before comma, validation is done by inspection
+  {FLOW_DOC_TYPE_BASE} {
         yybegin(FLOW_DOC_PARAM_AFTER_TYPE_STATE);
         return FLOW_DOC_TYPE;
       }

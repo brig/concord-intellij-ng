@@ -646,4 +646,21 @@ public class FlowDocLexerTest {
                 .token("scalar key", 1).hasText("firstFlow").and()
                 .token("scalar key", 3).hasText("secondFlow");
     }
+
+    @Test
+    public void testFlowDocParamTypeWithSpaces() {
+        var yaml = """
+                flows:
+                  ##
+                  # in:
+                  #   myParam: invalid param with space, required
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 2)
+                .tokenHasText("FLOW_DOC_TYPE", "invalid param with space");
+    }
 }

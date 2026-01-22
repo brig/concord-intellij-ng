@@ -359,7 +359,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
         if (assertNoPsiErrors) {
             ParsingTestUtil.assertNoPsiErrorElements(file);
         }
-        printAstTypeNamesTree(file);
+//        printAstTypeNamesTree(file);
     }
 
     private void doSanityChecks(PsiFile root) {

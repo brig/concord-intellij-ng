@@ -3,6 +3,8 @@ package brig.concord.yaml;
 // Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 
 import brig.concord.ConcordFileType;
+import brig.concord.psi.FlowDocParameter;
+import brig.concord.psi.FlowDocumentation;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
@@ -11,6 +13,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.psi.*;
@@ -101,5 +104,30 @@ public class YAMLElementGenerator {
         final YAMLFile file = createDummyYamlWithText("foo: " + text);
         YAMLKeyValue kv = PsiTreeUtil.collectElementsOfType(file, YAMLKeyValue.class).iterator().next();
         return (YAMLScalar) kv.getValue();
+    }
+
+    public @NotNull FlowDocParameter createFlowDocParameter(@NotNull String name, @NotNull String type) {
+        var dummyYaml = """
+            flows:
+              ##
+              # in:
+              #   %s: %s
+              ##
+              dummy:
+                - log: "test"
+            """.formatted(name, type);
+        var dummyFile = createDummyYamlWithText(dummyYaml);
+
+        var dummyDoc = PsiTreeUtil.findChildOfType(dummyFile, FlowDocumentation.class);
+        if (dummyDoc == null) {
+            throw new IncorrectOperationException("Failed to create dummy flow documentation");
+        }
+
+        var dummyParams = dummyDoc.getInputParameters();
+        if (dummyParams.isEmpty()) {
+            throw new IncorrectOperationException("Failed to create dummy parameter");
+        }
+
+        return dummyParams.getFirst();
     }
 }

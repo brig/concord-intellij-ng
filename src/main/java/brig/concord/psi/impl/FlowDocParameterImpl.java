@@ -3,14 +3,12 @@ package brig.concord.psi.impl;
 import brig.concord.ConcordBundle;
 import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.psi.FlowDocParameter;
-import brig.concord.psi.FlowDocumentation;
 import brig.concord.yaml.YAMLElementGenerator;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.resolve.reference.ReferenceProvidersRegistry;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,31 +39,8 @@ public class FlowDocParameterImpl extends ASTWrapperPsiElement implements FlowDo
             throw new IncorrectOperationException("Cannot find parameter name node");
         }
 
-        // Create a dummy file with flow documentation containing the new parameter name
         var generator = YAMLElementGenerator.getInstance(getProject());
-        var dummyYaml = """
-            flows:
-              ##
-              # in:
-              #   %s: string
-              ##
-              dummy:
-                - log: "test"
-            """.formatted(name);
-        var dummyFile = generator.createDummyYamlWithText(dummyYaml);
-
-        // Find the FlowDocParameter in the dummy file and get its name node
-        var dummyDoc = PsiTreeUtil.findChildOfType(dummyFile, FlowDocumentation.class);
-        if (dummyDoc == null) {
-            throw new IncorrectOperationException("Failed to create dummy flow documentation");
-        }
-
-        var dummyParams = dummyDoc.getInputParameters();
-        if (dummyParams.isEmpty()) {
-            throw new IncorrectOperationException("Failed to create dummy parameter");
-        }
-
-        var dummyParam = dummyParams.getFirst();
+        var dummyParam = generator.createFlowDocParameter(name, "string");
         var dummyNameNode = dummyParam.getNode().findChildByType(FLOW_DOC_PARAM_NAME);
         if (dummyNameNode == null) {
             throw new IncorrectOperationException("Failed to get dummy parameter name node");
@@ -73,6 +48,34 @@ public class FlowDocParameterImpl extends ASTWrapperPsiElement implements FlowDo
 
         // Replace the old name node with the new one
         nameNode.getPsi().replace(dummyNameNode.getPsi());
+        return this;
+    }
+
+    @Override
+    public PsiElement setType(@NotNull String type) throws IncorrectOperationException {
+        var node = getNode();
+        var typeNode = node.findChildByType(FLOW_DOC_TYPE);
+        if (typeNode == null) {
+            typeNode = node.findChildByType(FLOW_DOC_ARRAY_TYPE);
+        }
+
+        if (typeNode == null) {
+            throw new IncorrectOperationException("Cannot find parameter type node");
+        }
+
+        var generator = YAMLElementGenerator.getInstance(getProject());
+        var dummyParam = generator.createFlowDocParameter("dummy", type);
+
+        var dummyTypeNode = dummyParam.getNode().findChildByType(FLOW_DOC_TYPE);
+        if (dummyTypeNode == null) {
+            dummyTypeNode = dummyParam.getNode().findChildByType(FLOW_DOC_ARRAY_TYPE);
+        }
+
+        if (dummyTypeNode == null) {
+            throw new IncorrectOperationException("Failed to create dummy parameter type node");
+        }
+
+        node.replaceChild(typeNode, dummyTypeNode);
         return this;
     }
 

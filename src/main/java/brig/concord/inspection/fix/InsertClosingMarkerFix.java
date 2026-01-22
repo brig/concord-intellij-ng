@@ -1,5 +1,6 @@
 package brig.concord.inspection.fix;
 
+import brig.concord.ConcordBundle;
 import brig.concord.yaml.YAMLUtil;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInspection.util.IntentionFamilyName;
@@ -24,12 +25,12 @@ public class InsertClosingMarkerFix implements IntentionAction {
 
     @Override
     public @IntentionName @NotNull String getText() {
-        return "Insert closing ## marker";
+        return ConcordBundle.message("inspection.flow.doc.fix.insert.closing.marker");
     }
 
     @Override
     public @IntentionFamilyName @NotNull String getFamilyName() {
-        return "Insert closing ## marker";
+        return ConcordBundle.message("inspection.flow.doc.fix.insert.closing.marker");
     }
 
     @Override
