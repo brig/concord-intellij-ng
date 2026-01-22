@@ -1,5 +1,6 @@
 package brig.concord.inspection.fix;
 
+import brig.concord.ConcordBundle;
 import brig.concord.psi.ProcessDefinitionProvider;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo;
@@ -23,12 +24,12 @@ public class ShowAllDuplicateFlowsFix implements LocalQuickFix {
 
     @Override
     public @NotNull String getFamilyName() {
-        return "Show all duplicates";
+        return ConcordBundle.message("inspection.flow.doc.fix.show.duplicates");
     }
 
     @Override
     public @NotNull String getName() {
-        return "Show all duplicates";
+        return ConcordBundle.message("inspection.flow.doc.fix.show.duplicates");
     }
 
     @Override

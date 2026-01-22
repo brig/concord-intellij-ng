@@ -1,8 +1,10 @@
 package brig.concord.psi;
 
 import brig.concord.yaml.psi.YAMLPsiElement;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
+import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,6 +17,14 @@ public interface FlowDocParameter extends YAMLPsiElement, PsiNamedElement {
     @Override
     @NotNull
     String getName();
+
+    /**
+     * Set parameter type
+     * @param type new type (e.g., "string")
+     * @return the updated element
+     * @throws IncorrectOperationException if modification fails
+     */
+    PsiElement setType(@NotNull String type) throws IncorrectOperationException;
 
     /**
      * Get parameter type

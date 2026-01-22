@@ -1,11 +1,13 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
+import brig.concord.inspection.fix.ReplaceFlowDocTypeQuickFix;
 import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.psi.ConcordFile;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
 import com.intellij.codeInspection.LocalInspectionTool;
+import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElement;
@@ -78,10 +80,16 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
             // Check for unknown types
             var type = param.getType();
             if (!type.isBlank() && !VALID_TYPES.contains(type)) {
+                List<LocalQuickFix> fixes = new ArrayList<>();
+                for (String suggestion : getSuggestions(type)) {
+                    fixes.add(new ReplaceFlowDocTypeQuickFix(suggestion));
+                }
+
                 holder.registerProblem(
                         param,
                         ConcordBundle.message("inspection.flow.doc.unknown.type", type),
-                        ProblemHighlightType.WARNING
+                        ProblemHighlightType.WARNING,
+                        fixes.toArray(LocalQuickFix.EMPTY_ARRAY)
                 );
             }
 
@@ -95,5 +103,38 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
                 );
             }
         }
+    }
+
+    private List<String> getSuggestions(String invalidType) {
+        List<String> suggestions = new ArrayList<>();
+        // 1. Common abbreviations
+        if (invalidType.equalsIgnoreCase("str")) suggestions.add("string");
+        if (invalidType.equalsIgnoreCase("bool")) suggestions.add("boolean");
+        if (invalidType.equalsIgnoreCase("obj")) suggestions.add("object");
+        if (invalidType.equalsIgnoreCase("num")) suggestions.add("number");
+
+        // 2. Case insensitive match
+        for (String valid : VALID_TYPES) {
+            if (valid.equalsIgnoreCase(invalidType)) {
+                suggestions.add(valid);
+            }
+        }
+
+        // 3. If "array" or "list" in name, suggest array types
+        if (invalidType.toLowerCase().contains("array") || invalidType.toLowerCase().contains("list") || invalidType.endsWith("[]")) {
+            suggestions.add("string[]");
+            suggestions.add("boolean[]");
+            suggestions.add("integer[]");
+            suggestions.add("object[]");
+            suggestions.add("any[]");
+        }
+
+        if (!suggestions.isEmpty()) {
+            // deduplicate preserving order
+            return new ArrayList<>(new LinkedHashSet<>(suggestions));
+        }
+
+        // Fallback: Return commonly used types
+        return List.of("string", "boolean", "integer", "object", "any");
     }
 }
