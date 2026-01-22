@@ -4,8 +4,6 @@ import brig.concord.ConcordFileType;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.StepElementMetaType;
 import brig.concord.psi.ConcordFile;
-import com.intellij.ide.highlighter.XmlFileType;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
