@@ -1,3 +1,4 @@
+- инспекция для двойного блока flow doc
 - docs
 - fixed triggers version = 2
 - resolve imports

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
@@ -40,6 +41,13 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         return myFixture.addFileToProject(path, content);
     }
 
+    protected YAMLFile configureFromText(@NotNull String fileName, @NotNull String content) {
+        var file = myFixture.configureByText(fileName, content);
+        var yaml = Assertions.assertInstanceOf(YAMLFile.class, file);
+        yamlPath = new ConcordYamlPath(yaml);
+        return yaml;
+    }
+
     protected YAMLFile configureFromText(@NotNull String content) {
         var file = myFixture.configureByText(ConcordFileType.INSTANCE, content);
         var yaml = Assertions.assertInstanceOf(YAMLFile.class, file);
@@ -49,6 +57,10 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
 
     protected PsiFile configureFromResource(@NotNull String resourcePath) {
         return configureFromText(loadResource(resourcePath));
+    }
+
+    protected PsiFile configureFromResource(@NotNull String resourcePath, boolean trim) {
+        return configureFromText(loadResource(resourcePath, trim));
     }
 
     protected void configureFromExistingFile(@NotNull PsiFile file) {
@@ -113,12 +125,20 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         return new ValueTarget(path);
     }
 
-    private static @NotNull String loadResource(@NotNull String path) {
+    public static @NotNull String loadResource(@NotNull String path) {
+        return loadResource(path, false);
+    }
+
+    public static @NotNull String loadResource(@NotNull String path, boolean trim) {
         try (var stream = ConcordYamlTestBase.class.getResourceAsStream(path)) {
             if (stream == null) {
                 throw new IllegalArgumentException("Resource not found: " + path);
             }
-            return new String(stream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            var result = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            if (trim) {
+                return result.trim();
+            }
+            return result;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
