@@ -224,7 +224,7 @@ public final class ConcordScopeService {
         Collection<VirtualFile> files = ReadAction.compute(() -> {
             // First pass: collect all file names that match Concord patterns
             Set<String> concordFileNames = CollectionFactory.createSmallMemoryFootprintSet();
-            GlobalSearchScope projectScope = GlobalSearchScope.projectScope(project);
+            var projectScope = GlobalSearchScope.projectScope(project);
 
             FilenameIndex.processAllFileNames(name -> {
                 if (isConcordFileName(name)) {
@@ -240,11 +240,7 @@ public final class ConcordScopeService {
             // Second pass: get actual files
             List<VirtualFile> result = new ArrayList<>();
             FilenameIndex.processFilesByNames(concordFileNames, false, projectScope, null, file -> {
-                // Skip files in target directories
-                String path = file.getPath();
-                if (!path.contains("/target/")) {
-                    result.add(file);
-                }
+                result.add(file);
                 return true;
             });
 
@@ -263,11 +259,10 @@ public final class ConcordScopeService {
      * and also nested files like myflow.concord.yml
      */
     private static boolean isConcordFileName(@NotNull String name) {
-        // Fast path: check extension first to skip most files quickly
         if (!name.endsWith(".yml") && !name.endsWith(".yaml")) {
             return false;
         }
-        for (String pattern : ConcordFile.PROJECT_ROOT_FILE_NAMES) {
+        for (var pattern : ConcordFile.PROJECT_ROOT_FILE_NAMES) {
             if (name.endsWith(pattern)) {
                 return true;
             }
@@ -303,7 +298,7 @@ public final class ConcordScopeService {
             // Step 3: Filter out non-roots (files that are contained in another root's scope)
             List<ConcordRoot> actualRoots = new ArrayList<>();
             for (var candidate : allRoots) {
-                boolean isContainedInOther = false;
+                var isContainedInOther = false;
 
                 for (var other : allRoots) {
                     if (candidate.equals(other)) {
