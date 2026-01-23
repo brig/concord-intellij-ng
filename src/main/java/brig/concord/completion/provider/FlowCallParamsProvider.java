@@ -156,7 +156,7 @@ public class FlowCallParamsProvider {
         };
     }
 
-    private static @Nullable FlowDocumentation findFlowDocumentation(PsiElement element) {
+    public static @Nullable FlowDocumentation findFlowDocumentation(PsiElement element) {
         var callKv = findCallKv(element);
         if (callKv == null) {
             return null;

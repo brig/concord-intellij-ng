@@ -3,15 +3,18 @@ package brig.concord.psi.impl;
 import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
+import brig.concord.yaml.YAMLUtil;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static brig.concord.lexer.FlowDocTokenTypes.FLOW_DOC_CONTENT;
@@ -109,20 +112,108 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
         return "FlowDocumentation" + (flowName != null ? " for " + flowName : "");
     }
 
+    @Override
+    public void addInputParameter(@NotNull String name, @NotNull String type) {
+        var document = getContainingFile().getViewProvider().getDocument();
+        if (document == null) {
+            return;
+        }
+
+        var indent = detectIndent();
+
+        var inSection = findChildByType(FlowDocElementTypes.FLOW_DOC_IN_SECTION);
+        if (inSection != null) {
+            // Add parameter to existing in: section
+            int insertOffset;
+            String text;
+            var params = getInputParameters();
+            if (params.isEmpty()) {
+                // Insert after "in:" on the same line - find end of "in:" text
+                int sectionStart = inSection.getTextRange().getStartOffset();
+                int lineNum = document.getLineNumber(sectionStart);
+                insertOffset = document.getLineEndOffset(lineNum);
+                // Compute prefix based on in: section position + 2 spaces for param indent
+                String sectionPrefix = getSectionLinePrefix(inSection, document);
+                text = "\n" + sectionPrefix + "  " + name + ": " + type;
+            } else {
+                var lastParam = params.getLast();
+                insertOffset = lastParam.getTextRange().getEndOffset();
+                // Copy the prefix from the last parameter's line (indent + "# " + spaces)
+                String paramPrefix = getParamLinePrefix(lastParam, document);
+                text = "\n" + paramPrefix + name + ": " + type;
+            }
+            document.insertString(insertOffset, text);
+        } else {
+            // Create new in: section - find where to insert
+            var outSection = findChildByType(FlowDocElementTypes.FLOW_DOC_OUT_SECTION);
+
+            int insertOffset;
+            if (outSection != null) {
+                // Insert before out: section - find start of line with "# out:"
+                insertOffset = findLineStartBefore(outSection);
+            } else {
+                // Insert before closing ## - find start of line with "##"
+                insertOffset = findClosingMarkerLineStart();
+            }
+
+            var text = indent + "# in:\n" + indent + "#   " + name + ": " + type + "\n";
+            document.insertString(insertOffset, text);
+        }
+
+        PsiDocumentManager.getInstance(getProject()).commitDocument(document);
+    }
+
+    private String detectIndent() {
+        var indent = YAMLUtil.getIndentInThisLine(this);
+        return StringUtil.repeat(" ", indent);
+    }
+
+    private String getParamLinePrefix(FlowDocParameter param, com.intellij.openapi.editor.Document document) {
+        // Get the prefix of the parameter's line (from line start to parameter name start)
+        // This includes indentation, "#", and any spaces before the parameter name
+        int paramStart = param.getTextRange().getStartOffset();
+        int lineNum = document.getLineNumber(paramStart);
+        int lineStart = document.getLineStartOffset(lineNum);
+        return document.getText().substring(lineStart, paramStart);
+    }
+
+    private String getSectionLinePrefix(PsiElement section, com.intellij.openapi.editor.Document document) {
+        // Get the prefix of the section's line (from line start to section header start)
+        // For "  #     in:" this returns "  #     "
+        int sectionStart = section.getTextRange().getStartOffset();
+        int lineNum = document.getLineNumber(sectionStart);
+        int lineStart = document.getLineStartOffset(lineNum);
+        return document.getText().substring(lineStart, sectionStart);
+    }
+
+    private int findLineStartBefore(PsiElement element) {
+        // Find the start of line containing this element (including the # prefix)
+        var document = getContainingFile().getViewProvider().getDocument();
+        if (document == null) {
+            return element.getTextRange().getStartOffset();
+        }
+        var lineNum = document.getLineNumber(element.getTextRange().getStartOffset());
+        return document.getLineStartOffset(lineNum);
+    }
+
+    private int findClosingMarkerLineStart() {
+        // Find the start of line with closing ##
+        var document = getContainingFile().getViewProvider().getDocument();
+        if (document == null) {
+            return getTextRange().getEndOffset();
+        }
+        // Closing ## is at the end of this element
+        var endOffset = getTextRange().getEndOffset();
+        var lineNum = document.getLineNumber(endOffset - 1); // -1 to be inside ##
+        return document.getLineStartOffset(lineNum);
+    }
+
     @NotNull
     private static List<FlowDocParameter> getFlowDocParameters(@Nullable PsiElement inSection) {
         if (inSection == null) {
             return List.of();
         }
 
-        var params = new ArrayList<FlowDocParameter>();
-        var children = inSection.getChildren();
-        for (var child : children) {
-            if (child instanceof FlowDocParameter) {
-                params.add((FlowDocParameter) child);
-            }
-        }
-
-        return params;
+        return PsiTreeUtil.getChildrenOfTypeAsList(inSection, FlowDocParameter.class);
     }
 }
