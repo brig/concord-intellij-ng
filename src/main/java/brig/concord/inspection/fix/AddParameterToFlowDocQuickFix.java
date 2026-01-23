@@ -13,11 +13,14 @@ import org.jetbrains.annotations.NotNull;
 public class AddParameterToFlowDocQuickFix extends LocalQuickFixOnPsiElement {
 
     private final String paramName;
+    private final String paramType;
+    @SafeFieldForPreview
     private final SmartPsiElementPointer<FlowDocumentation> flowDocPointer;
 
-    public AddParameterToFlowDocQuickFix(@NotNull PsiElement element, @NotNull String paramName, @NotNull FlowDocumentation flowDoc) {
+    public AddParameterToFlowDocQuickFix(@NotNull PsiElement element, @NotNull String paramName, @NotNull String paramType, @NotNull FlowDocumentation flowDoc) {
         super(element);
         this.paramName = paramName;
+        this.paramType = paramType;
         this.flowDocPointer = SmartPointerManager.getInstance(flowDoc.getProject()).createSmartPsiElementPointer(flowDoc);
     }
 
@@ -34,8 +37,10 @@ public class AddParameterToFlowDocQuickFix extends LocalQuickFixOnPsiElement {
     @Override
     public void invoke(@NotNull Project project, @NotNull PsiFile file, @NotNull PsiElement startElement, @NotNull PsiElement endElement) {
         var flowDoc = flowDocPointer.getElement();
-        if (flowDoc == null) return;
+        if (flowDoc == null) {
+            return;
+        }
 
-        flowDoc.addInputParameter(paramName, "string");
+        flowDoc.addInputParameter(paramName, paramType);
     }
 }

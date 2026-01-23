@@ -22,6 +22,8 @@ import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static brig.concord.yaml.YAMLUtil.isNumberValue;
+
 public class UnknownKeysInspection extends YamlMetaTypeInspectionBase {
 
     @Override
@@ -79,11 +81,50 @@ public class UnknownKeysInspection extends YamlMetaTypeInspectionBase {
         private void handleCallInParams(@NotNull YAMLKeyValue keyValue) {
             var flowDoc = FlowCallParamsProvider.findFlowDocumentation(keyValue);
             if (flowDoc != null && keyValue.getKey() != null) {
-                var quickFix = new AddParameterToFlowDocQuickFix(keyValue.getKey(), keyValue.getKeyText(), flowDoc);
+                var paramType = inferTypeFromValue(keyValue.getValue());
+                var quickFix = new AddParameterToFlowDocQuickFix(keyValue.getKey(), keyValue.getKeyText(), paramType, flowDoc);
                 registerUnknownKeyProblem(keyValue, quickFix);
             } else {
                 registerUnknownKeyProblem(keyValue);
             }
+        }
+
+        private @NotNull String inferTypeFromValue(@Nullable brig.concord.yaml.psi.YAMLValue value) {
+            if (value == null) {
+                return "string";
+            }
+
+            if (value instanceof brig.concord.yaml.psi.YAMLMapping) {
+                return "object";
+            }
+
+            if (value instanceof brig.concord.yaml.psi.YAMLSequence) {
+                return "object[]";
+            }
+
+            if (value instanceof brig.concord.yaml.psi.YAMLScalar scalar) {
+                var text = scalar.getTextValue();
+                if (text.isEmpty()) {
+                    return "string";
+                }
+
+                // Check for expression
+                if (text.startsWith("${") && text.endsWith("}")) {
+                    return "any";
+                }
+
+                // Check for boolean
+                if ("true".equalsIgnoreCase(text) || "false".equalsIgnoreCase(text)) {
+                    return "boolean";
+                }
+
+                // Check for number
+                if (isNumberValue(text)) {
+                    return "int";
+                }
+            }
+
+            return "string";
         }
 
         private void registerUnknownKeyProblem(@NotNull YAMLKeyValue keyValue, @NotNull LocalQuickFix... fixes) {
