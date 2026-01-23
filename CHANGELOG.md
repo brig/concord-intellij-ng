@@ -4,6 +4,8 @@
 
 ### Added
 
+- сall hierarchy feature for Concord flows, allowing developers to view caller and callee relationships between flows
+([#52](https://github.com/brig/concord-intellij-ng/pull/52))  
 - added a quick fix to add input parameters to flow documentation blocks
 ([#51](https://github.com/brig/concord-intellij-ng/pull/51))  
 - added quick fix feature for unknown flow documentation keywords, enabling users to automatically correct typos in mandatory and optional keywords
