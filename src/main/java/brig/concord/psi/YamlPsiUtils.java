@@ -74,6 +74,10 @@ public final class YamlPsiUtils {
         return result;
     }
 
+    public static boolean isDynamicExpression(@Nullable String value) {
+        return value != null && value.contains("${");
+    }
+
     private YamlPsiUtils() {
     }
 }

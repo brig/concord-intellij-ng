@@ -16,9 +16,9 @@ import brig.concord.yaml.psi.*;
 
 import java.util.*;
 
-public class ProcessDefinition {
+import static brig.concord.meta.ConcordFileMetaType.FLOWS_KEY;
 
-    private static final String FLOWS_KEY = "flows";
+public class ProcessDefinition {
 
     private final PsiElement element;
 

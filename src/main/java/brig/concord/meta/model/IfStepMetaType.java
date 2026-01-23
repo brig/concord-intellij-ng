@@ -8,6 +8,9 @@ import java.util.function.Supplier;
 
 public class IfStepMetaType extends IdentityMetaType {
 
+    public static final String THEN = "then";
+    public static final String ELSE = "else";
+
     private static final IfStepMetaType INSTANCE = new IfStepMetaType();
 
     public static IfStepMetaType getInstance() {
@@ -16,12 +19,12 @@ public class IfStepMetaType extends IdentityMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "if", ExpressionMetaType::getInstance,
-            "then", StepsMetaType::getInstance,
-            "else", StepsMetaType::getInstance,
+            THEN, StepsMetaType::getInstance,
+            ELSE, StepsMetaType::getInstance,
             "meta", StepMetaMetaType::getInstance);
 
     protected IfStepMetaType() {
-        super("If", "if", Set.of("if", "then"));
+        super("If", "if", Set.of("if", THEN));
     }
 
     @Override

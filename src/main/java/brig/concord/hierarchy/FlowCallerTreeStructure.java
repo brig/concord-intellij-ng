@@ -22,9 +22,9 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
 
     public FlowCallerTreeStructure(@NotNull Project project, @NotNull PsiElement element) {
         super(project, createBaseDescriptor(project, element));
-        var flowKv = getFlowKeyValue(element);
-        if (flowKv != null) {
-            visitedFlows.add(flowKv.getKeyText());
+        var flowName = FlowCallFinder.getFlowName(element);
+        if (flowName != null) {
+            visitedFlows.add(flowName);
         }
     }
 
@@ -41,7 +41,7 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
         }
 
         // Get the flow definition
-        var flowKv = getFlowKeyValue(element);
+        var flowKv = FlowCallFinder.getFlowDefinition(element);
         if (flowKv == null) {
             return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
         }
@@ -92,8 +92,8 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
     private static @NotNull FlowHierarchyNodeDescriptor createBaseDescriptor(
             @NotNull Project project,
             @NotNull PsiElement element) {
-        var flowKv = getFlowKeyValue(element);
-        var flowName = flowKv != null ? flowKv.getKeyText() : "<unknown>";
+        var flowKv = FlowCallFinder.getFlowDefinition(element);
+        var flowName = flowKv != null ? flowKv.getKeyText() : FlowHierarchyNodeDescriptor.UNKNOWN_FLOW;
         return new FlowHierarchyNodeDescriptor(
                 project,
                 null,
@@ -102,12 +102,5 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
                 false,
                 flowName
         );
-    }
-
-    private static YAMLKeyValue getFlowKeyValue(@NotNull PsiElement element) {
-        if (element instanceof YAMLKeyValue kv && ProcessDefinition.isFlowDefinition(kv)) {
-            return kv;
-        }
-        return FlowCallFinder.findContainingFlow(element);
     }
 }

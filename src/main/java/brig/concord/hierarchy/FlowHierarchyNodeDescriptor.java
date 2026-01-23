@@ -8,6 +8,7 @@ import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ui.util.CompositeAppearance;
+import com.intellij.ui.JBColor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +22,8 @@ import java.awt.*;
  * Displays flow name with file location.
  */
 public class FlowHierarchyNodeDescriptor extends HierarchyNodeDescriptor {
+
+    public static final String UNKNOWN_FLOW = "<unknown>";
 
     private final boolean isDynamic;
     private final String flowName;
@@ -80,7 +83,7 @@ public class FlowHierarchyNodeDescriptor extends HierarchyNodeDescriptor {
         if (file != null) {
             var locationText = " (" + getLocationText(element, file) + ")";
             var locationAttributes = new TextAttributes();
-            locationAttributes.setForegroundColor(Color.GRAY);
+            locationAttributes.setForegroundColor(JBColor.GRAY);
             myHighlightedText.getEnding().addText(locationText, locationAttributes);
         }
 
@@ -131,6 +134,6 @@ public class FlowHierarchyNodeDescriptor extends HierarchyNodeDescriptor {
         if (containingFlow != null) {
             return containingFlow.getKeyText();
         }
-        return "<unknown>";
+        return UNKNOWN_FLOW;
     }
 }

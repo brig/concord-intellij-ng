@@ -1,7 +1,10 @@
 package brig.concord.hierarchy;
 
+import brig.concord.meta.model.*;
+import brig.concord.meta.model.call.CallStepMetaType;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
+import brig.concord.psi.YamlPsiUtils;
 import brig.concord.yaml.psi.*;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.psi.PsiElement;
@@ -19,10 +22,15 @@ import java.util.*;
  */
 public final class FlowCallFinder {
 
-    private static final String CALL_KEY = "call";
-    private static final String SWITCH_KEY = "switch";
+    private static final String CALL_KEY = CallStepMetaType.getInstance().getIdentity();
+    private static final String SWITCH_KEY = SwitchStepMetaType.getInstance().getIdentity();
     private static final Set<String> NESTED_STEP_KEYS = Set.of(
-            "error", "try", "block", "parallel", "then", "else"
+            GroupOfStepsMetaType.ERROR,
+            TryStepMetaType.getInstance().getIdentity(),
+            BlockStepMetaType.getInstance().getIdentity(),
+            ParallelStepMetaType.getInstance().getIdentity(),
+            IfStepMetaType.THEN,
+            IfStepMetaType.ELSE
     );
 
     private FlowCallFinder() {
@@ -144,6 +152,24 @@ public final class FlowCallFinder {
     }
 
     /**
+     * Get the flow definition from the element (either the element itself or its container).
+     */
+    public static @Nullable YAMLKeyValue getFlowDefinition(@NotNull PsiElement element) {
+        if (element instanceof YAMLKeyValue kv && ProcessDefinition.isFlowDefinition(kv)) {
+            return kv;
+        }
+        return findContainingFlow(element);
+    }
+
+    /**
+     * Get the name of the flow from the element.
+     */
+    public static @Nullable String getFlowName(@NotNull PsiElement element) {
+        var flowKv = getFlowDefinition(element);
+        return flowKv != null ? flowKv.getKeyText() : null;
+    }
+
+    /**
      * Find the call: key-value that contains the given element.
      */
     private static @Nullable YAMLKeyValue findCallKeyValue(@NotNull PsiElement element) {
@@ -183,7 +209,7 @@ public final class FlowCallFinder {
                 var value = kv.getValue();
                 if (value instanceof YAMLScalar scalar) {
                     var callTarget = scalar.getTextValue();
-                    var isDynamic = isDynamicExpression(callTarget);
+                    var isDynamic = YamlPsiUtils.isDynamicExpression(callTarget);
                     result.add(new CallSite(kv, callTarget, isDynamic));
                 }
             } else if (NESTED_STEP_KEYS.contains(keyText)) {
@@ -199,9 +225,5 @@ public final class FlowCallFinder {
                 }
             }
         }
-    }
-
-    private static boolean isDynamicExpression(@NotNull String value) {
-        return value.contains("${");
     }
 }

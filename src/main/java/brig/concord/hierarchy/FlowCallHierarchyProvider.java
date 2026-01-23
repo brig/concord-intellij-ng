@@ -1,8 +1,10 @@
 package brig.concord.hierarchy;
 
 import brig.concord.ConcordFileType;
+import brig.concord.meta.model.call.CallStepMetaType;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
+import brig.concord.psi.YamlPsiUtils;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.ide.hierarchy.CallHierarchyBrowserBase;
@@ -21,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
  * Activated when user invokes "Call Hierarchy" (Ctrl+Alt+H) on a flow.
  */
 public class FlowCallHierarchyProvider implements HierarchyProvider {
-
-    private static final String CALL_KEY = "call";
 
     @Override
     public @Nullable PsiElement getTarget(@NotNull DataContext dataContext) {
@@ -145,7 +145,7 @@ public class FlowCallHierarchyProvider implements HierarchyProvider {
 
         var parent = scalar.getParent();
         if (parent instanceof YAMLKeyValue kv) {
-            if (CALL_KEY.equals(kv.getKeyText())) {
+            if (CallStepMetaType.getInstance().getIdentity().equals(kv.getKeyText())) {
                 return scalar;
             }
         }
@@ -158,7 +158,7 @@ public class FlowCallHierarchyProvider implements HierarchyProvider {
      */
     private static @Nullable YAMLKeyValue resolveCallTarget(@NotNull YAMLScalar callTarget) {
         var value = callTarget.getTextValue();
-        if (value.contains("${")) {
+        if (YamlPsiUtils.isDynamicExpression(value)) {
             // Dynamic expression - can't resolve
             return null;
         }

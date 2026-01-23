@@ -21,7 +21,7 @@ public class FlowCalleeTreeStructure extends HierarchyTreeStructure {
 
     public FlowCalleeTreeStructure(@NotNull Project project, @NotNull PsiElement element) {
         super(project, createBaseDescriptor(project, element));
-        var flowName = extractFlowName(element);
+        var flowName = FlowCallFinder.getFlowName(element);
         if (flowName != null) {
             visitedFlows.add(flowName);
         }
@@ -40,7 +40,7 @@ public class FlowCalleeTreeStructure extends HierarchyTreeStructure {
         }
 
         // Get the flow definition
-        YAMLKeyValue flowKv = getFlowKeyValue(element);
+        YAMLKeyValue flowKv = FlowCallFinder.getFlowDefinition(element);
         if (flowKv == null) {
             return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
         }
@@ -113,8 +113,8 @@ public class FlowCalleeTreeStructure extends HierarchyTreeStructure {
     private static @NotNull FlowHierarchyNodeDescriptor createBaseDescriptor(
             @NotNull Project project,
             @NotNull PsiElement element) {
-        var flowKv = getFlowKeyValue(element);
-        var flowName = flowKv != null ? flowKv.getKeyText() : "<unknown>";
+        var flowKv = FlowCallFinder.getFlowDefinition(element);
+        var flowName = flowKv != null ? flowKv.getKeyText() : FlowHierarchyNodeDescriptor.UNKNOWN_FLOW;
         return new FlowHierarchyNodeDescriptor(
                 project,
                 null,
@@ -123,17 +123,5 @@ public class FlowCalleeTreeStructure extends HierarchyTreeStructure {
                 false,
                 flowName
         );
-    }
-
-    private static String extractFlowName(@NotNull PsiElement element) {
-        var flowKv = getFlowKeyValue(element);
-        return flowKv != null ? flowKv.getKeyText() : null;
-    }
-
-    private static YAMLKeyValue getFlowKeyValue(@NotNull PsiElement element) {
-        if (element instanceof YAMLKeyValue kv && ProcessDefinition.isFlowDefinition(kv)) {
-            return kv;
-        }
-        return FlowCallFinder.findContainingFlow(element);
     }
 }

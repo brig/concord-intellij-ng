@@ -12,6 +12,8 @@ import java.util.function.Supplier;
 
 public class ConcordFileMetaType extends ConcordMetaType implements HighlightProvider {
 
+    public static final String FLOWS_KEY = "flows";
+
     private static final ConcordFileMetaType INSTANCE = new ConcordFileMetaType();
 
     public static ConcordFileMetaType getInstance() {
@@ -31,7 +33,7 @@ public class ConcordFileMetaType extends ConcordMetaType implements HighlightPro
         features.put("forms", FormsMetaType::getInstance);
         features.put("imports", ImportsMetaType::getInstance);
         features.put("profiles", ProfilesMetaType::getInstance);
-        features.put("flows", FlowsMetaType::getInstance);
+        features.put(FLOWS_KEY, FlowsMetaType::getInstance);
         features.put("triggers", TriggersMetaType::getInstance);
     }
 
