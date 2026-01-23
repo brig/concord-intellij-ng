@@ -99,18 +99,6 @@ import com.intellij.lexer.FlexLexer;
     myReturnState = YYINITIAL;
   }
 
-  /** Strip quotes from a key text if present */
-  private String stripQuotes(String text) {
-    if (text.length() >= 2) {
-      char first = text.charAt(0);
-      char last = text.charAt(text.length() - 1);
-      if ((first == '"' && last == '"') || (first == '\'' && last == '\'')) {
-        return text.substring(1, text.length() - 1);
-      }
-    }
-    return text;
-  }
-
   //-------------------------------------------------------------------------------------------------------------------
 
   /** @param offset offset from currently matched token start (could be negative) */
@@ -182,10 +170,8 @@ import com.intellij.lexer.FlexLexer;
     }
 
     // Track flows section for flow documentation recognition
-    String keyText = stripQuotes(yytext().toString());
-
-    // Only recognize "flows" if it is at the root level
-    if ("flows".equals(keyText) && myBraceCount == 0 && yycolumn == myRootIndent) {
+    // Only check for "flows" when at root level and not yet in flows section
+    if (!myInsideFlowsSection && myBraceCount == 0 && yycolumn == myRootIndent && isFlowsKey()) {
       // Entering flows section
       myInsideFlowsSection = true;
       myFlowsIndent = yycolumn;
@@ -206,6 +192,36 @@ import com.intellij.lexer.FlexLexer;
     myReturnState = returnState;
     yybegin(KEY_MODE);
     return SCALAR_KEY;
+  }
+
+  /**
+   * Check if current token is "flows" key (with or without quotes).
+   * Avoids creating a String object for every key.
+   */
+  private boolean isFlowsKey() {
+    int len = yylength();
+    int start = zzStartRead;
+
+    // "flows" is 5 chars, with quotes it's 7
+    if (len == 5) {
+      // Plain "flows"
+      return zzBuffer.charAt(start) == 'f'
+          && zzBuffer.charAt(start + 1) == 'l'
+          && zzBuffer.charAt(start + 2) == 'o'
+          && zzBuffer.charAt(start + 3) == 'w'
+          && zzBuffer.charAt(start + 4) == 's';
+    } else if (len == 7) {
+      // Quoted "flows" or 'flows'
+      char q = zzBuffer.charAt(start);
+      if ((q == '"' || q == '\'') && zzBuffer.charAt(start + 6) == q) {
+        return zzBuffer.charAt(start + 1) == 'f'
+            && zzBuffer.charAt(start + 2) == 'l'
+            && zzBuffer.charAt(start + 3) == 'o'
+            && zzBuffer.charAt(start + 4) == 'w'
+            && zzBuffer.charAt(start + 5) == 's';
+      }
+    }
+    return false;
   }
 
   private IElementType processScalarKey() {

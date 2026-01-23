@@ -861,4 +861,23 @@ public class FlowDocLexerTest {
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 0);
     }
+
+    @Test
+    public void testFlowDocTokensWithAdditionalCharsInHeader() {
+        var yaml = """
+                flows:
+                  ## ----
+                  # Process S3 files
+                  # in:
+                  #   s3Bucket: string, mandatory, S3 bucket name
+                  # out:
+                  #   processed: int, mandatory, Files processed count
+                  ##
+                  processS3:
+                    - task: s3
+                """;
+
+        assertTokens(yaml)
+                .hasCount("FLOW_DOC_MARKER", 1);
+    }
 }

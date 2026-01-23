@@ -1,6 +1,5 @@
 package brig.concord.yaml.folding;
 
-// Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.folding.CustomFoldingBuilder;
 import com.intellij.lang.folding.FoldingDescriptor;
@@ -11,7 +10,6 @@ import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.SourceTreeToPsiMap;
 import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtilCore;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +39,7 @@ public class YAMLFoldingBuilder extends CustomFoldingBuilder {
         }
 
         if (element instanceof YAMLDocument) {
-            if (PsiTreeUtil.findChildrenOfAnyType(element.getParent(), YAMLDocument.class).size() > 1) {
+            if (hasMultipleDocuments(element.getParent())) {
                 descriptors.add(new FoldingDescriptor(element, nodeTextRange));
             }
         }
@@ -155,5 +153,25 @@ public class YAMLFoldingBuilder extends CustomFoldingBuilder {
             return text;
         }
         return StringUtil.trimMiddle(text, PLACEHOLDER_LEN);
+    }
+
+    /**
+     * Checks if parent has more than one YAMLDocument child.
+     * Stops iteration as soon as second document is found.
+     */
+    private static boolean hasMultipleDocuments(@Nullable PsiElement parent) {
+        if (parent == null) {
+            return false;
+        }
+        int count = 0;
+        for (PsiElement child = parent.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child instanceof YAMLDocument) {
+                count++;
+                if (count > 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

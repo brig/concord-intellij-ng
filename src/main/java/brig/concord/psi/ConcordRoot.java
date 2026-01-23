@@ -29,6 +29,7 @@ public final class ConcordRoot {
 
     private final VirtualFile rootFile;
     private final Path rootDir;
+    private final String rootDirPrefix;  // Cached for fast prefix checks
     private final List<PathMatcher> patterns;
 
     /**
@@ -42,6 +43,7 @@ public final class ConcordRoot {
 
         var parent = rootFile.getParent();
         this.rootDir = parent != null ? Paths.get(parent.getPath()) : Paths.get("/");
+        this.rootDirPrefix = rootDir.toString() + "/";
 
         this.patterns = parsePatterns(rootDoc);
     }
@@ -86,7 +88,14 @@ public final class ConcordRoot {
             return true;
         }
 
-        var filePath = Paths.get(file.getPath());
+        // if file is not under root directory, it can't match any pattern
+        // (all patterns are prefixed with rootDir in parsePattern)
+        String filePathStr = file.getPath();
+        if (!filePathStr.startsWith(rootDirPrefix)) {
+            return false;
+        }
+
+        var filePath = Paths.get(filePathStr);
         for (var pattern : patterns) {
             if (pattern.matches(filePath)) {
                 return true;
