@@ -76,10 +76,17 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
     @Override
     @Nullable
     public FlowDocParameter findParameter(@NotNull String parameterName) {
-        return Stream.concat(getInputParameters().stream(), getOutputParameters().stream())
-                .filter(param -> parameterName.equals(param.getName()))
-                .findFirst()
-                .orElse(null);
+        for (FlowDocParameter param : getInputParameters()) {
+            if (parameterName.equals(param.getName())) {
+                return param;
+            }
+        }
+        for (FlowDocParameter param : getOutputParameters()) {
+            if (parameterName.equals(param.getName())) {
+                return param;
+            }
+        }
+        return null;
     }
 
     @Override
