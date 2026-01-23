@@ -8,6 +8,7 @@ import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
@@ -15,7 +16,10 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static brig.concord.lexer.FlowDocTokenTypes.FLOW_DOC_CONTENT;
 
@@ -33,23 +37,13 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
             return null;
         }
 
-        var description = new StringBuilder();
-        var contentNodes = descElement.getNode().getChildren(null);
+        var description = Arrays.stream(descElement.getNode().getChildren(null))
+                .filter(node -> node.getElementType() == FLOW_DOC_CONTENT)
+                .map(node -> node.getText().trim())
+                .filter(text -> !text.isEmpty() && !text.equals("#"))
+                .collect(Collectors.joining("\n"));
 
-        for (var node : contentNodes) {
-            if (node.getElementType() == FLOW_DOC_CONTENT) {
-                var text = node.getText().trim();
-                if (text.isEmpty() || text.equals("#")) {
-                    continue;
-                }
-                if (!description.isEmpty()) {
-                    description.append("\n");
-                }
-                description.append(text);
-            }
-        }
-
-        return !description.isEmpty() ? description.toString() : null;
+        return !description.isEmpty() ? description : null;
     }
 
     @Override
@@ -69,16 +63,7 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
     @Override
     @Nullable
     public YAMLKeyValue getDocumentedFlow() {
-        // Flow documentation should be immediately before the flow key-value
-        // We need to find the next sibling that is a YAMLKeyValue
-        var sibling = getNextSibling();
-        while (sibling != null) {
-            if (sibling instanceof YAMLKeyValue) {
-                return (YAMLKeyValue) sibling;
-            }
-            sibling = sibling.getNextSibling();
-        }
-        return null;
+        return PsiTreeUtil.getNextSiblingOfType(this, YAMLKeyValue.class);
     }
 
     @Override
@@ -91,19 +76,10 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
     @Override
     @Nullable
     public FlowDocParameter findParameter(@NotNull String parameterName) {
-        for (var param : getInputParameters()) {
-            if (parameterName.equals(param.getName())) {
-                return param;
-            }
-        }
-
-        for (var param : getOutputParameters()) {
-            if (parameterName.equals(param.getName())) {
-                return param;
-            }
-        }
-
-        return null;
+        return Stream.concat(getInputParameters().stream(), getOutputParameters().stream())
+                .filter(param -> parameterName.equals(param.getName()))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -120,46 +96,41 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
         }
 
         var indent = detectIndent();
-
         var inSection = findChildByType(FlowDocElementTypes.FLOW_DOC_IN_SECTION);
+
+        int insertOffset;
+        String text;
+
         if (inSection != null) {
-            // Add parameter to existing in: section
-            int insertOffset;
-            String text;
             var params = getInputParameters();
             if (params.isEmpty()) {
-                // Insert after "in:" on the same line - find end of "in:" text
-                int sectionStart = inSection.getTextRange().getStartOffset();
-                int lineNum = document.getLineNumber(sectionStart);
+                // Insert after "in:" on the same line
+                var sectionStart = inSection.getTextRange().getStartOffset();
+                var lineNum = document.getLineNumber(sectionStart);
                 insertOffset = document.getLineEndOffset(lineNum);
-                // Compute prefix based on in: section position + 2 spaces for param indent
-                String sectionPrefix = getSectionLinePrefix(inSection, document);
+
+                var sectionPrefix = getLinePrefix(sectionStart, document);
                 text = "\n" + sectionPrefix + "  " + name + ": " + type;
             } else {
                 var lastParam = params.getLast();
                 insertOffset = lastParam.getTextRange().getEndOffset();
-                // Copy the prefix from the last parameter's line (indent + "# " + spaces)
-                String paramPrefix = getParamLinePrefix(lastParam, document);
+
+                var paramPrefix = getLinePrefix(lastParam.getTextRange().getStartOffset(), document);
                 text = "\n" + paramPrefix + name + ": " + type;
             }
-            document.insertString(insertOffset, text);
         } else {
-            // Create new in: section - find where to insert
             var outSection = findChildByType(FlowDocElementTypes.FLOW_DOC_OUT_SECTION);
-
-            int insertOffset;
             if (outSection != null) {
-                // Insert before out: section - find start of line with "# out:"
-                insertOffset = findLineStartBefore(outSection);
+                insertOffset = getLineStartOffset(outSection.getTextRange().getStartOffset(), document);
             } else {
-                // Insert before closing ## - find start of line with "##"
-                insertOffset = findClosingMarkerLineStart();
+                // Find closing ## marker
+                insertOffset = getLineStartOffset(getTextRange().getEndOffset() - 1, document);
             }
 
-            var text = indent + "# in:\n" + indent + "#   " + name + ": " + type + "\n";
-            document.insertString(insertOffset, text);
+            text = indent + "# in:\n" + indent + "#   " + name + ": " + type + "\n";
         }
 
+        document.insertString(insertOffset, text);
         PsiDocumentManager.getInstance(getProject()).commitDocument(document);
     }
 
@@ -168,43 +139,14 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
         return StringUtil.repeat(" ", indent);
     }
 
-    private String getParamLinePrefix(FlowDocParameter param, com.intellij.openapi.editor.Document document) {
-        // Get the prefix of the parameter's line (from line start to parameter name start)
-        // This includes indentation, "#", and any spaces before the parameter name
-        int paramStart = param.getTextRange().getStartOffset();
-        int lineNum = document.getLineNumber(paramStart);
-        int lineStart = document.getLineStartOffset(lineNum);
-        return document.getText().substring(lineStart, paramStart);
+    private static String getLinePrefix(int offset, Document document) {
+        var lineNum = document.getLineNumber(offset);
+        var lineStart = document.getLineStartOffset(lineNum);
+        return document.getText().substring(lineStart, offset);
     }
 
-    private String getSectionLinePrefix(PsiElement section, com.intellij.openapi.editor.Document document) {
-        // Get the prefix of the section's line (from line start to section header start)
-        // For "  #     in:" this returns "  #     "
-        int sectionStart = section.getTextRange().getStartOffset();
-        int lineNum = document.getLineNumber(sectionStart);
-        int lineStart = document.getLineStartOffset(lineNum);
-        return document.getText().substring(lineStart, sectionStart);
-    }
-
-    private int findLineStartBefore(PsiElement element) {
-        // Find the start of line containing this element (including the # prefix)
-        var document = getContainingFile().getViewProvider().getDocument();
-        if (document == null) {
-            return element.getTextRange().getStartOffset();
-        }
-        var lineNum = document.getLineNumber(element.getTextRange().getStartOffset());
-        return document.getLineStartOffset(lineNum);
-    }
-
-    private int findClosingMarkerLineStart() {
-        // Find the start of line with closing ##
-        var document = getContainingFile().getViewProvider().getDocument();
-        if (document == null) {
-            return getTextRange().getEndOffset();
-        }
-        // Closing ## is at the end of this element
-        var endOffset = getTextRange().getEndOffset();
-        var lineNum = document.getLineNumber(endOffset - 1); // -1 to be inside ##
+    private static int getLineStartOffset(int offset, Document document) {
+        var lineNum = document.getLineNumber(offset);
         return document.getLineStartOffset(lineNum);
     }
 
@@ -213,7 +155,6 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
         if (inSection == null) {
             return List.of();
         }
-
         return PsiTreeUtil.getChildrenOfTypeAsList(inSection, FlowDocParameter.class);
     }
 }
