@@ -84,6 +84,10 @@
         <fileBasedIndex implementation="brig.concord.navigation.FlowNamesIndex"/>
         <searchEverywhereContributor implementation="brig.concord.navigation.FlowDefinitionSearchEverywhereContributor$Factory"/>
 
+        <!-- Call Hierarchy -->
+        <callHierarchyProvider language="Concord"
+                               implementationClass="brig.concord.hierarchy.FlowCallHierarchyProvider"/>
+
         <!-- Validation -->
         <annotator language="Concord"
                    implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>
