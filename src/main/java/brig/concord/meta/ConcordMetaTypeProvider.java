@@ -5,10 +5,10 @@ import brig.concord.meta.model.IdentityMetaType;
 import brig.concord.psi.ConcordFile;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileSystemItem;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,8 +25,6 @@ import java.util.Optional;
 @Service(Service.Level.PROJECT)
 public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
 
-    private static final ModificationTracker YAML_MODIFICATION_TRACKER = ModificationTracker.NEVER_CHANGED;
-
     private static final ModelAccess modelAccess = document -> {
         String filename = Optional.ofNullable(document.getContainingFile())
                 .map(PsiFileSystemItem::getName)
@@ -35,8 +33,8 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
         return new Field(filename, root);
     };
 
-    public ConcordMetaTypeProvider() {
-        super(modelAccess, YAML_MODIFICATION_TRACKER);
+    public ConcordMetaTypeProvider(Project project) {
+        super(modelAccess, PsiManager.getInstance(project).getModificationTracker());
     }
 
     public static ConcordMetaTypeProvider getInstance(@NotNull Project project) {

@@ -13,6 +13,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
+import com.intellij.psi.util.PsiModificationTracker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
@@ -28,6 +29,12 @@ public class FlowCallParamsProvider {
 
     private static final Key<CachedValue<FlowDocumentation>> FLOW_DOC_CACHE =
             Key.create("brig.concord.FlowCallParamsProvider.flow.documentation");
+
+    private static final Key<CachedValue<FlowDocumentation>> CALL_SITE_DOC_CACHE =
+            Key.create("brig.concord.FlowCallParamsProvider.call.site.doc");
+
+    private static final Key<CachedValue<FlowDocMetaType>> FLOW_DOC_META_TYPE_CACHE =
+            Key.create("brig.concord.FlowCallParamsProvider.flow.doc.meta.type");
 
     public static final AnyOfType STRING_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(StringArrayInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
     public static final AnyOfType BOOLEAN_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(BooleanArrayInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
@@ -77,7 +84,8 @@ public class FlowCallParamsProvider {
             return DEFAULT_OBJECT_TYPE;
         }
 
-        return new FlowDocMetaType(documentation);
+        return CachedValuesManager.getCachedValue(documentation, FLOW_DOC_META_TYPE_CACHE, () ->
+                CachedValueProvider.Result.create(new FlowDocMetaType(documentation), documentation));
     }
 
     static class FlowDocMetaType extends ConcordMetaType implements CallInParamMetaType {
@@ -162,6 +170,14 @@ public class FlowCallParamsProvider {
             return null;
         }
 
+        return CachedValuesManager.getCachedValue(callKv, CALL_SITE_DOC_CACHE, () -> {
+            var doc = doFindFlowDocumentation(callKv);
+            return CachedValueProvider.Result.create(doc, PsiModificationTracker.MODIFICATION_COUNT);
+        });
+    }
+
+    @Nullable
+    private static FlowDocumentation doFindFlowDocumentation(YAMLKeyValue callKv) {
         var flowName = callKv.getValue();
         if (flowName == null) {
             return null;
