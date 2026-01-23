@@ -1,5 +1,6 @@
-package brig.concord;
+package brig.concord.usages;
 
+import brig.concord.ConcordBundle;
 import brig.concord.psi.ConcordFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;

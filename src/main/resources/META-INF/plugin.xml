@@ -63,8 +63,8 @@
                              implementationClass="brig.concord.yaml.folding.YAMLFoldingBuilder"/>
 
         <!-- Find usages / usage types -->
-        <lang.findUsagesProvider language="Concord" implementationClass="brig.concord.FindUsageProvider"/>
-        <usageTypeProvider implementation="brig.concord.FlowUsageTypeProvider"/>
+        <lang.findUsagesProvider language="Concord" implementationClass="brig.concord.usages.FindUsageProvider"/>
+        <usageTypeProvider implementation="brig.concord.usages.FlowUsageTypeProvider"/>
 
         <!-- Refactoring -->
         <renamePsiElementProcessor implementation="brig.concord.refactoring.FlowDefinitionRenameProcessor"/>
@@ -138,6 +138,8 @@
                          groupKey="inspections.group.name"
                          enabledByDefault="true"
                          implementationClass="brig.concord.inspection.DuplicateFlowNameInspection"/>
+
+        <notificationGroup id="Concord Notification Group" displayType="BALLOON" key="notification.group.concord"/>
     </extensions>
 
 </idea-plugin>
