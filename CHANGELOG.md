@@ -2,28 +2,69 @@
 
 ## Unreleased
 
+### Added
+
+- сall hierarchy feature for Concord flows, allowing developers to view caller and callee relationships between flows
+([#52](https://github.com/brig/concord-intellij-ng/pull/52))  
+- added a quick fix to add input parameters to flow documentation blocks
+([#51](https://github.com/brig/concord-intellij-ng/pull/51))  
+- added quick fix feature for unknown flow documentation keywords, enabling users to automatically correct typos in mandatory and optional keywords
+([#50](https://github.com/brig/concord-intellij-ng/pull/50))  
+- added quick fix to replace invalid parameter types with valid suggestions in flow documentation
+([#49](https://github.com/brig/concord-intellij-ng/pull/49))  
+- added quick fix for missing closing ## marker in flow documentation
+([#45](https://github.com/brig/concord-intellij-ng/pull/45))  
+- added rename refactoring support for Concord flow definitions
+([#44](https://github.com/brig/concord-intellij-ng/pull/44)) 
+- added a quick fix feature that allows users to view all duplicate flow definitions in a usage view panel
+([#43](https://github.com/brig/concord-intellij-ng/pull/43)) 
+- added inspection to detect duplicate flow names
+([#42](https://github.com/brig/concord-intellij-ng/pull/42))
+- added project scopes to support multiple isolated Concord projects within a single IntelliJ project window
+([#40](https://github.com/brig/concord-intellij-ng/pull/40))
+- test coverage for cron expression folding functionality and code cleanup associated code cleanup
+([#39](https://github.com/brig/concord-intellij-ng/pull/39))
+- implemented autocompletion support for flow documentation syntax in Concord YAML files
+([#37](https://github.com/brig/concord-intellij-ng/pull/37))
+- implemented inspection for flow documentation blocks in Concord YAML files
+([#36](https://github.com/brig/concord-intellij-ng/pull/36)) 
+- implemented syntax highlighting for flow documentation blocks in Concord YAML files
+([#35](https://github.com/brig/concord-intellij-ng/pull/35)) 
+- allow custom text/tags in flow documentation
+([#34](https://github.com/brig/concord-intellij-ng/pull/34)) 
+- support for flow documentation blocks in Concord YAML files
+([#31](https://github.com/brig/concord-intellij-ng/pull/31))
+
 ### Changed
 
-- Improved call in-params reference resolution for quoted keys.
+- support arbitrary indentation in flow documentation
+([#45](https://github.com/brig/concord-intellij-ng/pull/45))  
+- refactored enter handler functionality, added tests
+([#41](https://github.com/brig/concord-intellij-ng/pull/41))  
+- updated the CodeStyleSettingsProvider example configuration
+([#38](https://github.com/brig/concord-intellij-ng/pull/38))  
+- project: improved CI reliability and performance by reducing duplicate runs and hardening build scripts
+([#33](https://github.com/brig/concord-intellij-ng/pull/33))  
+- improved call in-params reference resolution for quoted keys.
 Added caching for flow documentation and in-params reference resolution
 ([#30](https://github.com/brig/concord-intellij-ng/pull/30))
-- Improved inspection descriptions for Concord YAML files
+- improved inspection descriptions for Concord YAML files
 ([#28](https://github.com/brig/concord-intellij-ng/pull/28))
-- Removed unused YAML syntax highlighting files and refactored `DuplicatedKeysInspection` inspection and tests
+- removed unused YAML syntax highlighting files and refactored `DuplicatedKeysInspection` inspection and tests
 ([#27](https://github.com/brig/concord-intellij-ng/pull/27))
 
 ## 0.15.0 - 2026-01-14
 
 ### Added
 
-- Implemented syntax highlighting support 
+- implemented syntax highlighting support 
 ([#25](https://github.com/brig/concord-intellij-ng/pull/25))
 
 ### Changed
 
-- Updated supported IntelliJ IDEA version (2025.3.1)
+- updated supported IntelliJ IDEA version (2025.3.1)
 ([#25](https://github.com/brig/concord-intellij-ng/pull/25))
-- Fixed navigation error where targets could become invalid
+- fixed navigation error where targets could become invalid
 
 ## 0.14.0
 

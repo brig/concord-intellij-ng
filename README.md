@@ -16,12 +16,25 @@ and flow documentation blocks.
 
 ## Features
 
-- Concord-aware syntax highlighting for sections, steps, keys, and expressions
-- Schema-driven completion for Concord YAML fields (flows, steps, imports, triggers, params)
-- Inspections and validation for unknown keys, missing required keys, duplicates, and invalid values
-- Navigation between flow elements, including `call` targets and forms
+- Concord-aware syntax highlighting for sections, steps, keys, expressions, and flow documentation blocks
+- Schema-driven code completion for Concord YAML, including flows, steps, imports, triggers, and parameters
+- Rich inspections and validation for:
+  - unknown or invalid keys
+  - missing required keys
+  - duplicate flow definitions
+  - invalid parameter types and documentation keywords
+- Quick fixes for common Concord YAML issues, including:
+  - adding missing input parameters to flow documentation blocks
+  - correcting typos in mandatory and optional documentation keywords
+  - replacing invalid parameter types with valid suggestions
+  - fixing missing closing `##` markers in documentation blocks
+- Navigation and analysis features:
+  - go-to-definition and find usages for Concord flows
+  - call hierarchy view showing caller–callee relationships between flows
+- Safe rename refactoring for Concord flow definitions with automatic update of all call references
+- Structured flow documentation support with parameter metadata (`in` / `out`) and custom user-defined text
 - Structure view for flows, forms, and triggers
-- Structured flow documentation blocks with parameter metadata
+- Support for multiple isolated Concord project scopes within a single IntelliJ project
 
 ---
 
