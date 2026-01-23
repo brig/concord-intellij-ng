@@ -1,15 +1,12 @@
 package brig.concord.inspection;
 
+import brig.concord.ConcordBundle;
+import brig.concord.completion.provider.FlowCallParamsProvider;
+import brig.concord.inspection.fix.AddParameterToFlowDocQuickFix;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.AnyOfType;
+import brig.concord.meta.model.call.CallInParamsMetaType;
 import brig.concord.psi.ConcordFile;
-import com.intellij.codeInspection.LocalInspectionToolSession;
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.PsiElementVisitor;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import brig.concord.ConcordBundle;
 import brig.concord.yaml.meta.impl.YamlMetaTypeInspectionBase;
 import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
 import brig.concord.yaml.meta.model.YamlArrayType;
@@ -17,6 +14,15 @@ import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.meta.model.YamlScalarType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.LocalInspectionToolSession;
+import com.intellij.codeInspection.LocalQuickFix;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.PsiElementVisitor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static brig.concord.yaml.YAMLUtil.isNumberValue;
 
 public class UnknownKeysInspection extends YamlMetaTypeInspectionBase {
 
@@ -41,40 +47,102 @@ public class UnknownKeysInspection extends YamlMetaTypeInspectionBase {
                 return;
             }
 
-            if ("<<".equals(keyValue.getKey().getText())) {
-                // validation of merge types is not supported, but at least there should be no red code
+            if ("<<".equals(keyValue.getKeyText())) {
                 return;
             }
 
-            YamlMetaTypeProvider.MetaTypeProxy meta = myMetaTypeProvider.getKeyValueMetaType(keyValue);
-            if (meta == null) {
-                YAMLValue parent = keyValue.getParentMapping();
-                if (parent != null) {
-                    final YamlMetaTypeProvider.MetaTypeProxy typeProxy = myMetaTypeProvider.getValueMetaType(parent);
+            if (myMetaTypeProvider.getKeyValueMetaType(keyValue) != null) {
+                return;
+            }
 
-                    if (typeProxy == null) {
-                        return;
-                    }
+            YAMLValue parent = keyValue.getParentMapping();
+            if (parent == null) {
+                return;
+            }
 
-                    // Only mark the first element as unknown, not its children
-                    //
-                    // Also if it's a mapping instead of expected scalar type,
-                    // don't report key-specific errors as they're redundant ("scalar value expected" error is already reported)
-                    YamlMetaType parentMetaType = typeProxy.getMetaType();
-                    if(parentMetaType instanceof YamlScalarType || parentMetaType instanceof YamlArrayType) {
-                        return;
-                    }
+            var typeProxy = myMetaTypeProvider.getValueMetaType(parent);
+            if (typeProxy == null) {
+                return;
+            }
 
-                    if (parentMetaType instanceof AnyOfType any) {
-                        if (any.isScalar()) {
-                            return;
-                        }
-                    }
+            var parentMetaType = typeProxy.getMetaType();
+            if (parentMetaType instanceof CallInParamsMetaType) {
+                handleCallInParams(keyValue);
+                return;
+            }
+
+            if (shouldIgnore(parentMetaType)) {
+                return;
+            }
+
+            registerUnknownKeyProblem(keyValue);
+        }
+
+        private void handleCallInParams(@NotNull YAMLKeyValue keyValue) {
+            var flowDoc = FlowCallParamsProvider.findFlowDocumentation(keyValue);
+            if (flowDoc != null && keyValue.getKey() != null) {
+                var paramType = inferTypeFromValue(keyValue.getValue());
+                var quickFix = new AddParameterToFlowDocQuickFix(keyValue.getKey(), keyValue.getKeyText(), paramType, flowDoc);
+                registerUnknownKeyProblem(keyValue, quickFix);
+            } else {
+                registerUnknownKeyProblem(keyValue);
+            }
+        }
+
+        private @NotNull String inferTypeFromValue(@Nullable brig.concord.yaml.psi.YAMLValue value) {
+            if (value == null) {
+                return "string";
+            }
+
+            if (value instanceof brig.concord.yaml.psi.YAMLMapping) {
+                return "object";
+            }
+
+            if (value instanceof brig.concord.yaml.psi.YAMLSequence) {
+                return "object[]";
+            }
+
+            if (value instanceof brig.concord.yaml.psi.YAMLScalar scalar) {
+                var text = scalar.getTextValue();
+                if (text.isEmpty()) {
+                    return "string";
                 }
 
-                String msg = ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", keyValue.getKeyText());
-                myProblemsHolder.registerProblem(keyValue.getKey(), msg, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
+                // Check for expression
+                if (text.startsWith("${") && text.endsWith("}")) {
+                    return "any";
+                }
+
+                // Check for boolean
+                if ("true".equalsIgnoreCase(text) || "false".equalsIgnoreCase(text)) {
+                    return "boolean";
+                }
+
+                // Check for number
+                if (isNumberValue(text)) {
+                    return "int";
+                }
             }
+
+            return "string";
+        }
+
+        private void registerUnknownKeyProblem(@NotNull YAMLKeyValue keyValue, @NotNull LocalQuickFix... fixes) {
+            var msg = ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", keyValue.getKeyText());
+            var keyElement = keyValue.getKey();
+            if (keyElement != null) {
+                myProblemsHolder.registerProblem(keyElement, msg, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, fixes);
+            }
+        }
+
+        private static boolean shouldIgnore(YamlMetaType type) {
+            if (type instanceof YamlScalarType || type instanceof YamlArrayType) {
+                return true;
+            }
+            if (type instanceof AnyOfType any) {
+                return any.isScalar();
+            }
+            return false;
         }
     }
 

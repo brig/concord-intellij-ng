@@ -1,4 +1,4 @@
-package brig.concord;
+package brig.concord.usages;
 
 import brig.concord.psi.ConcordFile;
 import brig.concord.psi.impl.yaml.YAMLConcordKeyValueImpl;

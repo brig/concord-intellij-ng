@@ -29,23 +29,20 @@ public class YAMLParserFlowDocExtension {
 
         parseFlowDocDescription(builder);
 
+        // Parse sections in any order (in: and out: can appear in any order)
         skipFlowDocJunk(builder);
-        if (builder.getTokenType() == FLOW_DOC_SECTION_HEADER) {
+        while (builder.getTokenType() == FLOW_DOC_SECTION_HEADER) {
             String sectionName = builder.getTokenText();
             if ("in:".equals(sectionName)) {
                 parseFlowDocSection(builder, FlowDocElementTypes.FLOW_DOC_IN_SECTION);
-            }
-        }
-
-        skipFlowDocJunk(builder);
-        if (builder.getTokenType() == FLOW_DOC_SECTION_HEADER) {
-            String sectionName = builder.getTokenText();
-            if ("out:".equals(sectionName)) {
+            } else if ("out:".equals(sectionName)) {
                 parseFlowDocSection(builder, FlowDocElementTypes.FLOW_DOC_OUT_SECTION);
+            } else {
+                // Unknown section header - skip it
+                builder.advanceLexer();
             }
+            skipFlowDocJunk(builder);
         }
-
-        skipFlowDocJunk(builder);
 
         if (builder.getTokenType() == FLOW_DOC_MARKER) {
             builder.advanceLexer();
@@ -107,6 +104,20 @@ public class YAMLParserFlowDocExtension {
                 builder.getTokenType() == INDENT ||
                 builder.getTokenType() == EOL ||
                 builder.getTokenType() == FLOW_DOC_COMMENT_PREFIX) {
+
+            // If this is a FLOW_DOC_COMMENT_PREFIX, check if it's part of the next section header.
+            // Token sequence for "# out:" is: FLOW_DOC_COMMENT_PREFIX, WHITE_SPACE, FLOW_DOC_SECTION_HEADER
+            // Don't consume the # if it belongs to the next section.
+            if (builder.getTokenType() == FLOW_DOC_COMMENT_PREFIX) {
+                var next = builder.lookAhead(1);
+                if (next == WHITESPACE) {
+                    next = builder.lookAhead(2);
+                }
+                if (next == FLOW_DOC_SECTION_HEADER || next == FLOW_DOC_MARKER) {
+                    break; // This # belongs to the next section or closing marker
+                }
+            }
+
             builder.advanceLexer();
         }
     }

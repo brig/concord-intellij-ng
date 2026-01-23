@@ -1,7 +1,5 @@
 package brig.concord.yaml;
 
-// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-
 import brig.concord.ConcordBundle;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
@@ -17,11 +15,47 @@ import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.psi.*;
 import brig.concord.yaml.psi.impl.YAMLBlockMappingImpl;
 
+import java.util.Locale;
 import java.util.function.Supplier;
 
 public final class YAMLUtil {
 
     private static final TokenSet BLANK_LINE_ELEMENTS = TokenSet.andNot(YAMLElementTypes.BLANK_ELEMENTS, YAMLElementTypes.EOL_ELEMENTS);
+
+    public static boolean isNumberValue(@NotNull String originalValue) {
+        if (originalValue.isEmpty()) {
+            return false;
+        }
+
+        var value = originalValue.toLowerCase(Locale.ROOT);
+        var first = value.charAt(0);
+
+        // Check special YAML number literals first
+        if (".inf".equals(value) || "-.inf".equals(value) || "+.inf".equals(value) || ".nan".equals(value)) {
+            return true;
+        }
+
+        // Check hex/octal
+        if (value.startsWith("0x") || value.startsWith("0o")) {
+            return true;
+        }
+
+        // Try to parse as a number
+        if (Character.isDigit(first) || first == '-' || first == '+' || first == '.') {
+            // For values starting with '.', check next char is digit
+            if (first == '.' && (value.length() <= 1 || !Character.isDigit(value.charAt(1)))) {
+                return false;
+            }
+            try {
+                Double.parseDouble(originalValue);
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
 
     public static PsiElement rename(final YAMLKeyValue element, final String newName) {
         if (newName.equals(element.getName())) {

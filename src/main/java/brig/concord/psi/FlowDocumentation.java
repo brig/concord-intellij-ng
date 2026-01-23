@@ -53,4 +53,13 @@ public interface FlowDocumentation extends YAMLPsiElement {
      */
     @Nullable
     FlowDocParameter findParameter(@NotNull String parameterName);
+
+    /**
+     * Add input parameter to the in: section.
+     * Creates the in: section if it doesn't exist.
+     *
+     * @param name parameter name
+     * @param type parameter type (e.g. string, boolean)
+     */
+    void addInputParameter(@NotNull String name, @NotNull String type);
 }
