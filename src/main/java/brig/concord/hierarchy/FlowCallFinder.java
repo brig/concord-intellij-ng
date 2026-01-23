@@ -16,10 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-/**
- * Utility class for finding flow call relationships.
- * Used by Call Hierarchy feature to build caller/callee trees.
- */
 public final class FlowCallFinder {
 
     private static final String CALL_KEY = CallStepMetaType.getInstance().getIdentity();
@@ -36,9 +32,6 @@ public final class FlowCallFinder {
     private FlowCallFinder() {
     }
 
-    /**
-     * Represents a call site where a flow is invoked.
-     */
     public record CallSite(
             @NotNull YAMLKeyValue callKeyValue,
             @NotNull String flowName,
