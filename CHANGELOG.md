@@ -1,5 +1,9 @@
 # concord-intellij-plugin Changelog
 
+### Added
+
+### Changed
+
 ## 0.16.0 - 2026-01-23
 
 ### Added
