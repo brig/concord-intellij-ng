@@ -19,7 +19,7 @@ public abstract class IdentityMetaType extends ConcordMetaType {
         this.requiredFeatures = requiredFeatures;
     }
 
-    protected String getIdentity() {
+    public String getIdentity() {
         return identity;
     }
 

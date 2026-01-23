@@ -11,6 +11,8 @@ import java.util.function.Supplier;
 
 public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
+    public static final String ERROR = "error";
+
     private final Map<String, Supplier<YamlMetaType>> features;
 
     protected GroupOfStepsMetaType(String name) {
@@ -26,7 +28,7 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
                 "out", GroupOfStepsOutParamsMetaType::getInstance,
                 "meta", StepMetaMetaType::getInstance,
                 "loop", LoopMetaType::getInstance,
-                "error", StepsMetaType::getInstance
+                ERROR, StepsMetaType::getInstance
         );
     }
 
