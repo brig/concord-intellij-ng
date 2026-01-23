@@ -43,7 +43,7 @@ public final class YAMLUtil {
         // Try to parse as a number
         if (Character.isDigit(first) || first == '-' || first == '+' || first == '.') {
             // For values starting with '.', check next char is digit
-            if (first == '.' && (value.length() == 1 || !Character.isDigit(value.charAt(1)))) {
+            if (first == '.' && (value.length() <= 1 || !Character.isDigit(value.charAt(1)))) {
                 return false;
             }
             try {
