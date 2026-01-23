@@ -1,17 +1,13 @@
 package brig.concord.hierarchy;
 
-import brig.concord.ConcordFileType;
-import brig.concord.psi.ConcordScopeService;
 import brig.concord.psi.ProcessDefinition;
+import brig.concord.psi.ProcessDefinitionProvider;
 import brig.concord.yaml.psi.*;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
-import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.search.searches.ReferencesSearch;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +20,7 @@ import java.util.*;
 public final class FlowCallFinder {
 
     private static final String CALL_KEY = "call";
-    private static final String FLOWS_KEY = "flows";
+    private static final String SWITCH_KEY = "switch";
     private static final Set<String> NESTED_STEP_KEYS = Set.of(
             "error", "try", "block", "parallel", "then", "else"
     );
@@ -47,49 +43,32 @@ public final class FlowCallFinder {
 
     /**
      * Find all places where the given flow is called.
+     * Uses ReferencesSearch to find all references to the flow definition.
      *
-     * @param project  the project
-     * @param flowName the name of the flow to search for callers
-     * @param scope    the search scope
+     * @param flowDefinition the flow definition (YAMLKeyValue under /flows)
+     * @param scope          the search scope
      * @return list of call sites where this flow is called
      */
     public static @NotNull List<CallSite> findCallers(
-            @NotNull Project project,
-            @NotNull String flowName,
+            @NotNull YAMLKeyValue flowDefinition,
             @NotNull GlobalSearchScope scope) {
 
+        var project = flowDefinition.getProject();
         if (ActionUtil.isDumbMode(project)) {
             return List.of();
         }
 
+        var flowName = flowDefinition.getKeyText();
         List<CallSite> result = new ArrayList<>();
-        var psiManager = PsiManager.getInstance(project);
 
-        FileTypeIndex.processFiles(ConcordFileType.INSTANCE, file -> {
-            var psiFile = psiManager.findFile(file);
-            if (psiFile == null) {
-                return true;
-            }
-
-            // Find all call: key-values in this file
-            var callKeyValues = findAllCallKeyValues(psiFile);
-            for (var callKv : callKeyValues) {
-                var value = callKv.getValue();
-                if (value instanceof YAMLScalar scalar) {
-                    var callTarget = scalar.getTextValue();
-                    if (isDynamicExpression(callTarget)) {
-                        // Dynamic expressions can't be resolved statically
-                        // but we include them in callers if the flow name appears in the expression
-                        if (callTarget.contains(flowName)) {
-                            result.add(new CallSite(callKv, callTarget, true));
-                        }
-                    } else if (flowName.equals(callTarget)) {
-                        result.add(new CallSite(callKv, flowName, false));
-                    }
-                }
+        ReferencesSearch.search(flowDefinition, scope).forEach(reference -> {
+            var element = reference.getElement();
+            var callKv = findCallKeyValue(element);
+            if (callKv != null) {
+                result.add(new CallSite(callKv, flowName, false));
             }
             return true;
-        }, scope);
+        });
 
         return result;
     }
@@ -106,7 +85,7 @@ public final class FlowCallFinder {
             return List.of();
         }
 
-        List<CallSite> result = new ArrayList<>();
+        var result = new ArrayList<CallSite>();
         collectCallsFromSteps(stepsSequence, result);
         return result;
     }
@@ -129,7 +108,7 @@ public final class FlowCallFinder {
     }
 
     /**
-     * Resolve a call site to its flow definition.
+     * Resolve a call site to its flow definition using existing references.
      *
      * @param callSite the call site
      * @return the flow definition, or null if not resolvable (e.g., dynamic expression)
@@ -139,37 +118,48 @@ public final class FlowCallFinder {
             return null;
         }
 
-        var element = callSite.callKeyValue();
-        var project = element.getProject();
+        var callKv = callSite.callKeyValue();
+        var value = callKv.getValue();
 
-        if (ActionUtil.isDumbMode(project)) {
-            return null;
+        if (value instanceof YAMLScalar scalar) {
+            var references = scalar.getReferences();
+            for (var ref : references) {
+                var resolved = ref.resolve();
+                if (resolved instanceof YAMLKeyValue flowKv && ProcessDefinition.isFlowDefinition(flowKv)) {
+                    return flowKv;
+                }
+            }
         }
 
-        var scope = ConcordScopeService.getInstance(project).createSearchScope(element);
-        var files = new ArrayList<com.intellij.openapi.vfs.VirtualFile>();
-
-        com.intellij.util.indexing.FileBasedIndex.getInstance().getFilesWithKey(
-                brig.concord.navigation.FlowNamesIndex.KEY,
-                Collections.singleton(callSite.flowName()),
-                files::add,
-                scope
-        );
-
-        var psiManager = PsiManager.getInstance(project);
-        for (var file : files) {
-            var psiFile = psiManager.findFile(file);
-            if (psiFile == null) {
-                continue;
-            }
-
-            var doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
-            var flowKv = findFlowInDocument(doc, callSite.flowName());
-            if (flowKv != null) {
+        // Fallback: use ProcessDefinition
+        var process = ProcessDefinitionProvider.getInstance().get(callKv);
+        if (process != null) {
+            var flow = process.flow(callSite.flowName());
+            if (flow instanceof YAMLKeyValue flowKv) {
                 return flowKv;
             }
         }
 
+        return null;
+    }
+
+    /**
+     * Find the call: key-value that contains the given element.
+     */
+    private static @Nullable YAMLKeyValue findCallKeyValue(@NotNull PsiElement element) {
+        // Element is typically the scalar value of call: flowName
+        // Walk up to find the YAMLKeyValue with key "call"
+        var parent = element.getParent();
+        if (parent instanceof YAMLKeyValue kv && CALL_KEY.equals(kv.getKeyText())) {
+            return kv;
+        }
+        // Try one more level up (for quoted strings)
+        if (parent != null) {
+            var grandParent = parent.getParent();
+            if (grandParent instanceof YAMLKeyValue kv && CALL_KEY.equals(kv.getKeyText())) {
+                return kv;
+            }
+        }
         return null;
     }
 
@@ -183,6 +173,9 @@ public final class FlowCallFinder {
     }
 
     private static void collectCallsFromStepMapping(@NotNull YAMLMapping mapping, @NotNull List<CallSite> result) {
+        // Check if this is a switch step - if so, all non-switch keys are case labels with steps
+        boolean isSwitchStep = mapping.getKeyValueByKey(SWITCH_KEY) != null;
+
         for (var kv : mapping.getKeyValues()) {
             var keyText = kv.getKeyText();
 
@@ -194,48 +187,18 @@ public final class FlowCallFinder {
                     result.add(new CallSite(kv, callTarget, isDynamic));
                 }
             } else if (NESTED_STEP_KEYS.contains(keyText)) {
-                // Recursively process nested steps
+                var nestedValue = kv.getValue();
+                if (nestedValue instanceof YAMLSequence nestedSeq) {
+                    collectCallsFromSteps(nestedSeq, result);
+                }
+            } else if (isSwitchStep && !SWITCH_KEY.equals(keyText)) {
+                // Case labels in switch step - their values are step sequences
                 var nestedValue = kv.getValue();
                 if (nestedValue instanceof YAMLSequence nestedSeq) {
                     collectCallsFromSteps(nestedSeq, result);
                 }
             }
         }
-    }
-
-    private static @NotNull List<YAMLKeyValue> findAllCallKeyValues(@NotNull PsiFile file) {
-        List<YAMLKeyValue> result = new ArrayList<>();
-        file.accept(new YamlRecursivePsiElementVisitor() {
-            @Override
-            public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
-                if (CALL_KEY.equals(keyValue.getKeyText())) {
-                    result.add(keyValue);
-                }
-                super.visitKeyValue(keyValue);
-            }
-        });
-        return result;
-    }
-
-    private static @Nullable YAMLKeyValue findFlowInDocument(@Nullable PsiElement doc, @NotNull String flowName) {
-        if (doc == null) {
-            return null;
-        }
-
-        // Navigate: Document -> root mapping -> flows key -> flows mapping -> flow key
-        if (doc instanceof YAMLDocument yamlDoc) {
-            var topValue = yamlDoc.getTopLevelValue();
-            if (topValue instanceof YAMLMapping rootMapping) {
-                var flowsKv = rootMapping.getKeyValueByKey(FLOWS_KEY);
-                if (flowsKv != null) {
-                    var flowsValue = flowsKv.getValue();
-                    if (flowsValue instanceof YAMLMapping flowsMapping) {
-                        return flowsMapping.getKeyValueByKey(flowName);
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     private static boolean isDynamicExpression(@NotNull String value) {

@@ -22,9 +22,9 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
 
     public FlowCallerTreeStructure(@NotNull Project project, @NotNull PsiElement element) {
         super(project, createBaseDescriptor(project, element));
-        var flowName = extractFlowName(element);
-        if (flowName != null) {
-            visitedFlows.add(flowName);
+        var flowKv = getFlowKeyValue(element);
+        if (flowKv != null) {
+            visitedFlows.add(flowKv.getKeyText());
         }
     }
 
@@ -35,24 +35,19 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
             return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
         }
 
-        // Get the flow name from the descriptor
-        String flowName;
-        if (descriptor instanceof FlowHierarchyNodeDescriptor flowDesc) {
-            if (flowDesc.isDynamic()) {
-                // Can't find callers for dynamic flows
-                return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
-            }
-            flowName = flowDesc.getFlowName();
-        } else {
-            flowName = extractFlowName(element);
+        // Can't find callers for dynamic flows
+        if (descriptor instanceof FlowHierarchyNodeDescriptor flowDesc && flowDesc.isDynamic()) {
+            return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
         }
 
-        if (flowName == null) {
+        // Get the flow definition
+        var flowKv = getFlowKeyValue(element);
+        if (flowKv == null) {
             return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
         }
 
         var scope = ConcordScopeService.getInstance(myProject).createSearchScope(element);
-        var callers = FlowCallFinder.findCallers(myProject, flowName, scope);
+        var callers = FlowCallFinder.findCallers(flowKv, scope);
 
         if (callers.isEmpty()) {
             return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
@@ -107,11 +102,6 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
                 false,
                 flowName
         );
-    }
-
-    private static String extractFlowName(@NotNull PsiElement element) {
-        var flowKv = getFlowKeyValue(element);
-        return flowKv != null ? flowKv.getKeyText() : null;
     }
 
     private static YAMLKeyValue getFlowKeyValue(@NotNull PsiElement element) {

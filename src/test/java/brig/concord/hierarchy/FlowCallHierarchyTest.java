@@ -4,7 +4,7 @@ import brig.concord.ConcordYamlTestBase;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -24,10 +24,13 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
-            var scope = com.intellij.psi.search.GlobalSearchScope.fileScope(myFixture.getFile());
-            var callers = FlowCallFinder.findCallers(getProject(), "targetFlow", scope);
+            var targetFlow = key("/flows/targetFlow").asKeyValue();
+
+            var scope = GlobalSearchScope.fileScope(myFixture.getFile());
+            var callers = FlowCallFinder.findCallers(targetFlow, scope);
 
             Assertions.assertEquals(1, callers.size());
+
             var caller = callers.getFirst();
             Assertions.assertEquals("targetFlow", caller.flowName());
             Assertions.assertFalse(caller.isDynamic());
@@ -59,8 +62,10 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
+            var targetFlow = key("/flows/targetFlow").asKeyValue();
+
             var scope = com.intellij.psi.search.GlobalSearchScope.fileScope(myFixture.getFile());
-            var callers = FlowCallFinder.findCallers(getProject(), "targetFlow", scope);
+            var callers = FlowCallFinder.findCallers(targetFlow, scope);
 
             Assertions.assertEquals(2, callers.size());
             var callerNames = callers.stream()
@@ -89,8 +94,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
-            var mainFlow = findFlowByName("mainFlow");
-            Assertions.assertNotNull(mainFlow);
+            var mainFlow = key("/flows/mainFlow").asKeyValue();
 
             var callees = FlowCallFinder.findCallees(mainFlow);
             Assertions.assertEquals(2, callees.size());
@@ -130,8 +134,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
-            var mainFlow = findFlowByName("mainFlow");
-            Assertions.assertNotNull(mainFlow);
+            var mainFlow = key("/flows/mainFlow").asKeyValue();
 
             var callees = FlowCallFinder.findCallees(mainFlow);
             Assertions.assertEquals(4, callees.size());
@@ -142,6 +145,46 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                     .toList();
             Assertions.assertEquals(
                     List.of("errorFlow", "parallelFlow1", "parallelFlow2", "tryFlow"),
+                    calleeNames
+            );
+        });
+    }
+
+    @Test
+    public void testFindCalleesInSwitchStep() {
+        configureFromText("""
+                flows:
+                  mainFlow:
+                    - switch: ${action}
+                      case1:
+                        - call: flow1
+                      case2:
+                        - call: flow2
+                      default:
+                        - call: defaultFlow
+
+                  flow1:
+                    - log: "flow1"
+
+                  flow2:
+                    - log: "flow2"
+
+                  defaultFlow:
+                    - log: "default"
+                """);
+
+        ReadAction.run(() -> {
+            var mainFlow = key("/flows/mainFlow").asKeyValue();
+
+            var callees = FlowCallFinder.findCallees(mainFlow);
+            Assertions.assertEquals(3, callees.size());
+
+            var calleeNames = callees.stream()
+                    .map(FlowCallFinder.CallSite::flowName)
+                    .sorted()
+                    .toList();
+            Assertions.assertEquals(
+                    List.of("defaultFlow", "flow1", "flow2"),
                     calleeNames
             );
         });
@@ -160,9 +203,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
-            var mainFlow = findFlowByName("mainFlow");
-            Assertions.assertNotNull(mainFlow);
-
+            var mainFlow = key("/flows/mainFlow").asKeyValue();
             var callees = FlowCallFinder.findCallees(mainFlow);
             Assertions.assertEquals(2, callees.size());
 
@@ -193,8 +234,8 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
-            // Get the call: innerFlow element
-            var outerFlow = findFlowByName("outerFlow");
+            var outerFlow = key("/flows/outerFlow").asKeyValue();
+
             var callees = FlowCallFinder.findCallees(outerFlow);
             var callSite = callees.getFirst();
 
@@ -216,7 +257,8 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
-            var mainFlow = findFlowByName("mainFlow");
+            var mainFlow = key("/flows/mainFlow").asKeyValue();
+
             var callees = FlowCallFinder.findCallees(mainFlow);
             Assertions.assertEquals(1, callees.size());
 
@@ -242,8 +284,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
-            var targetFlow = findFlowByName("target");
-            Assertions.assertNotNull(targetFlow);
+            var targetFlow = key("/flows/target").asKeyValue();
 
             var structure = new FlowCallerTreeStructure(getProject(), targetFlow);
             var root = structure.getRootElement();
@@ -270,8 +311,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
                 """);
 
         ReadAction.run(() -> {
-            var mainFlow = findFlowByName("main");
-            Assertions.assertNotNull(mainFlow);
+            var mainFlow = key("/flows/main").asKeyValue();
 
             var structure = new FlowCalleeTreeStructure(getProject(), mainFlow);
             var root = structure.getRootElement();
@@ -295,18 +335,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
             var flowKv = (YAMLKeyValue) flowKey.getParent();
 
             var provider = new FlowCallHierarchyProvider();
-            // Check that the flow definition is applicable
             Assertions.assertTrue(ProcessDefinition.isFlowDefinition(flowKv));
         });
-    }
-
-    private YAMLKeyValue findFlowByName(String name) {
-        var allKeyValues = PsiTreeUtil.findChildrenOfType(myFixture.getFile(), YAMLKeyValue.class);
-        for (var kv : allKeyValues) {
-            if (name.equals(kv.getKeyText()) && ProcessDefinition.isFlowDefinition(kv)) {
-                return kv;
-            }
-        }
-        return null;
     }
 }
