@@ -27,6 +27,9 @@
         <applicationService serviceImplementation="brig.concord.smart.YAMLEditorOptions"/>
         <applicationSettings service="brig.concord.smart.YAMLEditorOptions"/>
 
+        <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliSettings"/>
+        <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliManager"/>
+
         <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
 
         <!-- Syntax highlighting / colors -->
@@ -144,6 +147,23 @@
                          implementationClass="brig.concord.inspection.DuplicateFlowNameInspection"/>
 
         <notificationGroup id="Concord Notification Group" displayType="BALLOON" key="notification.group.concord"/>
+
+        <!-- CLI Settings -->
+        <applicationConfigurable
+                parentId="tools"
+                instance="brig.concord.run.cli.ConcordCliConfigurable"
+                id="brig.concord.cli.settings"
+                bundle="messages.ConcordBundle"
+                key="cli.settings.display.name"/>
+
+        <!-- Run Configuration -->
+        <configurationType implementation="brig.concord.run.ConcordRunConfigurationType"/>
+        <runConfigurationProducer implementation="brig.concord.run.ConcordRunConfigurationProducer"/>
+
+        <!-- Run Line Marker -->
+        <codeInsight.lineMarkerProvider
+                language="Concord"
+                implementationClass="brig.concord.run.ConcordFlowRunLineMarkerProvider"/>
     </extensions>
 
 </idea-plugin>
