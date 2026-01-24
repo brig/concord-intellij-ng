@@ -9,6 +9,7 @@ import brig.concord.yaml.psi.YamlPsiElementVisitor;
 import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
@@ -63,12 +64,10 @@ public class DuplicateFlowNameInspection extends LocalInspectionTool {
         }
 
         var currentFile = keyValue.getContainingFile().getVirtualFile();
-        var scope = ConcordScopeService.getInstance(keyValue.getProject()).getPrimaryScope(currentFile);
-
         for (var flow : process.flows(flowName)) {
             var flowFile = flow.getContainingFile().getVirtualFile();
             if (!flowFile.equals(currentFile)) {
-                var relativePath = getRelativePath(scope, flowFile);
+                var relativePath = getRelativePath(keyValue.getProject(), flowFile);
                 holder.registerProblem(
                         keyElement,
                         ConcordBundle.message("inspection.duplicate.flow.name.message", flowName, relativePath),
@@ -81,11 +80,14 @@ public class DuplicateFlowNameInspection extends LocalInspectionTool {
         }
     }
 
-    private static String getRelativePath(ConcordRoot scope, VirtualFile file) {
-        if (scope != null) {
-            var rootDir = scope.getRootDir();
+    private static String getRelativePath(Project project, VirtualFile file) {
+        var projectDir = project.getBasePath();
+        if (projectDir != null) {
+            var rootPath = Path.of(projectDir);
             var filePath = Path.of(file.getPath());
-            return rootDir.relativize(filePath).toString();
+            if (filePath.startsWith(rootPath)) {
+                return rootPath.relativize(filePath).toString();
+            }
         }
         return file.getName();
     }

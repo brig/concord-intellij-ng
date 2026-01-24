@@ -81,20 +81,38 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testGetPrimaryScope() {
-        var yaml = myFixture.addFileToProject(
+    public void testMultipleScopesForFile() {
+        // Root 1 at the top, but it ONLY includes files in sub/shared/
+        var root1 = myFixture.addFileToProject(
                 "concord.yaml",
                 """
-                        configuration:
-                            runtime: concord-v2
+                        resources:
+                          concord:
+                            - "glob:sub/shared/*.concord.yaml"
                         """);
 
-        var vFile = yaml.getVirtualFile();
-        var service = ConcordScopeService.getInstance(getProject());
+        // Root 2 in sub/, includes files in shared/
+        var root2 = myFixture.addFileToProject(
+                "sub/concord.yaml",
+                """
+                        resources:
+                          concord:
+                            - "glob:shared/*.concord.yaml"
+                        """);
 
-        var primaryScope = service.getPrimaryScope(vFile);
-        Assertions.assertNotNull(primaryScope);
-        Assertions.assertEquals("src", primaryScope.getScopeName());
+        // The shared file is in sub/shared/, which is under both root 1 and root 2
+        var sharedFile = myFixture.addFileToProject(
+                "sub/shared/utils.concord.yaml",
+                "flows: {}"
+        );
+
+        var service = ConcordScopeService.getInstance(getProject());
+        var roots = service.findRoots();
+        // Both should be roots because root1 doesn't include root2's file in its patterns
+        Assertions.assertEquals(2, roots.size());
+
+        var scopes = service.getScopesForFile(sharedFile.getVirtualFile());
+        Assertions.assertEquals(2, scopes.size());
     }
 
     @Test

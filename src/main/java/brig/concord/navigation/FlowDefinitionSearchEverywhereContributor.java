@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FlowDefinitionSearchEverywhereContributor implements SearchEverywhereContributor<FlowDefinitionNavigationItem> {
 
@@ -142,11 +143,12 @@ public class FlowDefinitionSearchEverywhereContributor implements SearchEverywhe
 
                 var position = FileBasedIndex.getInstance().getFileData(FlowNamesIndex.KEY, file, myProject).get(name);
                 if (position != null) {
-                    String scopeName = null;
-                    var primaryScope = scopeService.getPrimaryScope(file);
-                    if (primaryScope != null) {
-                        scopeName = primaryScope.getScopeName();
-                    }
+                    var scopes = scopeService.getScopesForFile(file);
+                    var scopeName = scopes.isEmpty() ? null :
+                            scopes.stream()
+                                    .map(brig.concord.psi.ConcordRoot::getScopeName)
+                                    .distinct()
+                                    .collect(Collectors.joining(", "));
 
                     if (!consumer.process(new FlowDefinitionNavigationItem(myProject, name, file, position, scopeName))) {
                         return;
