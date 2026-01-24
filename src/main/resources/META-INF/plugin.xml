@@ -30,6 +30,9 @@
         <applicationService serviceImplementation="brig.concord.smart.YAMLEditorOptions"/>
         <applicationSettings service="brig.concord.smart.YAMLEditorOptions"/>
 
+        <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliSettings"/>
+        <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliManager"/>
+
         <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
         <projectService serviceImplementation="brig.concord.GitIgnoreChangeListener"
                         preload="true"/>
@@ -164,6 +167,23 @@
                          groupKey="inspections.group.name"
                          enabledByDefault="true"
                          implementationClass="brig.concord.inspection.OutOfScopeInspection"/>
+
+        <!-- CLI Settings -->
+        <applicationConfigurable
+                parentId="tools"
+                instance="brig.concord.run.cli.ConcordCliConfigurable"
+                id="brig.concord.cli.settings"
+                bundle="messages.ConcordBundle"
+                key="cli.settings.display.name"/>
+
+        <!-- Run Configuration -->
+        <configurationType implementation="brig.concord.run.ConcordRunConfigurationType"/>
+        <runConfigurationProducer implementation="brig.concord.run.ConcordRunConfigurationProducer"/>
+
+        <!-- Run Line Marker -->
+        <codeInsight.lineMarkerProvider
+                language="Concord"
+                implementationClass="brig.concord.run.ConcordFlowRunLineMarkerProvider"/>
     </extensions>
 
 </idea-plugin>
