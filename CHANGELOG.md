@@ -6,6 +6,9 @@
 
 ### Changed
 
+- fix for completion functionality in multi-scope projects
+([#56](https://github.com/brig/concord-intellij-ng/pull/56))
+  
 ## 0.16.0 - 2026-01-23
 
 ### Added
