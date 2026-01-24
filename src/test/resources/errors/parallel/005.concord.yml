@@ -1,7 +1,0 @@
-flows:
-  main:
-    - parallel:
-        - log: me
-      meta:
-        m1: "v1"
-      trash:

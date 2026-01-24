@@ -1,7 +1,0 @@
-flows:
-  main:
-    - script: "groovy"
-      body: |
-        throw new RuntimeException("kaboom!")
-      error:
-        - ""

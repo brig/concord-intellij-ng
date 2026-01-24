@@ -1,3 +1,0 @@
-triggers:
-  - github:
-      version: "x"

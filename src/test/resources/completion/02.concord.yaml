@@ -1,6 +1,0 @@
-flows:
-  default:
-    - call: <caret>
-
-  myflow1:
-    - log: "ME"

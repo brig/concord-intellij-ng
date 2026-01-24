@@ -1,8 +1,0 @@
-flows:
-  main:
-    - task: "boo"
-      out: "result"
-      in:
-        k: "v"
-        k2: 2
-        k3:

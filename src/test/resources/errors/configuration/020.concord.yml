@@ -1,9 +1,0 @@
-configuration:
-  entryPoint: "main-test"
-  template:
-    - "t1"
-    - "t2"
-
-flows:
-  main-test:
-    - log: "test"

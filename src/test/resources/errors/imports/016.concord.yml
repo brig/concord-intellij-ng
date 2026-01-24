@@ -1,6 +1,0 @@
-imports:
-  - git:
-      name: "org/repo"
-      exclude:
-        - "test"
-        - "[."

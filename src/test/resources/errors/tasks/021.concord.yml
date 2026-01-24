@@ -1,7 +1,0 @@
-flows:
-  main:
-    - name: "123123"
-      task: "boo"
-      loop:
-        items: "${myItems}"
-        parallelism: one

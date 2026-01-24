@@ -1,3 +1,0 @@
-imports:
-  - mvn: "one"
-  - git: "two"

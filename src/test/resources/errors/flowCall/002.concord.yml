@@ -1,4 +1,0 @@
-flows:
-  main:
-    - call: "boo"
-      out:

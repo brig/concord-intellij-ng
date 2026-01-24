@@ -1,7 +1,0 @@
-flows:
-  main:
-    - set:
-        k: "v"
-        x: "y"
-      meta1:
-        boo: moo

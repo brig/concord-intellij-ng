@@ -1,7 +1,0 @@
-flows:
-  main:
-    - switch: "${color}"
-      red:
-        - log: "It's red!"
-      default:
-        - log: "default"

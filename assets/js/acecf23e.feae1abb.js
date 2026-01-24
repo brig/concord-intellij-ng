@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkdocs_site=globalThis.webpackChunkdocs_site||[]).push([[1903],{1912(o){o.exports=JSON.parse('{"blogBasePath":"/concord-intellij-ng/blog","blogTitle":"Blog","authorsListPath":"/concord-intellij-ng/blog/authors"}')}}]);

@@ -1,9 +1,0 @@
-triggers:
-  - manual:
-      name: Deploy Dev and Test
-      entryPoint: "main"
-      activeProfiles: 1
-
-flows:
-  main:
-    - log: "test"

@@ -1,3 +1,0 @@
-triggers:
-  - manual:
-      name: Deploy Dev and Test

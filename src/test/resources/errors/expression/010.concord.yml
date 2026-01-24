@@ -1,8 +1,0 @@
-flows:
-  main:
-    - expr: "${boo}"
-      out: "result"
-      meta:
-        k: "v"
-      error:
-        - "a"

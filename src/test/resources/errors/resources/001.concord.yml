@@ -1,5 +1,0 @@
-resources:
-  trash:
-    - "glob:abc"
-    - "regex:boo"
-    - "concord/myfile.yml"

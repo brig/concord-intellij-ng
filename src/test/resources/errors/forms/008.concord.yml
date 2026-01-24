@@ -1,3 +1,0 @@
-forms:
-  myForm:
-    - fullName: { pattern: ".* .*", readonly: true, placeholder: "Place name here" }

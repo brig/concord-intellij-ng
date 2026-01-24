@@ -1,9 +1,0 @@
-flows:
-  default:
-    - name: "expression-call"
-      expr: "${1+1}"
-      out: "result"
-      meta:
-        m1: "v1"
-      error:
-        - log: "${booError}"

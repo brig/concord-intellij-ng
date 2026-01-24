@@ -1,8 +1,0 @@
-configuration:
-  entryPoint: "main-test"
-  dependencies:
-    - 1
-
-flows:
-  main-test:
-    - log: "test"

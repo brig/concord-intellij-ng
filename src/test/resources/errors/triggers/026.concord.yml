@@ -1,4 +1,0 @@
-triggers:
-  - oneops:
-      version: 2
-      entryPoint: "main"

@@ -1,4 +1,0 @@
-triggers:
-  - cron:
-      spec: "*"
-      entryPoint: 1

@@ -1,8 +1,0 @@
-- инспекция для двойного блока flow doc
-- docs
-- fixed triggers version = 2
-- resolve imports
-- resolve tasks
-- validate tasks input params
-- validate flows input params
-- validate script dependencies
