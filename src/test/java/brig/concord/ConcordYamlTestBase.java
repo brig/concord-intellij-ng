@@ -49,18 +49,14 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
     }
 
     protected YAMLFile configureFromText(@NotNull String content) {
-        var file = myFixture.configureByText(ConcordFileType.INSTANCE, content);
+        var file = myFixture.configureByText("concord.yaml", content);
         var yaml = Assertions.assertInstanceOf(YAMLFile.class, file);
         yamlPath = new ConcordYamlPath(yaml);
         return yaml;
     }
 
     protected PsiFile configureFromResource(@NotNull String resourcePath) {
-        return configureFromText(loadResource(resourcePath));
-    }
-
-    protected PsiFile configureFromResource(@NotNull String resourcePath, boolean trim) {
-        return configureFromText(loadResource(resourcePath, trim));
+        return configureFromText("concord.yaml", loadResource(resourcePath));
     }
 
     protected void configureFromExistingFile(@NotNull PsiFile file) {

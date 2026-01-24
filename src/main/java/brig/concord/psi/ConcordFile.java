@@ -4,6 +4,7 @@ import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLSequence;
 import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.Set;
@@ -19,6 +20,14 @@ public interface ConcordFile extends PsiFile {
 
     static boolean isRootFileName(String name) {
         return PROJECT_ROOT_FILE_NAMES.contains(name);
+    }
+
+    static boolean isConcordFileName(@NotNull String name) {
+        if (name.endsWith(".concord.yml") || name.endsWith(".concord.yaml")) {
+            return true;
+        }
+
+        return isRootFileName(name);
     }
 
     Optional<YAMLDocument> getDocument();

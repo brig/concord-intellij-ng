@@ -40,12 +40,18 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
 
     @Override
     public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
-        ProcessDefinition processDefinition = processDefinition(insertedScalar);
+        var processDefinition = ProcessDefinitionProvider.getInstance().get(insertedScalar);
         if (processDefinition == null) {
-            return Collections.emptyList();
+            return List.of();
+        }
+
+        var currentFlow = ProcessDefinition.findEnclosingFlowDefinition(insertedScalar);
+        if (currentFlow == null) {
+            return List.of();
         }
 
         return processDefinition.flowNames().stream()
+                .filter(name -> !name.equals(currentFlow.getKeyText()))
                 .sorted()
                 .map(name -> LookupElementBuilder.create(name)
                         .withPresentableText(name))
@@ -56,13 +62,13 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
     protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
         super.validateScalarValue(value, holder);
 
-        String maybeFlowName = value.getTextValue();
+        var maybeFlowName = value.getTextValue();
         if (containsExpression(maybeFlowName)) {
             return;
         }
 
-        PsiReference[] flowRefs = value.getReferences();
-        for (PsiReference ref : flowRefs) {
+        var flowRefs = value.getReferences();
+        for (var ref : flowRefs) {
             if (ref instanceof FlowDefinitionReference fdr) {
                 if (fdr.multiResolve(false).length > 0) {
                     return;
@@ -71,9 +77,5 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
         }
 
         holder.registerProblem(value, ConcordBundle.message("CallStepMetaType.error.undefinedFlow"), ProblemHighlightType.ERROR);
-    }
-
-    private static ProcessDefinition processDefinition(YAMLValue value) {
-        return ProcessDefinitionProvider.getInstance().get(value);
     }
 }
