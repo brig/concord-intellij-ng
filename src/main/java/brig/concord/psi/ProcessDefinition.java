@@ -27,6 +27,24 @@ public class ProcessDefinition {
     }
 
     /**
+     * Finds the enclosing flow definition for the given element.
+     * Traverses up the PSI tree until it finds a YAMLKeyValue that is a flow definition.
+     *
+     * @param element any PSI element within a flow
+     * @return the flow definition YAMLKeyValue, or null if not found
+     */
+    public static @Nullable YAMLKeyValue findEnclosingFlowDefinition(@Nullable PsiElement element) {
+        var current = element;
+        while (current != null) {
+            if (current instanceof YAMLKeyValue kv && isFlowDefinition(kv)) {
+                return kv;
+            }
+            current = current.getParent();
+        }
+        return null;
+    }
+
+    /**
      * Checks if the given key-value element is a flow definition.
      * A flow definition is a direct child of the root-level 'flows' mapping.
      * Structure: YAMLDocument -> YAMLMapping -> YAMLKeyValue(flows) -> YAMLMapping -> YAMLKeyValue(flow definition)

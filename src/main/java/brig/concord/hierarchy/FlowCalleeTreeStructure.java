@@ -11,6 +11,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static brig.concord.psi.ProcessDefinition.findEnclosingFlowDefinition;
+
 /**
  * Tree structure for "Callees" view in flow hierarchy.
  * Shows all flows that are called from within the selected flow.
@@ -40,7 +42,7 @@ public class FlowCalleeTreeStructure extends HierarchyTreeStructure {
         }
 
         // Get the flow definition
-        YAMLKeyValue flowKv = FlowCallFinder.getFlowDefinition(element);
+        var flowKv = findEnclosingFlowDefinition(element);
         if (flowKv == null) {
             return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
         }
@@ -113,7 +115,7 @@ public class FlowCalleeTreeStructure extends HierarchyTreeStructure {
     private static @NotNull FlowHierarchyNodeDescriptor createBaseDescriptor(
             @NotNull Project project,
             @NotNull PsiElement element) {
-        var flowKv = FlowCallFinder.getFlowDefinition(element);
+        var flowKv = findEnclosingFlowDefinition(element);
         var flowName = flowKv != null ? flowKv.getKeyText() : FlowHierarchyNodeDescriptor.UNKNOWN_FLOW;
         return new FlowHierarchyNodeDescriptor(
                 project,

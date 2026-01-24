@@ -18,6 +18,8 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static brig.concord.psi.ProcessDefinition.findEnclosingFlowDefinition;
+
 /**
  * Entry point for Call Hierarchy feature for Concord flows.
  * Activated when user invokes "Call Hierarchy" (Ctrl+Alt+H) on a flow.
@@ -68,7 +70,7 @@ public class FlowCallHierarchyProvider implements HierarchyProvider {
                 return resolved;
             }
             // If can't resolve, return the call site element's containing flow
-            var containingFlow = FlowCallFinder.findContainingFlow(callTarget);
+            var containingFlow = findEnclosingFlowDefinition(callTarget);
             return containingFlow != null ? containingFlow : callTarget;
         }
 

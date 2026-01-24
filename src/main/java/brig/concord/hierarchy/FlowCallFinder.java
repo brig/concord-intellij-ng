@@ -16,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static brig.concord.psi.ProcessDefinition.findEnclosingFlowDefinition;
+
 public final class FlowCallFinder {
 
     private static final String CALL_KEY = CallStepMetaType.getInstance().getIdentity();
@@ -92,23 +94,6 @@ public final class FlowCallFinder {
     }
 
     /**
-     * Find the containing flow definition for a given element.
-     *
-     * @param element any PSI element within a Concord file
-     * @return the YAMLKeyValue representing the flow definition, or null if not inside a flow
-     */
-    public static @Nullable YAMLKeyValue findContainingFlow(@NotNull PsiElement element) {
-        var current = element;
-        while (current != null) {
-            if (current instanceof YAMLKeyValue kv && ProcessDefinition.isFlowDefinition(kv)) {
-                return kv;
-            }
-            current = current.getParent();
-        }
-        return null;
-    }
-
-    /**
      * Resolve a call site to its flow definition using existing references.
      *
      * @param callSite the call site
@@ -145,20 +130,10 @@ public final class FlowCallFinder {
     }
 
     /**
-     * Get the flow definition from the element (either the element itself or its container).
-     */
-    public static @Nullable YAMLKeyValue getFlowDefinition(@NotNull PsiElement element) {
-        if (element instanceof YAMLKeyValue kv && ProcessDefinition.isFlowDefinition(kv)) {
-            return kv;
-        }
-        return findContainingFlow(element);
-    }
-
-    /**
      * Get the name of the flow from the element.
      */
     public static @Nullable String getFlowName(@NotNull PsiElement element) {
-        var flowKv = getFlowDefinition(element);
+        var flowKv = findEnclosingFlowDefinition(element);
         return flowKv != null ? flowKv.getKeyText() : null;
     }
 
