@@ -4,6 +4,9 @@
 
 ### Added
 
+- added inspection and notification when Concord YAML files are outside their defined scope
+([#57](https://github.com/brig/concord-intellij-ng/pull/57))
+  
 ### Changed
 
 - fix for completion functionality in multi-scope projects
