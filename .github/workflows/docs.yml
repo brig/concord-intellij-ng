@@ -23,10 +23,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 25.4.0
           cache: npm
           cache-dependency-path: docs-site/package-lock.json
 
+      - run: npm i -g npm@11.7.0
       - run: node -v && npm -v
       - run: npm ci
       - run: npm run build
