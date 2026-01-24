@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static brig.concord.psi.ProcessDefinition.findEnclosingFlowDefinition;
+
 public class FlowCallHierarchyTest extends ConcordYamlTestBase {
 
     @Test
@@ -35,7 +37,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
             Assertions.assertEquals("targetFlow", caller.flowName());
             Assertions.assertFalse(caller.isDynamic());
 
-            var containingFlow = FlowCallFinder.findContainingFlow(caller.callKeyValue());
+            var containingFlow = findEnclosingFlowDefinition(caller.callKeyValue());
             Assertions.assertNotNull(containingFlow);
             Assertions.assertEquals("callerFlow", containingFlow.getKeyText());
         });
@@ -69,7 +71,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
 
             Assertions.assertEquals(2, callers.size());
             var callerNames = callers.stream()
-                    .map(c -> FlowCallFinder.findContainingFlow(c.callKeyValue()))
+                    .map(c -> findEnclosingFlowDefinition(c.callKeyValue()))
                     .filter(java.util.Objects::nonNull)
                     .map(YAMLKeyValue::getKeyText)
                     .sorted()
@@ -239,7 +241,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
             var callees = FlowCallFinder.findCallees(outerFlow);
             var callSite = callees.getFirst();
 
-            var containingFlow = FlowCallFinder.findContainingFlow(callSite.callKeyValue());
+            var containingFlow = findEnclosingFlowDefinition(callSite.callKeyValue());
             Assertions.assertNotNull(containingFlow);
             Assertions.assertEquals("outerFlow", containingFlow.getKeyText());
         });
