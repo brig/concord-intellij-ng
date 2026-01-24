@@ -1,4 +1,5 @@
 const config = {
+    title: 'Concord IntelliJ Plugin',
     url: 'https://brig.github.io',
     baseUrl: '/concord-intellij-ng/',
     organizationName: 'brig',
