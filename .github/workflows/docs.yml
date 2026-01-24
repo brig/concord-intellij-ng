@@ -38,9 +38,8 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Deploy to GitHub Pages
-        run: |
-          GIT_USER=github-actions[bot] \
-          USE_SSH=false \
-          npm run deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER: github-actions[bot]
+          GIT_PASS: ${{ secrets.GITHUB_TOKEN }}
+          USE_SSH: "false"
+        run: npm run deploy
