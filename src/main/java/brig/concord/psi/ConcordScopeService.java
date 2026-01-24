@@ -99,6 +99,25 @@ public final class ConcordScopeService {
     }
 
     /**
+     * Checks if the given file is considered "out of scope".
+     * A file is out of scope if:
+     * 1. It is a Concord file
+     * 2. It is not a root file
+     * 3. It is not included in any scope
+     */
+    public boolean isOutOfScope(@NotNull VirtualFile file) {
+        if (!isConcordFileName(file.getName())) {
+            return false;
+        }
+
+        if (isRootFile(file)) {
+            return false;
+        }
+
+        return getScopesForFile(file).isEmpty();
+    }
+
+    /**
      * Creates a GlobalSearchScope that includes all files visible from the given context element.
      * This scope includes all files from all scopes that contain the context file.
      *

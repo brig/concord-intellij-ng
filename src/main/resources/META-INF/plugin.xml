@@ -144,6 +144,18 @@
                          implementationClass="brig.concord.inspection.DuplicateFlowNameInspection"/>
 
         <notificationGroup id="Concord Notification Group" displayType="BALLOON" key="notification.group.concord"/>
+
+        <editorNotificationProvider
+                implementation="brig.concord.notification.OutOfScopeEditorNotificationProvider"/>
+
+        <localInspection language="Concord"
+                         bundle="messages.ConcordBundle"
+                         shortName="OutOfScope"
+                         level="WARNING"
+                         key="inspections.out.of.scope.name"
+                         groupKey="inspections.group.name"
+                         enabledByDefault="true"
+                         implementationClass="brig.concord.inspection.OutOfScopeInspection"/>
     </extensions>
 
 </idea-plugin>
