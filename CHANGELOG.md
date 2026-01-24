@@ -1,5 +1,7 @@
 # concord-intellij-plugin Changelog
 
+## Unreleased
+
 ### Added
 
 ### Changed

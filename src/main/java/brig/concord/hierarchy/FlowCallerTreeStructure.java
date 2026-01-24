@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
+import static brig.concord.psi.ProcessDefinition.findEnclosingFlowDefinition;
+
 /**
  * Tree structure for "Callers" view in flow hierarchy.
  * Shows all flows that call the selected flow.
@@ -41,7 +43,7 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
         }
 
         // Get the flow definition
-        var flowKv = FlowCallFinder.getFlowDefinition(element);
+        var flowKv = findEnclosingFlowDefinition(element);
         if (flowKv == null) {
             return ArrayUtilRt.EMPTY_OBJECT_ARRAY;
         }
@@ -56,7 +58,7 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
         // Group call sites by containing flow
         Map<YAMLKeyValue, List<FlowCallFinder.CallSite>> callersByFlow = new LinkedHashMap<>();
         for (var callSite : callers) {
-            var containingFlow = FlowCallFinder.findContainingFlow(callSite.callKeyValue());
+            var containingFlow = findEnclosingFlowDefinition(callSite.callKeyValue());
             if (containingFlow != null) {
                 callersByFlow.computeIfAbsent(containingFlow, k -> new ArrayList<>()).add(callSite);
             }
@@ -92,7 +94,7 @@ public class FlowCallerTreeStructure extends HierarchyTreeStructure {
     private static @NotNull FlowHierarchyNodeDescriptor createBaseDescriptor(
             @NotNull Project project,
             @NotNull PsiElement element) {
-        var flowKv = FlowCallFinder.getFlowDefinition(element);
+        var flowKv = findEnclosingFlowDefinition(element);
         var flowName = flowKv != null ? flowKv.getKeyText() : FlowHierarchyNodeDescriptor.UNKNOWN_FLOW;
         return new FlowHierarchyNodeDescriptor(
                 project,
