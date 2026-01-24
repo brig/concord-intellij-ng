@@ -76,29 +76,6 @@ public final class ConcordScopeService {
     }
 
     /**
-     * Returns the primary scope for the given file.
-     * If a file belongs to multiple scopes, returns the most specific one
-     * (the one with the deepest root directory).
-     *
-     * @param file the file to check
-     * @return the primary scope, or null if the file doesn't belong to any scope
-     */
-    public @Nullable ConcordRoot getPrimaryScope(@NotNull VirtualFile file) {
-        var scopes = getScopesForFile(file);
-        if (scopes.isEmpty()) {
-            return null;
-        }
-        if (scopes.size() == 1) {
-            return scopes.getFirst();
-        }
-
-        // Return the deepest scope (most specific)
-        return scopes.stream()
-                .max(Comparator.comparingInt(r -> r.getRootDir().getNameCount()))
-                .orElse(scopes.getFirst());
-    }
-
-    /**
      * Checks if the given file is considered "out of scope".
      * A file is out of scope if:
      * 1. It is a Concord file
