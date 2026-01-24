@@ -2,7 +2,6 @@ package brig.concord.hierarchy;
 
 import brig.concord.ConcordBundle;
 import brig.concord.ConcordIcons;
-import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.ide.hierarchy.HierarchyNodeDescriptor;
 import com.intellij.ide.util.treeView.NodeDescriptor;
 import com.intellij.openapi.editor.markup.TextAttributes;
@@ -28,17 +27,6 @@ public class FlowHierarchyNodeDescriptor extends HierarchyNodeDescriptor {
     private final boolean isDynamic;
     private final String flowName;
     private final boolean isBaseElement;
-
-    public FlowHierarchyNodeDescriptor(
-            @NotNull Project project,
-            @Nullable NodeDescriptor<?> parentDescriptor,
-            @NotNull PsiElement element,
-            boolean isBase) {
-        super(project, parentDescriptor, element, isBase);
-        this.isDynamic = false;
-        this.flowName = extractFlowName(element);
-        this.isBaseElement = isBase;
-    }
 
     public FlowHierarchyNodeDescriptor(
             @NotNull Project project,
@@ -123,17 +111,5 @@ public class FlowHierarchyNodeDescriptor extends HierarchyNodeDescriptor {
             return fileName + ":" + lineNumber;
         }
         return fileName;
-    }
-
-    private static @NotNull String extractFlowName(@NotNull PsiElement element) {
-        if (element instanceof YAMLKeyValue kv) {
-            return kv.getKeyText();
-        }
-        // For call sites, try to find the containing flow
-        var containingFlow = FlowCallFinder.findContainingFlow(element);
-        if (containingFlow != null) {
-            return containingFlow.getKeyText();
-        }
-        return UNKNOWN_FLOW;
     }
 }

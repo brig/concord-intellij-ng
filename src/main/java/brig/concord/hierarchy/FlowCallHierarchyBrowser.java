@@ -15,6 +15,8 @@ import javax.swing.*;
 import java.util.Comparator;
 import java.util.Map;
 
+import static brig.concord.psi.ProcessDefinition.findEnclosingFlowDefinition;
+
 /**
  * Browser component for flow call hierarchy.
  * Provides "Callers" and "Callees" views for Concord flows.
@@ -58,13 +60,7 @@ public class FlowCallHierarchyBrowser extends CallHierarchyBrowserBase {
         if (element instanceof YAMLKeyValue kv) {
             return ProcessDefinition.isFlowDefinition(kv);
         }
-        // Also allow if we're inside a flow
-        return FlowCallFinder.findContainingFlow(element) != null;
-    }
-
-    @Override
-    protected @Nullable JPanel createLegendPanel() {
-        return null;
+        return findEnclosingFlowDefinition(element) != null;
     }
 
     @Override
