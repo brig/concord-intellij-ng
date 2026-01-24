@@ -51,7 +51,7 @@ public final class FlowNamesIndex extends FileBasedIndexExtension<String, Intege
                     public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
                         var key = keyValue.getKey();
                         if (key != null && isFlowDefinition(keyValue)) {
-                            map.put(keyValue.getKeyText(), key.getTextOffset());
+                            map.put(key.getText(), key.getTextOffset());
                         }
                         super.visitKeyValue(keyValue);
                     }
