@@ -2,7 +2,6 @@ package brig.concord.completion;
 
 import brig.concord.ConcordYamlTestBase;
 import com.intellij.codeInsight.completion.CompletionType;
-import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Test;
 
 public class CompletionTest extends ConcordYamlTestBase {
