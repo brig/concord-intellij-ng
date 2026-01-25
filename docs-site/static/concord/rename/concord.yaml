@@ -1,0 +1,7 @@
+flows:
+  deployApp:
+    - log: "Deploying..."
+
+  main:
+    - call: deployApp
+    - log: "Done calling deployApp"

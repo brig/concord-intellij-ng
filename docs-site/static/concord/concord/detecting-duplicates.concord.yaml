@@ -1,0 +1,3 @@
+flows:
+  setupEnvironment:
+    - log: "Initializing environment..."

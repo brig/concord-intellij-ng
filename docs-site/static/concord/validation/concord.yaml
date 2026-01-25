@@ -1,0 +1,5 @@
+flows:
+  main:
+    - if: "${deploySuccess}"
+      else:
+        - log: "Success"

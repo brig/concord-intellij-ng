@@ -1,0 +1,6 @@
+flows:
+  redeployService:
+    - log: "Redeploying service to production..."
+
+  deployService:
+    - log: "Deploying service to production..."
