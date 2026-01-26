@@ -13,4 +13,4 @@ flows:
   deployApp1:
     - log: "Deploying to ${cluster}/${namespace}..."
     - set:
-        deployId: "test-depoytment-id"
+        deployId: "test-deployment-id"

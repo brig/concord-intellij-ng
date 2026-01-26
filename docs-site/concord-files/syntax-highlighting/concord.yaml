@@ -13,6 +13,6 @@ flows:
         - log: "Skipping prod deployment."
 
   deployProd:
-    - task: ansble
+    - task: ansible
       in:
         playbook: "deploy.yml"
