@@ -63,6 +63,7 @@
                              implementationClass="brig.concord.yaml.folding.YAMLFoldingBuilder"/>
 
         <!-- Find usages / usage types -->
+        <iconProvider implementation="brig.concord.psi.ConcordIconProvider" order="first"/>
         <lang.findUsagesProvider language="Concord" implementationClass="brig.concord.usages.FindUsageProvider"/>
         <usageTypeProvider implementation="brig.concord.usages.FlowUsageTypeProvider"/>
 
@@ -144,6 +145,18 @@
                          implementationClass="brig.concord.inspection.DuplicateFlowNameInspection"/>
 
         <notificationGroup id="Concord Notification Group" displayType="BALLOON" key="notification.group.concord"/>
+
+        <editorNotificationProvider
+                implementation="brig.concord.notification.OutOfScopeEditorNotificationProvider"/>
+
+        <localInspection language="Concord"
+                         bundle="messages.ConcordBundle"
+                         shortName="OutOfScope"
+                         level="WARNING"
+                         key="inspections.out.of.scope.name"
+                         groupKey="inspections.group.name"
+                         enabledByDefault="true"
+                         implementationClass="brig.concord.inspection.OutOfScopeInspection"/>
     </extensions>
 
 </idea-plugin>

@@ -23,15 +23,15 @@ execution.
 
 A documentation block is wrapped between two lines containing only `##`.
 
-```yaml
+```concord
 flows:
   ##
   # Process S3 files and return the total count
   # in:
   #   s3Bucket: string, mandatory, S3 bucket name
-  #   prefix: string, optional, File prefix filter
+  #   s3Prefix: string, optional, File prefix filter
   # out:
-  #   processed: int, mandatory, Files processed count
+  #   s3processed: int, mandatory, Files processed count
   ##
   processS3:
     - task: s3

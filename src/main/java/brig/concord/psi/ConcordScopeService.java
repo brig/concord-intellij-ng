@@ -9,7 +9,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.ProjectScope;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -19,6 +18,8 @@ import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.psi.YAMLDocument;
 
 import java.util.*;
+
+import static brig.concord.psi.ConcordFile.isConcordFileName;
 
 /**
  * Service that manages Concord project scopes.
@@ -75,26 +76,22 @@ public final class ConcordScopeService {
     }
 
     /**
-     * Returns the primary scope for the given file.
-     * If a file belongs to multiple scopes, returns the most specific one
-     * (the one with the deepest root directory).
-     *
-     * @param file the file to check
-     * @return the primary scope, or null if the file doesn't belong to any scope
+     * Checks if the given file is considered "out of scope".
+     * A file is out of scope if:
+     * 1. It is a Concord file
+     * 2. It is not a root file
+     * 3. It is not included in any scope
      */
-    public @Nullable ConcordRoot getPrimaryScope(@NotNull VirtualFile file) {
-        var scopes = getScopesForFile(file);
-        if (scopes.isEmpty()) {
-            return null;
-        }
-        if (scopes.size() == 1) {
-            return scopes.getFirst();
+    public boolean isOutOfScope(@NotNull VirtualFile file) {
+        if (!isConcordFileName(file.getName())) {
+            return false;
         }
 
-        // Return the deepest scope (most specific)
-        return scopes.stream()
-                .max(Comparator.comparingInt(r -> r.getRootDir().getNameCount()))
-                .orElse(scopes.getFirst());
+        if (isRootFile(file)) {
+            return false;
+        }
+
+        return getScopesForFile(file).isEmpty();
     }
 
     /**
@@ -107,12 +104,12 @@ public final class ConcordScopeService {
     public @NotNull GlobalSearchScope createSearchScope(@NotNull PsiElement context) {
         var psiFile = context.getContainingFile();
         if (psiFile == null) {
-            return ProjectScope.getProjectScope(project);
+            return GlobalSearchScope.EMPTY_SCOPE;
         }
 
-        var file = psiFile.getVirtualFile();
+        var file = psiFile.getOriginalFile().getVirtualFile();
         if (file == null) {
-            return ProjectScope.getProjectScope(project);
+            return GlobalSearchScope.EMPTY_SCOPE;
         }
 
         return createSearchScope(file);
@@ -134,8 +131,7 @@ public final class ConcordScopeService {
                 var tempRoot = createRoot(file);
                 return createScopeFromRoots(Collections.singletonList(tempRoot));
             }
-            // Fall back to project scope
-            return ProjectScope.getProjectScope(project);
+            return GlobalSearchScope.EMPTY_SCOPE;
         }
 
         return createScopeFromRoots(scopes);
@@ -153,7 +149,7 @@ public final class ConcordScopeService {
         }
 
         if (files.isEmpty()) {
-            return ProjectScope.getProjectScope(project);
+            return GlobalSearchScope.EMPTY_SCOPE;
         }
 
         return GlobalSearchScope.filesScope(project, files);
@@ -251,23 +247,6 @@ public final class ConcordScopeService {
                 files,
                 VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
         );
-    }
-
-    /**
-     * Checks if a filename matches Concord file naming patterns.
-     * Matches: concord.yml, concord.yaml, .concord.yml, .concord.yaml,
-     * and also nested files like myflow.concord.yml
-     */
-    private static boolean isConcordFileName(@NotNull String name) {
-        if (!name.endsWith(".yml") && !name.endsWith(".yaml")) {
-            return false;
-        }
-        for (var pattern : ConcordFile.PROJECT_ROOT_FILE_NAMES) {
-            if (name.endsWith(pattern)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

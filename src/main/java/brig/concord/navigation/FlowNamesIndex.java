@@ -22,6 +22,8 @@ import brig.concord.yaml.psi.YamlRecursivePsiElementVisitor;
 import java.util.Collections;
 import java.util.Map;
 
+import static brig.concord.psi.ProcessDefinition.isFlowDefinition;
+
 public final class FlowNamesIndex extends FileBasedIndexExtension<String, Integer> {
 
     @NonNls
@@ -47,15 +49,13 @@ public final class FlowNamesIndex extends FileBasedIndexExtension<String, Intege
                 inputData.getPsiFile().accept(new YamlRecursivePsiElementVisitor() {
                     @Override
                     public void visitKeyValue(@NotNull YAMLKeyValue keyValue) {
-                        PsiElement key = keyValue.getKey();
-
-                        if (key != null) {
-                            YamlMetaType type = ConcordMetaTypeProvider.getInstance(keyValue.getProject()).getResolvedKeyValueMetaTypeMeta(keyValue);
-                            if (type instanceof StepElementMetaType) {
-                                map.put(keyValue.getKeyText(), key.getTextOffset());
+                        var key = keyValue.getKey();
+                        if (key != null && isFlowDefinition(keyValue)) {
+                            var keyText = keyValue.getKeyText();
+                            if (!keyText.isBlank()) {
+                                map.put(keyText, key.getTextOffset());
                             }
                         }
-
                         super.visitKeyValue(keyValue);
                     }
 

@@ -84,6 +84,29 @@ public class InspectionAssertions {
         return expectHighlight(expected);
     }
 
+    /**
+     * Checks that the file contains a warning with the out of scope message anywhere.
+     */
+    public static void assertHasOutOfScopeWarning(CodeInsightTestFixture fixture) {
+        var expected = ConcordBundle.message("inspection.out.of.scope.message");
+        var infos = fixture.doHighlighting();
+
+        var found = infos.stream()
+                .anyMatch(i -> expected.equals(i.getDescription()));
+
+        if (!found) {
+            var sb = new StringBuilder();
+            sb.append("Expected out of scope warning but none found.\n")
+                    .append("Expected message: ").append(expected).append("\n")
+                    .append("All highlights:\n");
+            for (var i : infos) {
+                sb.append(" - ").append(i.getDescription())
+                        .append(" [").append(i.getSeverity()).append("]\n");
+            }
+            fail(sb.toString());
+        }
+    }
+
     public InspectionAssertions expectHighlight(String expected) {
         var infos = assertHighlightAtRange(target.range());
 

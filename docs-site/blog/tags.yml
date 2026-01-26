@@ -1,0 +1,29 @@
+release:
+  label: Release
+  permalink: /release
+  description: Official release announcements for the Concord IntelliJ Plugin.
+
+features:
+  label: Features
+  permalink: /features
+  description: Updates about new plugin capabilities.
+
+highlighting:
+  label: Highlighting
+  permalink: /highlighting
+  description: Updates related to syntax highlighting and code coloring.
+
+fixes:
+  label: Fixes
+  permalink: /fixes
+  description: Bug fixes and stability improvements.
+
+refactoring:
+  label: Refactoring
+  permalink: /refactoring
+  description: Updates to refactoring tools like rename and move.
+
+analysis:
+  label: Analysis
+  permalink: /analysis
+  description: Updates to static analysis tools like Call Hierarchy and Find Usages.

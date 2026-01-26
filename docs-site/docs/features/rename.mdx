@@ -1,0 +1,47 @@
+---
+title: Rename Refactoring
+description: Safely rename flows and update all references
+---
+
+import Keystroke from '../../src/components/Keystroke';
+
+# Rename Refactoring
+
+Renaming a flow in a large project can be risky if done manually. You might miss a reference in another file, leading to runtime errors.
+
+The **Rename Refactoring** feature allows you to change a flow's name safely. The plugin automatically finds every <span className="tokenBadge" data-kind="step">call</span> to that flow within the current [Scope](./scopes.md) and updates them for you.
+
+## How to Use
+
+1.  Place the caret on the **flow name** (at its definition or at any call site).
+2.  Invoke Rename:
+    *   **Shortcut:** <Keystroke mac={[{icon: "⇧", label: "Shift"}, {label: "F6"}]} win={[{label: "Shift"}, {label: "F6"}]} />
+    *   **Menu:** `Refactor | Rename`
+3.  Type the new name and press `Enter`.
+
+## Features
+
+*   **Preview Changes:** Before applying the rename, you can see a list of all files and lines that will be updated.
+*   **Search in Comments:** Optionally find and update the name inside comments and strings.
+*   **Scope Protection:** Rename only affects files within the relevant Concord scope, ensuring you don't accidentally change unrelated projects in a monorepo.
+
+## Example
+
+### Safe Refactoring
+
+Watch as the plugin updates multiple files simultaneously to keep your project consistent:
+
+:::tip Try it yourself
+Select a flow name, press <Keystroke mac={[{icon: "⇧", label: "Shift"}, {label: "F6"}]} win={[{label: "Shift"}, {label: "F6"}]} />, type a new name, and observe how all call sites are updated instantly.
+:::
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/rename.png').default} alt="Rename Refactoring Example" />
+    <figcaption>
+        Renaming a flow definition automatically updates all <code>call</code> steps in the project.
+    </figcaption>
+</figure>
+
+:::warning Check Results
+Always review the "Find Refactor Usages" tool window if it appears, to ensure that the rename is being applied exactly where you expect.
+:::
