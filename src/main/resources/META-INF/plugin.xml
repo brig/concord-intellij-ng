@@ -63,6 +63,7 @@
                              implementationClass="brig.concord.yaml.folding.YAMLFoldingBuilder"/>
 
         <!-- Find usages / usage types -->
+        <iconProvider implementation="brig.concord.psi.ConcordIconProvider" order="first"/>
         <lang.findUsagesProvider language="Concord" implementationClass="brig.concord.usages.FindUsageProvider"/>
         <usageTypeProvider implementation="brig.concord.usages.FlowUsageTypeProvider"/>
 
