@@ -16,7 +16,7 @@ making it easier than ever to maintain large-scale Concord codebases.
 ## Call Hierarchy
 
 Understanding flow dependencies is critical for impact analysis.
-The new [Call Hierarchy](../docs/features/call-hierarchy) view allows you to visualize caller-callee relationships as a hierarchical tree.
+The new [Call Hierarchy](/docs/features/call-hierarchy) view allows you to visualize caller-callee relationships as a hierarchical tree.
 
 You can now instantly answer questions like:
 *   "Which flows call this common utility?" (Caller Hierarchy)
@@ -55,11 +55,11 @@ Naming collisions can lead to confusing bugs in complex projects. The plugin now
 
 ## Flow Documentation Improvements
 
-We've significantly enhanced the developer experience for [Flow Documentation](../docs/features/flow-docs). Documentation blocks are no longer just static comments—they are now actively maintained by the IDE.
+We've significantly enhanced the developer experience for [Flow Documentation](/docs/features/flow-docs). Documentation blocks are no longer just static comments—they are now actively maintained by the IDE.
 
 ### New Quick Fixes
 
-The plugin now detects and offers [one-click fixes](../docs/features/quick-fixes) for several common documentation issues:
+The plugin now detects and offers [one-click fixes](/docs/features/quick-fixes) for several common documentation issues:
 
 *   **Missing Parameters:** If you use a variable in a flow that isn't documented, the IDE will offer to add it to the <span className="tokenBadge" data-kind="doc-section">in:</span> section automatically.
 *   **Keyword Typos:** Automatically correct common misspellings like `mandatry` or `optinal` in your documentation blocks.
@@ -79,7 +79,7 @@ Flow documentation blocks now support arbitrary indentation styles. Whether you 
 
 ## Multiple Scopes Support
 
-For teams working with monorepos, we've added full support for [Multiple Scopes](../docs/features/scopes). The plugin now automatically isolates Concord projects within a single IntelliJ workspace.
+For teams working with monorepos, we've added full support for [Multiple Scopes](/docs/features/scopes). The plugin now automatically isolates Concord projects within a single IntelliJ workspace.
 
 *   **Isolation:** References and completion are confined to the current project scope.
 *   **Discovery:** `concord.yaml` files are automatically detected as project roots.
