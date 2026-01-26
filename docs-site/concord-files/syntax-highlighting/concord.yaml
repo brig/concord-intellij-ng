@@ -1,0 +1,18 @@
+configuration:
+  runtime: concord-v2
+
+flows:
+  default:
+    - log: "Starting deployment of ${appName}..."
+    - if: "${targetEnv == 'prod'}"
+      then:
+        - call: deployProd
+          in:
+            version: "1.0.0"
+      else:
+        - log: "Skipping prod deployment."
+
+  deployProd:
+    - task: ansble
+      in:
+        playbook: "deploy.yml"

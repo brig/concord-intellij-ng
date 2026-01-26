@@ -882,20 +882,39 @@ a.external-link::after {
    ========================================================= */
 
 .docFigure {
-  margin-bottom: 3rem;
+  /*margin-bottom: 3rem;*/
+  /*margin-left: 0;*/
+  margin: 1.5rem 0 2.25rem;
 }
 
 .docFigure img {
-  max-width: 80%;
-  margin: 0 auto;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-  border-radius: 19px;
+  border-radius: 11px;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-background-surface-color);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.18);
 }
+
+.docFigure--sm0 { max-width: 400px; }
+.docFigure--sm { max-width: 460px; }
+.docFigure--sm2 { max-width: 480px; }
+.docFigure--sm4 { max-width: 500px; }
+.docFigure--md { max-width: 700px; }
+.docFigure--md2 { max-width: 740px; }
+.docFigure--lg { max-width: 980px; }
 
 .docFigure figcaption {
   margin-top: 0.75rem;
   font-size: 0.9rem;
   font-style: italic;
+}
+
+/* Blog post title (What's New) */
+.blog-wrapper header > h1 {
+  font-size: 2.2rem;
+  line-height: 1.2;
 }
 
 /* =========================================================
@@ -1067,3 +1086,106 @@ a.external-link::after {
   color: var(--ifm-color-primary);
 }
 
+/* =========================================================
+   Blog Tags
+   ========================================================= */
+
+footer.docusaurus-mt-lg b {
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 600;
+}
+
+/* Stable selector for tags */
+a[rel="tag"] {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none !important;
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7) !important;
+
+  transition: all 0.12s ease;
+}
+
+a[rel="tag"]:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff !important;
+}
+
+/* Layout for the list containing tags */
+ul:has(> li > a[rel="tag"]) {
+  display: inline-flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li:has(> a[rel="tag"]) {
+  margin: 0 !important;
+}
+
+/* =========================================================
+   Blog "Read more" Link
+   ========================================================= */
+
+footer .text--right a {
+  display: inline-flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.8) !important;
+  text-decoration: none !important;
+  font-size: 0.9rem;
+  transition: color 0.15s ease;
+}
+
+footer .text--right a b {
+  font-weight: 600;
+}
+
+footer .text--right a:hover {
+  color: #ffffff !important;
+}
+
+footer .text--right a::after {
+  content: " →";
+  margin-left: 4px;
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+}
+
+footer .text--right a:hover::after {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+.blog-wrapper header .avatar {
+  display: none;
+}
+
+.blog-wrapper header time {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.blog-wrapper article header h2 {
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  line-height: 1.15;
+}
+
+.blog-wrapper article header h2 a {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.blog-wrapper article a[href^="/blog/tags/"] {
+  color: var(--ifm-color-content-secondary);
+}
+
+.blog-wrapper article a[href^="/blog/tags/"]:hover {
+  color: var(--ifm-color-primary);
+}
