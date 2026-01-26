@@ -1,19 +1,29 @@
-facebook:
-  label: Facebook
-  permalink: /facebook
-  description: Facebook tag description
+release:
+  label: Release
+  permalink: /release
+  description: Official release announcements for the Concord IntelliJ Plugin.
 
-hello:
-  label: Hello
-  permalink: /hello
-  description: Hello tag description
+features:
+  label: Features
+  permalink: /features
+  description: Updates about new plugin capabilities.
 
-docusaurus:
-  label: Docusaurus
-  permalink: /docusaurus
-  description: Docusaurus tag description
+highlighting:
+  label: Highlighting
+  permalink: /highlighting
+  description: Updates related to syntax highlighting and code coloring.
 
-hola:
-  label: Hola
-  permalink: /hola
-  description: Hola tag description
+fixes:
+  label: Fixes
+  permalink: /fixes
+  description: Bug fixes and stability improvements.
+
+refactoring:
+  label: Refactoring
+  permalink: /refactoring
+  description: Updates to refactoring tools like rename and move.
+
+analysis:
+  label: Analysis
+  permalink: /analysis
+  description: Updates to static analysis tools like Call Hierarchy and Find Usages.

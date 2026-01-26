@@ -1,0 +1,53 @@
+---
+title: Quick Fixes
+description: Fix common Concord YAML issues with one click
+---
+
+import Keystroke from '../../src/components/Keystroke';
+
+# Quick Fixes
+
+The Concord IntelliJ Plugin doesn't just find errors—it helps you fix them. **Quick Fixes** provide automated solutions for common typos, configuration errors, and documentation mismatches, saving you time and reducing manual effort.
+
+## How to Use
+
+When the IDE detects a problem that has a known solution, it will offer a Quick Fix:
+
+1.  Place the caret on the **highlighted error or warning**.
+2.  Press <Keystroke mac={[{icon: "⌥", label: "Alt"}, {label: "⏎"}]} win={[{label: "Alt"}, {label: "Enter"}]} /> to open the intention menu.
+3.  Select the suggested fix from the list and press `Enter`.
+
+## Key Quick Fixes
+
+### 1. Document Missing Parameter
+If you use a new variable in your flow but haven't added it to the <span className="tokenBadge" data-kind="doc-section">in:</span> section of your [Flow Documentation](./flow-docs), the plugin can automatically add it for you with the correct type.
+
+### 2. Correct Documentation Typos
+The plugin recognizes common misspellings in documentation keywords (like `mandatry` instead of <span className="tokenBadge" data-kind="doc-param-mandatory">mandatory</span>) and offers to replace them instantly.
+
+### 3. Fix Invalid Types
+If you enter an invalid type in a documentation block (e.g., `strnig` instead of <span className="tokenBadge" data-kind="doc-param-type">string</span>), the plugin provides a list of valid Concord types to choose from.
+
+### 4. Resolve Duplicates
+When a duplicate flow name is detected, the plugin can help you navigate between the definitions or provide options to resolve the conflict.
+
+## Example
+
+### Fixing a Type Error
+
+Instantly correct typos in your documentation without re-typing:
+
+:::tip Try it yourself
+Type an incorrect type like `strnig` in a flow documentation block, then press <Keystroke mac={[{icon: "⌥", label: "Alt"}, {label: "⏎"}]} win={[{label: "Alt"}, {label: "Enter"}]} /> to see suggestions.
+:::
+
+<figure className="docFigure docFigure--md2">
+    <img src={require('@site/static/img/quick-fixes.png').default} alt="Quick Fixes Example" />
+    <figcaption>
+        Using a Quick Fix to correct a misspelled type in a documentation block.
+    </figcaption>
+</figure>
+
+:::note Bulk Application
+You can also apply Quick Fixes to your entire project at once by using **Code | Inspect Code** and selecting the "Fix all" option in the results tool window.
+:::

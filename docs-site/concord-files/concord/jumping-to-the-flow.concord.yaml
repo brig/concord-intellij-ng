@@ -1,0 +1,5 @@
+flows:
+  main1:
+    - log: "Starting workflow..."
+    - call: deployService
+    - log: "Workflow finished."

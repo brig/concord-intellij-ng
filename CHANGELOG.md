@@ -15,9 +15,23 @@
 - added quick fix to replace invalid parameter types with valid suggestions in flow documentation
 ([#49](https://github.com/brig/concord-intellij-ng/pull/49))  
 - added quick fix for missing closing ## marker in flow documentation
+([#46](https://github.com/brig/concord-intellij-ng/pull/46))
+- rename refactoring for Concord flow definitions, allowing flows to be renamed
+  across multiple files while preserving all references  
+([#44](https://github.com/brig/concord-intellij-ng/pull/44))
+- quick fix for `DuplicateFlowNameInspection` to show all duplicate flow definitions
+  in the Usage View panel
+([#43](https://github.com/brig/concord-intellij-ng/pull/43))
+- added duplicate flow name inspection that warns when multiple flows with the same name exist within the same Concord scope
+([#42](https://github.com/brig/concord-intellij-ng/pull/42))
+- support for multiple isolated Concord projects within a single IntelliJ project window
+([#40](https://github.com/brig/concord-intellij-ng/pull/40))
 
 ### Changed
 
+- simplified Concord file discovery by relying on IntelliJ’s standard indexing
+  instead of custom filtering logic  
+([#48](https://github.com/brig/concord-intellij-ng/pull/48))
 - support arbitrary indentation in flow documentation
 ([#45](https://github.com/brig/concord-intellij-ng/pull/45))  
 - refactored enter handler functionality, added tests

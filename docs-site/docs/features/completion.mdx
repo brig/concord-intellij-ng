@@ -1,0 +1,54 @@
+---
+title: Code Completion
+description: Context-aware autocomplete for Concord YAML and documentation
+---
+
+import Keystroke from '../../src/components/Keystroke';
+
+# Code Completion
+
+The Concord IntelliJ Plugin provides intelligent, context-aware code completion for every part of your Concord flows. It understands the Concord schema and your project structure to suggest relevant keys, steps, and parameters.
+
+## YAML Key Completion
+
+As you type in a `.concord.yaml` file, the plugin suggests valid keys based on your current location:
+
+*   **Top-level sections:** <span className="tokenBadge" data-kind="section">flows</span>, <span className="tokenBadge" data-kind="section">configuration</span>, <span className="tokenBadge" data-kind="section">triggers</span>, <span className="tokenBadge" data-kind="section">forms</span>, etc.
+*   **Step types:** Inside a flow, it suggests <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">log</span>, <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">checkpoint</span>, <span className="tokenBadge" data-kind="step">if</span>, and others.
+*   **Call parameters:** When using a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests input parameters defined in the target flow's [Documentation Block](./flow-docs).
+
+## Flow Documentation Completion
+
+When writing structured flow documentation (`/** ... */`), the plugin helps you define your parameters correctly:
+
+*   **Types:** Suggests valid Concord types like <span className="tokenBadge" data-kind="doc-param-type">string</span>, <span className="tokenBadge" data-kind="doc-param-type">int</span>, <span className="tokenBadge" data-kind="doc-param-type">boolean</span>, <span className="tokenBadge" data-kind="doc-param-type">object</span>, and their array counterparts (<span className="tokenBadge" data-kind="doc-param-type">string[]</span>, etc.).
+*   **Keywords:** Suggests keywords like <span className="tokenBadge" data-kind="doc-param-mandatory">mandatory</span>, <span className="tokenBadge" data-kind="doc-param-mandatory">required</span>, and <span className="tokenBadge" data-kind="doc-param-optional">optional</span> after the parameter type.
+
+## How to Use
+
+Simply start typing, and the completion list will appear automatically.
+
+*   **Force Open:** Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to show suggestions at any time.
+*   **Select Item:** Use the arrow keys to navigate and `Enter` or `Tab` to insert the selected item.
+*   **Documentation:** While the completion list is open, press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "J"}]} win={[{label: "Ctrl"}, {label: "Q"}]} /> to see a quick description of the selected key (if available).
+
+## Example
+
+### Autocomplete in Action
+
+Writing a <span className="tokenBadge" data-kind="section">call</span> step becomes much faster as the plugin suggests available flows and their input parameters:
+
+:::tip Try it yourself
+Type `cal` and press `Enter` to create a <span className="tokenBadge" data-kind="section">call</span> step, then use <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to see available flow names.
+:::
+
+<figure className="docFigure docFigure--sm2">
+    <img src={require('@site/static/img/completion.png').default} alt="Code Completion Example" />
+    <figcaption>
+        Context-aware completion for Concord YAML keys and flow names.
+    </figcaption>
+</figure>
+
+:::note Smart Type Completion
+The plugin is smart enough to know that <span className="tokenBadge" data-kind="doc-param-mandatory">mandatory</span> and <span className="tokenBadge" data-kind="doc-param-optional">optional</span> only make sense in certain parts of a documentation block, filtering out irrelevant suggestions.
+:::

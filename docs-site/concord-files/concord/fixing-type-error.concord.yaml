@@ -1,0 +1,8 @@
+flows:
+  ##
+  # Documentation example
+  # in:
+  #   userName: str, mandatory
+  ##
+  greetUser:
+    - log: "Hello, ${userName}"

@@ -1,0 +1,3 @@
+flows:
+  main1:
+    - log: "main"
