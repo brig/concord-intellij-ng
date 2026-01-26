@@ -4,6 +4,9 @@
 
 ### Added
 
+- added an icon provider for Concord YAML files to display appropriate icons for different sections
+and elements in the IDE's structure view and navigation
+([#59](https://github.com/brig/concord-intellij-ng/pull/59))  
 - added inspection and notification when Concord YAML files are outside their defined scope
 ([#57](https://github.com/brig/concord-intellij-ng/pull/57))
   
