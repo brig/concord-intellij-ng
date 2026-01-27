@@ -14,7 +14,7 @@ module.exports = function prismIncludeLanguages(Prism) {
       alias: ['top-section'],
     },
     concordStep: {
-      pattern: /\b(call|log|task|checkpoint|if|then|else|switch|return|throw|set|parallel)\b(?=\s*:)/m,
+      pattern: /\b(call|log|task|checkpoint|if|then|else|switch|return|throw|set|parallel|script)\b(?=\s*:)/m,
       alias: ['step'],
     },
     dslKey: {

@@ -18,6 +18,7 @@ import InspectionIcon from '../../src/icons/inspection.svg';
 import QuickFixesIcon from '../../src/icons/quick-fixes.svg';
 import FlowDocsIcon from '../../src/icons/flow-docs.svg';
 import ScopesIcon from '../../src/icons/scopes.svg';
+import InjectIcon from '../../src/icons/code-file.svg';
 
 export const FeatureCard = ({icon: Icon, title, description, to}) => (
   <Link className="landingCard" to={to}>
@@ -77,6 +78,12 @@ Write correct code faster with intelligent assistance.
         title="Completion"
         description="Context-aware autocomplete for keys, parameters, and flows."
         to="/docs/features/completion"
+    />
+    <FeatureCard
+        icon={InjectIcon}
+        title="Language Injection"
+        description="Edit scripts (Groovy, JS, Python) with full IDE support inside YAML."
+        to="/docs/features/language-injection"
     />
     <FeatureCard
         icon={ValidationIcon}
