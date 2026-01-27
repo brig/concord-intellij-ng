@@ -2,6 +2,7 @@ package brig.concord.completion;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.psi.ConcordFile;
+import brig.concord.psi.ConcordScopeService;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
@@ -34,6 +35,10 @@ public class ConcordCompletions extends CompletionContributor {
                                       @NotNull CompletionResultSet result) {
 
             if (!(params.getOriginalFile() instanceof ConcordFile)) {
+                return;
+            }
+
+            if (ConcordScopeService.getInstance(params.getOriginalFile().getProject()).isIgnored(params.getOriginalFile())) {
                 return;
             }
 
