@@ -6,6 +6,9 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <!-- Breadcrumbs -->
+        <breadcrumbsInfoProvider implementation="brig.concord.editor.ConcordBreadcrumbsProvider"/>
+
         <!-- Code style / formatting -->
         <virtualFileCustomDataProvider implementation="brig.concord.editing.CodeStyleSettingsCustomDataSynchronizer"/>
         <langCodeStyleSettingsProvider implementation="brig.concord.editing.CodeStyleSettingsProvider"/>
