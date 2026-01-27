@@ -5,6 +5,7 @@ import brig.concord.inspection.fix.ReplaceFlowDocKeywordQuickFix;
 import brig.concord.inspection.fix.ReplaceFlowDocTypeQuickFix;
 import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.psi.ConcordFile;
+import brig.concord.psi.ConcordScopeService;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
 import com.intellij.codeInspection.LocalInspectionTool;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class FlowDocumentationInspection extends LocalInspectionTool {
+public class FlowDocumentationInspection extends ConcordInspectionTool {
 
     private static final Set<String> VALID_TYPES = Set.of(
             "string", "boolean", "int", "integer", "number", "object", "any",
@@ -25,11 +26,8 @@ public class FlowDocumentationInspection extends LocalInspectionTool {
     );
 
     @Override
-    public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder,
-                                                   boolean isOnTheFly) {
-        if (!(holder.getFile() instanceof ConcordFile)) {
-            return PsiElementVisitor.EMPTY_VISITOR;
-        }
+    public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
+                                                          boolean isOnTheFly) {
 
         return new PsiElementVisitor() {
             @Override

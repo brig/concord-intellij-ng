@@ -20,14 +20,11 @@ import java.nio.file.Path;
  * Inspection that detects when multiple flow definitions with the same name
  * exist in the same Concord scope.
  */
-public class DuplicateFlowNameInspection extends LocalInspectionTool {
+public class DuplicateFlowNameInspection extends ConcordInspectionTool {
 
     @Override
-    public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder,
-                                                   boolean isOnTheFly) {
-        if (!(holder.getFile() instanceof ConcordFile)) {
-            return PsiElementVisitor.EMPTY_VISITOR;
-        }
+    public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
+                                                          boolean isOnTheFly) {
 
         return new YamlPsiElementVisitor() {
             @Override

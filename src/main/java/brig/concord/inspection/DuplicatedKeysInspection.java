@@ -2,6 +2,7 @@ package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
 import brig.concord.psi.ConcordFile;
+import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;
@@ -15,15 +16,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DuplicatedKeysInspection extends LocalInspectionTool {
+public class DuplicatedKeysInspection extends ConcordInspectionTool {
 
     @Override
-    public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder,
-                                                   boolean isOnTheFly) {
-        if (!(holder.getFile() instanceof ConcordFile)) {
-            return PsiElementVisitor.EMPTY_VISITOR;
-        }
-
+    public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
+                                                          boolean isOnTheFly) {
         return new YamlPsiElementVisitor() {
             @Override
             public void visitMapping(@NotNull YAMLMapping mapping) {
