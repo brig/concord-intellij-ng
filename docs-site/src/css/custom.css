@@ -1,5 +1,5 @@
 /* =========================================================
-   Base tweaks
+   1. Variables & Base Settings
    ========================================================= */
 
 :root {
@@ -12,16 +12,23 @@
   --concord-color-dsl-key: #7fdbca;
   --concord-color-target-id: #d19a66;
   --concord-color-expression: #8a97b8;
+
   --concord-color-doc-section: #647070;
   --concord-color-doc-param-type: #5F6D79;
   --concord-color-doc-param-name: #6E6A63;
   --concord-color-doc-param-mandatory: #60585C;
   --concord-color-doc-param-optional: #545A63;
+  --concord-color-doc-text: #5F6672;
+
   --concord-color-string: #a3be8c;
   --concord-color-number: #88c0d0;
   --concord-color-boolean: #b48ead;
   --concord-color-null: #6b7089;
 }
+
+/* =========================================================
+   2. Landing Page Layout (Hero, Features, Grids)
+   ========================================================= */
 
 .landing {
   width: 100%;
@@ -51,9 +58,7 @@
   opacity: 0.9;
 }
 
-/* =========================================================
-   Hero
-   ========================================================= */
+/* --- Hero --- */
 
 .landingHero {
   padding: 72px 0 48px;
@@ -85,19 +90,6 @@
   margin: 16px 0 10px;
 }
 
-.landingMeta {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-  opacity: 0.85;
-  font-size: 14px;
-}
-
-.landingMetaDot {
-  opacity: 0.6;
-}
-
 .landingHeroImage {
   width: 100%;
   border-radius: 16px;
@@ -105,15 +97,7 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
 }
 
-.landingHeroHint {
-  margin-top: 8px;
-  font-size: 13px;
-  opacity: 0.75;
-}
-
-/* =========================================================
-   Feature cards
-   ========================================================= */
+/* --- Feature Cards (Landing & Overview) --- */
 
 .landingGrid {
   display: grid;
@@ -176,15 +160,7 @@
   font-size: 14.5px;
 }
 
-.landingCardFooter {
-  font-weight: 600;
-  opacity: 0.85;
-  font-size: 14px;
-}
-
-/* =========================================================
-   Two-column blocks
-   ========================================================= */
+/* --- Two-Column Layout --- */
 
 .landingTwoCol {
   display: grid;
@@ -222,7 +198,8 @@
 .landingLinkRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 12px;
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--ifm-toc-border-color);
@@ -231,14 +208,29 @@
   transition: background 120ms ease, border-color 120ms ease;
 }
 
-.landingArrow {
-  margin-left: auto;
-  opacity: 0.7;
+.landingLinkRow:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: inherit;
+  text-decoration: none;
 }
 
-/* =========================================================
-   Bottom CTA
-   ========================================================= */
+.landingLinkRow span:first-child {
+  color: #ffffff;
+}
+
+.landingArrow {
+  margin-left: auto;
+  opacity: 0.6;
+  color: rgba(255, 255, 255, 0.6);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.landingLinkRow:hover .landingArrow {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+/* --- Bottom CTA --- */
 
 .landingBottomCta {
   padding: 64px 0;
@@ -252,125 +244,7 @@
   flex-wrap: wrap;
 }
 
-/* =========================================================
-   Footnote
-   ========================================================= */
-
-.landingFootnote {
-  font-size: 14px;
-  opacity: 0.85;
-}
-
-.landingFootnoteRow {
-  margin-bottom: 6px;
-}
-
-.landingFootnoteLabel {
-  font-weight: 600;
-  margin-right: 6px;
-}
-
-/* =========================================================
-   Responsive
-   ========================================================= */
-
-@media (max-width: 980px) {
-  .landingHeroInner {
-    grid-template-columns: 1fr;
-  }
-
-  .landingGrid {
-    grid-template-columns: 1fr;
-  }
-
-  .landingTwoCol {
-    grid-template-columns: 1fr;
-  }
-
-  .landingTitle {
-    font-size: 36px;
-  }
-}
-
-.keystroke__keystrokes {
-  display: inline-flex;
-  gap: 4px;
-  margin-left: 6px;
-  vertical-align: middle;
-}
-
-/* ===== Keystrokes (override Docusaurus kbd) ===== */
-
-.keystroke__keystrokes kbd.keystroke {
-  all: unset; /* ← полностью сбрасывает стандартный kbd */
-
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-
-  padding: 2px 6px;
-  border-radius: 6px;
-
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-
-  font-family: var(--ifm-font-family-monospace);
-  font-size: 0.75rem;
-  line-height: 1.2;
-  color: #ffffff;
-
-  white-space: nowrap;
-}
-
-.keystroke__icon {
-  font-size: 14px;
-  opacity: 0.75;
-  font-family: var(--ifm-font-family-base);
-}
-
-.keystroke__keystrokes kbd.keystroke {
-  font-size: 14px;
-  font-family: var(--ifm-font-family-base);
-}
-
-.landingLinkRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.landingArrow {
-  opacity: 0.6;
-}
-
-.landingLinkRow:hover .landingArrow {
-  opacity: 1;
-}
-
-.landingLinkRow,
-.landingLinkRow:hover {
-  color: inherit;
-  text-decoration: none;
-}
-
-.landingLinkRow span:first-child {
-  color: #ffffff;
-}
-
-.landingArrow {
-  color: rgba(255, 255, 255, 0.6);
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-.landingLinkRow:hover {
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.landingLinkRow:hover .landingArrow {
-  opacity: 1;
-  transform: translateX(2px);
-}
+/* --- Buttons --- */
 
 .button--primary {
   background: linear-gradient(135deg, #3F8FE6 0%, #5CC6F2 100%);
@@ -391,33 +265,120 @@
 .button--secondary:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.75);
-  color: #ffffff;              /* ← ключевая строка */
-}
-
-.button--tertiary {
-  background: rgba(77, 163, 255, 0.12);
-  color: #6BD5FF;
+  color: #ffffff;
 }
 
 /* =========================================================
-   Unified callouts: TIP / NOTE (IDE-style, visible diff)
+   3. Documentation Styling
    ========================================================= */
+
+/* --- Headings --- */
+
+.markdown h1 {
+  font-size: 2.2rem;
+  line-height: 1.2;
+  margin-bottom: 1.2rem;
+}
+
+.markdown h2 {
+  font-size: 1.6rem;
+  line-height: 1.3;
+  margin-top: 2.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.markdown h3 {
+  font-size: 1.25rem;
+  line-height: 1.35;
+  margin-top: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.theme-doc-markdown::after {
+  content: "";
+  display: block;
+  margin: 3rem 0 2rem;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* --- Anchor Links --- */
+
+.markdown .hash-link {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.markdown h1:hover .hash-link,
+.markdown h2:hover .hash-link,
+.markdown h3:hover .hash-link,
+.markdown h4:hover .hash-link {
+  opacity: 0.45;
+  visibility: visible;
+}
+
+/* --- Links --- */
+
+.markdown a {
+  color: #82aaff;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(79, 134, 234, 0.2);
+}
+
+.markdown a:hover {
+  border-bottom-color: unset;
+}
+
+a.external-link::after {
+  margin-left: 4px;
+  content: "\2197";
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
+}
+
+/* "Learn more" arrow link */
+.markdown a.learnMore,
+.markdown a[href].learnMore {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.markdown a.learnMore::after {
+  content: "→";
+  opacity: 0.5;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.markdown a.learnMore:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.markdown a.learnMore:hover::after {
+  opacity: 0.85;
+  transform: translateX(2px);
+}
+
+/* --- Admonitions (Callouts) --- */
 
 .theme-admonition.theme-admonition-tip,
 .theme-admonition.theme-admonition-note {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-
   padding: 1rem 1.25rem;
   margin: 1.25rem 0;
-
   box-shadow: none;
   position: relative;
   overflow: hidden;
 }
 
-/* Left accent stripe (stronger + always visible) */
+/* Left stripe */
 .theme-admonition.theme-admonition-tip::before,
 .theme-admonition.theme-admonition-note::before {
   content: "";
@@ -429,18 +390,15 @@
   opacity: 1;
 }
 
-/* NOTE: neutral stripe */
 .theme-admonition.theme-admonition-note::before {
   background: rgba(255, 255, 255, 0.34);
 }
 
-/* TIP: blue stripe + subtle inner tint */
 .theme-admonition.theme-admonition-tip::before {
   background: rgba(120, 180, 255, 0.65);
 }
 
 .theme-admonition.theme-admonition-tip {
-  /* barely noticeable tint to separate from note */
   background: linear-gradient(
           90deg,
           rgba(120, 180, 255, 0.06) 0%,
@@ -449,13 +407,12 @@
   );
 }
 
-/* Remove default alert colors */
+/* Override default alert styles */
 .theme-admonition-tip.alert--success,
 .theme-admonition-note.alert--secondary {
   background-color: transparent;
 }
 
-/* Heading */
 .theme-admonition .admonitionHeading_Gvgb {
   font-size: 0.7rem;
   font-weight: 600;
@@ -465,12 +422,10 @@
   margin-bottom: 0.5rem;
 }
 
-/* Remove icons */
 .theme-admonition .admonitionIcon_Rf37 {
   display: none;
 }
 
-/* Content */
 .theme-admonition .admonitionContent_BuS1 {
   color: rgba(255, 255, 255, 0.75);
   font-size: 0.92rem;
@@ -480,38 +435,8 @@
   margin: 0;
 }
 
-.markdown h1 {
-  font-size: 2.2rem;     /* ~2.8 */
-  line-height: 1.2;
-  margin-bottom: 1.2rem;
-}
+/* --- Pagination (Next/Prev) --- */
 
-/* Section titles (h2) */
-.markdown h2 {
-  font-size: 1.6rem;     /* ~2.0 */
-  line-height: 1.3;
-  margin-top: 2.2rem;
-  margin-bottom: 0.75rem;
-}
-
-/* Subsections (h3) */
-.markdown h3 {
-  font-size: 1.25rem;    /* ~1.5 */
-  line-height: 1.35;
-  margin-top: 1.6rem;
-  margin-bottom: 0.5rem;
-}
-
-/* End-of-page divider for docs content */
-.theme-doc-markdown::after {
-  content: "";
-  display: block;
-  margin: 3rem 0 2rem;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* Compact next/prev navigation (no big cards) */
 .pagination-nav {
   margin-top: 1.25rem;
 }
@@ -533,358 +458,29 @@
   margin-bottom: 0.25rem;
 }
 
-/* Title becomes the main clickable thing */
 .pagination-nav__sublabel {
   color: rgba(255, 255, 255, 0.85);
   font-size: 1rem;
   font-weight: 500;
 }
 
-/* Align next to the right, keep it simple */
 .pagination-nav__link--next {
   text-align: right;
 }
 
-/* Add arrow for next */
 .pagination-nav__link--next .pagination-nav__sublabel::after {
   content: " →";
   opacity: 0.8;
 }
 
-/* Optional: hover without blue link look */
 .pagination-nav__link:hover .pagination-nav__sublabel {
   text-decoration: none;
   color: rgba(255, 255, 255, 0.95);
 }
 
-/* ===============================
-   TOC base vertical guide
-   =============================== */
-
-.table-of-contents {
-  position: relative;
-  border-left: 1px solid rgba(255, 255, 255, 0.12);
-  padding-left: 1rem;
-}
-
-/* base link */
-.table-of-contents__link {
-  position: relative;
-  display: block;
-  padding: 0.35rem 0 0.35rem 0.75rem;
-  margin-left: -0.75rem;
-
-  color: rgba(255, 255, 255, 0.65);
-  text-decoration: none;
-}
-
-/* hover — subtle */
-.table-of-contents__link:hover {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-}
-
-/* active text */
-.table-of-contents__link--active {
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 500;
-}
-
-/* ===============================
-   Active indicator (separate)
-   =============================== */
-.table-of-contents__link--active::before {
-  content: "";
-  position: absolute;
-
-  top: 0.4rem;
-  height: calc(100% - 0.8rem);
-  width: 3px;
-
-  background: rgb(70, 140, 255);
-  border-radius: 2px;
-
-  left: -14px;
-}
-
-.table-of-contents ul .table-of-contents__link--active::before {
-  left: calc(-14px - 1rem);
-}
-
-.table-of-contents ul ul .table-of-contents__link--active::before {
-  left: calc(-14px - 2rem);
-}
-
-.table-of-contents__left-border {
-  margin-left: 2px;
-}
-
-/* Sidebar container */
-.theme-doc-sidebar-container {
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Sidebar links (base) */
-.theme-doc-sidebar-menu a {
-  font-size: 14px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.65);
-  padding: 0.4rem 0.75rem;
-  border-radius: 6px;
-  text-decoration: none;
-}
-
-/* Hover */
-.theme-doc-sidebar-menu a:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-}
-
-/* Active item */
-.theme-doc-sidebar-menu a.theme-doc-sidebar-item-link--active {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 500;
-  position: relative;
-}
-
-/* Active left indicator (same language as TOC) */
-.theme-doc-sidebar-menu
-a.theme-doc-sidebar-item-link--active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.35rem;
-  bottom: 0.35rem;
-  width: 3px;
-  background: rgb(70, 140, 255);
-  border-radius: 2px;
-}
-
-/* Breadcrumbs container */
-.breadcrumbs {
-  font-size: 14px;
-  opacity: 0.85;
-}
-
-/* All breadcrumb links */
-.breadcrumbs__link {
-  color: rgba(255, 255, 255, 0.6);
-  text-decoration: none;
-  background: transparent;
-  border-radius: 999px;
-  padding: 0.25rem 0.6rem;
-}
-
-/* Hover — very subtle */
-.breadcrumbs__link:hover {
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.06);
-  text-decoration: none;
-}
-
-/* Active breadcrumb (current page) */
-.breadcrumbs__item--active .breadcrumbs__link {
-  color: rgba(255, 255, 255, 0.95);
-  background: rgba(255, 255, 255, 0.08);
-  font-weight: 500;
-  cursor: default;
-}
-
-/* Hide scrollbar for right TOC */
-.theme-doc-toc-desktop {
-  scrollbar-width: none;        /* Firefox */
-}
-
-.theme-doc-toc-desktop::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-/* Hide heading anchor by default */
-.markdown .hash-link {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.15s ease;
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-/* Show anchor only on heading hover */
-.markdown h1:hover .hash-link,
-.markdown h2:hover .hash-link,
-.markdown h3:hover .hash-link,
-.markdown h4:hover .hash-link {
-  opacity: 0.45;
-  visibility: visible;
-}
-
-.markdown a {
-  color: #82aaff;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(79, 134, 234, 0.2);
-}
-
-.markdown a:hover {
-  border-bottom-color: unset;
-}
-
-a.external-link::after {
-  margin-left: 4px;
-  content: "\2197";
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Droid Sans, Helvetica Neue, Arial, sans-serif;
-}
-
-/* Learn more links — subtle, IDE-style */
-.markdown a.learnMore,
-.markdown a[href].learnMore {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Arrow */
-.markdown a.learnMore::after {
-  content: "→";
-  opacity: 0.5;
-  transition: transform 0.15s ease, opacity 0.15s ease;
-}
-
-/* Hover */
-.markdown a.learnMore:hover {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.markdown a.learnMore:hover::after {
-  opacity: 0.85;
-  transform: translateX(2px);
-}
-
-.theme-code-block.language-concord pre,
-.language-concord pre {
-  background: var(--concord-code-bg, #0b1220);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-}
-
-/* Token colors only for concord blocks */
-.language-concord .token.top-section {
-  color: var(--concord-color-section); /* CONCORD_DSL_SECTION */
-  font-weight: 600;
-}
-
-/* Flow identifiers */
-.language-concord .token.flow-name {
-  color: var(--concord-color-flow-name); /* CONCORD_FLOW_IDENTIFIER */
-  font-weight: 600;
-}
-
-/* Step keywords (call/log/task/checkpoint) */
-.language-concord .token.step {
-  color: var(--concord-color-step); /* CONCORD_STEP_KEYWORD */
-  font-weight: 600;
-}
-
-/* Predefined DSL keys */
-.language-concord .token.dsl-key {
-  color: var(--concord-color-dsl-key); /* CONCORD_DSL_KEY */
-  font-weight: 400;
-}
-
-/* Target identifiers */
-.language-concord .token.target-id {
-  color: var(--concord-color-target-id); /* CONCORD_TARGET_IDENTIFIER */
-  font-weight: 600;
-}
-
-/* Expressions ${...} */
-.language-concord .token.expression {
-  color: var(--concord-color-expression); /* CONCORD_EXPRESSION */
-  font-weight: 400;
-}
-
-/* String values */
-.language-concord .token.string {
-  color:  var(--concord-color-string) !important; /* CONCORD_STRING */
-}
-
-/* Number values */
-.language-concord .token.number {
-  color: var(--concord-color-number); /* CONCORD_NUMBER */
-}
-
-/* Boolean values */
-.language-concord .token.boolean {
-  color: var(--concord-color-boolean); /* CONCORD_BOOLEAN */
-}
-
-/* Null */
-.language-concord .token.null {
-  color: var(--concord-color-null) /* CONCORD_NULL */
-}
-
-/* Comments */
-.language-concord .token.concordDocComment {
-  color: #5c6370; /* CONCORD_COMMENT */
-  font-style: italic;
-}
-
-.language-concord .token.error {
-  text-decoration-line: underline;
-  text-decoration-style: wavy;
-  text-decoration-color: #e06c75;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
-}
-
-.language-concord .token.warn {
-  text-decoration-line: underline;
-  text-decoration-style: wavy;
-  text-decoration-color: #d79f7b;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
-}
-
-.language-concord .token.param-name {
-  color: var(--concord-color-doc-param-name); /* CONCORD_FLOW_DOC_PARAM_NAME */
-  font-style: normal;
-}
-
-.language-concord .token.doc-section {
-  color: var(--concord-color-doc-section); /* CONCORD_FLOW_DOC_SECTION */
-  font-style: normal;
-}
-
-.language-concord .token.param-type {
-  color: var(--concord-color-doc-param-type); /* CONCORD_FLOW_DOC_TYPE */
-  font-style: normal;
-}
-
-.language-concord .token.param-mandatory {
-  color: var(--concord-color-doc-param-mandatory); /* CONCORD_FLOW_DOC_MANDATORY */
-  font-style: normal;
-}
-
-.language-concord .token.param-optional {
-  color: var(--concord-color-doc-param-optional); /* CONCORD_FLOW_DOC_OPTIONAL */
-  font-style: normal;
-}
-
-.language-concord .token.param-text {
-  color: #5F6672; /* CONCORD_FLOW_DOC_TEXT */
-}
-
-/* =========================================================
-   Documentation Images
-   ========================================================= */
+/* --- Figures / Images --- */
 
 .docFigure {
-  /*margin-bottom: 3rem;*/
-  /*margin-left: 0;*/
   margin: 1.5rem 0 2.25rem;
 }
 
@@ -896,8 +492,10 @@ a.external-link::after {
   border: 1px solid var(--ifm-color-emphasis-200);
   background: var(--ifm-background-surface-color);
   box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+  margin: 0 auto; /* Center block images */
 }
 
+/* Width utilities for screenshots */
 .docFigure--sm0 { max-width: 400px; }
 .docFigure--sm { max-width: 460px; }
 .docFigure--sm2 { max-width: 480px; }
@@ -910,39 +508,75 @@ a.external-link::after {
   margin-top: 0.75rem;
   font-size: 0.9rem;
   font-style: italic;
-}
-
-/* Blog post title (What's New) */
-.blog-wrapper header > h1 {
-  font-size: 2.2rem;
-  line-height: 1.2;
+  text-align: center; /* Optional: centers the caption */
 }
 
 /* =========================================================
-   Sidebar: IntelliJ-style Triangles (Left Side)
+   4. Sidebar & Navigation (IntelliJ Style)
    ========================================================= */
+
+/* Container */
+.theme-doc-sidebar-container {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Links */
+.theme-doc-sidebar-menu a {
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.65);
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.theme-doc-sidebar-menu a:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+/* Active Link */
+.theme-doc-sidebar-menu a.theme-doc-sidebar-item-link--active {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+  position: relative;
+}
+
+/* Active indicator (blue line on left) */
+.theme-doc-sidebar-menu a.theme-doc-sidebar-item-link--active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 3px;
+  background: rgb(70, 140, 255);
+  border-radius: 2px;
+}
+
+/* --- Triangle Expander Logic --- */
 
 /* Target only category items in docs sidebar */
 .theme-doc-sidebar-item-category > .menu__list-item-collapsible {
   position: relative;
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
 }
 
-/* Make room for the left triangle */
-.theme-doc-sidebar-item-category > .menu__list-item-collapsible > .menu__link {
-  padding-left: 22px; /* space for triangle */
-}
-
-/* Move the real caret button to the LEFT, keep it clickable but invisible */
+/* Move the real caret button to the LEFT */
 .theme-doc-sidebar-item-category > .menu__list-item-collapsible > .menu__caret {
+  order: -1 !important;
   position: absolute;
   left: 2px;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%) rotate(0deg) !important;
   width: 18px;
   height: 18px;
   padding: 0;
   margin: 0;
-
   opacity: 0;           /* invisible */
   background: transparent;
   border: 0;
@@ -962,44 +596,153 @@ a.external-link::after {
 
   border-top: 3px solid transparent;
   border-bottom: 3px solid transparent;
-  border-left: 5px solid rgba(200, 210, 230, 0.65);
+  border-left: 5px solid rgba(255, 255, 255, 0.5); /* Triangle color */
 
   transition: transform 0.15s ease, border-left-color 0.15s ease;
   z-index: 1;
+  pointer-events: none;
+}
+
+/* Hover state for triangle */
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible:hover::before {
+  border-left-color: rgba(255, 255, 255, 0.9);
 }
 
 /* Expanded state: rotate triangle down */
 .theme-doc-sidebar-item-category:not(.menu__list-item--collapsed)
 > .menu__list-item-collapsible::before {
   transform: translateY(-50%) rotate(90deg);
-  border-left-color: rgba(200, 210, 230, 0.95);
+  border-left-color: rgba(255, 255, 255, 0.95);
 }
 
-/* Hover: subtle */
-.theme-doc-sidebar-item-category > .menu__list-item-collapsible:hover::before {
-  border-left-color: rgba(200, 210, 230, 1);
+/* Indentation alignment */
+.theme-doc-sidebar-item-category > .menu__list-item-collapsible > .menu__link {
+  padding-left: 22px; /* space for triangle */
 }
 
+/* Align non-expandable items with categories */
 .theme-doc-sidebar-item-link-level-1:not(.theme-doc-sidebar-item-category) > .menu__link {
   padding-left: 22px;
 }
 
+/* Indent nested levels */
 .menu__list .menu__list {
   padding-left: 32px;
 }
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+/* Remove default Docusaurus caret/backgrounds if any remain */
+.menu__link--sublist-caret::after {
+  display: none !important;
 }
 
-.feature-card {
-  padding: 1.25rem;
-  border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 12px;
-  background: var(--ifm-background-surface-color);
+/* =========================================================
+   5. Table of Contents (Right Sidebar)
+   ========================================================= */
+
+.table-of-contents {
+  position: relative;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  padding-left: 1rem;
 }
+
+.table-of-contents__link {
+  position: relative;
+  display: block;
+  padding: 0.35rem 0 0.35rem 0.75rem;
+  margin-left: -0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+}
+
+.table-of-contents__link:hover {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+.table-of-contents__link--active {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+/* Active indicator tracking the border */
+.table-of-contents__link--active::before {
+  content: "";
+  position: absolute;
+  top: 0.4rem;
+  height: calc(100% - 0.8rem);
+  width: 3px;
+  background: rgb(70, 140, 255);
+  border-radius: 2px;
+  left: -17px; /* Matches main border position */
+}
+
+/* Adjust indicator for nested levels to keep it on the main border */
+.table-of-contents ul .table-of-contents__link--active::before {
+  left: calc(-17px - 1rem);
+}
+
+.table-of-contents ul ul .table-of-contents__link--active::before {
+  left: calc(-17px - 2rem);
+}
+
+.theme-doc-toc-desktop {
+  scrollbar-width: none;
+}
+
+.theme-doc-toc-desktop::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* =========================================================
+   6. Code & Syntax Highlighting
+   ========================================================= */
+
+.theme-code-block.language-concord pre,
+.language-concord pre {
+  background: var(--concord-code-bg, #0b1220);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+/* Token Colors */
+.language-concord .token.top-section { color: var(--concord-color-section); font-weight: 600; }
+.language-concord .token.flow-name   { color: var(--concord-color-flow-name); font-weight: 600; }
+.language-concord .token.step        { color: var(--concord-color-step); font-weight: 600; }
+.language-concord .token.dsl-key     { color: var(--concord-color-dsl-key); font-weight: 400; }
+.language-concord .token.target-id   { color: var(--concord-color-target-id); font-weight: 600; }
+.language-concord .token.expression  { color: var(--concord-color-expression); font-weight: 400; }
+.language-concord .token.string      { color: var(--concord-color-string) !important; }
+.language-concord .token.number      { color: var(--concord-color-number); }
+.language-concord .token.boolean     { color: var(--concord-color-boolean); }
+.language-concord .token.null        { color: var(--concord-color-null); }
+.language-concord .token.concordDocComment { color: #5c6370; font-style: italic; }
+
+/* Doc Token Colors */
+.language-concord .token.doc-section     { color: var(--concord-color-doc-section); font-style: normal; }
+.language-concord .token.param-name      { color: var(--concord-color-doc-param-name); font-style: normal; }
+.language-concord .token.param-type      { color: var(--concord-color-doc-param-type); font-style: normal; }
+.language-concord .token.param-mandatory { color: var(--concord-color-doc-param-mandatory); font-style: normal; }
+.language-concord .token.param-optional  { color: var(--concord-color-doc-param-optional); font-style: normal; }
+.language-concord .token.param-text      { color: var(--concord-color-doc-text); }
+
+/* Errors & Warnings */
+.language-concord .token.error {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: #e06c75;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.language-concord .token.warn {
+  text-decoration-line: underline;
+  text-decoration-style: wavy;
+  text-decoration-color: #d79f7b;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+/* --- Inline Badges (TokenBadges) --- */
 
 .tokenBadge {
   font-family: var(--ifm-font-family-monospace);
@@ -1008,23 +751,186 @@ a.external-link::after {
   border: 1px solid var(--ifm-color-emphasis-200);
   background: var(--ifm-color-emphasis-100);
   font-size: var(--ifm-code-font-size);
-  font-weight: var(--concord-token-weight, 600);
-  color: var(--concord-token-color, var(--ifm-font-color-base));
+  font-weight: 600;
+  color: var(--ifm-font-color-base);
 }
 
 .tokenBadge[data-kind="section"] { color: var(--concord-color-section); }
 .tokenBadge[data-kind="flow"]    { color: var(--concord-color-flow-name); }
-.tokenBadge[data-kind="target-id"]    { color: var(--concord-color-target-id); }
+.tokenBadge[data-kind="target-id"] { color: var(--concord-color-target-id); }
 .tokenBadge[data-kind="step"]    { color: var(--concord-color-step); }
-.tokenBadge[data-kind="expression"]    { color: var(--concord-color-expression); }
-.tokenBadge[data-kind="doc-section"]    { color: var(--concord-color-doc-section); }
-.tokenBadge[data-kind="doc-param-type"]    { color: var(--concord-color-doc-param-type); }
-.tokenBadge[data-kind="doc-param-mandatory"]    { color: var(--concord-color-doc-param-mandatory); }
-.tokenBadge[data-kind="doc-param-optional"]    { color: var(--concord-color-doc-param-optional); }
-.tokenBadge[data-kind="string"]    { color: var(--concord-color-string); }
-.tokenBadge[data-kind="number"]    { color: var(--concord-color-number); }
-.tokenBadge[data-kind="boolean"]    { color: var(--concord-color-boolean); }
-.tokenBadge[data-kind="null"]    { color: var(--concord-color-null); }
+.tokenBadge[data-kind="expression"] { color: var(--concord-color-expression); font-weight: 400; }
+.tokenBadge[data-kind="doc-section"] { color: var(--concord-color-doc-section); }
+.tokenBadge[data-kind="doc-param-type"] { color: var(--concord-color-doc-param-type); }
+.tokenBadge[data-kind="doc-param-mandatory"] { color: var(--concord-color-doc-param-mandatory); }
+.tokenBadge[data-kind="doc-param-optional"] { color: var(--concord-color-doc-param-optional); }
+
+/* =========================================================
+   7. Blog Styling
+   ========================================================= */
+
+.blog-wrapper header > h1 {
+  font-size: 2.2rem;
+  line-height: 1.2;
+}
+
+.blog-wrapper header .avatar {
+  display: none;
+}
+
+.blog-wrapper header time {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Post titles in list */
+.blog-wrapper article header h2 {
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  line-height: 1.15;
+}
+
+.blog-wrapper article header h2 a {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* --- Blog Tags --- */
+
+/* "Tags:" label */
+footer.docusaurus-mt-lg b {
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 600;
+}
+
+/* Tag buttons */
+a[rel="tag"] {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-decoration: none !important;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7) !important;
+  transition: all 0.12s ease;
+}
+
+a[rel="tag"]:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+/* List layout cleanup */
+ul:has(> li > a[rel="tag"]) {
+  display: inline-flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li:has(> a[rel="tag"]) {
+  margin: 0 !important;
+}
+
+/* --- "Read more" Link --- */
+
+footer .text--right a {
+  display: inline-flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.8) !important;
+  text-decoration: none !important;
+  font-size: 0.9rem;
+  transition: color 0.15s ease;
+}
+
+footer .text--right a b {
+  font-weight: 600;
+}
+
+footer .text--right a:hover {
+  color: #ffffff !important;
+}
+
+footer .text--right a::after {
+  content: " →";
+  margin-left: 4px;
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+}
+
+footer .text--right a:hover::after {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+/* =========================================================
+   8. Components (Keystroke, CapabilityCard)
+   ========================================================= */
+
+/* --- Keystroke --- */
+
+.keystroke__keystrokes {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.keystroke__keystrokes kbd.keystroke {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-family: var(--ifm-font-family-base);
+  font-size: 14px;
+  line-height: 1.2;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.keystroke__icon {
+  font-size: 14px;
+  opacity: 0.75;
+  font-family: var(--ifm-font-family-base);
+}
+
+/* --- Breadcrumbs --- */
+
+.breadcrumbs {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.breadcrumbs__link {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+}
+
+.breadcrumbs__link:hover {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+}
+
+.breadcrumbs__item--active .breadcrumbs__link {
+  color: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 500;
+  cursor: default;
+}
+
+/* --- Capability Card (Intro) --- */
 
 .capGrid {
   display: grid;
@@ -1041,10 +947,13 @@ a.external-link::after {
   border: 1px solid var(--ifm-color-emphasis-200);
   color: inherit;
   text-decoration: none;
+  transition: transform 120ms ease, border-color 120ms ease;
 }
 
 .capCard:hover {
   border-color: rgba(255, 255, 255, 0.35) !important;
+  color: inherit;
+  text-decoration: none;
 }
 
 .capHeader {
@@ -1076,111 +985,29 @@ a.external-link::after {
   color: var(--ifm-color-content-secondary);
 }
 
-.capTryKey {
-  font-family: var(--ifm-font-family-monospace);
-  color: var(--ifm-color-primary);
+/* =========================================================
+   9. Responsive Tweaks
+   ========================================================= */
+
+@media (max-width: 980px) {
+  .landingHeroInner {
+    grid-template-columns: 1fr;
+  }
+  .landingGrid {
+    grid-template-columns: 1fr;
+  }
+  .landingTwoCol {
+    grid-template-columns: 1fr;
+  }
+  .landingTitle {
+    font-size: 36px;
+  }
 }
 
 /* =========================================================
-   Blog Tags
+   10. Layout Stability
    ========================================================= */
 
-footer.docusaurus-mt-lg b {
-  color: rgba(255, 255, 255, 0.45);
-  font-weight: 600;
-}
-
-/* Stable selector for tags */
-a[rel="tag"] {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-decoration: none !important;
-
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.7) !important;
-
-  transition: all 0.12s ease;
-}
-
-a[rel="tag"]:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #ffffff !important;
-}
-
-/* Layout for the list containing tags */
-ul:has(> li > a[rel="tag"]) {
-  display: inline-flex !important;
-  flex-wrap: wrap;
-  gap: 6px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-li:has(> a[rel="tag"]) {
-  margin: 0 !important;
-}
-
-/* =========================================================
-   Blog "Read more" Link
-   ========================================================= */
-
-footer .text--right a {
-  display: inline-flex;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.8) !important;
-  text-decoration: none !important;
-  font-size: 0.9rem;
-  transition: color 0.15s ease;
-}
-
-footer .text--right a b {
-  font-weight: 600;
-}
-
-footer .text--right a:hover {
-  color: #ffffff !important;
-}
-
-footer .text--right a::after {
-  content: " →";
-  margin-left: 4px;
-  opacity: 0.6;
-  transition: transform 0.15s ease;
-}
-
-footer .text--right a:hover::after {
-  opacity: 1;
-  transform: translateX(3px);
-}
-
-.blog-wrapper header .avatar {
-  display: none;
-}
-
-.blog-wrapper header time {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.65);
-}
-
-.blog-wrapper article header h2 {
-  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
-  line-height: 1.15;
-}
-
-.blog-wrapper article header h2 a {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-.blog-wrapper article a[href^="/blog/tags/"] {
-  color: var(--ifm-color-content-secondary);
-}
-
-.blog-wrapper article a[href^="/blog/tags/"]:hover {
-  color: var(--ifm-color-primary);
+html {
+  scrollbar-gutter: stable;
 }
