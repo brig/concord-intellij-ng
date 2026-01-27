@@ -63,8 +63,8 @@ interface Logger {
     void warn(String format, Throwable arguments);
 }
 
-//Context context = null;
-//TaskAccessor tasks = null;
-//Logger log = null;
-//boolean isDryRun = false;
-//ScriptResult result = null;
+Context context = null;
+TaskAccessor tasks = null;
+Logger log = null;
+boolean isDryRun = false;
+ScriptResult result = null;
