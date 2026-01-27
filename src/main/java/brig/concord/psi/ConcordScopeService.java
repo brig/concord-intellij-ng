@@ -6,18 +6,22 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.TestOnly;
 import brig.concord.yaml.psi.YAMLDocument;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static brig.concord.psi.ConcordFile.isConcordFileName;
 
@@ -31,13 +35,35 @@ import static brig.concord.psi.ConcordFile.isConcordFileName;
 public final class ConcordScopeService {
 
     private final Project project;
+    private Predicate<VirtualFile> ignoredFileChecker;
 
     public ConcordScopeService(@NotNull Project project) {
         this.project = project;
+        this.ignoredFileChecker = file -> ChangeListManager.getInstance(project).isIgnoredFile(file);
     }
 
     public static @NotNull ConcordScopeService getInstance(@NotNull Project project) {
         return project.getService(ConcordScopeService.class);
+    }
+
+    @TestOnly
+    public void setIgnoredFileChecker(@NotNull Predicate<VirtualFile> ignoredFileChecker) {
+        this.ignoredFileChecker = ignoredFileChecker;
+    }
+
+    /**
+     * Checks if the file is ignored by the VCS (e.g. .gitignore).
+     */
+    public boolean isIgnored(@NotNull VirtualFile file) {
+        return ignoredFileChecker.test(file);
+    }
+
+    public boolean isIgnored(@NotNull PsiFile file) {
+        var vf = file.getVirtualFile();
+        if (vf == null) {
+            return true;
+        }
+        return ignoredFileChecker.test(vf);
     }
 
     /**
@@ -63,6 +89,10 @@ public final class ConcordScopeService {
      * @return list of scopes containing this file (may be empty)
      */
     public @NotNull List<ConcordRoot> getScopesForFile(@NotNull VirtualFile file) {
+        if (isIgnored(file)) {
+            return Collections.emptyList();
+        }
+
         var roots = findRoots();
         List<ConcordRoot> result = new ArrayList<>();
 
@@ -84,6 +114,10 @@ public final class ConcordScopeService {
      */
     public boolean isOutOfScope(@NotNull VirtualFile file) {
         if (!isConcordFileName(file.getName())) {
+            return false;
+        }
+
+        if (isIgnored(file)) {
             return false;
         }
 
@@ -236,7 +270,9 @@ public final class ConcordScopeService {
             // Second pass: get actual files
             List<VirtualFile> result = new ArrayList<>();
             FilenameIndex.processFilesByNames(concordFileNames, false, projectScope, null, file -> {
-                result.add(file);
+                if (!isIgnored(file)) {
+                    result.add(file);
+                }
                 return true;
             });
 
