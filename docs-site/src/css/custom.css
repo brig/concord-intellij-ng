@@ -134,6 +134,7 @@
 
 .landingCard:hover {
   border-color: rgba(255, 255, 255, 0.35) !important;
+  text-decoration: none;
 }
 
 .landingCard:hover .landingIconWrap {
@@ -1040,16 +1041,10 @@ a.external-link::after {
   border: 1px solid var(--ifm-color-emphasis-200);
   color: inherit;
   text-decoration: none;
-
-  transition:
-          transform 120ms ease,
-          border-color 120ms ease,
-          background-color 120ms ease;
 }
 
 .capCard:hover {
-  transform: translateY(-2px);
-  border-color: var(--ifm-color-primary);
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 .capHeader {
