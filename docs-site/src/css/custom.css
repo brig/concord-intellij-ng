@@ -113,7 +113,6 @@
   background: var(--ifm-background-color);
   color: var(--ifm-font-color-base) !important;
   text-decoration: none;
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
 }
 
 .landingCard:hover {
@@ -819,7 +818,6 @@ a[rel="tag"]:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.3);
   color: #ffffff !important;
-  transform: translateY(-1px);
 }
 
 /* List layout cleanup */
@@ -947,7 +945,6 @@ footer .text--right a:hover::after {
   border: 1px solid var(--ifm-color-emphasis-200);
   color: inherit;
   text-decoration: none;
-  transition: transform 120ms ease, border-color 120ms ease;
 }
 
 .capCard:hover {
