@@ -38,6 +38,50 @@ jobs:
           VERSION=$(./gradlew printVersion -q --console=plain)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Setup Node (for Docusaurus)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: docs-site/package-lock.json
+
+      - name: Finalize Blog Post Date
+        id: blog_date
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TODAY=$(date +%Y-%m-%d)
+          
+          PLACEHOLDER_FILE="docs-site/blog/xxxx-xx-xx-release-${VERSION}.mdx"
+          TARGET_FILE="docs-site/blog/${TODAY}-release-${VERSION}.mdx"
+          
+          if [ -f "$PLACEHOLDER_FILE" ]; then
+            echo "Found placeholder file: $PLACEHOLDER_FILE"
+            echo "Renaming to: $TARGET_FILE"
+            
+            mv "$PLACEHOLDER_FILE" "$TARGET_FILE"
+            
+            echo "renamed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Placeholder file not found. Assuming it was renamed manually."
+            echo "renamed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Freeze Docs Version
+        working-directory: docs-site
+        run: |
+          npm ci          
+          npm run docusaurus docs:version ${{ steps.version.outputs.version }}
+
+      - name: Commit Frozen Docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add docs-site/versions.json docs-site/versioned_docs docs-site/versioned_sidebars
+          
+          git commit -m "docs: freeze version ${{ steps.version.outputs.version }} [skip ci]"
+          git push origin main
+
       - name: Extract Release Notes
         id: extract_notes
         shell: bash
