@@ -1,6 +1,8 @@
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const config: Config = {
     title: 'Concord IntelliJ Plugin',
     favicon: '/img/favicon.ico',
@@ -17,7 +19,14 @@ const config: Config = {
             {
                 docs: {
                     sidebarPath: require.resolve('./sidebars.ts'),
-                    routeBasePath: 'docs'
+                    routeBasePath: 'docs',
+                    lastVersion: 'current',
+                    includeCurrentVersion: isDev,
+                    versions: {
+                        current: {
+                            label: 'Unreleased'
+                        },
+                    }
                 },
                 blog: {
                     showReadingTime: true
@@ -34,18 +43,19 @@ const config: Config = {
             respectPrefersColorScheme: false,
         },
         navbar: {
-            title: 'Concord',
+            title: 'Concord IntelliJ Plugin',
             logo: {
                 alt: 'Concord IntelliJ Plugin',
                 src: 'img/logo.png',
             },
             items: [
                 {
-                    type: 'docSidebar',
-                    sidebarId: 'docs',
-                    label: 'Docs',
+                    type: 'docsVersionDropdown',
                     position: 'left',
+                    className: 'navbarVersion',
+                    dropdownActiveClassDisabled: true
                 },
+
                 {
                     to: '/blog',
                     label: 'What’s new',

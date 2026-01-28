@@ -1,0 +1,7 @@
+flows:
+  default:
+    - log: "Starting script..."
+
+    - script: groovy
+      body: |
+        if (context.
