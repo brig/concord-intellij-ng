@@ -3,7 +3,7 @@ title: Syntax Highlighting
 description: Semantic syntax highlighting for Concord YAML
 ---
 
-import Keystroke from '../../src/components/Keystroke';
+import Keystroke from '@site/src/components/Keystroke';
 
 # Syntax Highlighting
 
@@ -56,13 +56,13 @@ flows:
   # A simple flow definition
   default:
     - log: "Starting the process..."
-    
+
     # 'call' keyword and flow name are distinct
     - call: deployApp
       in:
         appName: "my-app"
       out: result
-        
+
     - if: ${result == "success"}
       then:
         - log: "Deployment successful!"
