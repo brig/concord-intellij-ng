@@ -1,19 +1,20 @@
-name: Docs (Release)
+name: Docs Deploy
 
 on:
   release:
     types: [published]
+
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write # Нужен write, чтобы бот мог запушить в ветку gh-pages
 
 concurrency:
-  group: docs-release-${{ github.ref }}
+  group: docs-deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  version-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     defaults:
@@ -23,8 +24,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -35,29 +34,6 @@ jobs:
 
       - name: Install deps
         run: npm ci
-
-      - name: Configure git identity
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Create docs version and Push to Main
-        if: github.event_name == 'release'
-        run: |
-          git fetch origin main
-          git checkout main
-          git pull origin main
-
-          RAW="${{ github.event.release.tag_name }}"
-          VERSION="${RAW#v}"
-          echo "Versioning docs for: $VERSION"
-
-          npx docusaurus docs:version "$VERSION"
-
-          cd ..
-          git add docs-site/versions.json docs-site/versioned_docs docs-site/versioned_sidebars
-          git commit -m "docs: freeze version $VERSION" || echo "No changes to commit"
-          git push origin main
 
       - name: Build
         run: npm run build

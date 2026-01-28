@@ -1,0 +1,75 @@
+name: Release Coordinator
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+
+jobs:
+  create-draft-release:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
+
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v5
+
+      - name: Warm up Gradle distribution
+        run: ./gradlew --version --console=plain
+
+      - name: Extract Version
+        id: version
+        run: |
+          VERSION=$(./gradlew printVersion -q --console=plain)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Extract Release Notes
+        id: extract_notes
+        shell: bash
+        run: |
+          NOTES=$(./gradlew getChangelog --unreleased --no-header --console=plain)
+          
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Remove Old Release Drafts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/{owner}/{repo}/releases \
+            --jq '.[] | select(.draft == true) | .id' \
+            | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
+
+      - name: Create Release Draft
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+          NOTES: ${{ env.RELEASE_NOTES }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          NOTES_FILE="release-notes.md"
+          echo "${NOTES}" > "$NOTES_FILE"
+
+          gh release create "v$VERSION" \
+            --draft \
+            --title "v$VERSION" \
+            --notes-file "$NOTES_FILE" \
+            --target main

@@ -1,60 +1,34 @@
-# GitHub Actions Workflow created for handling the release process based on the draft release prepared
-# with the Build workflow. Running the publishPlugin task requires the PUBLISH_TOKEN secret provided.
-
 name: Release
 on:
   release:
-    types: [prereleased, released]
+    types: [published]
 
 jobs:
-
-  # Prepare and publish the plugin to the Marketplace repository
   release:
     name: Publish Plugin
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write # Обязательно: чтобы загрузить файл в Release
     steps:
-
-      # Check out current repository
       - name: Fetch Sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      # Setup Java 11 environment for the next steps
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: zulu
           java-version: 21
 
-      # Set environment variables
-      - name: Export Properties
-        id: properties
-        shell: bash
-        run: |
-          CHANGELOG="$(cat << 'EOM' | sed -e 's/^[[:space:]]*$//g' -e '/./,$!d'
-          ${{ github.event.release.body }}
-          EOM
-          )"
-          
-          CHANGELOG="${CHANGELOG//'%'/'%25'}"
-          CHANGELOG="${CHANGELOG//$'\n'/'%0A'}"
-          CHANGELOG="${CHANGELOG//$'\r'/'%0D'}"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
 
-          echo "::set-output name=changelog::$CHANGELOG"
+      - name: Gradle Wrapper Validation
+        uses: gradle/actions/wrapper-validation@v3
 
-      # Update Unreleased section with the current release note
-      - name: Patch Changelog
-        if: ${{ steps.properties.outputs.changelog != '' }}
-        env:
-          CHANGELOG: ${{ steps.properties.outputs.changelog }}
-        run: |
-          ./gradlew patchChangelog --release-note="$CHANGELOG"
-
-      # Publish the plugin to the Marketplace
       - name: Publish Plugin
         env:
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
@@ -63,30 +37,66 @@ jobs:
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
         run: ./gradlew publishPlugin
 
-      # Upload artifact as a release asset
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*
+        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*.zip
 
-      # Create pull request
+  prepare-next-version:
+    name: Prepare Next Version
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump Minor Version & Reset Changelog
+        id: bump
+        run: |
+          CURRENT_VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2)
+          echo "Current version: $CURRENT_VERSION"
+
+          IFS='.' read -r -a parts <<< "$CURRENT_VERSION"
+          
+          NEXT_MINOR=$((parts[1] + 1))
+          
+          NEXT_VERSION="${parts[0]}.${NEXT_MINOR}.0"
+          
+          echo "Next version: $NEXT_VERSION"
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+
+          sed -i "s/^version=.*/version=$NEXT_VERSION/" gradle.properties
+
+          sed -i '/^# Changelog/a \\n## [Unreleased]' CHANGELOG.md
+
       - name: Create Pull Request
-        if: ${{ steps.properties.outputs.changelog != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_VERSION: ${{ steps.bump.outputs.next_version }}
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
-          BRANCH="changelog-update-$VERSION"
-
-          git config user.email "action@github.com"
-          git config user.name "GitHub Action"
-
-          git checkout -b $BRANCH
-          git commit -am "Changelog update - $VERSION"
-          git push --set-upstream origin $BRANCH
+          BRANCH="chore/prepare-v$NEXT_VERSION"
+          
+          git checkout -b "$BRANCH"
+          git add gradle.properties CHANGELOG.md
+          git commit -m "chore: bump version to $NEXT_VERSION"
+          git push origin "$BRANCH"
 
           gh pr create \
-            --title "Changelog update - \`$VERSION\`" \
-            --body "Current pull request contains patched \`CHANGELOG.md\` file for the \`$VERSION\` version." \
+            --title "chore: prepare for next development iteration (v$NEXT_VERSION)" \
+            --body "Automated PR after release.
+          
+            - Bumps version to \`$NEXT_VERSION\` 📈
+            - Adds \`[Unreleased]\` section to Changelog 📝" \
             --base main \
-            --head $BRANCH
+            --head "$BRANCH"
