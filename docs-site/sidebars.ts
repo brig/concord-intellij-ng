@@ -25,6 +25,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'features/completion',
         'features/highlighting',
+        'features/language-injection',
         'features/validation',
         'features/inspections',
         'features/quick-fixes',

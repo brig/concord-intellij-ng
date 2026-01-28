@@ -8,6 +8,9 @@ import java.util.function.Supplier;
 
 public class ScriptStepMetaType extends IdentityMetaType {
 
+    public static final String BODY_KEY = "body";
+    public static final String SCRIPT_KEY = "script";
+
     private static final ScriptStepMetaType INSTANCE = new ScriptStepMetaType();
 
     public static ScriptStepMetaType getInstance() {
@@ -16,8 +19,8 @@ public class ScriptStepMetaType extends IdentityMetaType {
 
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "name", StepNameMetaType::getInstance,
-            "script", StringMetaType::getInstance,
-            "body", StringMetaType::getInstance,
+            SCRIPT_KEY, StringMetaType::getInstance,
+            BODY_KEY, StringMetaType::getInstance,
             "in", InParamsMetaType::getInstance,
             "out", ScriptOutParamsMetaType::getInstance,
             "meta", StepMetaMetaType::getInstance,

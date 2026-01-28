@@ -78,6 +78,8 @@
         <completion.contributor language="Concord"
                                 implementationClass="brig.concord.completion.FlowDocCompletionContributor"/>
 
+        <multiHostInjector implementation="brig.concord.injection.ConcordLanguageInjector"/>
+
         <lang.psiStructureViewFactory language="Concord"
                                       implementationClass="brig.concord.structureView.ConcordStructureViewFactory"/>
 
