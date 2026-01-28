@@ -1,0 +1,62 @@
+---
+slug: whats-new-0.17.0
+title: What’s New in Concord IntelliJ 0.17.0
+authors: [brig]
+tags: [release, features]
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+import FlowIcon from '@site/src/icons/flow.svg';
+import TriggerIcon from '@site/src/icons/trigger.svg';
+import FormIcon from '@site/src/icons/form.svg';
+
+The `0.17.0` release brings a significant boost to developer productivity with **Automatic Language Injection** for script steps.
+This update also enhances project navigation with new icons and improves scope safety with smarter inspections.
+
+<!--truncate-->
+
+## Language Injection
+
+Writing scripts inside YAML has always been a challenge—until now.
+The plugin now automatically detects and injects the appropriate language into <span className="tokenBadge" data-kind="step">script</span> steps.
+
+Whether you are writing **Groovy**, **JavaScript**, **Python**, or **Ruby**, you now get full IDE support directly inside your Concord files:
+
+*   **Syntax Highlighting:** No more plain text blocks. Code is colored and formatted correctly.
+*   **Code Completion:** Access standard library functions and Concord implicit variables.
+*   **Inspections:** Catch syntax errors in your scripts before running them.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/language-injection.png').default} alt="Language Injection Example" />
+    <figcaption>
+        Full Groovy support inside a Concord script step.
+    </figcaption>
+</figure>
+
+## Improved Navigation & Icons
+
+We've added a dedicated **Icon Provider** for Concord files.
+Your Concord elements now have distinct icons in the Project View, Structure View, and Navigation popups, making it easier to distinguish between:
+
+*   <FlowIcon width="16" height="16" style={{verticalAlign: "text-bottom"}} /> <strong>Flows</strong>
+*   <TriggerIcon width="16" height="16" style={{verticalAlign: "text-bottom"}} /> <strong>Triggers</strong>
+*   <FormIcon width="16" height="16" style={{verticalAlign: "text-bottom"}} /> <strong>Forms</strong>
+
+This visual update makes scanning large files and project structures much faster.
+
+<figure className="docFigure docFigure--sm2">
+    <img src={require('@site/static/img/structure-view.png').default} alt="Concord Structure View" />
+    <figcaption>
+        New icons help identify element types at a glance.
+    </figcaption>
+</figure>
+
+## Scope Safety Inspections
+
+Working in a monorepo can get messy. The plugin now includes an inspection to warn you if a file is **Outside of Scope**.
+
+If you open a `.concord.yaml` file that isn't part of a defined Concord project (root or resource), the IDE will notify you. This prevents confusion when features like navigation or completion seem "broken" simply because the file isn't being indexed as part of the project context.
+
+## Other Improvements
+
+*   **Completion Fixes:** Improved reliability of completion functionality in multi-scope projects.
