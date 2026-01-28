@@ -45,6 +45,27 @@ jobs:
           cache: npm
           cache-dependency-path: docs-site/package-lock.json
 
+      - name: Finalize Blog Post Date
+        id: blog_date
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TODAY=$(date +%Y-%m-%d)
+          
+          PLACEHOLDER_FILE="docs-site/blog/xxxx-xx-xx-release-${VERSION}.mdx"
+          TARGET_FILE="docs-site/blog/${TODAY}-release-${VERSION}.mdx"
+          
+          if [ -f "$PLACEHOLDER_FILE" ]; then
+            echo "Found placeholder file: $PLACEHOLDER_FILE"
+            echo "Renaming to: $TARGET_FILE"
+            
+            mv "$PLACEHOLDER_FILE" "$TARGET_FILE"
+            
+            echo "renamed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Placeholder file not found. Assuming it was renamed manually."
+            echo "renamed=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Freeze Docs Version
         working-directory: docs-site
         run: |

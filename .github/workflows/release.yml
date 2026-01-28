@@ -79,6 +79,18 @@ jobs:
           sed -i "s/^version=.*/version=$NEXT_VERSION/" gradle.properties
 
           sed -i '/^# Changelog/a \\n## [Unreleased]' CHANGELOG.md
+          
+          BLOG_FILE="docs-site/blog/xxxx-xx-xx-release-${NEXT_VERSION}.mdx"
+          mkdir -p docs-site/blog
+          cat <<EOF > "$BLOG_FILE"
+          ---
+          slug: whats-new-${NEXT_VERSION}
+          title: What’s New in Concord IntelliJ ${NEXT_VERSION}
+          authors: [brig]
+          tags: [release]
+          ---
+          
+          EOF
 
       - name: Create Pull Request
         env:
