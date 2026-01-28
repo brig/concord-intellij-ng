@@ -1,4 +1,4 @@
-# concord-intellij-plugin Changelog
+# Changelog
 
 ## Unreleased
 
