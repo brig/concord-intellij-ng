@@ -71,6 +71,10 @@
   align-items: center;
 }
 
+.landingHeroRight {
+  min-height: 260px;
+}
+
 .landingTitle {
   font-size: 44px;
   line-height: 1.1;
@@ -91,10 +95,21 @@
 }
 
 .landingHeroImage {
-  width: 100%;
+  width: 90%;
   border-radius: 16px;
-  border: 1px solid var(--ifm-toc-border-color);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.5),
+          0 20px 50px -12px rgba(0, 0, 0, 0.8);
+}
+
+.landingHeroLeft {
+  padding-top: 8px;
+}
+
+.landingHeroHint {
+  margin-top: 8px;
+  font-size: 13px;
+  opacity: 0.75;
 }
 
 /* --- Feature Cards (Landing & Overview) --- */
@@ -555,6 +570,16 @@ a.external-link::after {
   border-radius: 2px;
 }
 
+nav.menu.thin-scrollbar {
+  padding-top: 15px;
+}
+
+.navbar__brand .navbar__logo {
+  width: 35px;
+  height: 32px;
+  flex: 0 0 35px;
+}
+
 /* --- Triangle Expander Logic --- */
 
 /* Target only category items in docs sidebar */
@@ -622,6 +647,10 @@ a.external-link::after {
 /* Align non-expandable items with categories */
 .theme-doc-sidebar-item-link-level-1:not(.theme-doc-sidebar-item-category) > .menu__link {
   padding-left: 22px;
+}
+
+.theme-doc-version-badge {
+  display: none;
 }
 
 /* Indent nested levels */

@@ -3,7 +3,7 @@ title: Multiple Scopes
 description: Support for monorepos and multiple Concord projects
 ---
 
-import Keystroke from '../../src/components/Keystroke';
+import Keystroke from '@site/src/components/Keystroke';
 import Link from '@docusaurus/Link';
 
 # Multiple Scopes
