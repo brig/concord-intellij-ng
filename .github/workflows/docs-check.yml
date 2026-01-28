@@ -34,5 +34,5 @@ jobs:
 
       - name: Try Build
         env:
-          NODE_ENV: development
+          INCLUDE_CURRENT_VERSION: true
         run: npm run build

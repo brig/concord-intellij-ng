@@ -1,7 +1,7 @@
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === 'development' || process.env.INCLUDE_CURRENT_VERSION === 'true';
 
 const config: Config = {
     title: 'Concord IntelliJ Plugin',
