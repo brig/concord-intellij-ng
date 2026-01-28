@@ -1,45 +1,71 @@
-name: Docs (Docusaurus)
+name: Docs (Release)
 
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: docs-${{ github.ref }}
+  group: docs-release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  version-and-deploy:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: docs-site
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          node-version: 25.4.0
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
           cache: npm
           cache-dependency-path: docs-site/package-lock.json
 
-      - run: npm i -g npm@11.7.0
-      - run: node -v && npm -v
-      - run: npm ci
-      - run: npm run build
+      - name: Install deps
+        run: npm ci
 
       - name: Configure git identity
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      - name: Create docs version and Push to Main
+        if: github.event_name == 'release'
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull origin main
+
+          RAW="${{ github.event.release.tag_name }}"
+          VERSION="${RAW#v}"
+          echo "Versioning docs for: $VERSION"
+
+          npx docusaurus docs:version "$VERSION"
+
+          cd ..
+          git add docs-site/versions.json docs-site/versioned_docs docs-site/versioned_sidebars
+          git commit -m "docs: freeze version $VERSION" || echo "No changes to commit"
+          git push origin main
+
+      - name: Build
+        run: npm run build
+
       - name: Deploy to GitHub Pages
-        env:
-          GIT_USER: github-actions[bot]
-          GIT_PASS: ${{ secrets.GITHUB_TOKEN }}
-          USE_SSH: "false"
-        run: npm run deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs-site/build
+          user_name: 'github-actions[bot]'
+          user_email: '41898282+github-actions[bot]@users.noreply.github.com'
