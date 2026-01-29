@@ -1,0 +1,17 @@
+flows:
+  deploy-production:
+    - log: "Starting deployment..."
+
+    - if: "${platform == 'aws'}"
+      then:
+        - try:
+            - name: "Uploading artifacts..."
+              task: s3
+              in:
+                action: "put"
+                bucket: "production-builds"
+                key: "app-${appVersion}.jar"
+                file: "build/libs/app.jar"
+          error:
+            - log: "Upload failed!"
+
