@@ -43,12 +43,12 @@ public class CompletionTest extends ConcordYamlTestBase {
     public void testCompletionMultiScope() {
         var fa = createFile("project-a/concord.yaml",
                 """
-                flows:
-                  default:
-                    - call: <caret>
-                  myflow1:
-                    - log: "ME"
-                """);
+                        flows:
+                          default:
+                            - call: <caret>
+                          myflow1:
+                            - log: "ME"
+                        """);
 
         createFile(
                 "project-b/concord.yaml",
@@ -77,5 +77,25 @@ public class CompletionTest extends ConcordYamlTestBase {
         var lookupElementStrings = myFixture.getLookupElementStrings();
         assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "myflow1");
+    }
+
+    @Test
+    public void testCompletionTriggerEntryPoint() {
+        configureFromText(
+                """
+                        flows:
+                          myFlow:
+                            - log: "default"
+                        
+                        triggers:
+                          - manual:
+                              entryPoint: <caret>
+                        """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookupElementStrings = myFixture.getLookupElementStrings();
+        assertNotNull(lookupElementStrings);
+        assertSameElements(lookupElementStrings, "myFlow");
     }
 }
