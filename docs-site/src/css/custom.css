@@ -514,6 +514,7 @@ a.external-link::after {
 .docFigure--sm { max-width: 460px; }
 .docFigure--sm2 { max-width: 480px; }
 .docFigure--sm4 { max-width: 500px; }
+.docFigure--sm5 { max-width: 560px; }
 .docFigure--md { max-width: 700px; }
 .docFigure--md2 { max-width: 740px; }
 .docFigure--lg { max-width: 980px; }

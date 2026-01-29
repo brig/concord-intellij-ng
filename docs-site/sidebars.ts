@@ -30,6 +30,7 @@ const sidebars: SidebarsConfig = {
         'features/inspections',
         'features/quick-fixes',
         'features/navigation',
+        'features/breadcrumbs',
         'features/find-usages',
         'features/call-hierarchy',
         'features/structure-view',
