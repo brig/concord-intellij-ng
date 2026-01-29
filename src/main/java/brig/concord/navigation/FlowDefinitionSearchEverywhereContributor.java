@@ -136,6 +136,10 @@ public class FlowDefinitionSearchEverywhereContributor implements SearchEverywhe
                     continue;
                 }
 
+                if (scopeService.isIgnored(file)) {
+                    continue;
+                }
+
                 var psiFile = PsiManager.getInstance(myProject).findFile(file);
                 if (psiFile == null) {
                     continue;

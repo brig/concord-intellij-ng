@@ -1,0 +1,31 @@
+<html>
+<body>
+
+<p>
+    Reports Concord YAML files that do not belong to any project scope.
+</p>
+
+<p>
+    In the Concord plugin, a <b>Scope</b> is defined by a <code>concord.yaml</code> root file.
+    Only files included in a scope (via <code>resources</code> patterns or by being a root file themselves)
+    benefit from full IDE support, such as cross-file navigation, completion, and validation.
+</p>
+
+<p>
+    If a file is "out of scope," the IDE cannot safely resolve flow calls or check for duplicates across files.
+</p>
+
+<p>To fix this:</p>
+<ul>
+    <li>Create a <code>concord.yaml</code> file in the project root or in the current directory to start a new scope.</li>
+    <li>Adjust the <code>resources</code> patterns in an existing <code>concord.yaml</code> file (e.g., <code>"glob:flows/**/*.concord.yaml"</code>) to include this file.</li>
+</ul>
+
+<!-- tooltip end -->
+
+<p>
+    This inspection is applied only to Concord YAML files.
+</p>
+
+</body>
+</html>

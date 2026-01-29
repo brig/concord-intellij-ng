@@ -43,13 +43,20 @@ public class OutOfScopeEditorNotificationProvider implements EditorNotificationP
         }
 
         // Check if file is in any scope
-        var service = ConcordScopeService.getInstance(project);
-        if (!service.isOutOfScope(file)) {
+        if (!isOutOfScope(file, project)) {
             return null;
         }
 
         // File is out of scope, show notification
         return fileEditor -> createPanel(project, file);
+    }
+
+    private static boolean isOutOfScope(@NotNull VirtualFile file, @NotNull Project project) {
+        var service = ConcordScopeService.getInstance(project);
+        if (service.isIgnored(file)) {
+            return true;
+        }
+        return service.isOutOfScope(file);
     }
 
     private @NotNull EditorNotificationPanel createPanel(@NotNull Project project, @NotNull VirtualFile file) {

@@ -1,11 +1,9 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
-import brig.concord.psi.ConcordFile;
 import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;
-import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
@@ -15,14 +13,11 @@ import org.jetbrains.annotations.NotNull;
  * A file is "out of scope" when it's not a root file itself and
  * ConcordScopeService.getScopesForFile() returns an empty list.
  */
-public class OutOfScopeInspection extends LocalInspectionTool {
+public class OutOfScopeInspection extends ConcordInspectionTool {
 
     @Override
-    public @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder,
-                                                   boolean isOnTheFly) {
-        if (!(holder.getFile() instanceof ConcordFile)) {
-            return PsiElementVisitor.EMPTY_VISITOR;
-        }
+    public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
+                                                           boolean isOnTheFly) {
 
         var virtualFile = holder.getFile().getVirtualFile();
         if (virtualFile == null) {
