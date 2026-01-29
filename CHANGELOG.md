@@ -4,6 +4,8 @@
 
 ### Added
 
+- added support for respecting `.gitignore` rules in Concord file discovery and scope resolution
+([#62](https://github.com/brig/concord-intellij-ng/pull/62))   
 - added breadcrumbs functionality
 ([#65](https://github.com/brig/concord-intellij-ng/pull/65))  
 - automatic language injection support for script steps in Concord flows
