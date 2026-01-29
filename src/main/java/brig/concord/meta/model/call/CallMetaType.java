@@ -46,12 +46,8 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
         }
 
         var currentFlow = ProcessDefinition.findEnclosingFlowDefinition(insertedScalar);
-        if (currentFlow == null) {
-            return List.of();
-        }
-
         return processDefinition.flowNames().stream()
-                .filter(name -> !name.equals(currentFlow.getKeyText()))
+                .filter(name -> currentFlow == null || !name.equals(currentFlow.getKeyText()))
                 .sorted()
                 .map(name -> LookupElementBuilder.create(name)
                         .withPresentableText(name))
