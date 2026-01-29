@@ -79,9 +79,9 @@ public final class ConcordRunConfigurationProducer extends LazyRunConfigurationP
 
     static @NotNull String getWorkingDirectory(@NotNull Project project,
                                                @NotNull VirtualFile virtualFile) {
-        var primaryScope = ConcordScopeService.getInstance(project).getPrimaryScope(virtualFile);
-        if (primaryScope != null) {
-            return primaryScope.getRootDir().toString();
+        var scopes = ConcordScopeService.getInstance(project).getScopesForFile(virtualFile);
+        if (!scopes.isEmpty()) {
+            return scopes.getFirst().getRootDir().toString();
         }
         // Fallback to parent directory
         var parent = virtualFile.getParent();

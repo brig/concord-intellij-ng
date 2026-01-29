@@ -3,6 +3,7 @@ package brig.concord.run;
 import brig.concord.ConcordBundle;
 import brig.concord.ConcordIcons;
 import brig.concord.psi.ConcordFile;
+import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
@@ -12,6 +13,7 @@ import com.intellij.execution.RunManager;
 import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,6 +38,12 @@ public final class ConcordFlowRunLineMarkerProvider implements LineMarkerProvide
         }
 
         if (!isFlowDefinition(keyValue)) {
+            return null;
+        }
+
+        var service = ConcordScopeService.getInstance(element.getProject());
+        var vFile = containingFile.getVirtualFile();
+        if (vFile == null || service.isOutOfScope(vFile) || service.isIgnored(vFile)) {
             return null;
         }
 
