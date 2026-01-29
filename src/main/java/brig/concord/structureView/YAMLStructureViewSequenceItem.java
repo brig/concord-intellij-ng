@@ -1,6 +1,7 @@
 package brig.concord.structureView;
 
 import brig.concord.ConcordBundle;
+import brig.concord.ConcordIcons;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLSequenceItem;
 import brig.concord.yaml.psi.YAMLValue;
@@ -54,7 +55,7 @@ class YAMLStructureViewSequenceItem extends TreeElementBase<YAMLSequenceItem> {
 
         var itemValue = getItemValue();
         if (itemValue instanceof YAMLScalar) {
-            return PlatformIcons.PROPERTY_ICON;
+            return ConcordIcons.KEY;
         } else {
             return PlatformIcons.XML_TAG_ICON;
         }

@@ -1,3 +1,6 @@
 flows:
   main1:
     - log: "main"
+
+configuration:
+  runtime: concord-v2
