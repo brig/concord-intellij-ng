@@ -19,7 +19,7 @@ public class ConfigurationView extends YAMLStructureViewKeyValue {
     @Override
     public @NotNull Collection<StructureViewTreeElement> getChildrenBase() {
         if (getKeyValue().getValue() instanceof YAMLMapping mapping) {
-            return ContainerUtil.map(mapping.getKeyValues(), YAMLStructureViewKeyValue::new);
+            return ContainerUtil.map(mapping.getKeyValues(), kv -> new YAMLStructureViewKeyValue(kv, ConcordIcons.CONFIGURATION_KEY));
         }
         return List.of();
     }

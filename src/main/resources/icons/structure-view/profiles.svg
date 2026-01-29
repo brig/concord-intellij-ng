@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <path fill="#9AA7B0" fill-opacity=".8" fill-rule="evenodd"
-          d="M1,13 L15,13 L15,4 L7.98457,4 L6.69633,2.71149 C6.22161957,2.28559443 5.61570121,2.03457993 4.97888,2 L1.05128,2 C1.02295884,2 1,2.02295884 1,2.05128 L1,13 Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C792EA"
+     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folders-icon lucide-folders">
+    <path d="M20 5a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2.5a1.5 1.5 0 0 1 1.2.6l.6.8a1.5 1.5 0 0 0 1.2.6z"/>
+    <path d="M3 8.268a2 2 0 0 0-1 1.738V19a2 2 0 0 0 2 2h11a2 2 0 0 0 1.732-1"/>
 </svg>
