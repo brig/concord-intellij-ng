@@ -16,6 +16,8 @@ and elements in the IDE's structure view and navigation
   
 ### Changed
 
+- fix code completion for trigger entry points
+([#66](https://github.com/brig/concord-intellij-ng/pull/66))
 - fix for completion functionality in multi-scope projects
 ([#56](https://github.com/brig/concord-intellij-ng/pull/56))
   
