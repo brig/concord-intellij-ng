@@ -5,7 +5,7 @@ const isDev = process.env.NODE_ENV === 'development' || process.env.INCLUDE_CURR
 
 const config: Config = {
     title: 'Concord IntelliJ Plugin',
-    favicon: '/img/favicon.ico',
+    favicon: '/img/favicon.png',
 
     url: 'https://brig.github.io',
     baseUrl: '/concord-intellij-ng/',

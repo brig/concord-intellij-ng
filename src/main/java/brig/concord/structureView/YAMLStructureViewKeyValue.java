@@ -1,5 +1,6 @@
 package brig.concord.structureView;
 
+import brig.concord.ConcordIcons;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.ide.structureView.StructureViewTreeElement;
@@ -70,7 +71,7 @@ class YAMLStructureViewKeyValue extends TreeElementBase<YAMLKeyValue> {
         var kv = getKeyValue();
         var value = kv.getValue();
         if (value instanceof YAMLScalar) {
-            return kv.getIcon(0);
+            return ConcordIcons.KEY;
         } else {
             return PlatformIcons.XML_TAG_ICON;
         }

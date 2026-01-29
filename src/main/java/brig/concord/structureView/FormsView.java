@@ -44,7 +44,7 @@ public class FormsView extends YAMLStructureViewKeyValue {
                         .map(YAMLMapping.class::cast)
                         .map(YAMLMapping::getKeyValues)
                         .filter(kvs -> !kvs.isEmpty())
-                        .map(kvs -> new YAMLStructureViewKeyValue(kvs.iterator().next()))
+                        .map(kvs -> new YAMLStructureViewKeyValue(kvs.iterator().next(), ConcordIcons.FORM_FIELD))
                         .collect(Collectors.toList());
             }
             return List.of();
