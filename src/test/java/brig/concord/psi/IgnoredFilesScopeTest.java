@@ -29,10 +29,14 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBase {
 
         service.setIgnoredFileChecker(file -> file.getPath().contains("/ignored/"));
 
-        var roots = service.findRoots();
+        // Ignored root should not appear as a scope for itself
+        var ignoredRootScopes = service.getScopesForFile(ignoredRoot.getVirtualFile());
+        Assertions.assertTrue(ignoredRootScopes.isEmpty(), "Ignored root should have no scopes");
 
-        Assertions.assertEquals(1, roots.size(), "Should only find one root");
-        Assertions.assertEquals(visibleRoot.getVirtualFile(), roots.getFirst().getRootFile(), "Should find the visible root");
+        // Visible root should work normally
+        var visibleRootScopes = service.getScopesForFile(visibleRoot.getVirtualFile());
+        Assertions.assertEquals(1, visibleRootScopes.size(), "Visible root should have one scope");
+        Assertions.assertEquals(visibleRoot.getVirtualFile(), visibleRootScopes.getFirst().getRootFile());
     }
 
     @Test

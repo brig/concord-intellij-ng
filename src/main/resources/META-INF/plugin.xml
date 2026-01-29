@@ -31,6 +31,8 @@
         <applicationSettings service="brig.concord.smart.YAMLEditorOptions"/>
 
         <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
+        <projectService serviceImplementation="brig.concord.GitIgnoreChangeListener"
+                        preload="true"/>
 
         <!-- Syntax highlighting / colors -->
         <lang.syntaxHighlighterFactory

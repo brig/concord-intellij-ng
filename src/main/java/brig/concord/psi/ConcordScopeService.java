@@ -16,7 +16,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import brig.concord.yaml.psi.YAMLDocument;
 
@@ -67,23 +66,8 @@ public final class ConcordScopeService {
     }
 
     /**
-     * Finds all Concord root files in the project.
-     * A root is a concord.yaml file that is not contained in any other root's scope.
-     *
-     * @return list of all detected Concord roots
-     */
-    public @NotNull List<ConcordRoot> findRoots() {
-        return CachedValuesManager.getManager(project).getCachedValue(project, () -> {
-            var roots = computeRoots();
-            return CachedValueProvider.Result.create(
-                    roots,
-                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
-            );
-        });
-    }
-
-    /**
      * Returns all scopes that contain the given file.
+     * Filters out ignored files and roots at this point to ensure fresh VCS status.
      *
      * @param file the file to check
      * @return list of scopes containing this file (may be empty)
@@ -97,6 +81,10 @@ public final class ConcordScopeService {
         List<ConcordRoot> result = new ArrayList<>();
 
         for (var root : roots) {
+            // Skip ignored root files
+            if (isIgnored(root.getRootFile())) {
+                continue;
+            }
             if (root.contains(file)) {
                 result.add(root);
             }
@@ -105,19 +93,8 @@ public final class ConcordScopeService {
         return result;
     }
 
-    /**
-     * Checks if the given file is considered "out of scope".
-     * A file is out of scope if:
-     * 1. It is a Concord file
-     * 2. It is not a root file
-     * 3. It is not included in any scope
-     */
     public boolean isOutOfScope(@NotNull VirtualFile file) {
         if (!isConcordFileName(file.getName())) {
-            return false;
-        }
-
-        if (isIgnored(file)) {
             return false;
         }
 
@@ -155,7 +132,7 @@ public final class ConcordScopeService {
      * @param file the file providing context
      * @return a search scope for file-based index queries
      */
-    public @NotNull GlobalSearchScope createSearchScope(@NotNull VirtualFile file) {
+    @NotNull GlobalSearchScope createSearchScope(@NotNull VirtualFile file) {
         var scopes = getScopesForFile(file);
 
         if (scopes.isEmpty()) {
@@ -172,14 +149,38 @@ public final class ConcordScopeService {
     }
 
     /**
+     * Finds all Concord root files in the project.
+     * A root is a concord.yaml file that is not contained in any other root's scope.
+     *
+     * @return list of all detected Concord roots
+     */
+    @NotNull List<ConcordRoot> findRoots() {
+        return CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+            var roots = computeRoots();
+            return CachedValueProvider.Result.create(
+                    roots,
+                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
+            );
+        });
+    }
+
+    /**
      * Creates a search scope containing all files from the given roots.
+     * Filters out ignored files at this point to ensure fresh VCS status is used.
      */
     private @NotNull GlobalSearchScope createScopeFromRoots(@NotNull List<ConcordRoot> roots) {
         Set<VirtualFile> files = CollectionFactory.createSmallMemoryFootprintSet();
 
         for (var root : roots) {
-            files.add(root.getRootFile());
-            files.addAll(getMatchingFilesForRoot(root));
+            var rootFile = root.getRootFile();
+            if (!isIgnored(rootFile)) {
+                files.add(rootFile);
+            }
+            for (var file : getMatchingFilesForRoot(root)) {
+                if (!isIgnored(file)) {
+                    files.add(file);
+                }
+            }
         }
 
         if (files.isEmpty()) {
@@ -267,12 +268,10 @@ public final class ConcordScopeService {
                 return Collections.emptyList();
             }
 
-            // Second pass: get actual files
+            // Second pass: get actual files (without ignored filtering - that's done at usage time)
             List<VirtualFile> result = new ArrayList<>();
             FilenameIndex.processFilesByNames(concordFileNames, false, projectScope, null, file -> {
-                if (!isIgnored(file)) {
-                    result.add(file);
-                }
+                result.add(file);
                 return true;
             });
 
@@ -287,6 +286,8 @@ public final class ConcordScopeService {
 
     /**
      * Computes all Concord roots in the project.
+     * Note: ignored files filtering is done at usage time, not here,
+     * to ensure fresh VCS status is used.
      */
     private @NotNull List<ConcordRoot> computeRoots() {
         return ReadAction.compute(() -> {

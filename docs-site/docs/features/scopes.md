@@ -80,7 +80,7 @@ If a file is covered by the `resources` pattern of a parent `concord.yaml`, it b
 
 ## Files Outside Scope
 
-If you open a Concord file that does not belong to any defined scope (it is not a root file and is not matched by any `resources` pattern), the IDE will display a notification:
+If you open a Concord file that does not belong to any defined scope (it is not a root file, is not matched by any `resources` pattern, or [Ignored](#ignored-files)), the IDE will display a notification:
 
 > **File outside Concord scope**
 > This file is not in any Concord scope. Flow navigation and other features may be limited.
@@ -91,6 +91,16 @@ This usually means the file is "orphaned." Because the plugin doesn't know which
 ### How to fix
 1.  **If this is a new project:** Create a `concord.yaml` file in the project root.
 2.  **If this is part of an existing project:** Update the `resources` section of your main `concord.yaml` to include this file path (e.g., add `"glob:scripts/**/*.yml"`).
+
+## Ignored Files
+
+The plugin respects your version control settings. Files that are ignored by Git (e.g., listed in `.gitignore`) are automatically **excluded** from all Concord scopes.
+
+*   They will not trigger "File outside Concord scope" warnings.
+*   They will not participate in flow resolution or completion.
+*   They will not appear in search results or refactoring operations.
+
+This is particularly useful for temporary files, build artifacts, or local overrides that shouldn't be part of the project's static analysis.
 
 ## Global Search
 
