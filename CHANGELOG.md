@@ -4,6 +4,8 @@
 
 ### Added
 
+- added breadcrumbs functionality
+([#65](https://github.com/brig/concord-intellij-ng/pull/65))  
 - automatic language injection support for script steps in Concord flows
 ([#63](https://github.com/brig/concord-intellij-ng/pull/63))  
 - added an icon provider for Concord YAML files to display appropriate icons for different sections
