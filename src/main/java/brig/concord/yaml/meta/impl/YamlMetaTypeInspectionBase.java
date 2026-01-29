@@ -1,9 +1,7 @@
 package brig.concord.yaml.meta.impl;
 
 
-// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-
-import com.intellij.codeInspection.LocalInspectionTool;
+import brig.concord.inspection.ConcordInspectionTool;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.progress.ProgressIndicatorProvider;
 import com.intellij.psi.PsiElement;
@@ -15,14 +13,14 @@ import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLSequenceItem;
 
-public abstract class YamlMetaTypeInspectionBase extends LocalInspectionTool {
+public abstract class YamlMetaTypeInspectionBase extends ConcordInspectionTool {
 
     protected abstract @Nullable YamlMetaTypeProvider getMetaTypeProvider(@NotNull ProblemsHolder holder);
 
     protected abstract @NotNull PsiElementVisitor doBuildVisitor(@NotNull ProblemsHolder holder, @NotNull YamlMetaTypeProvider metaTypeProvider);
 
     @Override
-    public final @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
+    public final @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
         YamlMetaTypeProvider provider = getMetaTypeProvider(holder);
         return provider == null ? PsiElementVisitor.EMPTY_VISITOR
                 : doBuildVisitor(holder, provider);
