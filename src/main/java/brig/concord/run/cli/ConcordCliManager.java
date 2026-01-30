@@ -7,17 +7,20 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.util.io.HttpRequests;
+import com.intellij.util.text.VersionComparatorUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.regex.Pattern;
 
 @Service(Service.Level.APP)
 public final class ConcordCliManager {
@@ -29,8 +32,6 @@ public final class ConcordCliManager {
     private static final String ARTIFACT_ID = "concord-cli";
     private static final String METADATA_URL = MAVEN_CENTRAL_BASE + "/" + GROUP_PATH + "/" + ARTIFACT_ID + "/maven-metadata.xml";
 
-    private static final Pattern VERSION_PATTERN = Pattern.compile("<version>([^<]+)</version>");
-
     public static @NotNull ConcordCliManager getInstance() {
         return ApplicationManager.getApplication().getService(ConcordCliManager.class);
     }
@@ -41,12 +42,20 @@ public final class ConcordCliManager {
                 .readString();
 
         List<String> versions = new ArrayList<>();
-        var matcher = VERSION_PATTERN.matcher(metadata);
-        while (matcher.find()) {
-            versions.add(matcher.group(1));
+        try {
+            var factory = DocumentBuilderFactory.newInstance();
+            var builder = factory.newDocumentBuilder();
+            var inputSource = new InputSource(new StringReader(metadata));
+            var doc = builder.parse(inputSource);
+            var versionNodes = doc.getElementsByTagName("version");
+            for (int i = 0; i < versionNodes.getLength(); i++) {
+                versions.add(versionNodes.item(i).getTextContent());
+            }
+        } catch (Exception e) {
+            throw new IOException("Failed to parse maven-metadata.xml", e);
         }
 
-        versions.sort((v1, v2) -> compareVersions(parseVersion(v2), parseVersion(v1)));
+        versions.sort(VersionComparatorUtil.COMPARATOR.reversed());
         return versions;
     }
 
@@ -150,31 +159,5 @@ public final class ConcordCliManager {
         } catch (UnsupportedOperationException e) {
             LOG.debug("POSIX permissions not supported on this system");
         }
-    }
-
-    private static int compareVersions(int @NotNull [] v1, int @NotNull [] v2) {
-        var len = Math.max(v1.length, v2.length);
-        for (var i = 0; i < len; i++) {
-            var a = i < v1.length ? v1[i] : 0;
-            var b = i < v2.length ? v2[i] : 0;
-            if (a != b) {
-                return Integer.compare(a, b);
-            }
-        }
-        return 0;
-    }
-
-    private static int @NotNull [] parseVersion(@NotNull String version) {
-        var parts = version.split("[.\\-]");
-        var result = new int[parts.length];
-        for (var i = 0; i < parts.length; i++) {
-            try {
-                result[i] = Integer.parseInt(parts[i]);
-            } catch (NumberFormatException e) {
-                LOG.debug("Cannot parse version part '" + parts[i] + "' in version '" + version + "'");
-                result[i] = 0;
-            }
-        }
-        return result;
     }
 }
