@@ -116,7 +116,7 @@ jobs:
       - name: Extract Release Notes
         id: extract_notes
         run: |
-          NOTES=$(./gradlew getChangelog --unreleased --no-header --console=plain)
+          NOTES=$(./gradlew getChangelog -q --unreleased --no-header --console=plain)
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV

@@ -20,7 +20,6 @@ const config: Config = {
                 docs: {
                     sidebarPath: require.resolve('./sidebars.ts'),
                     routeBasePath: 'docs',
-                    lastVersion: 'current',
                     includeCurrentVersion: isDev,
                     versions: {
                         current: {
