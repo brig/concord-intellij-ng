@@ -64,22 +64,49 @@ jobs:
       - name: Bump Minor Version & Reset Changelog
         id: bump
         run: |
-          CURRENT_VERSION=$(grep "^version=" gradle.properties | cut -d'=' -f2)
+          # Read version using the correct property name
+          CURRENT_VERSION=$(grep "^pluginVersion=" gradle.properties | cut -d'=' -f2 | xargs)
+          
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "Error: Could not find pluginVersion in gradle.properties"
+            exit 1
+          fi
+          
           echo "Current version: $CURRENT_VERSION"
 
           IFS='.' read -r -a parts <<< "$CURRENT_VERSION"
           
+          # Ensure we have at least 2 parts (Major.Minor)
+          if [ "${#parts[@]}" -lt 2 ]; then
+             echo "Error: Version format $CURRENT_VERSION is not semantic (X.Y.Z)"
+             exit 1
+          fi
+
+          # Increment minor version
           NEXT_MINOR=$((parts[1] + 1))
           
+          # Construct next version (reset patch to 0)
           NEXT_VERSION="${parts[0]}.${NEXT_MINOR}.0"
           
           echo "Next version: $NEXT_VERSION"
           echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
-          sed -i "s/^version=.*/version=$NEXT_VERSION/" gradle.properties
-
-          sed -i '/^# Changelog/a \\n## [Unreleased]' CHANGELOG.md
+          # Update gradle.properties
+          # Use specific match for pluginVersion to avoid accidental replacement
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+             sed -i '' "s/^pluginVersion=.*/pluginVersion=$NEXT_VERSION/" gradle.properties
+             # Add Unreleased section to CHANGELOG.md (macOS sed)
+             sed -i '' '/^# Changelog/a \
+             \
+             ## Unreleased\
+             ' CHANGELOG.md
+          else
+             sed -i "s/^pluginVersion=.*/pluginVersion=$NEXT_VERSION/" gradle.properties
+             # Add Unreleased section to CHANGELOG.md (GNU sed)
+             sed -i '/^# Changelog/a \\n## Unreleased' CHANGELOG.md
+          fi
           
+          # Create blog post stub
           BLOG_FILE="docs-site/blog/xxxx-xx-xx-release-${NEXT_VERSION}.mdx"
           mkdir -p docs-site/blog
           cat <<EOF > "$BLOG_FILE"
