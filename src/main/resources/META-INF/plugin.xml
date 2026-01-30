@@ -30,9 +30,10 @@
         <applicationService serviceImplementation="brig.concord.smart.YAMLEditorOptions"/>
         <applicationSettings service="brig.concord.smart.YAMLEditorOptions"/>
 
+        <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliSettings"/>
+
         <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
-        <projectService serviceImplementation="brig.concord.GitIgnoreChangeListener"
-                        preload="true"/>
+        <projectService serviceImplementation="brig.concord.GitIgnoreChangeListener" preload="true"/>
 
         <!-- Syntax highlighting / colors -->
         <lang.syntaxHighlighterFactory
@@ -164,6 +165,39 @@
                          groupKey="inspections.group.name"
                          enabledByDefault="true"
                          implementationClass="brig.concord.inspection.OutOfScopeInspection"/>
+
+        <!-- Concord Settings (parent group) -->
+        <applicationConfigurable
+                parentId="tools"
+                instance="brig.concord.settings.ConcordSettingsConfigurable"
+                id="brig.concord.settings"
+                bundle="messages.ConcordBundle"
+                key="settings.display.name"/>
+
+        <!-- CLI Settings -->
+        <applicationConfigurable
+                parentId="brig.concord.settings"
+                instance="brig.concord.run.cli.ConcordCliConfigurable"
+                id="brig.concord.cli.settings"
+                bundle="messages.ConcordBundle"
+                key="cli.settings.display.name"/>
+
+        <!-- Project-level run mode settings -->
+        <projectConfigurable
+                parentId="brig.concord.settings"
+                instance="brig.concord.run.ConcordRunModeConfigurable"
+                id="brig.concord.run.mode.settings"
+                bundle="messages.ConcordBundle"
+                key="run.mode.settings.display.name"/>
+
+        <!-- Run Configuration -->
+        <configurationType implementation="brig.concord.run.ConcordRunConfigurationType"/>
+        <runConfigurationProducer implementation="brig.concord.run.ConcordRunConfigurationProducer"/>
+
+        <!-- Run Line Marker -->
+        <codeInsight.lineMarkerProvider
+                language="Concord"
+                implementationClass="brig.concord.run.ConcordFlowRunLineMarkerProvider"/>
     </extensions>
 
 </idea-plugin>

@@ -30,4 +30,6 @@ public final class ConcordIcons {
     public static final Icon PUBLIC_FLOW = IconLoader.getIcon("/icons/structure-view/public-flow.svg", ConcordIcons.class);
     public static final Icon PROFILES = IconLoader.getIcon("/icons/structure-view/profiles.svg", ConcordIcons.class);
     public static final Icon PROFILE = IconLoader.getIcon("/icons/structure-view/profile.svg", ConcordIcons.class);
+
+    public static final Icon RUN = IconLoader.getIcon("/icons/run.svg", ConcordIcons.class);
 }
