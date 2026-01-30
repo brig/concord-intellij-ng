@@ -5,6 +5,10 @@
 
     <depends>com.intellij.modules.platform</depends>
 
+    <projectListeners>
+        <listener class="brig.concord.GitIgnoreChangeListener" topic="com.intellij.openapi.vcs.changes.ChangeListListener"/>
+    </projectListeners>
+
     <extensions defaultExtensionNs="com.intellij">
         <!-- Breadcrumbs -->
         <breadcrumbsInfoProvider implementation="brig.concord.editor.ConcordBreadcrumbsProvider"/>
@@ -33,7 +37,6 @@
         <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliSettings"/>
 
         <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
-        <projectService serviceImplementation="brig.concord.GitIgnoreChangeListener" preload="true"/>
 
         <!-- Syntax highlighting / colors -->
         <lang.syntaxHighlighterFactory
