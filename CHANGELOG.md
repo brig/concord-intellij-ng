@@ -1,7 +1,30 @@
-# concord-intellij-plugin Changelog
+# Changelog
 
 ## Unreleased
 
+### Added
+
+- aded Run Configuration support to execute Concord flows locally from the IDE
+([#67](https://github.com/brig/concord-intellij-ng/pull/67))   
+- added support for respecting `.gitignore` rules in Concord file discovery and scope resolution
+([#62](https://github.com/brig/concord-intellij-ng/pull/62))   
+- added breadcrumbs functionality
+([#65](https://github.com/brig/concord-intellij-ng/pull/65))  
+- automatic language injection support for script steps in Concord flows
+([#63](https://github.com/brig/concord-intellij-ng/pull/63))  
+- added an icon provider for Concord YAML files to display appropriate icons for different sections
+and elements in the IDE's structure view and navigation
+([#59](https://github.com/brig/concord-intellij-ng/pull/59))  
+- added inspection and notification when Concord YAML files are outside their defined scope
+([#57](https://github.com/brig/concord-intellij-ng/pull/57))
+  
+### Changed
+
+- fix code completion for trigger entry points
+([#66](https://github.com/brig/concord-intellij-ng/pull/66))
+- fix for completion functionality in multi-scope projects
+([#56](https://github.com/brig/concord-intellij-ng/pull/56))
+  
 ## 0.16.0 - 2026-01-23
 
 ### Added
