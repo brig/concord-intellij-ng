@@ -37,6 +37,7 @@ const sidebars: SidebarsConfig = {
         'features/rename',
         'features/flow-docs',
         'features/scopes',
+        'features/run-configurations',
       ],
     },
   ],

@@ -5,7 +5,6 @@ import com.intellij.openapi.components.StoredProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -14,10 +13,7 @@ public class ConcordRunConfigurationOptions extends RunConfigurationOptions {
     private final StoredProperty<String> myEntryPoint = string("").provideDelegate(this, "entryPoint");
     private final StoredProperty<String> myWorkingDirectory = string("").provideDelegate(this, "workingDirectory");
     private final StoredProperty<String> myAdditionalArguments = string("").provideDelegate(this, "additionalArguments");
-    private final StoredProperty<String> myParametersEncoded = string("").provideDelegate(this, "parameters");
-
-    private static final String PARAM_SEPARATOR = "\u001F";
-    private static final String KV_SEPARATOR = "\u001E";
+    private final StoredProperty<Map<Object, Object>> myParameters = map().provideDelegate(this, "parameters");
 
     public @NotNull String getEntryPoint() {
         var value = myEntryPoint.getValue(this);
@@ -47,31 +43,21 @@ public class ConcordRunConfigurationOptions extends RunConfigurationOptions {
     }
 
     public @NotNull Map<String, String> getParameters() {
-        var encoded = myParametersEncoded.getValue(this);
+        var value = myParameters.getValue(this);
         var result = new LinkedHashMap<String, String>();
-        if (encoded != null && !encoded.isEmpty()) {
-            for (var entry : encoded.split(PARAM_SEPARATOR)) {
-                var idx = entry.indexOf(KV_SEPARATOR);
-                if (idx > 0) {
-                    result.put(entry.substring(0, idx), entry.substring(idx + 1));
-                } else if (!entry.isEmpty()) {
-                    result.put(entry, "");
-                }
+        for (var entry : value.entrySet()) {
+            if (entry.getKey() instanceof String k && entry.getValue() instanceof String v) {
+                result.put(k, v);
             }
         }
         return result;
     }
 
     public void setParameters(@Nullable Map<String, String> parameters) {
-        if (parameters == null || parameters.isEmpty()) {
-            myParametersEncoded.setValue(this, "");
-            return;
+        var map = new LinkedHashMap<>();
+        if (parameters != null) {
+            map.putAll(parameters);
         }
-
-        var entries = new ArrayList<String>();
-        for (var entry : parameters.entrySet()) {
-            entries.add(entry.getKey() + KV_SEPARATOR + entry.getValue());
-        }
-        myParametersEncoded.setValue(this, String.join(PARAM_SEPARATOR, entries));
+        myParameters.setValue(this, map);
     }
 }

@@ -83,6 +83,10 @@ public final class ConcordCliManager {
         var settings = ConcordCliSettings.getInstance();
         settings.setCliPath(targetPath.toString());
         settings.setCliVersion(version);
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {}
     }
 
     public boolean validateCliPath(@Nullable String path) {
@@ -101,7 +105,7 @@ public final class ConcordCliManager {
             pb.redirectErrorStream(true);
             process = pb.start();
 
-            var completed = process.waitFor(60, java.util.concurrent.TimeUnit.SECONDS);
+            var completed = process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS);
             if (!completed) {
                 LOG.warn("CLI version detection timed out");
                 return null;
@@ -116,7 +120,7 @@ public final class ConcordCliManager {
         } catch (Exception e) {
             LOG.warn("Failed to detect CLI version: " + e.getMessage());
         } finally {
-            if (process != null) {
+            if (process != null && process.isAlive()) {
                 process.destroyForcibly();
             }
         }

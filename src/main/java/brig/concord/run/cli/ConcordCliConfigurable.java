@@ -101,34 +101,35 @@ public final class ConcordCliConfigurable implements Configurable {
     }
 
     private void downloadCli(@NotNull String version) {
-        ProgressManager.getInstance().run(new Task.Backgroundable(null, ConcordBundle.message("cli.settings.download.title"), true) {
+        ProgressManager.getInstance().run(new Task.Modal(null, ConcordBundle.message("cli.settings.download.title"), true) {
             @Override
-            public void run(@NotNull ProgressIndicator indicator) {
-                try {
-                    ConcordCliManager.getInstance().downloadCli(version, indicator);
+            public void run(@NotNull ProgressIndicator indicator) throws IOException {
+                ConcordCliManager.getInstance().downloadCli(version, indicator);
+            }
 
-                    ApplicationManager.getApplication().invokeLater(() -> {
-                        var settings = ConcordCliSettings.getInstance();
-                        var cliPath = settings.getCliPath();
-                        if (cliPath != null) {
-                            myCliPathField.setText(cliPath);
-                        }
-                        updateVersionLabel();
-
-                        ConcordNotifications.getGroup()
-                                .createNotification(
-                                        ConcordBundle.message("cli.settings.download.success", version),
-                                        NotificationType.INFORMATION)
-                                .notify(null);
-                    }, ModalityState.any());
-                } catch (IOException e) {
-                    ApplicationManager.getApplication().invokeLater(() ->
-                            ConcordNotifications.getGroup()
-                                    .createNotification(
-                                            ConcordBundle.message("cli.settings.download.error", e.getMessage()),
-                                            NotificationType.ERROR)
-                                    .notify(null), ModalityState.any());
+            @Override
+            public void onSuccess() {
+                var settings = ConcordCliSettings.getInstance();
+                var cliPath = settings.getCliPath();
+                if (cliPath != null) {
+                    myCliPathField.setText(cliPath);
                 }
+                updateVersionLabel();
+
+                ConcordNotifications.getGroup()
+                        .createNotification(
+                                ConcordBundle.message("cli.settings.download.success", version),
+                                NotificationType.INFORMATION)
+                        .notify(null);
+            }
+
+            @Override
+            public void onThrowable(@NotNull Throwable error) {
+                ConcordNotifications.getGroup()
+                        .createNotification(
+                                ConcordBundle.message("cli.settings.download.error", error.getMessage()),
+                                NotificationType.ERROR)
+                        .notify(null);
             }
         });
     }
@@ -176,7 +177,6 @@ public final class ConcordCliConfigurable implements Configurable {
     private static class DownloadCliDialog extends DialogWrapper {
 
         private ComboBox<String> myVersionComboBox;
-        private JBLabel myStatusLabel;
         private boolean myVersionsLoaded = false;
 
         protected DownloadCliDialog() {
@@ -192,12 +192,10 @@ public final class ConcordCliConfigurable implements Configurable {
             myVersionComboBox = new ComboBox<>();
             myVersionComboBox.setEnabled(false);
             myVersionComboBox.setMinimumAndPreferredWidth(JBUI.scale(300));
-
-            myStatusLabel = new JBLabel(ConcordBundle.message("cli.settings.fetching.versions"));
+            myVersionComboBox.addItem(ConcordBundle.message("cli.settings.fetching.versions"));
 
             return FormBuilder.createFormBuilder()
                     .addLabeledComponent(ConcordBundle.message("cli.settings.download.select.version"), myVersionComboBox)
-                    .addComponent(myStatusLabel)
                     .getPanel();
         }
 
@@ -218,17 +216,16 @@ public final class ConcordCliConfigurable implements Configurable {
                             myVersionComboBox.addItem(version);
                         }
                         myVersionComboBox.setEnabled(true);
-                        myStatusLabel.setVisible(false);
                         myVersionsLoaded = true;
-                        pack();
                     }, ModalityState.stateForComponent(myVersionComboBox));
                 } catch (IOException e) {
                     ApplicationManager.getApplication().invokeLater(() -> {
                         if (!isShowing()) {
                             return;
                         }
-                        myStatusLabel.setText(ConcordBundle.message("cli.settings.download.error", e.getMessage()));
-                    }, ModalityState.stateForComponent(myStatusLabel));
+                        myVersionComboBox.removeAllItems();
+                        myVersionComboBox.addItem(ConcordBundle.message("cli.settings.download.error", e.getMessage()));
+                    }, ModalityState.stateForComponent(myVersionComboBox));
                 }
             });
         }
