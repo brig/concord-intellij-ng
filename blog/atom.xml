@@ -2,11 +2,88 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://brig.github.io/concord-intellij-ng/blog</id>
     <title>Concord IntelliJ Plugin Blog</title>
-    <updated>2026-01-23T00:00:00.000Z</updated>
+    <updated>2026-01-30T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://brig.github.io/concord-intellij-ng/blog"/>
     <subtitle>Concord IntelliJ Plugin Blog</subtitle>
-    <icon>https://brig.github.io/concord-intellij-ng/img/favicon.ico</icon>
+    <icon>https://brig.github.io/concord-intellij-ng/favicon.png</icon>
+    <entry>
+        <title type="html"><![CDATA[What’s New in Concord IntelliJ 0.17.0]]></title>
+        <id>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0</id>
+        <link href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0"/>
+        <updated>2026-01-30T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[The 0.17.0 release brings a significant boost to developer productivity with Automatic Language Injection for script steps.]]></summary>
+        <content type="html"><![CDATA[<p>The <code>0.17.0</code> release brings a significant boost to developer productivity with <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/language-injection">Automatic Language Injection</a></strong> for script steps.
+This update also introduces <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/run-configurations">Run Configurations</a></strong> to execute flows locally, <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/breadcrumbs">editor breadcrumbs</a></strong>,
+and improves scope safety with smarter <a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/inspections">inspections</a>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="run-configurations">Run Configurations<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0#run-configurations" class="hash-link" aria-label="Direct link to Run Configurations" title="Direct link to Run Configurations" translate="no">​</a></h2>
+<p>You can now execute Concord flows locally directly from the IDE. This feature is powered by the Concord CLI,
+enabling rapid feedback loops during development without needing to push changes to a server.</p>
+<p>The easiest way to start a flow is by using the <strong>Run</strong> icon in the editor gutter next to the flow definition.
+You can also right-click a flow name and select <strong>Run</strong>.</p>
+<figure class="docFigure docFigure--sm00"><img src="https://brig.github.io/concord-intellij-ng/assets/images/concord-gutter-7d59713e43f1cb3a7402d643cc13c5ff.png" alt="Run Gutter Icon"><figcaption>Click the Play icon next to a flow name to execute it locally.</figcaption></figure>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="key-features">Key Features:<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0#key-features" class="hash-link" aria-label="Direct link to Key Features:" title="Direct link to Key Features:" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>Interactive Console:</strong> The output supports ANSI colors and <strong>clickable hyperlinks</strong> that take you directly to the source code on errors.</li>
+<li class=""><strong>Automatic CLI Management:</strong> The plugin can automatically download and configure the Concord CLI for you.</li>
+<li class=""><strong>Flexible Configuration:</strong> Customize <a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/run-configurations#configuration-options">execution with parameters, working directory, and different modes</a> to fit your workflow.</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="language-injection">Language Injection<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0#language-injection" class="hash-link" aria-label="Direct link to Language Injection" title="Direct link to Language Injection" translate="no">​</a></h2>
+<p>Writing scripts inside YAML has always been a challenge—until now.
+The plugin now automatically detects and injects the appropriate language into <span class="tokenBadge" data-kind="step">script</span> steps.</p>
+<p>Whether you are writing <strong>Groovy</strong>, <strong>JavaScript</strong>, <strong>Python</strong>, or <strong>Ruby</strong>, you now get full IDE support directly inside your Concord files:</p>
+<ul>
+<li class=""><strong>Syntax Highlighting:</strong> No more plain text blocks. Code is colored and formatted correctly.</li>
+<li class=""><strong>Code Completion:</strong> Access standard library functions and <a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/language-injection#implicit-variables--autocompletion">Concord implicit variables</a>.</li>
+<li class=""><strong>Inspections:</strong> Catch syntax errors in your scripts before running them.</li>
+</ul>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/language-injection-ac6f29aeabe8c25f476da503f94405ad.png" alt="Language Injection Example"><figcaption><p>Full Groovy support inside a Concord script step.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="improved-navigation--icons">Improved Navigation &amp; Icons<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0#improved-navigation--icons" class="hash-link" aria-label="Direct link to Improved Navigation &amp; Icons" title="Direct link to Improved Navigation &amp; Icons" translate="no">​</a></h2>
+<p>We've added a dedicated <strong>Icon Provider</strong> for Concord files.
+Your Concord elements now have distinct icons in the Project View, Structure View, and Navigation popups,
+making it easier to distinguish between:</p>
+<ul>
+<li class="">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#D19A66" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-workflow-icon lucide-workflow" viewBox="0 0 24 24" style="vertical-align:text-bottom"><rect width="8" height="8" x="3" y="3" rx="2"></rect><path d="M7 11v4a2 2 0 0 0 2 2h4"></path><rect width="8" height="8" x="13" y="13" rx="2"></rect></svg>
+<strong>Flow</strong>
+</li>
+<li class="">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" style="vertical-align:text-bottom"><rect width="11" height="11" x="2.5" y="2.5" stroke="#6C707E" rx="1.5"></rect><path fill="#6C707E" d="m9.457 10.85-.325.65h-.673c-.851 0-1.473-.59-1.473-1.386L6.98 6.82H5.9l.005-.906h.704a.444.444 0 0 0 .464-.464V4.5h.944v1.413h1.446l-.006.906h-1.44v3.202a.56.56 0 0 0 .573.573h.867z"></path></svg>
+<strong>Trigger</strong>
+</li>
+<li class="">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="#D19A66" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-form-icon lucide-form" viewBox="0 0 24 24" style="vertical-align:text-bottom"><path d="M4 14h6M4 2h10"></path><rect width="16" height="4" x="4" y="18" rx="1"></rect><rect width="16" height="4" x="4" y="6" rx="1"></rect></svg>
+<strong>Form</strong>
+</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="scope-safety-inspections">Scope Safety Inspections<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0#scope-safety-inspections" class="hash-link" aria-label="Direct link to Scope Safety Inspections" title="Direct link to Scope Safety Inspections" translate="no">​</a></h2>
+<p>Working in a monorepo can get messy. The plugin now includes an inspection to warn you if a file is <strong>Outside of Scope</strong>.</p>
+<p>If you open a <code>.concord.yaml</code> file that isn't part of a defined Concord project (root or resource), the IDE will notify you.
+This prevents confusion when features like navigation or completion seem "broken"
+simply because the file isn't being indexed as part of the project context.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="breadcrumbs">Breadcrumbs<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0#breadcrumbs" class="hash-link" aria-label="Direct link to Breadcrumbs" title="Direct link to Breadcrumbs" translate="no">​</a></h2>
+<p>Navigating through deeply nested YAML structures is now much easier.
+The plugin now integrates with the IDE's <a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/breadcrumbs"><strong>Breadcrumbs</strong></a>
+component to show your current location within a <code>.concord.yaml</code> file.</p>
+<p>The breadcrumbs bar at the bottom of the editor provides a clear path from the file root to your current element,
+such as the active flow and the specific step you are editing. This is especially helpful when dealing with complex,
+multi-step flows.</p>
+<figure class="docFigure docFigure--sm5"><img src="https://brig.github.io/concord-intellij-ng/assets/images/breadcrumbs-8a2bd2a39fa8f584e83c0989eb243ccd.png" alt="Editor Breadcrumbs"><figcaption><p>Stay oriented with breadcrumbs showing your location in the flow hierarchy.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="gitignore-support">Gitignore Support<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0#gitignore-support" class="hash-link" aria-label="Direct link to Gitignore Support" title="Direct link to Gitignore Support" translate="no">​</a></h2>
+<p>The plugin now respects <code>.gitignore</code> rules during Concord file discovery and <a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/scopes#ignored-files">scope resolution</a>.
+This ensures that ignored files and directories (like build artifacts or temporary files) are excluded from the project's scope,
+making completion, navigation, and search results more accurate and relevant to your source code.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="other-improvements">Other Improvements<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0#other-improvements" class="hash-link" aria-label="Direct link to Other Improvements" title="Direct link to Other Improvements" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Completion Fixes:</strong> Improved reliability of completion functionality in multi-scope projects.</li>
+</ul>]]></content>
+        <author>
+            <name>Brig</name>
+            <uri>https://github.com/brig</uri>
+        </author>
+        <category label="Release" term="Release"/>
+        <category label="Features" term="Features"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[What’s New in Concord IntelliJ 0.16.0]]></title>
         <id>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.16.0</id>
