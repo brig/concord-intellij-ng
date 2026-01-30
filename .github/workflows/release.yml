@@ -64,8 +64,8 @@ jobs:
       - name: Bump Minor Version & Reset Changelog
         id: bump
         run: |
-          # Read version using the correct property name
-          CURRENT_VERSION=$(grep "^pluginVersion=" gradle.properties | cut -d'=' -f2 | xargs)
+          # Read version using a regex that handles spaces around '='
+          CURRENT_VERSION=$(grep "^pluginVersion[[:space:]]*=[[:space:]]*" gradle.properties | sed "s/^pluginVersion[[:space:]]*=[[:space:]]*//" | xargs)
           
           if [ -z "$CURRENT_VERSION" ]; then
             echo "Error: Could not find pluginVersion in gradle.properties"
@@ -92,16 +92,16 @@ jobs:
           echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
           # Update gradle.properties
-          # Use specific match for pluginVersion to avoid accidental replacement
+          # Handles spaces around '=' and preserves the exact style of the line
           if [[ "$OSTYPE" == "darwin"* ]]; then
-             sed -i '' "s/^pluginVersion=.*/pluginVersion=$NEXT_VERSION/" gradle.properties
+             sed -i '' "s/^\(pluginVersion[[:space:]]*=[[:space:]]*\).*/\1$NEXT_VERSION/" gradle.properties
              # Add Unreleased section to CHANGELOG.md (macOS sed)
              sed -i '' '/^# Changelog/a \
              \
              ## Unreleased\
              ' CHANGELOG.md
           else
-             sed -i "s/^pluginVersion=.*/pluginVersion=$NEXT_VERSION/" gradle.properties
+             sed -i "s/^\(pluginVersion[[:space:]]*=[[:space:]]*\).*/\1$NEXT_VERSION/" gradle.properties
              # Add Unreleased section to CHANGELOG.md (GNU sed)
              sed -i '/^# Changelog/a \\n## Unreleased' CHANGELOG.md
           fi
