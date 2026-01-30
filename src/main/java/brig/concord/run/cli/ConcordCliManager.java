@@ -83,10 +83,6 @@ public final class ConcordCliManager {
         var settings = ConcordCliSettings.getInstance();
         settings.setCliPath(targetPath.toString());
         settings.setCliVersion(version);
-
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {}
     }
 
     public boolean validateCliPath(@Nullable String path) {

@@ -103,8 +103,12 @@ public final class ConcordCliConfigurable implements Configurable {
     private void downloadCli(@NotNull String version) {
         ProgressManager.getInstance().run(new Task.Modal(null, ConcordBundle.message("cli.settings.download.title"), true) {
             @Override
-            public void run(@NotNull ProgressIndicator indicator) throws IOException {
-                ConcordCliManager.getInstance().downloadCli(version, indicator);
+            public void run(@NotNull ProgressIndicator indicator) {
+                try {
+                    ConcordCliManager.getInstance().downloadCli(version, indicator);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             @Override
