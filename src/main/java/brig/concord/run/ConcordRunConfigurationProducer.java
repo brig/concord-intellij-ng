@@ -1,17 +1,17 @@
 package brig.concord.run;
 
 import brig.concord.psi.ConcordFile;
-import brig.concord.psi.ConcordScopeService;
 import brig.concord.psi.ProcessDefinition;
 import com.intellij.execution.actions.ConfigurationContext;
 import com.intellij.execution.actions.LazyRunConfigurationProducer;
 import com.intellij.execution.configurations.ConfigurationFactory;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.LinkedHashMap;
+import java.util.Objects;
 
 public final class ConcordRunConfigurationProducer extends LazyRunConfigurationProducer<ConcordRunConfiguration> {
 
@@ -30,9 +30,25 @@ public final class ConcordRunConfigurationProducer extends LazyRunConfigurationP
             return false;
         }
 
-        configuration.setEntryPoint(flowInfo.flowName);
-        configuration.setWorkingDirectory(flowInfo.workingDirectory);
-        configuration.setName(flowInfo.flowName);
+        var project = context.getProject();
+        var runModeSettings = ConcordRunModeSettings.getInstance(project);
+
+        if (runModeSettings.isDelegatingMode()) {
+            // Delegating: entry-point = main, flow passed as parameter
+            configuration.setEntryPoint(runModeSettings.getMainEntryPoint());
+            configuration.setWorkingDirectory(flowInfo.workingDirectory);
+
+            var params = new LinkedHashMap<>(configuration.getParameters());
+            params.put(runModeSettings.getFlowParameterName(), flowInfo.flowName);
+            configuration.setParameters(params);
+
+            configuration.setName(runModeSettings.getMainEntryPoint() + " (" + flowInfo.flowName + ")");
+        } else {
+            // Direct: entry-point = flowName
+            configuration.setEntryPoint(flowInfo.flowName);
+            configuration.setWorkingDirectory(flowInfo.workingDirectory);
+            configuration.setName(flowInfo.flowName);
+        }
 
         sourceElement.set(flowInfo.element);
         return true;
@@ -46,8 +62,24 @@ public final class ConcordRunConfigurationProducer extends LazyRunConfigurationP
             return false;
         }
 
-        return flowInfo.flowName.equals(configuration.getEntryPoint())
-                && flowInfo.workingDirectory.equals(configuration.getWorkingDirectory());
+        var project = context.getProject();
+        var runModeSettings = ConcordRunModeSettings.getInstance(project);
+
+        if (!flowInfo.workingDirectory.equals(configuration.getWorkingDirectory())) {
+            return false;
+        }
+
+        if (runModeSettings.isDelegatingMode()) {
+            // Delegating: check entry-point = main and flow parameter
+            if (!runModeSettings.getMainEntryPoint().equals(configuration.getEntryPoint())) {
+                return false;
+            }
+            var flowParamValue = configuration.getParameters().get(runModeSettings.getFlowParameterName());
+            return Objects.equals(flowInfo.flowName, flowParamValue);
+        } else {
+            // Direct: check entry-point = flowName
+            return flowInfo.flowName.equals(configuration.getEntryPoint());
+        }
     }
 
     private static @Nullable FlowInfo findFlowAtContext(@NotNull ConfigurationContext context) {
@@ -72,20 +104,9 @@ public final class ConcordRunConfigurationProducer extends LazyRunConfigurationP
         }
 
         var flowName = flowKeyValue.getKeyText();
-        var workingDirectory = getWorkingDirectory(context.getProject(), virtualFile);
+        var workingDirectory = ConcordRunConfigurationHelper.getWorkingDirectory(context.getProject(), virtualFile);
 
         return new FlowInfo(flowKeyValue, flowName, workingDirectory);
-    }
-
-    static @NotNull String getWorkingDirectory(@NotNull Project project,
-                                               @NotNull VirtualFile virtualFile) {
-        var scopes = ConcordScopeService.getInstance(project).getScopesForFile(virtualFile);
-        if (!scopes.isEmpty()) {
-            return scopes.getFirst().getRootDir().toString();
-        }
-        // Fallback to parent directory
-        var parent = virtualFile.getParent();
-        return parent != null ? parent.getPath() : "";
     }
 
     private record FlowInfo(@NotNull PsiElement element,

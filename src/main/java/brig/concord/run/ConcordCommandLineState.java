@@ -55,23 +55,44 @@ public class ConcordCommandLineState extends CommandLineState {
             throw new ExecutionException("Concord CLI is not configured");
         }
 
+        var project = getEnvironment().getProject();
         var commandLine = new PtyCommandLine();
         commandLine.setCharset(StandardCharsets.UTF_8);
         commandLine.setExePath(cliPath);
         commandLine.addParameter("run");
 
-        var entryPoint = myConfiguration.getEntryPoint();
-        if (!entryPoint.isBlank()) {
+        var runModeSettings = ConcordRunModeSettings.getInstance(project);
+
+        // Build parameters using helper
+        var buildResult = ConcordCommandLineBuilder.buildParameters(
+                myConfiguration.getEntryPoint(),
+                myConfiguration.getParameters(),
+                runModeSettings.isDelegatingMode(),
+                runModeSettings.getMainEntryPoint(),
+                runModeSettings.getFlowParameterName(),
+                runModeSettings.getDefaultParameters(),
+                runModeSettings.getActiveProfiles()
+        );
+
+        // Add entry point
+        var entryPoint = buildResult.entryPoint();
+        if (entryPoint != null) {
             commandLine.addParameter("--entry-point=" + entryPoint);
         }
 
-        var parameters = myConfiguration.getParameters();
-        for (var entry : parameters.entrySet()) {
-            var key = entry.getKey();
-            var value = entry.getValue();
-            if (!key.isBlank()) {
+        // Add parameters
+        for (var entry : buildResult.parameters().entrySet()) {
+            if (!entry.getKey().isBlank()) {
                 commandLine.addParameter("-e");
-                commandLine.addParameter(key + "=" + value);
+                commandLine.addParameter(entry.getKey() + "=" + entry.getValue());
+            }
+        }
+
+        // Add profiles
+        for (var profile : buildResult.profiles()) {
+            if (!profile.isBlank()) {
+                commandLine.addParameter("-p");
+                commandLine.addParameter(profile);
             }
         }
 
@@ -89,7 +110,6 @@ public class ConcordCommandLineState extends CommandLineState {
         if (!workingDirectory.isBlank()) {
             commandLine.setWorkDirectory(new File(workingDirectory));
         } else {
-            var project = getEnvironment().getProject();
             var basePath = project.getBasePath();
             if (basePath != null) {
                 commandLine.setWorkDirectory(new File(basePath));

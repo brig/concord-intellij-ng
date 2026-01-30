@@ -210,6 +210,9 @@ public final class ConcordCliConfigurable implements Configurable {
                             .toList();
 
                     ApplicationManager.getApplication().invokeLater(() -> {
+                        if (!isShowing()) {
+                            return;
+                        }
                         myVersionComboBox.removeAllItems();
                         for (var version : versions) {
                             myVersionComboBox.addItem(version);
@@ -220,9 +223,12 @@ public final class ConcordCliConfigurable implements Configurable {
                         pack();
                     }, ModalityState.stateForComponent(myVersionComboBox));
                 } catch (IOException e) {
-                    ApplicationManager.getApplication().invokeLater(() ->
-                            myStatusLabel.setText(ConcordBundle.message("cli.settings.download.error", e.getMessage())),
-                            ModalityState.stateForComponent(myStatusLabel));
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        if (!isShowing()) {
+                            return;
+                        }
+                        myStatusLabel.setText(ConcordBundle.message("cli.settings.download.error", e.getMessage()));
+                    }, ModalityState.stateForComponent(myStatusLabel));
                 }
             });
         }

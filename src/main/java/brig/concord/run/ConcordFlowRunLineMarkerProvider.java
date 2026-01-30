@@ -7,13 +7,8 @@ import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.codeInsight.daemon.LineMarkerInfo;
 import com.intellij.codeInsight.daemon.LineMarkerProvider;
-import com.intellij.execution.ExecutorRegistry;
-import com.intellij.execution.ProgramRunnerUtil;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.openapi.editor.markup.GutterIconRenderer;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,22 +67,7 @@ public final class ConcordFlowRunLineMarkerProvider implements LineMarkerProvide
             return;
         }
 
-        var runManager = RunManager.getInstance(project);
-        var settings = runManager.createConfiguration(
-                flowName,
-                ConcordRunConfigurationType.getInstance().getConfigurationFactories()[0]
-        );
-
-        var configuration = (ConcordRunConfiguration) settings.getConfiguration();
-        configuration.setEntryPoint(flowName);
-        configuration.setWorkingDirectory(ConcordRunConfigurationProducer.getWorkingDirectory(project, virtualFile));
-
-        runManager.setTemporaryConfiguration(settings);
-        runManager.setSelectedConfiguration(settings);
-
-        var executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID);
-        if (executor != null) {
-            ProgramRunnerUtil.executeConfiguration(settings, executor);
-        }
+        var workingDirectory = ConcordRunConfigurationHelper.getWorkingDirectory(project, virtualFile);
+        ConcordRunConfigurationHelper.createAndRun(project, flowName, workingDirectory);
     }
 }

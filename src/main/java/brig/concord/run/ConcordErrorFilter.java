@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 /**
@@ -81,7 +82,8 @@ public final class ConcordErrorFilter implements Filter {
 
             // Try relative to working directory (from run configuration)
             if (workingDirectory != null) {
-                file = LocalFileSystem.getInstance().findFileByPath(workingDirectory + "/" + filePath);
+                var resolvedPath = Path.of(workingDirectory).resolve(filePath).toString();
+                file = LocalFileSystem.getInstance().findFileByPath(resolvedPath);
                 return file;
             }
 

@@ -86,19 +86,30 @@ public final class ConcordCliManager {
     }
 
     public @Nullable String detectCliVersion(@NotNull String cliPath) {
+        Process process = null;
         try {
             var pb = new ProcessBuilder(cliPath, "--version");
             pb.redirectErrorStream(true);
-            var process = pb.start();
+            process = pb.start();
+
+            var completed = process.waitFor(60, java.util.concurrent.TimeUnit.SECONDS);
+            if (!completed) {
+                LOG.warn("CLI version detection timed out");
+                return null;
+            }
 
             var output = new String(process.getInputStream().readAllBytes()).trim();
-            var exitCode = process.waitFor();
+            var exitCode = process.exitValue();
 
             if (exitCode == 0 && !output.isEmpty()) {
                 return output.lines().findFirst().orElse(null);
             }
         } catch (Exception e) {
             LOG.warn("Failed to detect CLI version: " + e.getMessage());
+        } finally {
+            if (process != null) {
+                process.destroyForcibly();
+            }
         }
         return null;
     }
@@ -160,6 +171,7 @@ public final class ConcordCliManager {
             try {
                 result[i] = Integer.parseInt(parts[i]);
             } catch (NumberFormatException e) {
+                LOG.debug("Cannot parse version part '" + parts[i] + "' in version '" + version + "'");
                 result[i] = 0;
             }
         }
