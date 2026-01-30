@@ -60,6 +60,9 @@ jobs:
           npm ci          
           npm run docusaurus docs:version ${{ steps.version.outputs.version }}
 
+      - name: Patch Changelog
+        run: ./gradlew patchChangelog
+
       - name: Create Docs PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,7 +74,7 @@ jobs:
           BRANCH_NAME="action/freeze-docs-$VERSION"
           
           git checkout -b "$BRANCH_NAME"
-          git add docs-site/versions.json docs-site/versioned_docs docs-site/versioned_sidebars docs-site/blog
+          git add docs-site/versions.json docs-site/versioned_docs docs-site/versioned_sidebars docs-site/blog CHANGELOG.md
           
           if ! git diff --staged --quiet; then
             git commit -m "docs: freeze version $VERSION"
@@ -116,7 +119,7 @@ jobs:
       - name: Extract Release Notes
         id: extract_notes
         run: |
-          NOTES=$(./gradlew getChangelog -q --unreleased --no-header --console=plain)
+          NOTES=$(./gradlew getChangelog -q --no-header --console=plain)
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
