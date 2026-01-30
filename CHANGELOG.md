@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.17.0 - 2026-01-30
+
 ### Added
 
 - aded Run Configuration support to execute Concord flows locally from the IDE
@@ -17,14 +19,14 @@ and elements in the IDE's structure view and navigation
 ([#59](https://github.com/brig/concord-intellij-ng/pull/59))  
 - added inspection and notification when Concord YAML files are outside their defined scope
 ([#57](https://github.com/brig/concord-intellij-ng/pull/57))
-  
+
 ### Changed
 
 - fix code completion for trigger entry points
 ([#66](https://github.com/brig/concord-intellij-ng/pull/66))
 - fix for completion functionality in multi-scope projects
 ([#56](https://github.com/brig/concord-intellij-ng/pull/56))
-  
+
 ## 0.16.0 - 2026-01-23
 
 ### Added
@@ -38,6 +40,7 @@ and elements in the IDE's structure view and navigation
 - added quick fix to replace invalid parameter types with valid suggestions in flow documentation
 ([#49](https://github.com/brig/concord-intellij-ng/pull/49))  
 - added quick fix for missing closing ## marker in flow documentation
+
 ([#46](https://github.com/brig/concord-intellij-ng/pull/46))
 - rename refactoring for Concord flow definitions, allowing flows to be renamed
   across multiple files while preserving all references  
