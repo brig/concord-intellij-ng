@@ -510,6 +510,7 @@ a.external-link::after {
 }
 
 /* Width utilities for screenshots */
+.docFigure--sm00 { max-width: 350px; }
 .docFigure--sm0 { max-width: 400px; }
 .docFigure--sm { max-width: 460px; }
 .docFigure--sm2 { max-width: 480px; }

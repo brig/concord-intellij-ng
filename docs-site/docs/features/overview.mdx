@@ -21,6 +21,7 @@ import FlowDocsIcon from '@site/src/icons/flow-docs.svg';
 import ScopesIcon from '@site/src/icons/scopes.svg';
 import InjectIcon from '@site/src/icons/code-file.svg';
 import BreadcrumbsIcon from '@site/src/icons/breadcrumbs.svg';
+import RunIcon from '@site/src/icons/run.svg';
 
 export const FeatureCard = ({icon: Icon, title, description, to}) => (
   <Link className="landingCard" to={to}>
@@ -144,6 +145,20 @@ Keep your codebase healthy as it grows.
         title="Scopes"
         description="Multiple isolated Concord project scopes within a single IntelliJ project."
         to="/docs/features/scopes"
+    />
+</div>
+
+<br/>
+
+## Execution
+Run and test flows directly from the IDE.
+
+<div className="landingGrid">
+    <FeatureCard
+        icon={RunIcon}
+        title="Run Configurations"
+        description="Execute Concord flows locally using the CLI without leaving the IDE."
+        to="/docs/features/run-configurations"
     />
 </div>
 

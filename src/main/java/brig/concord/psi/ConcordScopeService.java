@@ -74,7 +74,7 @@ public final class ConcordScopeService {
      */
     public @NotNull List<ConcordRoot> getScopesForFile(@NotNull VirtualFile file) {
         if (isIgnored(file)) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         var roots = findRoots();
@@ -197,7 +197,7 @@ public final class ConcordScopeService {
     private @NotNull Set<VirtualFile> getMatchingFilesForRoot(@NotNull ConcordRoot root) {
         var allMatchingFiles = getAllMatchingFiles();
         var result = allMatchingFiles.get(root.getRootFile().getPath());
-        return result != null ? result : Collections.emptySet();
+        return result != null ? result : Set.of();
     }
 
     /**
@@ -220,7 +220,7 @@ public final class ConcordScopeService {
     private @NotNull Map<String, Set<VirtualFile>> computeAllMatchingFiles() {
         var roots = findRoots();
         if (roots.isEmpty()) {
-            return Collections.emptyMap();
+            return Map.of();
         }
 
         var allConcordFiles = findAllConcordFiles();
@@ -265,7 +265,7 @@ public final class ConcordScopeService {
             }, projectScope, null);
 
             if (concordFileNames.isEmpty()) {
-                return Collections.emptyList();
+                return List.of();
             }
 
             // Second pass: get actual files (without ignored filtering - that's done at usage time)
