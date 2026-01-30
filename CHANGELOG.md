@@ -2,8 +2,6 @@
 
 ## Unreleased
 
-## 0.17.0 - 2026-01-30
-
 ### Added
 
 - aded Run Configuration support to execute Concord flows locally from the IDE
@@ -40,7 +38,6 @@ and elements in the IDE's structure view and navigation
 - added quick fix to replace invalid parameter types with valid suggestions in flow documentation
 ([#49](https://github.com/brig/concord-intellij-ng/pull/49))  
 - added quick fix for missing closing ## marker in flow documentation
-
 ([#46](https://github.com/brig/concord-intellij-ng/pull/46))
 - rename refactoring for Concord flow definitions, allowing flows to be renamed
   across multiple files while preserving all references  

@@ -83,6 +83,7 @@ intellijPlatform {
 changelog {
     version = properties("pluginVersion")
     groups = emptyList()
+    keepUnreleasedSection.set(false)
 }
 
 grammarKit {
