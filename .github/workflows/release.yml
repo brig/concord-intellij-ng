@@ -127,12 +127,12 @@ jobs:
           BRANCH="chore/prepare-v$NEXT_VERSION"
           
           git checkout -b "$BRANCH"
-          git add gradle.properties CHANGELOG.md
+          git add gradle.properties CHANGELOG.md docs-site/blog/xxxx-xx-xx-release-$NEXT_VERSION.mdx
           git commit -m "chore: bump version to $NEXT_VERSION"
           git push origin "$BRANCH"
 
           gh pr create \
-            --title "chore: prepare for next development iteration (v$NEXT_VERSION)" \
+            --title "v$NEXT_VERSION release" \
             --body "Automated PR after release.
           
             - Bumps version to \`$NEXT_VERSION\` 📈
