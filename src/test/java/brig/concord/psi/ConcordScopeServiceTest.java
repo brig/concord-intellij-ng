@@ -2,10 +2,16 @@ package brig.concord.psi;
 
 import brig.concord.ConcordYamlTestBase;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPolyVariantReference;
+import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
 
 public class ConcordScopeServiceTest extends ConcordYamlTestBase {
 
@@ -215,6 +221,83 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                 .orElse(null);
 
         Assertions.assertNotNull(narrowRoot, "Should find narrow-project root");
+    }
+
+    /**
+     * This test verifies that cache is invalidated when concord.yaml content changes.
+     * Currently FAILS because VFS_STRUCTURE_MODIFICATIONS doesn't track file content changes.
+     */
+    @Test
+    public void testCacheInvalidationOnPatternChange() {
+        // Create root with narrow pattern - only includes flows/*.concord.yaml
+        var root = myFixture.addFileToProject(
+                "my-project/concord.yaml",
+                """
+                        resources:
+                          concord:
+                            - "glob:flows/*.concord.yaml"
+                        configuration:
+                          runtime: concord-v2
+                        """);
+
+        // Create file that matches the pattern
+        var insideFile = myFixture.addFileToProject(
+                "my-project/flows/utils.concord.yaml",
+                "flows: {}");
+
+        // Create file outside the pattern (in other/ directory)
+        var outsideFile = myFixture.addFileToProject(
+                "my-project/other/helper.concord.yaml",
+                "flows: {}");
+
+        var service = ConcordScopeService.getInstance(getProject());
+
+        // Verify initial state - outsideFile should NOT be in scope
+        var initialScopes = service.getScopesForFile(outsideFile.getVirtualFile());
+        Assertions.assertTrue(initialScopes.isEmpty(),
+                "Initially, outsideFile should NOT be in any scope");
+
+        // insideFile SHOULD be in scope
+        var insideScopes = service.getScopesForFile(insideFile.getVirtualFile());
+        Assertions.assertEquals(1, insideScopes.size(),
+                "insideFile should be in scope");
+
+        // Now change the pattern to include other/ directory
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                var vf = root.getVirtualFile();
+                vf.setBinaryContent("""
+                        resources:
+                          concord:
+                            - "glob:flows/*.concord.yaml"
+                            - "glob:other/*.concord.yaml"
+                        configuration:
+                          runtime: concord-v2
+                        """.getBytes(StandardCharsets.UTF_8));
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // Force PSI to refresh
+        EdtTestUtil.runInEdtAndWait(() ->
+                PsiDocumentManager.getInstance(getProject()).commitAllDocuments()
+        );
+
+        // Verify that file content actually changed (PSI was refreshed)
+        var updatedContent = ReadAction.compute(() ->
+                PsiManager.getInstance(getProject())
+                        .findFile(root.getVirtualFile())
+                        .getText()
+        );
+        Assertions.assertTrue(updatedContent.contains("glob:other/*.concord.yaml"),
+                "File content should be updated with new pattern");
+
+        // Now outsideFile SHOULD be in scope after pattern change
+        // THIS ASSERTION WILL FAIL due to stale cache!
+        var updatedScopes = service.getScopesForFile(outsideFile.getVirtualFile());
+        Assertions.assertEquals(1, updatedScopes.size(),
+                "After pattern change, outsideFile SHOULD be in scope (cache invalidation bug!)");
     }
 
     @Test

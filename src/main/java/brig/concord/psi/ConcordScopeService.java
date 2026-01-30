@@ -1,7 +1,9 @@
 package brig.concord.psi;
 
+import brig.concord.yaml.meta.impl.YamlMetaTypeCompletionProviderBase;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
@@ -33,6 +35,7 @@ import static brig.concord.psi.ConcordFile.isConcordFileName;
 @Service(Service.Level.PROJECT)
 public final class ConcordScopeService {
 
+    protected static final Logger LOG = Logger.getInstance(ConcordScopeService.class);
     private final Project project;
     private Predicate<VirtualFile> ignoredFileChecker;
 
@@ -54,7 +57,11 @@ public final class ConcordScopeService {
      * Checks if the file is ignored by the VCS (e.g. .gitignore).
      */
     public boolean isIgnored(@NotNull VirtualFile file) {
-        return ignoredFileChecker.test(file);
+        var result = ignoredFileChecker.test(file);
+
+//        LOG.warn("isIgnored(file=" + file + "-> " + result);
+
+        return result;
     }
 
     public boolean isIgnored(@NotNull PsiFile file) {
@@ -62,7 +69,7 @@ public final class ConcordScopeService {
         if (vf == null) {
             return true;
         }
-        return ignoredFileChecker.test(vf);
+        return isIgnored(vf);
     }
 
     /**
