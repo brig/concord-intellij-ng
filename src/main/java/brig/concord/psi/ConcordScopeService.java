@@ -1,25 +1,22 @@
 package brig.concord.psi;
 
-import brig.concord.yaml.meta.impl.YamlMetaTypeCompletionProviderBase;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
-import brig.concord.yaml.psi.YAMLDocument;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -35,7 +32,17 @@ import static brig.concord.psi.ConcordFile.isConcordFileName;
 @Service(Service.Level.PROJECT)
 public final class ConcordScopeService {
 
-    protected static final Logger LOG = Logger.getInstance(ConcordScopeService.class);
+    private static final Logger LOG = Logger.getInstance(ConcordScopeService.class);
+
+    private static final Key<CachedValue<List<ConcordRoot>>> ROOTS_CACHE_KEY =
+            Key.create("ConcordScopeService.roots");
+    private static final Key<CachedValue<Map<String, Set<VirtualFile>>>> MATCHING_FILES_CACHE_KEY =
+            Key.create("ConcordScopeService.matchingFiles");
+    private static final Key<CachedValue<Collection<VirtualFile>>> ALL_CONCORD_FILES_CACHE_KEY =
+            Key.create("ConcordScopeService.allConcordFiles");
+    private static final Key<CachedValue<GlobalSearchScope>> SEARCH_SCOPE_CACHE_KEY =
+            Key.create("ConcordScopeService.searchScope");
+
     private final Project project;
     private Predicate<VirtualFile> ignoredFileChecker;
 
@@ -125,7 +132,7 @@ public final class ConcordScopeService {
             return GlobalSearchScope.EMPTY_SCOPE;
         }
 
-        return CachedValuesManager.getCachedValue(psiFile, () -> {
+        return CachedValuesManager.getCachedValue(psiFile, SEARCH_SCOPE_CACHE_KEY, () -> {
             var file = psiFile.getOriginalFile().getVirtualFile();
             GlobalSearchScope scope;
             if (file == null) {
@@ -136,7 +143,7 @@ public final class ConcordScopeService {
 
             return CachedValueProvider.Result.create(
                     scope,
-                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
+                    ConcordModificationTracker.tracker(project)
             );
         });
     }
@@ -170,13 +177,13 @@ public final class ConcordScopeService {
      * @return list of all detected Concord roots
      */
     @NotNull List<ConcordRoot> findRoots() {
-        return CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+        return CachedValuesManager.getManager(project).getCachedValue(project, ROOTS_CACHE_KEY, () -> {
             var roots = computeRoots();
             return CachedValueProvider.Result.create(
                     roots,
-                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
+                    ConcordModificationTracker.tracker(project)
             );
-        });
+        }, false);
     }
 
     /**
@@ -220,13 +227,13 @@ public final class ConcordScopeService {
      * The entire map is cached and invalidated together on VFS changes.
      */
     private @NotNull Map<String, Set<VirtualFile>> getAllMatchingFiles() {
-        return CachedValuesManager.getManager(project).getCachedValue(project, () -> {
+        return CachedValuesManager.getManager(project).getCachedValue(project, MATCHING_FILES_CACHE_KEY, () -> {
             var result = computeAllMatchingFiles();
             return CachedValueProvider.Result.create(
                     result,
-                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
+                    ConcordModificationTracker.tracker(project)
             );
-        });
+        }, false);
     }
 
     /**
@@ -259,7 +266,8 @@ public final class ConcordScopeService {
      * This includes all files with names ending in concord.yml, concord.yaml, etc.
      */
     private @NotNull Collection<VirtualFile> findAllConcordFiles() {
-        return CachedValuesManager.getManager(project).getCachedValue(project, this::computeAllConcordFiles);
+        return CachedValuesManager.getManager(project).getCachedValue(project, ALL_CONCORD_FILES_CACHE_KEY,
+                this::computeAllConcordFiles, false);
     }
 
     /**
@@ -295,7 +303,7 @@ public final class ConcordScopeService {
 
         return CachedValueProvider.Result.create(
                 files,
-                VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
+                ConcordModificationTracker.tracker(project)
         );
     }
 
@@ -336,6 +344,11 @@ public final class ConcordScopeService {
                         continue;
                     }
 
+                    // Ignore roots that are ignored by VCS
+                    if (isIgnored(other.getRootFile())) {
+                        continue;
+                    }
+
                     // Check if candidate's root file is contained in other's scope
                     if (other.contains(candidate.getRootFile())) {
                         isContainedInOther = true;
@@ -363,12 +376,6 @@ public final class ConcordScopeService {
      * Creates a ConcordRoot from a virtual file.
      */
     private @NotNull ConcordRoot createRoot(@NotNull VirtualFile file) {
-        var psiFile = PsiManager.getInstance(project).findFile(file);
-        if (psiFile == null) {
-            return new ConcordRoot(file, null);
-        }
-
-        var doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
-        return new ConcordRoot(file, doc);
+        return new ConcordRoot(project, file);
     }
 }
