@@ -21,11 +21,11 @@ const config: Config = {
                     sidebarPath: require.resolve('./sidebars.ts'),
                     routeBasePath: 'docs',
                     includeCurrentVersion: isDev,
-                    versions: {
+                    versions: isDev ? {
                         current: {
                             label: 'Unreleased'
                         },
-                    }
+                    } : {}
                 },
                 blog: {
                     showReadingTime: true

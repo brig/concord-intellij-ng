@@ -2,8 +2,6 @@
 
 ## Unreleased
 
-## 0.17.0 - 2026-01-30
-
 ### Added
 
 - aded Run Configuration support to execute Concord flows locally from the IDE
