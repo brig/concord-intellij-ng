@@ -8,7 +8,7 @@ jobs:
     name: Publish Plugin
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Обязательно: чтобы загрузить файл в Release
+      contents: write
     steps:
       - name: Fetch Sources
         uses: actions/checkout@v4
