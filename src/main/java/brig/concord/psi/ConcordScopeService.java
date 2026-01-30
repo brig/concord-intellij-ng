@@ -118,12 +118,20 @@ public final class ConcordScopeService {
             return GlobalSearchScope.EMPTY_SCOPE;
         }
 
-        var file = psiFile.getOriginalFile().getVirtualFile();
-        if (file == null) {
-            return GlobalSearchScope.EMPTY_SCOPE;
-        }
+        return CachedValuesManager.getCachedValue(psiFile, () -> {
+            var file = psiFile.getOriginalFile().getVirtualFile();
+            GlobalSearchScope scope;
+            if (file == null) {
+                scope = GlobalSearchScope.EMPTY_SCOPE;
+            } else {
+                scope = createSearchScope(file);
+            }
 
-        return createSearchScope(file);
+            return CachedValueProvider.Result.create(
+                    scope,
+                    VirtualFileManager.VFS_STRUCTURE_MODIFICATIONS
+            );
+        });
     }
 
     /**

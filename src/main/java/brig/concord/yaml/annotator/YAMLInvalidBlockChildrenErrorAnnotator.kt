@@ -28,7 +28,7 @@ import kotlin.math.min
 
 private class YAMLInvalidBlockChildrenErrorAnnotator : Annotator, DumbAware {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        if (PsiTreeUtil.findChildrenOfType(element, OuterLanguageElement::class.java).isNotEmpty()) return
+        if (PsiTreeUtil.findChildOfType(element, OuterLanguageElement::class.java) != null) return
 
         if (anotherErrorWillBeReported(element)) return
 
