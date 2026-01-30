@@ -33,14 +33,13 @@ public class YAMLFoldingBuilder extends CustomFoldingBuilder {
     }
 
     private static void collectDescriptors(final @NotNull PsiElement element, final @NotNull List<? super FoldingDescriptor> descriptors) {
-        TextRange nodeTextRange = element.getTextRange();
-        if (nodeTextRange.getLength() < 2) {
+        if (element.getTextLength() < 2) {
             return;
         }
 
         if (element instanceof YAMLDocument) {
             if (hasMultipleDocuments(element.getParent())) {
-                descriptors.add(new FoldingDescriptor(element, nodeTextRange));
+                descriptors.add(new FoldingDescriptor(element, element.getTextRange()));
             }
         }
         else if (element instanceof YAMLScalar && ((YAMLScalar)element).isMultiline()
@@ -48,7 +47,7 @@ public class YAMLFoldingBuilder extends CustomFoldingBuilder {
                 element instanceof YAMLKeyValue && ((YAMLKeyValue)element).getValue() instanceof YAMLCompoundValue
                 ||
                 element instanceof YAMLSequenceItem && ((YAMLSequenceItem)element).getValue() instanceof YAMLCompoundValue) {
-            descriptors.add(new FoldingDescriptor(element, nodeTextRange));
+            descriptors.add(new FoldingDescriptor(element, element.getTextRange()));
         }
 
         PsiElement child = element.getFirstChild();

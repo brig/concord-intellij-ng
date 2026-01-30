@@ -6,8 +6,7 @@ build
 .kotlin
 .DS_Store
 src/main/gen/
-
-# Docusaurus / Node
+jfr/
 docs-site/node_modules
 docs-site/build
 docs-site/.docusaurus
