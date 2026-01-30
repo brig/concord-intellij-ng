@@ -4,6 +4,8 @@
 
 ### Added
 
+- aded Run Configuration support to execute Concord flows locally from the IDE
+([#67](https://github.com/brig/concord-intellij-ng/pull/67))   
 - added support for respecting `.gitignore` rules in Concord file discovery and scope resolution
 ([#62](https://github.com/brig/concord-intellij-ng/pull/62))   
 - added breadcrumbs functionality
