@@ -2,6 +2,7 @@ package brig.concord.psi;
 
 import brig.concord.ConcordYamlTestBase;
 import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -85,7 +86,7 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBase {
 
         service.setIgnoredFileChecker(file -> file.getPath().contains("/ignored/"));
 
-        var scopes = service.getScopesForFile(visibleFile.getVirtualFile());
+        var scopes = ReadAction.compute(() -> service.getScopesForFile(visibleFile.getVirtualFile()));
         Assertions.assertEquals(1, scopes.size());
 
         var rootScopes = service.findRoots();

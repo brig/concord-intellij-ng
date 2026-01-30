@@ -1,6 +1,7 @@
 package brig.concord.psi;
 
 import brig.concord.ConcordYamlTestBase;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,7 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         assertEquals(rootFile, root.getRootFile());
         assertNotNull(root.getRootDir());
         assertNotNull(root.getScopeName());
-        assertFalse(root.getPatterns().isEmpty());
+        ReadAction.run(() -> assertFalse(root.getPatterns().isEmpty()));
     }
 
     @Test
@@ -36,7 +37,7 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         VirtualFile rootFile = yaml.getVirtualFile();
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
-        assertEquals(2, root.getPatterns().size());
+        ReadAction.run(() -> assertEquals(2, root.getPatterns().size()));
     }
 
     @Test
@@ -97,7 +98,7 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
         assertEquals(rootFile, root.getRootFile());
-        assertFalse(root.getPatterns().isEmpty());
+        ReadAction.run(() -> assertFalse(root.getPatterns().isEmpty()));
     }
 
     @Test
@@ -113,7 +114,7 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
         // Should fall back to default patterns
-        assertFalse(root.getPatterns().isEmpty());
+        ReadAction.run(() -> assertFalse(root.getPatterns().isEmpty()));
     }
 
     @Test
@@ -129,7 +130,7 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         VirtualFile rootFile = yaml.getVirtualFile();
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
-        assertEquals(1, root.getPatterns().size());
+        ReadAction.run(() -> assertEquals(1, root.getPatterns().size()));
     }
 
     @Test
@@ -145,6 +146,6 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         VirtualFile rootFile = yaml.getVirtualFile();
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
-        assertEquals(1, root.getPatterns().size());
+        ReadAction.run(() -> assertEquals(1, root.getPatterns().size()));
     }
 }

@@ -1,6 +1,5 @@
 package brig.concord.psi;
 
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -35,10 +34,10 @@ public final class ConcordRoot {
     private static final Key<CachedValue<List<PathMatcher>>> PATTERNS_CACHE_KEY =
             Key.create("ConcordRoot.patterns");
 
-    private final Project project;
     private final VirtualFile rootFile;
     private final Path rootDir;
-    private final String rootDirPrefix;  // Cached for fast prefix checks
+    private final String rootDirPrefix;
+    private final CachedValue<List<PathMatcher>> patternsCache;
 
     /**
      * Creates a ConcordRoot from a root YAML document.
@@ -47,12 +46,31 @@ public final class ConcordRoot {
      * @param rootFile the root concord.yaml file
      */
     public ConcordRoot(@NotNull Project project, @NotNull VirtualFile rootFile) {
-        this.project = project;
         this.rootFile = rootFile;
 
         var parent = rootFile.getParent();
-        this.rootDir = parent != null ? Paths.get(parent.getPath()) : Paths.get("/");
-        this.rootDirPrefix = rootDir + "/";
+        var parentPath = parent != null ? parent.getPath() : "/";
+
+        this.rootDir = Paths.get(parentPath);
+        this.rootDirPrefix = parentPath.endsWith("/") ? parentPath : parentPath + "/";
+
+        this.patternsCache = CachedValuesManager.getManager(project).createCachedValue(() -> {
+            var psiFile = PsiManager.getInstance(project).findFile(rootFile);
+            if (psiFile == null) {
+                return CachedValueProvider.Result.create(
+                        Collections.singletonList(parsePattern(DEFAULT_CONCORD_RESOURCES)),
+                        rootFile
+                );
+            }
+
+            var patterns = CachedValuesManager.getCachedValue(psiFile, PATTERNS_CACHE_KEY, () -> {
+                var doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
+                var p = parsePatterns(doc);
+                return CachedValueProvider.Result.create(p, psiFile);
+            });
+
+            return CachedValueProvider.Result.create(patterns, psiFile);
+        }, false);
     }
 
     /**
@@ -73,25 +91,11 @@ public final class ConcordRoot {
      * Returns the scope name, which is the name of the directory containing the root file.
      */
     public @NotNull String getScopeName() {
-        return rootDir.getFileName() != null ? rootDir.getFileName().toString() : rootFile.getName();
+        return rootDir.getFileName().toString();
     }
 
-    /**
-     * Returns the patterns for matching files in this scope.
-     */
     public @NotNull List<PathMatcher> getPatterns() {
-        return ReadAction.compute(() -> {
-            var psiFile = PsiManager.getInstance(project).findFile(rootFile);
-            if (psiFile == null) {
-                return Collections.singletonList(parsePattern(DEFAULT_CONCORD_RESOURCES));
-            }
-
-            return CachedValuesManager.getCachedValue(psiFile, PATTERNS_CACHE_KEY, () -> {
-                var doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
-                var patterns = parsePatterns(doc);
-                return CachedValueProvider.Result.create(patterns, psiFile);
-            });
-        });
+        return patternsCache.getValue();
     }
 
     /**
@@ -127,7 +131,6 @@ public final class ConcordRoot {
             return Collections.singletonList(parsePattern(DEFAULT_CONCORD_RESOURCES));
         }
 
-        // Called from getPatterns() which already holds read lock
         var resources = YamlPsiUtils.get(rootDoc, YAMLSequence.class, "resources", "concord");
         if (resources == null) {
             return Collections.singletonList(parsePattern(DEFAULT_CONCORD_RESOURCES));
@@ -156,30 +159,32 @@ public final class ConcordRoot {
     }
 
     private @NotNull PathMatcher parsePattern(@NotNull String pattern) {
-        var baseDir = rootDir.toString();
+        var baseDir = rootDirPrefix; // Always ends with "/" and uses forward slashes
 
         if (pattern.startsWith("glob:")) {
-            var normalized = "glob:" + concat(baseDir, pattern.substring("glob:".length()));
+            var content = pattern.substring("glob:".length());
+            var normalized = "glob:" + resolve(baseDir, content);
             return FileSystems.getDefault().getPathMatcher(normalized);
         }
 
         if (pattern.startsWith("regex:")) {
-            var normalized = "regex:" + concat(baseDir, pattern.substring("regex:".length()));
+            var content = pattern.substring("regex:".length());
+            var normalized = "regex:" + resolve(baseDir, content);
             return FileSystems.getDefault().getPathMatcher(normalized);
         }
 
         // Plain file path
-        var singleFilePath = concat(baseDir, pattern);
+        var singleFilePath = resolve(baseDir, pattern);
         var targetPath = Paths.get(singleFilePath).toAbsolutePath();
         return path -> path.toAbsolutePath().equals(targetPath);
     }
 
-    private static @NotNull String concat(@NotNull String path, @NotNull String str) {
-        var separator = "/";
-        if (str.startsWith("/")) {
-            separator = "";
+    private static @NotNull String resolve(@NotNull String baseDir, @NotNull String relative) {
+        // baseDir is guaranteed to end with '/'
+        if (relative.startsWith("/")) {
+            return baseDir + relative.substring(1);
         }
-        return path + separator + str;
+        return baseDir + relative;
     }
 
     @Override
@@ -199,7 +204,6 @@ public final class ConcordRoot {
     public String toString() {
         return "ConcordRoot{" +
                 "rootFile=" + rootFile.getPath() +
-                ", patterns=" + getPatterns().size() +
                 '}';
     }
 }
