@@ -68,4 +68,12 @@ tasks {
             }
         }
     }
+
+    verifyPlugin {
+        enabled = false
+    }
+
+    buildSearchableOptions {
+        enabled = false
+    }
 }

@@ -48,3 +48,22 @@ Detailed documentation, feature guides, and examples are available at:
 Download the [latest release](https://github.com/brig/concord-intellij-ng/releases/latest) and install it using:
 
 <kbd>Settings/Preferences</kbd> → <kbd>Plugins</kbd> → <kbd>⚙️</kbd> → <kbd>Install plugin from disk...</kbd>
+
+---
+
+## Development
+
+### Running Performance Tests
+
+To run automated performance tests and collect a CPU profile (JFR):
+
+```bash
+./gradlew :perf-tester:runIde
+```
+
+The test will automatically:
+1. Open a set of Concord files (including a large stress-test file).
+2. Trigger code analysis and highlighting.
+3. Collect JFR data and exit.
+
+**Result:** The JFR report will be generated at `build/reports/perf.jfr`. You can open this file in IntelliJ IDEA or Java Mission Control to analyze CPU usage and allocations.
