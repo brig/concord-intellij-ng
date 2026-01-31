@@ -130,8 +130,8 @@ public class ProcessDefinition {
             FileBasedIndex.getInstance().processAllKeys(FlowNamesIndex.KEY, key -> {
                 // Ensure the key is actually in the scope.
                 // processValues returns false if the processor returns false (which we do on the first hit).
-                var found = !FileBasedIndex.getInstance().processValues(FlowNamesIndex.KEY, key, null, (file, value) -> false, scope);
-                if (found) {
+                var isInScope = !FileBasedIndex.getInstance().processValues(FlowNamesIndex.KEY, key, null, (file, value) -> false, scope);
+                if (isInScope) {
                     result.add(key);
                 }
                 return true;
