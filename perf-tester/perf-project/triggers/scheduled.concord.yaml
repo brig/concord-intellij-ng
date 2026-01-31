@@ -1,0 +1,245 @@
+triggers:
+  - cron:
+      spec: "0 0 * * *"
+      entryPoint: "dailyMaintenance"
+      timezone: "UTC"
+
+  - cron:
+      spec: "0 */6 * * *"
+      entryPoint: "healthCheck"
+      timezone: "UTC"
+
+  - cron:
+      spec: "0 2 * * 0"
+      entryPoint: "weeklyCleanup"
+      timezone: "UTC"
+
+  - cron:
+      spec: "0 3 1 * *"
+      entryPoint: "monthlyReport"
+      timezone: "UTC"
+
+  - github:
+      entryPoint: "onPushToMain"
+      conditions:
+        type: "push"
+        branch: "main"
+
+  - github:
+      entryPoint: "onPullRequest"
+      conditions:
+        type: "pull_request"
+
+  - manual:
+      entryPoint: "manualDeployment"
+      name: "Deploy Application"
+
+flows:
+  ##
+  # Daily maintenance tasks
+  ##
+  dailyMaintenance:
+    - log: "Starting daily maintenance"
+    - parallel:
+        - call: cleanupResources
+          in:
+            resourceType: "logs"
+            olderThanDays: 7
+        - call: checkProductionHealth
+        - call: syncMetrics
+    - call: sendDailySummary
+
+  sendDailySummary:
+    - call: sendEmailNotification
+      in:
+        recipients:
+          - "ops@example.com"
+        subject: "Daily Maintenance Summary"
+        body: "Daily maintenance completed successfully"
+
+  syncMetrics:
+    - log: "Syncing metrics to dashboard"
+    - task: http
+      in:
+        url: "https://metrics.example.com/api/sync"
+        method: POST
+
+  ##
+  # Health check flow
+  ##
+  healthCheck:
+    - log: "Running scheduled health check"
+    - try:
+        - call: checkProductionHealth
+      error:
+        - call: notifyOnCall
+          in:
+            team: "platform"
+            priority: "high"
+            message: "Scheduled health check failed: ${lastError.message}"
+
+  ##
+  # Weekly cleanup
+  ##
+  weeklyCleanup:
+    - log: "Starting weekly cleanup"
+    - call: fullCleanup
+      in:
+        retentionDays: 30
+    - call: cleanupOrphans
+    - call: optimizeDatabase
+    - call: sendWeeklySummary
+
+  optimizeDatabase:
+    - log: "Optimizing database"
+    - task: sql
+      in:
+        url: "jdbc:postgresql://prod-db.example.com:5432/app_prod"
+        query: "VACUUM ANALYZE"
+
+  sendWeeklySummary:
+    - call: sendSlackNotification
+      in:
+        channel: "#ops"
+        message: "Weekly cleanup completed"
+
+  ##
+  # Monthly report
+  ##
+  monthlyReport:
+    - log: "Generating monthly report"
+    - parallel:
+        - call: collectDeploymentMetrics
+          out:
+            deploymentStats: "${stats}"
+        - call: collectIncidentMetrics
+          out:
+            incidentStats: "${stats}"
+        - call: collectCostMetrics
+          out:
+            costStats: "${stats}"
+    - call: generateMonthlyReport
+      in:
+        deployments: "${deploymentStats}"
+        incidents: "${incidentStats}"
+        costs: "${costStats}"
+
+  collectDeploymentMetrics:
+    - task: http
+      in:
+        url: "https://metrics.example.com/api/deployments/monthly"
+        method: GET
+      out:
+        stats: "${result.body}"
+
+  # move here
+
+  collectIncidentMetrics:
+    - task: http
+      in:
+        url: "https://incidents.example.com/api/monthly"
+        method: GET
+      out:
+        stats: "${result.body}"
+
+  collectCostMetrics:
+    - task: http
+      in:
+        url: "https://costs.example.com/api/monthly"
+        method: GET
+      out:
+        stats: "${result.body}"
+
+  generateMonthlyReport:
+    - log: "Sending monthly report"
+    - call: sendEmailNotification
+      in:
+        recipients:
+          - "management@example.com"
+          - "ops@example.com"
+        subject: "Monthly Operations Report"
+        template: "monthly-report"
+
+  ##
+  # GitHub push trigger
+  ##
+  onPushToMain:
+    - log: "Push to main detected: ${event.commit}"
+    - call: cicdPipeline
+      in:
+        repoUrl: "${event.repository.url}"
+        branch: "main"
+        commitSha: "${event.commit}"
+    - if: "${ciResult.success}"
+      then:
+        - call: deployApplication
+          in:
+            appName: "${event.repository.name}"
+            environment: "dev"
+            version: "${event.commit.substring(0, 7)}"
+
+  ##
+  # Pull request trigger
+  ##
+  onPullRequest:
+    - log: "PR ${event.pull_request.number}: ${event.action}"
+    - switch: "${event.action}"
+      opened:
+        - call: runPRChecks
+      synchronize:
+        - call: runPRChecks
+      closed:
+        - if: "${event.pull_request.merged}"
+          then:
+            - log: "PR merged"
+
+  runPRChecks:
+    - log: "Running PR checks for #${event.pull_request.number}"
+    - call: cicdPipeline
+      in:
+        repoUrl: "${event.repository.url}"
+        branch: "${event.pull_request.head.ref}"
+        commitSha: "${event.pull_request.head.sha}"
+        skipTests: false
+    - call: postPRComment
+      in:
+        prNumber: "${event.pull_request.number}"
+        comment: "CI checks ${ciResult.success ? 'passed' : 'failed'}"
+
+  postPRComment:
+    - task: github
+      in:
+        action: createComment
+        repository: "${event.repository.full_name}"
+        issue: "${prNumber}"
+        body: "${comment}"
+
+  ##
+  # Manual deployment trigger
+  ##
+  manualDeployment:
+    - form:
+        fields:
+          - appName:
+              label: "Application Name"
+              type: "string"
+              required: true
+          - environment:
+              label: "Environment"
+              type: "select"
+              options:
+                - "dev"
+                - "staging"
+                - "prod"
+              required: true
+          - version:
+              label: "Version"
+              type: "string"
+              required: true
+    - log: "Manual deployment requested: ${appName} v${version} to ${environment}"
+    - call: deployApplication
+      in:
+        appName: "${appName}"
+        environment: "${environment}"
+        version: "${version}"
+

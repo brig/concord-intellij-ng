@@ -1,0 +1,143 @@
+configuration:
+  arguments:
+    environment: "dev"
+    logLevel: "DEBUG"
+    mockEnabled: true
+
+    # Database settings
+    dbHost: "localhost"
+    dbPort: 5432
+    dbName: "app_dev"
+    dbUser: "dev_user"
+
+    # API endpoints
+    apiBaseUrl: "https://dev-api.example.com"
+    authUrl: "https://dev-auth.example.com"
+
+    # Feature flags
+    features:
+      enableNewUI: true
+      enableBetaFeatures: true
+      enableDebugMode: true
+      enableMocking: true
+
+    # Notification settings
+    notifications:
+      slackChannel: "#dev-notifications"
+      emailRecipients:
+        - "dev-team@example.com"
+      pagerDutyEnabled: false
+
+    # Deployment settings
+    deploymentTimeout: 300
+    healthCheckRetries: 3
+    rollbackEnabled: true
+
+    # Resource limits
+    limits:
+      maxConcurrentJobs: 10
+      maxRetries: 5
+      timeoutSeconds: 600
+
+flows:
+  ##
+  # Development-specific initialization
+  ##
+  devInit:
+    - log: "Initializing development environment"
+    - if: "${mockEnabled}"
+      then:
+        - call: setupMocks
+    - call: validateDevConfig
+
+  setupMocks:
+    - log: "Setting up mock services"
+    - set:
+        mockServices:
+          - "payment-service"
+          - "notification-service"
+          - "external-api"
+
+  validateDevConfig:
+    - log: "Validating dev configuration"
+    - if: "${dbHost == 'localhost'}"
+      then:
+        - log: "Using local database"
+
+  # move here
+
+  ##
+  # Development deployment flow
+  ##
+  deployDev:
+    - call: devInit
+    - call: deployApplication
+      in:
+        appName: "${appName}"
+        environment: "dev"
+        version: "${version}"
+        dryRun: false
+    - call: runDevTests
+
+  runDevTests:
+    - log: "Running development tests"
+    - parallel:
+        - call: runUnitTests
+        - call: runIntegrationTests
+    - log: "Dev tests complete"
+
+  runUnitTests:
+    - log: "Running unit tests"
+
+  runIntegrationTests:
+    - log: "Running integration tests against ${apiBaseUrl}"
+
+  ##
+  # Local development helpers
+  ##
+  localSetup:
+    - log: "Setting up local development environment"
+    - call: checkDockerRunning
+    - call: startLocalServices
+    - call: seedDatabase
+
+  checkDockerRunning:
+    - task: exec
+      in:
+        command: "docker"
+        args:
+          - "info"
+      error:
+        - throw: "Docker is not running"
+
+  startLocalServices:
+    - log: "Starting local services"
+    - task: exec
+      in:
+        command: "docker-compose"
+        args:
+          - "up"
+          - "-d"
+
+  seedDatabase:
+    - log: "Seeding database with test data"
+    - task: sql
+      in:
+        url: "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}"
+        username: "${dbUser}"
+        query: "INSERT INTO test_data VALUES (1, 'test')"
+
+  ##
+  # Debug utilities
+  ##
+  debugFlow:
+    - log: "DEBUG: Current variables:"
+    - log: "  environment: ${environment}"
+    - log: "  apiBaseUrl: ${apiBaseUrl}"
+    - log: "  features: ${features}"
+
+  enableVerboseLogging:
+    - set:
+        logLevel: "TRACE"
+    - log: "Verbose logging enabled"
+

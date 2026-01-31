@@ -1,0 +1,235 @@
+flows:
+  ##
+  # Deploy application to specified environment
+  # in:
+  #   appName: string, mandatory, Application name to deploy
+  #   environment: string, mandatory, Target environment (dev/staging/prod)
+  #   version: string, optional, Version to deploy (defaults to latest)
+  #   dryRun: boolean, optional, If true, only simulate deployment
+  # out:
+  #   deploymentId: string, Unique deployment identifier
+  #   status: string, Deployment status
+  ##
+  deployApplication:
+    - log: "Starting deployment of ${appName} to ${environment}"
+    - call: validateDeploymentParams
+      in:
+        appName: "${appName}"
+        environment: "${environment}"
+    - call: checkEnvironmentHealth
+      in:
+        env: "${environment}"
+    - if: "${!dryRun}"
+      then:
+        - call: performDeployment
+          in:
+            app: "${appName}"
+            env: "${environment}"
+            ver: "${version}"
+          out:
+            deploymentId: "${result.id}"
+        - call: verifyDeployment
+          in:
+            deploymentId: "${deploymentId}"
+      else:
+        - log: "Dry run mode - skipping actual deployment"
+        - set:
+            deploymentId: "dry-run-${appName}-${environment}"
+    - call: sendDeploymentNotification
+      in:
+        app: "${appName}"
+        env: "${environment}"
+        status: "completed"
+
+  ##
+  # Validate deployment parameters
+  # in:
+  #   appName: string, mandatory, Application name
+  #   environment: string, mandatory, Environment name
+  ##
+  validateDeploymentParams:
+    - if: "${empty appName}"
+      then:
+        - throw: "Application name is required"
+    - if: "${!['dev', 'staging', 'prod'].contains(environment)}"
+      then:
+        - throw: "Invalid environment: ${environment}"
+    - log: "Parameters validated successfully"
+
+  ##
+  # Check environment health before deployment
+  # in:
+  #   env: string, mandatory, Environment to check
+  # out:
+  #   healthy: boolean, Whether environment is healthy
+  ##
+  checkEnvironmentHealth:
+    - task: http
+      in:
+        url: "https://health.example.com/${env}/status"
+        method: GET
+      out:
+        response: "${result}"
+    - if: "${response.statusCode != 200}"
+      then:
+        - throw: "Environment ${env} is not healthy"
+    - set:
+        healthy: true
+
+  ##
+  # Perform the actual deployment
+  # in:
+  #   app: string, mandatory, Application name
+  #   env: string, mandatory, Target environment
+  #   ver: string, optional, Version to deploy
+  # out:
+  #   result: object, Deployment result
+  ##
+  performDeployment:
+    - task: docker
+      in:
+        cmd: pull
+        image: "registry.example.com/${app}:${ver}"
+    - task: ansible
+      in:
+        playbook: "deploy-${app}.yml"
+        inventory: "${env}-hosts"
+        extraVars:
+          app_version: "${ver}"
+          target_env: "${env}"
+      out:
+        result: "${ansibleResult}"
+
+  ##
+  # Verify deployment was successful
+  # in:
+  #   deploymentId: string, mandatory, Deployment ID to verify
+  ##
+  verifyDeployment:
+    - retry:
+        times: 5
+        delay: 30
+        in:
+          - task: http
+            in:
+              url: "https://api.example.com/deployments/${deploymentId}/status"
+              method: GET
+            out:
+              status: "${result.body.status}"
+          - if: "${status != 'running'}"
+            then:
+              - throw: "Deployment not yet stable"
+    - log: "Deployment ${deploymentId} verified successfully"
+
+  ##
+  # Rollback to previous version
+  # in:
+  #   appName: string, mandatory, Application to rollback
+  #   environment: string, mandatory, Target environment
+  #   targetVersion: string, optional, Specific version to rollback to
+  ##
+  rollbackDeployment:
+    - log: "Rolling back ${appName} in ${environment}"
+    - call: getLastStableVersion
+      in:
+        app: "${appName}"
+        env: "${environment}"
+      out:
+        stableVersion: "${version}"
+    - set:
+        rollbackVersion: "${targetVersion != null ? targetVersion : stableVersion}"
+    - call: deployApplication
+      in:
+        appName: "${appName}"
+        environment: "${environment}"
+        version: "${rollbackVersion}"
+    - call: sendDeploymentNotification
+      in:
+        app: "${appName}"
+        env: "${environment}"
+        status: "rolled_back"
+
+  ##
+  # Get last stable version for application
+  # in:
+  #   app: string, mandatory, Application name
+  #   env: string, mandatory, Environment
+  # out:
+  #   version: string, Last stable version
+  ##
+  getLastStableVersion:
+    - task: http
+      in:
+        url: "https://api.example.com/apps/${app}/versions?env=${env}&status=stable"
+        method: GET
+      out:
+        versions: "${result.body}"
+    - set:
+        version: "${versions[0].version}"
+
+  blueGreenDeployment:
+    - log: "Starting blue-green deployment"
+    - call: deployApplication
+      in:
+        appName: "${appName}"
+        environment: "${environment}-blue"
+        version: "${version}"
+    - call: runSmokeTests
+      in:
+        target: "${environment}-blue"
+    - call: switchTraffic
+      in:
+        from: "${environment}-green"
+        to: "${environment}-blue"
+    - log: "Blue-green deployment complete"
+
+  # move here
+
+  canaryDeployment:
+    - log: "Starting canary deployment for ${appName}"
+    - set:
+        canaryPercent: 10
+    - call: deployApplication
+      in:
+        appName: "${appName}"
+        environment: "${environment}-canary"
+        version: "${version}"
+    - parallel:
+        - call: monitorCanaryMetrics
+          in:
+            duration: 300
+        - call: collectCanaryLogs
+    - if: "${canaryHealthy}"
+      then:
+        - call: incrementCanaryTraffic
+        - call: deployApplication
+          in:
+            appName: "${appName}"
+            environment: "${environment}"
+            version: "${version}"
+
+  runSmokeTests:
+    - task: http
+      in:
+        url: "https://${target}.example.com/health"
+        method: GET
+    - log: "Smoke tests passed"
+
+  switchTraffic:
+    - log: "Switching traffic from ${from} to ${to}"
+    - task: http
+      in:
+        url: "https://lb.example.com/switch"
+        method: POST
+        body:
+          source: "${from}"
+          destination: "${to}"
+
+  monitorCanaryMetrics:
+    - log: "Monitoring canary for ${duration} seconds"
+
+  collectCanaryLogs:
+    - log: "Collecting canary logs"
+
+  incrementCanaryTraffic:
+    - log: "Incrementing canary traffic"

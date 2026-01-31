@@ -1,0 +1,212 @@
+configuration:
+  arguments:
+    environment: "staging"
+    logLevel: "DEBUG"
+    mockEnabled: false
+
+    # Database settings
+    dbHost: "staging-db.example.com"
+    dbPort: 5432
+    dbName: "app_staging"
+    dbUser: "staging_user"
+
+    # API endpoints
+    apiBaseUrl: "https://staging-api.example.com"
+    authUrl: "https://staging-auth.example.com"
+
+    # Feature flags - same as prod for validation
+    features:
+      enableNewUI: false
+      enableBetaFeatures: true
+      enableDebugMode: true
+      enableMocking: false
+
+    # Notification settings
+    notifications:
+      slackChannel: "#staging-alerts"
+      emailRecipients:
+        - "dev-team@example.com"
+      pagerDutyEnabled: false
+
+    # Deployment settings
+    deploymentTimeout: 300
+    healthCheckRetries: 5
+    rollbackEnabled: true
+    requireApproval: false
+
+    # Resource limits
+    limits:
+      maxConcurrentJobs: 10
+      maxRetries: 5
+      timeoutSeconds: 900
+
+    # Test configuration
+    testing:
+      runE2ETests: true
+      runLoadTests: true
+      loadTestDuration: 300
+      loadTestUsers: 100
+
+flows:
+  ##
+  # Staging-specific initialization
+  ##
+  stagingInit:
+    - log: "Initializing staging environment"
+    - call: validateStagingConfig
+    - call: syncWithProduction
+
+  validateStagingConfig:
+    - log: "Validating staging configuration"
+    - if: "${dbHost == 'localhost'}"
+      then:
+        - throw: "Staging should not use localhost database"
+
+  syncWithProduction:
+    - log: "Syncing staging data with production snapshot"
+    - task: http
+      in:
+        url: "https://backup.example.com/api/sync"
+        method: POST
+        body:
+          source: "prod"
+          target: "staging"
+
+  ##
+  # Staging deployment flow
+  ##
+  deployStaging:
+    - call: stagingInit
+    - call: deployApplication
+      in:
+        appName: "${appName}"
+        environment: "staging"
+        version: "${version}"
+        dryRun: false
+    - if: "${testing.runE2ETests}"
+      then:
+        - call: runE2ETests
+    - if: "${testing.runLoadTests}"
+      then:
+        - call: runLoadTests
+    - call: generateTestReport
+
+  ##
+  # E2E testing
+  ##
+  runE2ETests:
+    - log: "Running E2E tests against staging"
+    - task: exec
+      in:
+        command: "npm"
+        args:
+          - "run"
+          - "test:e2e"
+        env:
+          BASE_URL: "${apiBaseUrl}"
+      out:
+        e2eResult: "${result}"
+    - if: "${e2eResult.exitCode != 0}"
+      then:
+        - call: sendSlackNotification
+          in:
+            channel: "${notifications.slackChannel}"
+            message: "E2E tests failed on staging"
+        - throw: "E2E tests failed"
+
+  ##
+  # Load testing
+  ##
+  runLoadTests:
+    - log: "Running load tests: ${testing.loadTestUsers} users for ${testing.loadTestDuration}s"
+    - task: http
+      in:
+        url: "https://loadtest.example.com/api/run"
+        method: POST
+        body:
+          target: "${apiBaseUrl}"
+          users: "${testing.loadTestUsers}"
+          duration: "${testing.loadTestDuration}"
+      out:
+        loadTestId: "${result.body.id}"
+    - call: waitForCondition
+      in:
+        condition: "${getLoadTestStatus(loadTestId) == 'complete'}"
+        timeout: "${testing.loadTestDuration + 60}"
+    - call: analyzeLoadTestResults
+      in:
+        testId: "${loadTestId}"
+
+  analyzeLoadTestResults:
+    - task: http
+      in:
+        url: "https://loadtest.example.com/api/results/${testId}"
+        method: GET
+      out:
+        results: "${result.body}"
+    - log: "Load test results: p99=${results.p99}ms, errors=${results.errorRate}%"
+    - if: "${results.p99 > 500 || results.errorRate > 1}"
+      then:
+        - call: sendSlackNotification
+          in:
+            channel: "${notifications.slackChannel}"
+            message: "Load test warning: p99=${results.p99}ms, errors=${results.errorRate}%"
+
+  generateTestReport:
+    - log: "Generating test report"
+    - call: sendEmailNotification
+      in:
+        recipients: "${notifications.emailRecipients}"
+        subject: "Staging Deployment Report: ${appName} v${version}"
+        body: "Deployment to staging complete. E2E and load tests passed."
+
+  # move here
+
+  ##
+  # Staging cleanup
+  ##
+  cleanupStaging:
+    - log: "Cleaning up staging environment"
+    - call: cleanupResources
+      in:
+        resourceType: "pods"
+        olderThanDays: 7
+        dryRun: false
+    - call: cleanupResources
+      in:
+        resourceType: "artifacts"
+        olderThanDays: 14
+        dryRun: false
+
+  ##
+  # Promote to production
+  ##
+  promoteToProduction:
+    - log: "Promoting ${appName} v${version} from staging to production"
+    - call: validateStagingDeployment
+    - call: requestDeploymentApproval
+      in:
+        appName: "${appName}"
+        environment: "prod"
+        requestedBy: "${initiator}"
+        changes:
+          - "Validated on staging"
+          - "E2E tests passed"
+          - "Load tests passed"
+    - call: deployApplication
+      in:
+        appName: "${appName}"
+        environment: "prod"
+        version: "${version}"
+
+  validateStagingDeployment:
+    - log: "Validating current staging deployment"
+    - task: http
+      in:
+        url: "${apiBaseUrl}/version"
+        method: GET
+      out:
+        currentVersion: "${result.body.version}"
+    - if: "${currentVersion != version}"
+      then:
+        - throw: "Version mismatch: staging has ${currentVersion}, expected ${version}"

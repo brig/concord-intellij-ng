@@ -1,0 +1,278 @@
+flows:
+  ##
+  # Generic forEach implementation
+  # in:
+  #   items: any[], mandatory, Items to iterate
+  #   flow: string, mandatory, Flow to call for each item
+  ##
+  forEach:
+    - if: "${items != null && items.size() > 0}"
+      then:
+        - set:
+            _idx: 0
+        - call: _forEachImpl
+          in:
+            items: "${items}"
+            flow: "${flow}"
+            idx: "${_idx}"
+
+  _forEachImpl:
+    - set:
+        item: "${items[idx]}"
+    - call: "${flow}"
+    - if: "${idx + 1 < items.size()}"
+      then:
+        - call: _forEachImpl
+          in:
+            items: "${items}"
+            flow: "${flow}"
+            idx: "${idx + 1}"
+
+  ##
+  # Retry with exponential backoff
+  # in:
+  #   maxRetries: int, mandatory, Maximum retry attempts
+  #   initialDelay: int, optional, Initial delay in seconds
+  #   flow: string, mandatory, Flow to retry
+  # out:
+  #   succeeded: boolean, Whether operation succeeded
+  ##
+  retryWithBackoff:
+    - set:
+        initialDelay: "${initialDelay != null ? initialDelay : 1}"
+        currentRetry: 0
+        succeeded: false
+    - call: _retryImpl
+      in:
+        maxRetries: "${maxRetries}"
+        delay: "${initialDelay}"
+        flow: "${flow}"
+
+  _retryImpl:
+    - try:
+        - call: "${flow}"
+        - set:
+            succeeded: true
+      error:
+        - if: "${currentRetry < maxRetries}"
+          then:
+            - log: "Retry ${currentRetry + 1}/${maxRetries} after ${delay}s"
+            - sleep: "${delay * 1000}"
+            - expr: "${currentRetry + 1}"
+              out: currentRetry
+            - call: _retryImpl
+              in:
+                maxRetries: "${maxRetries}"
+                delay: "${delay * 2}"
+                flow: "${flow}"
+          else:
+            - log: "Max retries exceeded"
+            - throw: "${lastError}"
+
+  ##
+  # Wait for condition
+  # in:
+  #   condition: string, mandatory, Condition expression
+  #   timeout: int, mandatory, Timeout in seconds
+  #   pollInterval: int, optional, Poll interval in seconds
+  # out:
+  #   conditionMet: boolean, Whether condition was met
+  ##
+  waitForCondition:
+    - set:
+        pollInterval: "${pollInterval != null ? pollInterval : 5}"
+        startTime: "${currentTimeMillis()}"
+        timeoutMs: "${timeout * 1000}"
+        conditionMet: false
+    - call: _waitImpl
+
+  _waitImpl:
+    - if: "${eval(condition)}"
+      then:
+        - set:
+            conditionMet: true
+      else:
+        - if: "${currentTimeMillis() - startTime < timeoutMs}"
+          then:
+            - sleep: "${pollInterval * 1000}"
+            - call: _waitImpl
+          else:
+            - log: "Timeout waiting for condition"
+
+  ##
+  # Lock resource for exclusive access
+  # in:
+  #   resourceId: string, mandatory, Resource to lock
+  #   timeout: int, optional, Lock timeout in seconds
+  # out:
+  #   lockAcquired: boolean, Whether lock was acquired
+  ##
+  acquireLock:
+    - set:
+        timeout: "${timeout != null ? timeout : 300}"
+    - task: lock
+      in:
+        name: "${resourceId}"
+        scope: "PROJECT"
+    - set:
+        lockAcquired: true
+    - log: "Lock acquired for ${resourceId}"
+
+  releaseLock:
+    - task: lock
+      in:
+        name: "${resourceId}"
+        scope: "PROJECT"
+        mode: "UNLOCK"
+    - log: "Lock released for ${resourceId}"
+
+  ##
+  # Execute with lock
+  # in:
+  #   resourceId: string, mandatory, Resource to lock
+  #   flow: string, mandatory, Flow to execute under lock
+  ##
+  withLock:
+    - call: acquireLock
+      in:
+        resourceId: "${resourceId}"
+    - try:
+        - call: "${flow}"
+      finally:
+        - call: releaseLock
+          in:
+            resourceId: "${resourceId}"
+
+  ##
+  # Parallel execution with limit
+  # in:
+  #   items: any[], mandatory, Items to process
+  #   flow: string, mandatory, Flow to call
+  #   maxParallel: int, mandatory, Maximum parallel executions
+  ##
+  parallelWithLimit:
+    - log: "Processing ${items.size()} items with max ${maxParallel} parallel"
+    - set:
+        batches: []
+        currentBatch: []
+    - call: forEach
+      in:
+        items: "${items}"
+        flow: _addToBatch
+    - if: "${currentBatch.size() > 0}"
+      then:
+        - expr: "${batches.add(currentBatch)}"
+    - call: forEach
+      in:
+        items: "${batches}"
+        flow: _processBatch
+
+  _addToBatch:
+    - expr: "${currentBatch.add(item)}"
+    - if: "${currentBatch.size() >= maxParallel}"
+      then:
+        - expr: "${batches.add(currentBatch)}"
+        - set:
+            currentBatch: []
+
+  _processBatch:
+    - log: "Processing batch of ${item.size()} items"
+
+  ##
+  # Cache management
+  # in:
+  #   key: string, mandatory, Cache key
+  #   ttl: int, optional, TTL in seconds
+  # out:
+  #   value: any, Cached value
+  ##
+  getFromCache:
+    - task: http
+      in:
+        url: "https://cache.example.com/api/get/${key}"
+        method: GET
+      out:
+        value: "${result.body.value}"
+      error:
+        - set:
+            value: null
+
+  # move here
+
+  putInCache:
+    - set:
+        ttl: "${ttl != null ? ttl : 3600}"
+    - task: http
+      in:
+        url: "https://cache.example.com/api/set"
+        method: POST
+        body:
+          key: "${key}"
+          value: "${value}"
+          ttl: "${ttl}"
+
+  invalidateCache:
+    - task: http
+      in:
+        url: "https://cache.example.com/api/delete/${key}"
+        method: DELETE
+
+  ##
+  # Generate unique identifiers
+  ##
+  generateId:
+    - expr: "${java.util.UUID.randomUUID().toString()}"
+      out: generatedId
+
+  generateShortId:
+    - expr: "${java.util.UUID.randomUUID().toString().substring(0, 8)}"
+      out: generatedId
+
+  ##
+  # Date/time utilities
+  ##
+  getCurrentTimestamp:
+    - expr: "${java.time.Instant.now().toString()}"
+      out: timestamp
+
+  addDaysToDate:
+    - expr: "${java.time.LocalDate.parse(date).plusDays(days).toString()}"
+      out: newDate
+
+  ##
+  # String utilities
+  ##
+  joinStrings:
+    - expr: "${String.join(delimiter, strings)}"
+      out: result
+
+  splitString:
+    - expr: "${str.split(delimiter)}"
+      out: parts
+
+  ##
+  # Collection utilities
+  ##
+  filterList:
+    - set:
+        filtered: []
+    - call: forEach
+      in:
+        items: "${list}"
+        flow: _filterItem
+
+  _filterItem:
+    - if: "${eval(predicate)}"
+      then:
+        - expr: "${filtered.add(item)}"
+
+  mapList:
+    - set:
+        mapped: []
+    - call: forEach
+      in:
+        items: "${list}"
+        flow: _mapItem
+
+  _mapItem:
+    - expr: "${mapped.add(eval(mapper))}"
