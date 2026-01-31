@@ -32,7 +32,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
 
         Assertions.assertNotNull(roots);
         Assertions.assertEquals(1, roots.size());
@@ -50,7 +50,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         var vFile = yaml.getVirtualFile();
         var service = ConcordScopeService.getInstance(getProject());
 
-        var scopes = service.getScopesForFile(vFile);
+        var scopes = ReadAction.compute(() -> service.getScopesForFile(vFile));
         Assertions.assertNotNull(scopes);
         Assertions.assertEquals(1, scopes.size());
     }
@@ -149,7 +149,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
 
         // Should find both roots
         Assertions.assertTrue(roots.size() >= 2, () -> "Expected at least 2 roots, found: " + roots.size());
@@ -177,7 +177,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
         Assertions.assertEquals(1, roots.size());
 
         // Find the root for my-project
@@ -261,7 +261,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                 "Initially, outsideFile should NOT be in any scope");
 
         // insideFile SHOULD be in scope
-        var insideScopes = service.getScopesForFile(insideFile.getVirtualFile());
+        var insideScopes = ReadAction.compute(() -> service.getScopesForFile(insideFile.getVirtualFile()));
         Assertions.assertEquals(1, insideScopes.size(),
                 "insideFile should be in scope");
 
@@ -474,7 +474,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         Assertions.assertFalse(scopeA.contains(utilsB.getVirtualFile()), "Scope A should NOT contain utilsB");
 
         // Get search scope for project-b
-        var scopeB = service.createSearchScope(rootB.getVirtualFile());
+        var scopeB = ReadAction.compute(() -> service.createSearchScope(rootB.getVirtualFile()));
 
         // Verify scope-b contains project-b files
         Assertions.assertTrue(scopeB.contains(rootB.getVirtualFile()), "Scope B should contain rootB");
@@ -614,7 +614,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         ConcordModificationTracker.getInstance(getProject()).invalidate();
 
         // Now root2 should be found because root1 is ignored and shouldn't mask it
-        var updatedRoots = service.findRoots();
+        var updatedRoots = ReadAction.compute(() -> service.findRoots());
         boolean foundRoot2 = updatedRoots.stream()
                 .anyMatch(r -> r.getRootFile().equals(root2.getVirtualFile()));
 
@@ -631,7 +631,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                         """);
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
         Assertions.assertEquals(1, roots.size());
         var concordRoot = roots.get(0);
         Assertions.assertTrue(concordRoot.getRootDir().toString().endsWith("my-project"));
@@ -647,7 +647,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         });
 
         // Verify that roots are updated
-        var updatedRoots = service.findRoots();
+        var updatedRoots = ReadAction.compute(() -> service.findRoots());
         Assertions.assertEquals(1, updatedRoots.size());
         var updatedConcordRoot = updatedRoots.get(0);
 
@@ -687,7 +687,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         ignoredFiles.add(utilsFile.getVirtualFile());
 
         // getScopesForFile checks isIgnored at query time, so this DOES work
-        var scopesAfter = service.getScopesForFile(utilsFile.getVirtualFile());
+        var scopesAfter = ReadAction.compute(() -> service.getScopesForFile(utilsFile.getVirtualFile()));
         Assertions.assertTrue(scopesAfter.isEmpty(),
                 "Ignored file should return empty scopes");
     }

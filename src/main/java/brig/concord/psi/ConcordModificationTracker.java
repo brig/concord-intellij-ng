@@ -18,10 +18,13 @@ import org.jetbrains.annotations.TestOnly;
 import java.util.List;
 
 /**
- * A modification tracker that tracks changes relevant to Concord scopes:
- * - VFS changes to Concord files (create/delete/move/rename/content)
+ * A modification tracker that tracks structural changes relevant to Concord scopes:
+ * - VFS structural changes to Concord files (create/delete/move/rename)
  * - Changes to .gitignore files
  * - VCS ignored status changes (changelist updates)
+ *
+ * Note: Content changes are NOT tracked here. They are handled by PSI-based
+ * caching in ConcordRoot.getPatterns() which depends on the psiFile.
  */
 @Service(Service.Level.PROJECT)
 public final class ConcordModificationTracker extends SimpleModificationTracker implements Disposable {
@@ -68,6 +71,12 @@ public final class ConcordModificationTracker extends SimpleModificationTracker 
     }
 
     private boolean isRelevantEvent(@NotNull VFileEvent event) {
+        // Content changes don't affect scope structure - they are tracked
+        // via PSI-based caching in ConcordRoot.getPatterns()
+        if (event instanceof VFileContentChangeEvent) {
+            return false;
+        }
+
         if (event instanceof VFilePropertyChangeEvent propEvent) {
             if (VirtualFile.PROP_NAME.equals(propEvent.getPropertyName())) {
                 // Rename event: check both old and new names

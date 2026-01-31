@@ -51,7 +51,7 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
         // Root file should always be contained in its own scope
-        assertTrue(root.contains(rootFile));
+        ReadAction.run(() -> assertTrue(root.contains(rootFile)));
     }
 
     @Test

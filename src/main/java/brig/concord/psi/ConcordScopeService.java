@@ -1,8 +1,6 @@
 package brig.concord.psi;
 
-import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.Service;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -18,7 +16,6 @@ import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
-import java.nio.file.PathMatcher;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -33,16 +30,12 @@ import static brig.concord.psi.ConcordFile.isConcordFileName;
 @Service(Service.Level.PROJECT)
 public final class ConcordScopeService {
 
-    private static final Logger LOG = Logger.getInstance(ConcordScopeService.class);
-
+    // Only 2 caches: structure-dependent data
+    // Matching files and search scopes are computed on-the-fly using cached patterns from ConcordRoot
     private static final Key<CachedValue<List<ConcordRoot>>> ROOTS_CACHE_KEY =
             Key.create("ConcordScopeService.roots");
-    private static final Key<CachedValue<Map<String, Set<VirtualFile>>>> MATCHING_FILES_CACHE_KEY =
-            Key.create("ConcordScopeService.matchingFiles");
     private static final Key<CachedValue<Collection<VirtualFile>>> ALL_CONCORD_FILES_CACHE_KEY =
             Key.create("ConcordScopeService.allConcordFiles");
-    private static final Key<CachedValue<GlobalSearchScope>> SEARCH_SCOPE_CACHE_KEY =
-            Key.create("ConcordScopeService.searchScope");
 
     private final Project project;
     private Predicate<VirtualFile> ignoredFileChecker;
@@ -65,11 +58,7 @@ public final class ConcordScopeService {
      * Checks if the file is ignored by the VCS (e.g. .gitignore).
      */
     public boolean isIgnored(@NotNull VirtualFile file) {
-        var result = ignoredFileChecker.test(file);
-
-//        LOG.warn("isIgnored(file=" + file + "-> " + result);
-
-        return result;
+        return ignoredFileChecker.test(file);
     }
 
     public boolean isIgnored(@NotNull PsiFile file) {
@@ -88,6 +77,10 @@ public final class ConcordScopeService {
      * @return list of scopes containing this file (may be empty)
      */
     public @NotNull List<ConcordRoot> getScopesForFile(@NotNull VirtualFile file) {
+        if (isIgnored(file)) {
+            return List.of();
+        }
+
         var roots = findRoots();
         var result = new ArrayList<ConcordRoot>();
 
@@ -115,6 +108,8 @@ public final class ConcordScopeService {
     /**
      * Creates a GlobalSearchScope that includes all files visible from the given context element.
      * This scope includes all files from all scopes that contain the context file.
+     * Computed on-the-fly using cached patterns from ConcordRoot.
+     * Fast: ~10 roots × ~100 files = ~1000 pattern matches.
      *
      * @param context the PSI element providing context
      * @return a search scope for file-based index queries
@@ -130,13 +125,7 @@ public final class ConcordScopeService {
             return GlobalSearchScope.EMPTY_SCOPE;
         }
 
-        return CachedValuesManager.getCachedValue(psiFile, SEARCH_SCOPE_CACHE_KEY, () -> {
-            var scope = createSearchScope(file);
-            return CachedValueProvider.Result.create(
-                    scope,
-                    ConcordModificationTracker.tracker(project)
-            );
-        });
+        return createSearchScope(file);
     }
 
     private boolean isInsideScope(@NotNull ConcordRoot scope, @NotNull VirtualFile file) {
@@ -181,14 +170,21 @@ public final class ConcordScopeService {
 
     /**
      * Creates a search scope containing all files from the given roots.
-     * Filters out ignored files.
+     * Computed on-the-fly using cached patterns from each ConcordRoot.
      */
     private @NotNull GlobalSearchScope createScopeFromRoots(@NotNull List<ConcordRoot> roots) {
         Set<VirtualFile> files = CollectionFactory.createSmallMemoryFootprintSet();
+        var allConcordFiles = findAllConcordFiles();
 
         for (var root : roots) {
             files.add(root.getRootFile());
-            files.addAll(getMatchingFilesForRoot(root));
+
+            // Patterns are cached inside ConcordRoot (PSI-based cache)
+            for (var file : allConcordFiles) {
+                if (root.contains(file)) {
+                    files.add(file);
+                }
+            }
         }
 
         if (files.isEmpty()) {
@@ -196,55 +192,6 @@ public final class ConcordScopeService {
         }
 
         return GlobalSearchScope.filesScope(project, files);
-    }
-
-    /**
-     * Returns cached matching files for the given root.
-     * Uses cached map with VFS modification tracking.
-     */
-    private @NotNull Set<VirtualFile> getMatchingFilesForRoot(@NotNull ConcordRoot root) {
-        var allMatchingFiles = getAllMatchingFiles();
-        var result = allMatchingFiles.get(root.getRootFile().getPath());
-        return result != null ? result : Set.of();
-    }
-
-    /**
-     * Returns cached map of all matching files for all roots.
-     * The entire map is cached and invalidated together on VFS changes.
-     */
-    private @NotNull Map<String, Set<VirtualFile>> getAllMatchingFiles() {
-        return CachedValuesManager.getManager(project).getCachedValue(project, MATCHING_FILES_CACHE_KEY, () -> {
-            var result = computeAllMatchingFiles();
-            return CachedValueProvider.Result.create(
-                    result,
-                    ConcordModificationTracker.tracker(project)
-            );
-        }, false);
-    }
-
-    /**
-     * Computes matching files for all roots at once.
-     */
-    private @NotNull Map<String, Set<VirtualFile>> computeAllMatchingFiles() {
-        var roots = findRoots();
-        if (roots.isEmpty()) {
-            return Map.of();
-        }
-
-        var allConcordFiles = findAllConcordFiles();
-        Map<String, Set<VirtualFile>> result = new HashMap<>();
-
-        for (var root : roots) {
-            Set<VirtualFile> matchingFiles = CollectionFactory.createSmallMemoryFootprintSet();
-            for (var file : allConcordFiles) {
-                if (root.contains(file)) {
-                    matchingFiles.add(file);
-                }
-            }
-            result.put(root.getRootFile().getPath(), matchingFiles);
-        }
-
-        return result;
     }
 
     /**
