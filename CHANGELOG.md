@@ -4,6 +4,9 @@
 
 ### Added
 
+- Added Related Symbol navigation from any Concord file to the project’s root concord.yaml file(s).
+([#85](https://github.com/brig/concord-intellij-ng/pull/85))
+
 ### Changed
 
 ## 0.17.0 - 2026-01-30
