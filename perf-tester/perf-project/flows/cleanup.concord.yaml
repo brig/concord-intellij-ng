@@ -1,0 +1,270 @@
+flows:
+  ##
+  # Clean up old resources
+  # in:
+  #   resourceType: string, mandatory, Type of resource to clean (pods/deployments/artifacts/logs)
+  #   olderThanDays: int, mandatory, Delete resources older than N days
+  #   dryRun: boolean, optional, If true, only report what would be deleted
+  # out:
+  #   deletedCount: int, Number of resources deleted
+  ##
+  cleanupResources:
+    - log: "Starting cleanup of ${resourceType} older than ${olderThanDays} days"
+    - set:
+        cutoffDate: "${addDays(now(), -olderThanDays)}"
+    - switch: "${resourceType}"
+      pods:
+        - call: cleanupPods
+          in:
+            cutoff: "${cutoffDate}"
+            simulate: "${dryRun}"
+          out:
+            deletedCount: "${count}"
+      deployments:
+        - call: cleanupDeployments
+          in:
+            cutoff: "${cutoffDate}"
+            simulate: "${dryRun}"
+          out:
+            deletedCount: "${count}"
+      artifacts:
+        - call: cleanupArtifacts
+          in:
+            cutoff: "${cutoffDate}"
+            simulate: "${dryRun}"
+          out:
+            deletedCount: "${count}"
+      logs:
+        - call: cleanupLogs
+          in:
+            cutoff: "${cutoffDate}"
+            simulate: "${dryRun}"
+          out:
+            deletedCount: "${count}"
+      default:
+        - throw: "Unknown resource type: ${resourceType}"
+    - if: "${!dryRun}"
+      then:
+        - call: sendSlackNotification
+          in:
+            channel: "#ops"
+            message: "Cleaned up ${deletedCount} ${resourceType}"
+
+  ##
+  # Clean up old Kubernetes pods
+  # in:
+  #   cutoff: string, mandatory, Cutoff date
+  #   simulate: boolean, optional, Dry run mode
+  # out:
+  #   count: int, Number of pods deleted
+  ##
+  cleanupPods:
+    - task: kubernetes
+      in:
+        action: list
+        kind: Pod
+        namespace: "all"
+        labelSelector: "cleanup=enabled"
+      out:
+        pods: "${result.items}"
+    - set:
+        toDelete: []
+    - call: forEach
+      in:
+        items: "${pods}"
+        flow: checkPodAge
+    - if: "${!simulate}"
+      then:
+        - call: forEach
+          in:
+            items: "${toDelete}"
+            flow: deletePod
+    - set:
+        count: "${toDelete.size()}"
+
+  checkPodAge:
+    - if: "${item.metadata.creationTimestamp < cutoff}"
+      then:
+        - expr: "${toDelete.add(item)}"
+        - log: "Marking pod ${item.metadata.name} for deletion"
+
+  deletePod:
+    - task: kubernetes
+      in:
+        action: delete
+        kind: Pod
+        namespace: "${item.metadata.namespace}"
+        name: "${item.metadata.name}"
+    - log: "Deleted pod ${item.metadata.name}"
+
+  cleanupDeployments:
+    - log: "Cleaning up deployments older than ${cutoff}"
+    - task: kubernetes
+      in:
+        action: list
+        kind: Deployment
+        namespace: "all"
+      out:
+        deployments: "${result.items}"
+    - set:
+        count: 0
+    - call: forEach
+      in:
+        items: "${deployments}"
+        flow: processDeployment
+
+  processDeployment:
+    - if: "${item.spec.replicas == 0 && item.metadata.creationTimestamp < cutoff}"
+      then:
+        - if: "${!simulate}"
+          then:
+            - task: kubernetes
+              in:
+                action: delete
+                kind: Deployment
+                namespace: "${item.metadata.namespace}"
+                name: "${item.metadata.name}"
+        - expr: "${count + 1}"
+          out: count
+
+  ##
+  # Clean up old build artifacts
+  # in:
+  #   cutoff: string, mandatory, Cutoff date
+  #   simulate: boolean, optional, Dry run mode
+  # out:
+  #   count: int, Number of artifacts deleted
+  ##
+  cleanupArtifacts:
+    - task: http
+      in:
+        url: "https://artifacts.example.com/api/artifacts?before=${cutoff}"
+        method: GET
+      out:
+        artifacts: "${result.body}"
+    - set:
+        count: 0
+    - if: "${!simulate}"
+      then:
+        - call: forEach
+          in:
+            items: "${artifacts}"
+            flow: deleteArtifact
+    - else:
+        - set:
+            count: "${artifacts.size()}"
+    - log: "${simulate ? 'Would delete' : 'Deleted'} ${count} artifacts"
+
+  deleteArtifact:
+    - task: http
+      in:
+        url: "https://artifacts.example.com/api/artifacts/${item.id}"
+        method: DELETE
+    - expr: "${count + 1}"
+      out: count
+
+  cleanupLogs:
+    - log: "Cleaning up logs older than ${cutoff}"
+    - task: s3
+      in:
+        action: listObjects
+        bucket: "logs-bucket"
+      out:
+        objects: "${result.contents}"
+    - set:
+        count: 0
+        toDelete: []
+    - call: forEach
+      in:
+        items: "${objects}"
+        flow: checkLogAge
+    - if: "${!simulate && toDelete.size() > 0}"
+      then:
+        - task: s3
+          in:
+            action: deleteObjects
+            bucket: "logs-bucket"
+            keys: "${toDelete}"
+    - set:
+        count: "${toDelete.size()}"
+
+  checkLogAge:
+    - if: "${item.lastModified < cutoff}"
+      then:
+        - expr: "${toDelete.add(item.key)}"
+
+  # move here
+
+  ##
+  # Comprehensive cleanup job
+  # in:
+  #   retentionDays: int, optional, Retention period in days (default 30)
+  ##
+  fullCleanup:
+    - set:
+        retentionDays: "${retentionDays != null ? retentionDays : 30}"
+    - log: "Running full cleanup with ${retentionDays} day retention"
+    - parallel:
+        - call: cleanupResources
+          in:
+            resourceType: "pods"
+            olderThanDays: "${retentionDays}"
+          out:
+            podCount: "${deletedCount}"
+        - call: cleanupResources
+          in:
+            resourceType: "artifacts"
+            olderThanDays: "${retentionDays}"
+          out:
+            artifactCount: "${deletedCount}"
+        - call: cleanupResources
+          in:
+            resourceType: "logs"
+            olderThanDays: "${retentionDays}"
+          out:
+            logCount: "${deletedCount}"
+    - call: generateCleanupReport
+      in:
+        pods: "${podCount}"
+        artifacts: "${artifactCount}"
+        logs: "${logCount}"
+
+  generateCleanupReport:
+    - log: "Cleanup complete: pods=${pods}, artifacts=${artifacts}, logs=${logs}"
+    - call: sendEmailNotification
+      in:
+        recipients:
+          - "ops@example.com"
+        subject: "Weekly Cleanup Report"
+        body: "Cleaned up: ${pods} pods, ${artifacts} artifacts, ${logs} logs"
+
+  ##
+  # Clean up orphaned resources
+  ##
+  cleanupOrphans:
+    - log: "Finding orphaned resources"
+    - call: findOrphanedVolumes
+      out:
+        orphanedVolumes: "${volumes}"
+    - call: findOrphanedSecrets
+      out:
+        orphanedSecrets: "${secrets}"
+    - log: "Found ${orphanedVolumes.size()} volumes, ${orphanedSecrets.size()} secrets"
+
+  findOrphanedVolumes:
+    - task: kubernetes
+      in:
+        action: list
+        kind: PersistentVolumeClaim
+        namespace: "all"
+      out:
+        volumes: "${result.items}"
+
+  findOrphanedSecrets:
+    - task: kubernetes
+      in:
+        action: list
+        kind: Secret
+        namespace: "all"
+      out:
+        secrets: "${result.items}"

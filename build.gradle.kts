@@ -157,13 +157,13 @@ tasks {
         channels.set(listOf("default"))
     }
 
-    register("printVersion") {
+    register<DefaultTask>("printVersion") {
         group = "help"
         description = "Prints project version"
         doLast { println(version) }
     }
 
-    register("printPluginName") {
+    register<DefaultTask>("printPluginName") {
         group = "help"
         description = "Prints IntelliJ plugin name"
         doLast {
@@ -171,7 +171,7 @@ tasks {
         }
     }
 
-    register("printUnreleasedChangelog") {
+    register<DefaultTask>("printUnreleasedChangelog") {
         group = "help"
         description = "Prints unreleased changelog (plain text, no header)"
         doLast {
@@ -186,3 +186,5 @@ val runIdeNoK8s by intellijPlatformTesting.runIde.registering {
         disablePlugin("com.intellij.kubernetes")
     }
 }
+
+

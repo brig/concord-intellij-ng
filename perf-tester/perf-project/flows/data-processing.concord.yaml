@@ -1,0 +1,254 @@
+flows:
+  ##
+  # Process S3 files and transform data
+  # in:
+  #   s3Bucket: string, mandatory, Source S3 bucket
+  #   prefix: string, optional, File prefix filter
+  #   outputBucket: string, mandatory, Destination bucket
+  #   transformType: string, mandatory, Transformation type (csv/json/parquet)
+  # out:
+  #   processedCount: int, Number of files processed
+  #   errorCount: int, Number of errors
+  ##
+  processS3Files:
+    - log: "Processing files from s3://${s3Bucket}/${prefix}"
+    - call: listS3Objects
+      in:
+        bucket: "${s3Bucket}"
+        prefix: "${prefix}"
+      out:
+        files: "${objects}"
+    - set:
+        processedCount: 0
+        errorCount: 0
+        results: []
+    - call: forEach
+      in:
+        items: "${files}"
+        flow: processS3File
+    - call: generateProcessingReport
+      in:
+        processed: "${processedCount}"
+        errors: "${errorCount}"
+        details: "${results}"
+    - log: "Processing complete: ${processedCount} success, ${errorCount} errors"
+
+  listS3Objects:
+    - task: s3
+      in:
+        action: listObjects
+        bucket: "${bucket}"
+        prefix: "${prefix}"
+      out:
+        objects: "${result.contents}"
+
+  ##
+  # Process single S3 file
+  # in:
+  #   item: object, mandatory, S3 object to process
+  ##
+  processS3File:
+    - try:
+        - call: downloadS3File
+          in:
+            bucket: "${s3Bucket}"
+            key: "${item.key}"
+          out:
+            localPath: "${path}"
+        - call: transformFile
+          in:
+            inputPath: "${localPath}"
+            format: "${transformType}"
+          out:
+            outputPath: "${transformed}"
+        - call: uploadS3File
+          in:
+            bucket: "${outputBucket}"
+            key: "${item.key}.${transformType}"
+            file: "${outputPath}"
+        - expr: "${processedCount + 1}"
+          out: processedCount
+      error:
+        - log: "Error processing ${item.key}: ${lastError.message}"
+        - expr: "${errorCount + 1}"
+          out: errorCount
+
+  downloadS3File:
+    - task: s3
+      in:
+        action: getObject
+        bucket: "${bucket}"
+        key: "${key}"
+        dest: "/tmp/${key.replace('/', '_')}"
+      out:
+        path: "${result.path}"
+
+  uploadS3File:
+    - task: s3
+      in:
+        action: putObject
+        bucket: "${bucket}"
+        key: "${key}"
+        src: "${file}"
+
+  transformFile:
+    - switch: "${format}"
+      csv:
+        - call: transformToCsv
+          in:
+            input: "${inputPath}"
+          out:
+            outputPath: "${output}"
+      json:
+        - call: transformToJson
+          in:
+            input: "${inputPath}"
+          out:
+            outputPath: "${output}"
+      parquet:
+        - call: transformToParquet
+          in:
+            input: "${inputPath}"
+          out:
+            outputPath: "${output}"
+      default:
+        - throw: "Unknown format: ${format}"
+
+  transformToCsv:
+    - log: "Converting ${input} to CSV"
+    - set:
+        output: "${input}.csv"
+
+  transformToJson:
+    - log: "Converting ${input} to JSON"
+    - set:
+        output: "${input}.json"
+
+  transformToParquet:
+    - log: "Converting ${input} to Parquet"
+    - set:
+        output: "${input}.parquet"
+
+  generateProcessingReport:
+    - log: "Generating report: ${processed} processed, ${errors} errors"
+
+  ##
+  # Run ETL pipeline
+  # in:
+  #   sourceDb: string, mandatory, Source database connection
+  #   targetDb: string, mandatory, Target database connection
+  #   tables: string[], mandatory, Tables to process
+  #   batchSize: int, optional, Batch size for processing
+  ##
+  runEtlPipeline:
+    - log: "Starting ETL pipeline"
+    - set:
+        batchSize: "${batchSize != null ? batchSize : 1000}"
+    - call: forEach
+      in:
+        items: "${tables}"
+        flow: etlSingleTable
+    - call: sendDeploymentNotification
+      in:
+        app: "etl-pipeline"
+        env: "production"
+        status: "completed"
+
+  ##
+  # ETL for single table
+  # in:
+  #   item: string, mandatory, Table name
+  ##
+  etlSingleTable:
+    - log: "Processing table: ${item}"
+    - call: extractData
+      in:
+        database: "${sourceDb}"
+        table: "${item}"
+        batchSize: "${batchSize}"
+      out:
+        data: "${extracted}"
+    - call: transformData
+      in:
+        records: "${data}"
+        rules: "${getTransformRules(item)}"
+      out:
+        transformed: "${result}"
+    - call: loadData
+      in:
+        database: "${targetDb}"
+        table: "${item}"
+        records: "${transformed}"
+
+  extractData:
+    - log: "Extracting from ${database}.${table}"
+    - task: sql
+      in:
+        url: "${database}"
+        query: "SELECT * FROM ${table} LIMIT ${batchSize}"
+      out:
+        extracted: "${result}"
+
+  # move here
+
+  transformData:
+    - log: "Transforming ${records.size()} records"
+    - set:
+        result: "${records}"
+
+  loadData:
+    - log: "Loading ${records.size()} records to ${database}.${table}"
+    - task: sql
+      in:
+        url: "${database}"
+        query: "INSERT INTO ${table} VALUES (?)"
+        params: "${records}"
+
+  ##
+  # Aggregate metrics from multiple sources
+  # in:
+  #   sources: object[], mandatory, List of metric sources
+  #   aggregationType: string, mandatory, Type of aggregation (sum/avg/max/min)
+  #   outputFormat: string, optional, Output format
+  # out:
+  #   aggregatedMetrics: object, Aggregated results
+  ##
+  aggregateMetrics:
+    - log: "Aggregating metrics from ${sources.size()} sources"
+    - set:
+        collectedMetrics: []
+    - call: forEach
+      in:
+        items: "${sources}"
+        flow: collectMetricsFromSource
+    - call: performAggregation
+      in:
+        metrics: "${collectedMetrics}"
+        type: "${aggregationType}"
+      out:
+        aggregatedMetrics: "${result}"
+    - if: "${outputFormat == 'prometheus'}"
+      then:
+        - call: formatForPrometheus
+          in:
+            metrics: "${aggregatedMetrics}"
+
+  collectMetricsFromSource:
+    - task: http
+      in:
+        url: "${item.endpoint}"
+        method: GET
+      out:
+        metrics: "${result.body}"
+    - expr: "${collectedMetrics.add(metrics)}"
+
+  performAggregation:
+    - log: "Performing ${type} aggregation"
+    - set:
+        result:
+          type: "${type}"
+          value: 0
+          count: "${metrics.size()}"
+
+  formatForPrometheus:
+    - log: "Formatting metrics for Prometheus"

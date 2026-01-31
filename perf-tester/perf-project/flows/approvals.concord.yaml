@@ -1,0 +1,272 @@
+flows:
+  ##
+  # Request approval for deployment
+  # in:
+  #   appName: string, mandatory, Application requiring approval
+  #   environment: string, mandatory, Target environment
+  #   requestedBy: string, mandatory, User requesting deployment
+  #   changes: string[], optional, List of changes
+  # out:
+  #   approved: boolean, Whether approval was granted
+  #   approvedBy: string, Approver username
+  ##
+  requestDeploymentApproval:
+    - log: "Requesting approval for ${appName} to ${environment}"
+    - call: getApprovers
+      in:
+        env: "${environment}"
+      out:
+        approvers: "${approverList}"
+    - call: createApprovalRequest
+      in:
+        app: "${appName}"
+        env: "${environment}"
+        requester: "${requestedBy}"
+        approvers: "${approvers}"
+      out:
+        requestId: "${id}"
+    - call: notifyApprovers
+      in:
+        approvers: "${approvers}"
+        requestId: "${requestId}"
+        app: "${appName}"
+        env: "${environment}"
+    - suspend: "deployment-approval-${requestId}"
+    - call: getApprovalResult
+      in:
+        requestId: "${requestId}"
+      out:
+        approved: "${result.approved}"
+        approvedBy: "${result.approver}"
+    - if: "${approved}"
+      then:
+        - log: "Deployment approved by ${approvedBy}"
+      else:
+        - throw: "Deployment rejected"
+
+  getApprovers:
+    - switch: "${env}"
+      prod:
+        - set:
+            approverList:
+              - "tech-lead"
+              - "platform-team"
+              - "security-team"
+      staging:
+        - set:
+            approverList:
+              - "tech-lead"
+      default:
+        - set:
+            approverList: []
+
+  createApprovalRequest:
+    - task: http
+      in:
+        url: "https://approvals.example.com/api/requests"
+        method: POST
+        body:
+          type: "deployment"
+          application: "${app}"
+          environment: "${env}"
+          requestedBy: "${requester}"
+          approvers: "${approvers}"
+          status: "pending"
+      out:
+        id: "${result.body.id}"
+
+  notifyApprovers:
+    - call: forEach
+      in:
+        items: "${approvers}"
+        flow: notifySingleApprover
+
+  notifySingleApprover:
+    - call: sendSlackNotification
+      in:
+        channel: "@${item}"
+        message: "Approval needed: ${app} to ${env}"
+        attachments:
+          - title: "Approval Request"
+            text: "Click to review"
+            actions:
+              - type: "button"
+                text: "Approve"
+                url: "https://approvals.example.com/requests/${requestId}/approve"
+              - type: "button"
+                text: "Reject"
+                url: "https://approvals.example.com/requests/${requestId}/reject"
+
+  getApprovalResult:
+    - task: http
+      in:
+        url: "https://approvals.example.com/api/requests/${requestId}"
+        method: GET
+      out:
+        result: "${result.body}"
+
+  ##
+  # Multi-stage approval workflow
+  # in:
+  #   requestType: string, mandatory, Type of request
+  #   priority: string, mandatory, Request priority
+  #   details: object, mandatory, Request details
+  # out:
+  #   finalApproval: boolean, Final approval status
+  ##
+  multiStageApproval:
+    - log: "Starting multi-stage approval for ${requestType}"
+    - call: getApprovalStages
+      in:
+        type: "${requestType}"
+        priority: "${priority}"
+      out:
+        stages: "${approvalStages}"
+    - set:
+        currentStage: 0
+        allApproved: true
+    - call: forEach
+      in:
+        items: "${stages}"
+        flow: processApprovalStage
+    - set:
+        finalApproval: "${allApproved}"
+
+  getApprovalStages:
+    - switch: "${type}"
+      infrastructure:
+        - set:
+            approvalStages:
+              - name: "security"
+                approvers: ["security-team"]
+              - name: "architecture"
+                approvers: ["arch-team"]
+              - name: "management"
+                approvers: ["manager"]
+      database:
+        - set:
+            approvalStages:
+              - name: "dba"
+                approvers: ["dba-team"]
+              - name: "security"
+                approvers: ["security-team"]
+      default:
+        - set:
+            approvalStages:
+              - name: "default"
+                approvers: ["team-lead"]
+
+  processApprovalStage:
+    - if: "${!allApproved}"
+      then:
+        - log: "Skipping stage ${item.name} - previous stage rejected"
+      else:
+        - log: "Processing approval stage: ${item.name}"
+        - call: requestStageApproval
+          in:
+            stage: "${item}"
+          out:
+            stageApproved: "${approved}"
+        - if: "${!stageApproved}"
+          then:
+            - set:
+                allApproved: false
+        - expr: "${currentStage + 1}"
+          out: currentStage
+
+  requestStageApproval:
+    - call: notifyApprovers
+      in:
+        approvers: "${stage.approvers}"
+        requestId: "${processInstanceId}"
+        app: "${requestType}"
+        env: "${stage.name}"
+    - suspend: "stage-approval-${stage.name}"
+    - call: getApprovalResult
+      in:
+        requestId: "${processInstanceId}-${stage.name}"
+      out:
+        approved: "${result.approved}"
+
+  ##
+  # Emergency approval bypass
+  # in:
+  #   reason: string, mandatory, Reason for bypass
+  #   requestedBy: string, mandatory, Requester
+  # out:
+  #   bypassGranted: boolean, Whether bypass was granted
+  ##
+  emergencyBypass:
+    - log: "Emergency approval bypass requested by ${requestedBy}"
+    - call: validateEmergencyBypass
+      in:
+        user: "${requestedBy}"
+        reason: "${reason}"
+      out:
+        isValid: "${valid}"
+    - if: "${isValid}"
+      then:
+        - call: notifyOnCall
+          in:
+            team: "platform"
+            priority: "critical"
+            message: "Emergency bypass by ${requestedBy}: ${reason}"
+        - call: createAuditEntry
+          in:
+            action: "emergency_bypass"
+            user: "${requestedBy}"
+            reason: "${reason}"
+        - set:
+            bypassGranted: true
+      else:
+        - set:
+            bypassGranted: false
+        - log: "Emergency bypass denied for ${requestedBy}"
+
+  validateEmergencyBypass:
+    - task: http
+      in:
+        url: "https://auth.example.com/api/users/${user}/permissions"
+        method: GET
+      out:
+        permissions: "${result.body}"
+    - set:
+        valid: "${permissions.contains('emergency_bypass')}"
+
+  # move here
+
+  createAuditEntry:
+    - task: http
+      in:
+        url: "https://audit.example.com/api/entries"
+        method: POST
+        body:
+          action: "${action}"
+          user: "${user}"
+          reason: "${reason}"
+          timestamp: "${now()}"
+
+  ##
+  # Schedule approval for future date
+  # in:
+  #   scheduledDate: string, mandatory, Scheduled approval date
+  #   request: object, mandatory, Request details
+  ##
+  scheduledApproval:
+    - log: "Scheduling approval for ${scheduledDate}"
+    - call: createApprovalRequest
+      in:
+        app: "${request.app}"
+        env: "${request.env}"
+        requester: "${request.requester}"
+        approvers: "${request.approvers}"
+      out:
+        requestId: "${id}"
+    - suspend:
+        event: "scheduled-approval"
+        resumeAt: "${scheduledDate}"
+    - call: requestDeploymentApproval
+      in:
+        appName: "${request.app}"
+        environment: "${request.env}"
+        requestedBy: "${request.requester}"

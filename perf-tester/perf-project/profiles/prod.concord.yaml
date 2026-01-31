@@ -1,0 +1,237 @@
+configuration:
+  arguments:
+    environment: "prod"
+    logLevel: "INFO"
+    mockEnabled: false
+
+    # Database settings
+    dbHost: "prod-db.example.com"
+    dbPort: 5432
+    dbName: "app_prod"
+    dbUser: "prod_user"
+    dbReplicas:
+      - "prod-db-replica-1.example.com"
+      - "prod-db-replica-2.example.com"
+
+    # API endpoints
+    apiBaseUrl: "https://api.example.com"
+    authUrl: "https://auth.example.com"
+    cdnUrl: "https://cdn.example.com"
+
+    # Feature flags
+    features:
+      enableNewUI: false
+      enableBetaFeatures: false
+      enableDebugMode: false
+      enableMocking: false
+
+    # Notification settings
+    notifications:
+      slackChannel: "#prod-alerts"
+      emailRecipients:
+        - "ops@example.com"
+        - "oncall@example.com"
+      pagerDutyEnabled: true
+      pagerDutyKey: "${crypto.decryptString('pagerduty-key')}"
+
+    # Deployment settings
+    deploymentTimeout: 600
+    healthCheckRetries: 10
+    rollbackEnabled: true
+    requireApproval: true
+    approvalTimeout: 3600
+
+    # Resource limits
+    limits:
+      maxConcurrentJobs: 5
+      maxRetries: 3
+      timeoutSeconds: 1800
+
+    # Monitoring
+    monitoring:
+      metricsEndpoint: "https://metrics.example.com"
+      alertThreshold: 95
+      checkInterval: 30
+
+flows:
+  ##
+  # Production-specific initialization
+  ##
+  prodInit:
+    - log: "Initializing production environment"
+    - call: validateProdConfig
+    - call: checkProductionReadiness
+
+  validateProdConfig:
+    - log: "Validating production configuration"
+    - if: "${mockEnabled}"
+      then:
+        - throw: "Mocking must be disabled in production"
+    - if: "${!notifications.pagerDutyEnabled}"
+      then:
+        - throw: "PagerDuty must be enabled in production"
+
+  checkProductionReadiness:
+    - log: "Checking production readiness"
+    - parallel:
+        - call: checkDatabaseConnectivity
+        - call: checkApiHealth
+        - call: checkCdnStatus
+
+  checkDatabaseConnectivity:
+    - task: sql
+      in:
+        url: "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}"
+        username: "${dbUser}"
+        password: "${crypto.decryptString('db-password')}"
+        query: "SELECT 1"
+    - log: "Database connectivity OK"
+
+  checkApiHealth:
+    - task: http
+      in:
+        url: "${apiBaseUrl}/health"
+        method: GET
+    - log: "API health OK"
+
+  checkCdnStatus:
+    - task: http
+      in:
+        url: "${cdnUrl}/status"
+        method: GET
+    - log: "CDN status OK"
+
+  ##
+  # Production deployment with approval
+  ##
+  deployProd:
+    - call: prodInit
+    - if: "${requireApproval}"
+      then:
+        - call: requestDeploymentApproval
+          in:
+            appName: "${appName}"
+            environment: "prod"
+            requestedBy: "${initiator}"
+          out:
+            approved: "${approvalResult}"
+        - if: "${!approved}"
+          then:
+            - throw: "Deployment not approved"
+    - call: createDeploymentSnapshot
+    - call: deployApplication
+      in:
+        appName: "${appName}"
+        environment: "prod"
+        version: "${version}"
+        dryRun: false
+      error:
+        - call: rollbackDeployment
+          in:
+            appName: "${appName}"
+            environment: "prod"
+        - call: notifyOnCall
+          in:
+            team: "platform"
+            priority: "critical"
+            message: "Production deployment failed for ${appName}"
+        - throw: "Deployment failed, rolled back"
+    - call: postDeploymentValidation
+    - call: sendSlackNotification
+      in:
+        channel: "${notifications.slackChannel}"
+        message: "Production deployment complete: ${appName} v${version}"
+
+  createDeploymentSnapshot:
+    - log: "Creating pre-deployment snapshot"
+    - task: http
+      in:
+        url: "https://backup.example.com/api/snapshots"
+        method: POST
+        body:
+          environment: "prod"
+          timestamp: "${now()}"
+
+  postDeploymentValidation:
+    - log: "Running post-deployment validation"
+    - retry:
+        times: "${healthCheckRetries}"
+        delay: 30
+        in:
+          - call: checkApiHealth
+    - call: runSmokeTests
+      in:
+        target: "prod"
+    - call: validateMetrics
+
+  validateMetrics:
+    - task: http
+      in:
+        url: "${monitoring.metricsEndpoint}/api/check"
+        method: GET
+      out:
+        metrics: "${result.body}"
+    - if: "${metrics.errorRate > 5}"
+      then:
+        - throw: "Error rate too high after deployment: ${metrics.errorRate}%"
+
+  ##
+  # Production maintenance
+  ##
+  maintenanceMode:
+    - log: "Entering maintenance mode"
+    - call: sendSlackNotification
+      in:
+        channel: "${notifications.slackChannel}"
+        message: "Production entering maintenance mode"
+    - task: http
+      in:
+        url: "${apiBaseUrl}/admin/maintenance"
+        method: POST
+        body:
+          enabled: true
+          message: "${maintenanceMessage}"
+
+  exitMaintenanceMode:
+    - log: "Exiting maintenance mode"
+    - task: http
+      in:
+        url: "${apiBaseUrl}/admin/maintenance"
+        method: POST
+        body:
+          enabled: false
+    - call: sendSlackNotification
+      in:
+        channel: "${notifications.slackChannel}"
+        message: "Production maintenance complete"
+
+  # move here
+
+  ##
+  # Production monitoring
+  ##
+  checkProductionHealth:
+    - parallel:
+        - call: checkApiHealth
+        - call: checkDatabaseConnectivity
+        - call: checkCdnStatus
+        - call: checkQueueDepth
+    - call: aggregateHealthStatus
+
+  checkQueueDepth:
+    - task: http
+      in:
+        url: "https://queues.example.com/api/depth"
+        method: GET
+      out:
+        queueDepth: "${result.body.depth}"
+    - if: "${queueDepth > 10000}"
+      then:
+        - call: notifyOnCall
+          in:
+            team: "platform"
+            priority: "high"
+            message: "Queue depth critical: ${queueDepth}"
+
+  aggregateHealthStatus:
+    - log: "All production health checks passed"

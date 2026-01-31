@@ -1,0 +1,203 @@
+flows:
+  ##
+  # Send deployment notification to all channels
+  # in:
+  #   app: string, mandatory, Application name
+  #   env: string, mandatory, Environment
+  #   status: string, mandatory, Deployment status
+  #   details: object, optional, Additional details
+  ##
+  sendDeploymentNotification:
+    - log: "Sending notifications for ${app} deployment to ${env}"
+    - parallel:
+        - call: sendSlackNotification
+          in:
+            channel: "#deployments"
+            message: "${app} deployed to ${env}: ${status}"
+        - call: sendEmailNotification
+          in:
+            recipients: "${getRecipients(env)}"
+            subject: "Deployment: ${app} to ${env}"
+            body: "Status: ${status}"
+        - call: sendPagerDutyEvent
+          in:
+            severity: "${status == 'failed' ? 'critical' : 'info'}"
+            summary: "${app} deployment ${status}"
+
+  ##
+  # Send Slack notification
+  # in:
+  #   channel: string, mandatory, Slack channel
+  #   message: string, mandatory, Message text
+  #   attachments: object[], optional, Message attachments
+  ##
+  sendSlackNotification:
+    - task: slack
+      in:
+        channelId: "${channel}"
+        text: "${message}"
+        attachments: "${attachments}"
+    - log: "Slack notification sent to ${channel}"
+
+  ##
+  # Send email notification
+  # in:
+  #   recipients: string[], mandatory, Email recipients
+  #   subject: string, mandatory, Email subject
+  #   body: string, mandatory, Email body
+  #   template: string, optional, Email template name
+  ##
+  sendEmailNotification:
+    - if: "${template != null}"
+      then:
+        - call: renderEmailTemplate
+          in:
+            templateName: "${template}"
+            data:
+              subject: "${subject}"
+              body: "${body}"
+          out:
+            renderedBody: "${html}"
+      else:
+        - set:
+            renderedBody: "${body}"
+    - task: smtp
+      in:
+        to: "${recipients}"
+        subject: "${subject}"
+        message: "${renderedBody}"
+    - log: "Email sent to ${recipients.size()} recipients"
+
+  ##
+  # Send PagerDuty event
+  # in:
+  #   severity: string, mandatory, Event severity (info/warning/error/critical)
+  #   summary: string, mandatory, Event summary
+  #   details: object, optional, Event details
+  ##
+  sendPagerDutyEvent:
+    - if: "${severity == 'critical' || severity == 'error'}"
+      then:
+        - task: http
+          in:
+            url: "https://events.pagerduty.com/v2/enqueue"
+            method: POST
+            headers:
+              Content-Type: "application/json"
+            body:
+              routing_key: "${pagerDutyKey}"
+              event_action: "trigger"
+              payload:
+                summary: "${summary}"
+                severity: "${severity}"
+                source: "concord"
+                custom_details: "${details}"
+    - log: "PagerDuty event created: ${severity}"
+
+  ##
+  # Send Teams notification
+  # in:
+  #   webhookUrl: string, mandatory, Teams webhook URL
+  #   title: string, mandatory, Card title
+  #   message: string, mandatory, Card message
+  #   color: string, optional, Card accent color
+  ##
+  sendTeamsNotification:
+    - task: http
+      in:
+        url: "${webhookUrl}"
+        method: POST
+        body:
+          "@type": "MessageCard"
+          themeColor: "${color != null ? color : '0076D7'}"
+          title: "${title}"
+          text: "${message}"
+    - log: "Teams notification sent"
+
+  renderEmailTemplate:
+    - log: "Rendering template ${templateName}"
+    - set:
+        html: "<html><body>${data.body}</body></html>"
+
+  ##
+  # Notify on-call engineer
+  # in:
+  #   team: string, mandatory, Team name
+  #   priority: string, mandatory, Alert priority
+  #   message: string, mandatory, Alert message
+  ##
+  notifyOnCall:
+    - call: getOnCallEngineer
+      in:
+        team: "${team}"
+      out:
+        engineer: "${onCall}"
+    - switch: "${priority}"
+      critical:
+        - call: sendPagerDutyEvent
+          in:
+            severity: "critical"
+            summary: "${message}"
+        - call: sendSlackNotification
+          in:
+            channel: "@${engineer.slackId}"
+            message: "CRITICAL: ${message}"
+      high:
+        - call: sendSlackNotification
+          in:
+            channel: "@${engineer.slackId}"
+            message: "HIGH: ${message}"
+        - call: sendEmailNotification
+          in:
+            recipients:
+              - "${engineer.email}"
+            subject: "HIGH Priority Alert"
+            body: "${message}"
+      default:
+        - call: sendEmailNotification
+          in:
+            recipients:
+              - "${engineer.email}"
+            subject: "Alert: ${message}"
+            body: "${message}"
+
+  getOnCallEngineer:
+    - task: http
+      in:
+        url: "https://oncall.example.com/teams/${team}/current"
+        method: GET
+      out:
+        onCall: "${result.body}"
+
+  ##
+  # Send batch notifications
+  # in:
+  #   notifications: object[], mandatory, List of notifications to send
+  ##
+  sendBatchNotifications:
+    - log: "Sending ${notifications.size()} notifications"
+    - call: forEach
+      in:
+        items: "${notifications}"
+        flow: sendSingleNotification
+
+  sendSingleNotification:
+    - switch: "${item.type}"
+      slack:
+        - call: sendSlackNotification
+          in:
+            channel: "${item.channel}"
+            message: "${item.message}"
+      email:
+        - call: sendEmailNotification
+          in:
+            recipients: "${item.recipients}"
+            subject: "${item.subject}"
+            body: "${item.body}"
+      teams:
+        - call: sendTeamsNotification
+          in:
+            webhookUrl: "${item.webhook}"
+            title: "${item.title}"
+            message: "${item.message}"
+# move here
