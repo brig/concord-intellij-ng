@@ -29,18 +29,18 @@ jobs:
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@v3
 
-#      - name: Publish Plugin
-#        env:
-#          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-#          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
-#          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-#          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
-#        run: ./gradlew publishPlugin
-#
-#      - name: Upload Release Asset
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*.zip
+      - name: Publish Plugin
+        env:
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
+        run: ./gradlew publishPlugin
+
+      - name: Upload Release Asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*.zip
 
   prepare-next-version:
     name: Prepare Next Version
@@ -127,12 +127,12 @@ jobs:
           BRANCH="chore/prepare-v$NEXT_VERSION"
           
           git checkout -b "$BRANCH"
-          git add gradle.properties CHANGELOG.md
+          git add gradle.properties CHANGELOG.md docs-site/blog/xxxx-xx-xx-release-$NEXT_VERSION.mdx
           git commit -m "chore: bump version to $NEXT_VERSION"
           git push origin "$BRANCH"
 
           gh pr create \
-            --title "chore: prepare for next development iteration (v$NEXT_VERSION)" \
+            --title "v$NEXT_VERSION release" \
             --body "Automated PR after release.
           
             - Bumps version to \`$NEXT_VERSION\` 📈

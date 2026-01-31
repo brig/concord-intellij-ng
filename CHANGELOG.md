@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+### Changed
+
 ## 0.17.0 - 2026-01-30
 
 ### Added
@@ -22,6 +26,8 @@ and elements in the IDE's structure view and navigation
 
 ### Changed
 
+- performance optimizations
+([#82](https://github.com/brig/concord-intellij-ng/pull/82)) 
 - fix code completion for trigger entry points
 ([#66](https://github.com/brig/concord-intellij-ng/pull/66))
 - fix for completion functionality in multi-scope projects
@@ -40,18 +46,6 @@ and elements in the IDE's structure view and navigation
 - added quick fix to replace invalid parameter types with valid suggestions in flow documentation
 ([#49](https://github.com/brig/concord-intellij-ng/pull/49))  
 - added quick fix for missing closing ## marker in flow documentation
-
-([#46](https://github.com/brig/concord-intellij-ng/pull/46))
-- rename refactoring for Concord flow definitions, allowing flows to be renamed
-  across multiple files while preserving all references  
-([#44](https://github.com/brig/concord-intellij-ng/pull/44))
-- quick fix for `DuplicateFlowNameInspection` to show all duplicate flow definitions
-  in the Usage View panel
-([#43](https://github.com/brig/concord-intellij-ng/pull/43))
-- added duplicate flow name inspection that warns when multiple flows with the same name exist within the same Concord scope
-([#42](https://github.com/brig/concord-intellij-ng/pull/42))
-- support for multiple isolated Concord projects within a single IntelliJ project window
-([#40](https://github.com/brig/concord-intellij-ng/pull/40))
 
 ### Changed
 
