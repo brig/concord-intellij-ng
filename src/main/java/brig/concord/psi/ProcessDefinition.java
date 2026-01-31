@@ -128,7 +128,12 @@ public class ProcessDefinition {
         return ApplicationManager.getApplication().runReadAction((Computable<Set<String>>) () -> {
             var result = new HashSet<String>();
             FileBasedIndex.getInstance().processAllKeys(FlowNamesIndex.KEY, key -> {
-                result.add(key);
+                // Ensure the key is actually in the scope.
+                // processValues returns false if the processor returns false (which we do on the first hit).
+                boolean found = !FileBasedIndex.getInstance().processValues(FlowNamesIndex.KEY, key, null, (file, value) -> false, scope);
+                if (found) {
+                    result.add(key);
+                }
                 return true;
             }, scope, null);
             return result;
