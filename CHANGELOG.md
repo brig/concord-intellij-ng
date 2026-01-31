@@ -11,6 +11,9 @@
 
 ### Changed
 
+- ensure flow completion strictly respects search scope
+([#87](https://github.com/brig/concord-intellij-ng/pull/87))
+
 ## 0.17.0 - 2026-01-30
 
 ### Added
