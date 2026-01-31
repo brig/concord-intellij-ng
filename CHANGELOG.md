@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.17.0 - 2026-01-30
+## Unreleased
 
 ### Added
 
@@ -20,6 +20,8 @@ and elements in the IDE's structure view and navigation
 
 ### Changed
 
+- performance optimizations
+([#82](https://github.com/brig/concord-intellij-ng/pull/82)) 
 - fix code completion for trigger entry points
 ([#66](https://github.com/brig/concord-intellij-ng/pull/66))
 - fix for completion functionality in multi-scope projects
