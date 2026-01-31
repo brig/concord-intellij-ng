@@ -151,12 +151,11 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testNoStructureChangeOnNonRootConcordFileContentChange() {
-        // Non-root concord file content changes don't affect structure or scope
+    public void testModificationCountDoesNotIncrementOnConcordFileContentChange() {
+        // ConcordModificationTracker explicitly ignores content changes as they are handled by PSI
         var file = myFixture.addFileToProject("test.concord.yaml", "flows: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
-        long initialStructure = tracker.structure().getModificationCount();
-        long initialScope = tracker.scope().getModificationCount();
+        long initialCount = tracker.scope().getModificationCount();
 
         WriteCommandAction.runWriteCommandAction(getProject(), () -> {
             try {
@@ -166,10 +165,64 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBase {
             }
         });
 
-        Assertions.assertEquals(initialStructure, tracker.structure().getModificationCount(),
-                "Structure count should NOT increment on non-root concord file content change");
-        Assertions.assertEquals(initialScope, tracker.scope().getModificationCount(),
-                "Scope count should NOT increment on non-root concord file content change (not a root file)");
+        Assertions.assertEquals(initialCount, tracker.scope().getModificationCount(),
+                "Modification count should NOT increment on concord file content change in 'flows' section");
+    }
+
+    @Test
+    public void testModificationCountIncrementsOnResourcesSectionChange() {
+        var file = myFixture.addFileToProject("concord.yaml", """
+                resources:
+                  concord:
+                    - "glob:concord/*.yaml"
+                """);
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        long initialCount = tracker.scope().getModificationCount();
+
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                // Changing the glob pattern inside resources.concord
+                file.getVirtualFile().setBinaryContent("""
+                        resources:
+                          concord:
+                            - "glob:concord/**/*.yaml"
+                        """.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        Assertions.assertTrue(tracker.scope().getModificationCount() > initialCount,
+                "Modification count SHOULD increment on concord file content change in 'resources' section");
+    }
+
+    @Test
+    public void testModificationCountIncrementsOnGranularResourcesChange() {
+        var file = myFixture.addFileToProject("concord.yaml", """
+                resources:
+                  concord:
+                    - "glob:concord/*.yaml"
+                """);
+
+        openFileInEditor(file);
+
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        long initialCount = tracker.scope().getModificationCount();
+
+        // Perform a granular change: replace "concord/*.yaml" with "concord/**/*.yaml"
+        // This simulates typing in the editor
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            var editor = myFixture.getEditor();
+            var text = editor.getDocument().getText();
+            int offset = text.indexOf("glob:concord/*.yaml");
+            editor.getDocument().replaceString(offset + 13, offset + 14, "**");
+
+            // Commit changes to update PSI
+            com.intellij.psi.PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
+        });
+
+        Assertions.assertTrue(tracker.scope().getModificationCount() > initialCount,
+                "Modification count SHOULD increment on granular change in 'resources' section");
     }
 
     @Test

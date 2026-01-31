@@ -1,5 +1,6 @@
 package brig.concord.psi;
 
+import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
@@ -11,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.*;
+import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
@@ -23,49 +25,62 @@ import java.util.List;
  * Two levels of tracking:
  * <ul>
  *   <li>{@link #structure()} - VFS structural changes (create/delete/move/rename), .gitignore changes</li>
- *   <li>{@link #scope()} - structural changes + content changes to root files (patterns)</li>
+ *   <li>{@link #scope()} - structural changes + granular content changes to root files (resources section)</li>
  * </ul>
  */
 @Service(Service.Level.PROJECT)
 public final class ConcordModificationTracker implements Disposable {
 
-    // Tracks VFS structural changes only (file list)
     private final SimpleModificationTracker structureTracker = new SimpleModificationTracker();
-
-    // Tracks structural changes + root file content changes (patterns affect scope)
     private final SimpleModificationTracker scopeTracker = new SimpleModificationTracker();
 
     public ConcordModificationTracker(@NotNull Project project) {
         var connection = project.getMessageBus().connect(this);
 
-        // Track VFS changes
+        // Track VFS structural changes
         connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
             @Override
             public void after(@NotNull List<? extends VFileEvent> events) {
-                boolean structuralChange = false;
-                boolean scopeChange = false;
+                var structuralChange = false;
 
                 for (var event : events) {
-                    var eventType = classifyEvent(event);
-                    if (eventType == EventType.STRUCTURAL) {
+                    if (isStructuralEvent(event)) {
                         structuralChange = true;
-                        scopeChange = true;
-                        break; // Both trackers will be incremented
-                    } else if (eventType == EventType.SCOPE_ONLY) {
-                        scopeChange = true;
+                        break;
                     }
                 }
 
                 if (structuralChange) {
                     structureTracker.incModificationCount();
-                }
-                if (scopeChange) {
                     scopeTracker.incModificationCount();
                 }
             }
         });
 
-        // Track VCS/gitignore changes - affects both structure and scope
+        // Track granular content changes via PSI
+        PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
+            @Override
+            public void childAdded(@NotNull PsiTreeChangeEvent event) {
+                handlePsiChange(event);
+            }
+
+            @Override
+            public void childRemoved(@NotNull PsiTreeChangeEvent event) {
+                handlePsiChange(event);
+            }
+
+            @Override
+            public void childReplaced(@NotNull PsiTreeChangeEvent event) {
+                handlePsiChange(event);
+            }
+
+            @Override
+            public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
+                handlePsiChange(event);
+            }
+        }, this);
+
+        // Track VCS/gitignore changes
         ChangeListManager.getInstance(project).addChangeListListener(new ChangeListListener() {
             @Override
             public void changeListUpdateDone() {
@@ -79,121 +94,110 @@ public final class ConcordModificationTracker implements Disposable {
         return project.getService(ConcordModificationTracker.class);
     }
 
-    /**
-     * Tracker for structural changes only (file additions/deletions/renames).
-     * Use for caches that only depend on the file list, not on file contents.
-     */
     public @NotNull ModificationTracker structure() {
         return structureTracker;
     }
 
-    /**
-     * Tracker for scope changes (structural + root file content changes).
-     * Use for caches that depend on patterns from root files.
-     */
     public @NotNull ModificationTracker scope() {
         return scopeTracker;
     }
 
-    /**
-     * @deprecated Use {@link #structure()} or {@link #scope()} instead.
-     */
-    @Deprecated
-    public static @NotNull ModificationTracker tracker(@NotNull Project project) {
-        return getInstance(project).scope();
-    }
-
-    /**
-     * Manually invalidates all caches. For testing purposes.
-     */
     @TestOnly
     public void invalidate() {
         structureTracker.incModificationCount();
         scopeTracker.incModificationCount();
     }
 
-    private enum EventType {
-        NONE,
-        SCOPE_ONLY,    // Only affects scope (e.g., root file content change)
-        STRUCTURAL     // Affects both structure and scope
+    private void handlePsiChange(@NotNull PsiTreeChangeEvent event) {
+        var file = event.getFile();
+        if (file == null) {
+            var parent = event.getParent();
+            if (parent != null && parent.isValid()) {
+                file = parent.getContainingFile();
+            }
+        }
+
+        if (file != null && ConcordFile.isRootFileName(file.getName())) {
+            if (isRelevantPsiChange(event)) {
+                scopeTracker.incModificationCount();
+            }
+        }
     }
 
-    private @NotNull EventType classifyEvent(@NotNull VFileEvent event) {
-        // Content changes to root files affect scope (patterns may change)
-        switch (event) {
-            case VFileContentChangeEvent contentEvent -> {
-                var file = contentEvent.getFile();
-                if (ConcordFile.isRootFileName(file.getName())) {
-                    return EventType.SCOPE_ONLY;
-                }
-                return EventType.NONE;
-            }
-            case VFilePropertyChangeEvent propEvent -> {
-                if (VirtualFile.PROP_NAME.equals(propEvent.getPropertyName())) {
-                    // Rename event: check both old and new names
-                    if (isRelevantName(propEvent.getOldValue().toString()) ||
-                            isRelevantName(propEvent.getNewValue().toString())) {
-                        return EventType.STRUCTURAL;
-                    }
+    /**
+     * Checks if the PSI change affects the /resources/concord section.
+     * Only changes to this section affect scope (patterns).
+     */
+    private static boolean isRelevantPsiChange(@NotNull PsiTreeChangeEvent event) {
+        var element = event.getParent();
+        if (element == null || element instanceof PsiFile) {
+            return true;
+        }
 
-                    // If it's a directory rename, it's always relevant as it might affect paths
-                    var file = event.getFile();
-                    if (file.isDirectory()) {
-                        return EventType.STRUCTURAL;
-                    }
+        // Check fixed structure: .../resources/concord/...
+        var concordKv = getAncestor(element, 3, YAMLKeyValue.class);
+        if (concordKv == null || !"concord".equals(concordKv.getKeyText())) {
+            return false;
+        }
+
+        var resourcesKv = getAncestor(concordKv, 2, YAMLKeyValue.class);
+        if (resourcesKv == null || !"resources".equals(resourcesKv.getKeyText())) {
+            return false;
+        }
+
+        return getAncestor(resourcesKv, 3, ConcordFile.class) != null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T getAncestor(PsiElement element, int levels, Class<T> type) {
+        var current = element;
+        for (int i = 0; i < levels && current != null; i++) {
+            current = current.getParent();
+        }
+        return type.isInstance(current) ? (T) current : null;
+    }
+
+    private static boolean isStructuralEvent(@NotNull VFileEvent event) {
+        if (event instanceof VFileContentChangeEvent) {
+            return false;
+        }
+
+        if (event instanceof VFilePropertyChangeEvent propEvent) {
+            if (VirtualFile.PROP_NAME.equals(propEvent.getPropertyName())) {
+                if (isRelevantName(propEvent.getOldValue().toString()) ||
+                        isRelevantName(propEvent.getNewValue().toString())) {
+                    return true;
                 }
-                return EventType.NONE;
+                var file = event.getFile();
+                return file.isDirectory();
             }
-            case VFileMoveEvent moveEvent -> {
-                if (isRelevantName(moveEvent.getFile().getName())) {
-                    return EventType.STRUCTURAL;
-                }
-                // If a directory is moved, it might affect paths of concord files inside it
-                if (moveEvent.getFile().isDirectory()) {
-                    return EventType.STRUCTURAL;
-                }
-                return EventType.NONE;
-            }
-            case VFileDeleteEvent deleteEvent -> {
-                if (isRelevantName(deleteEvent.getFile().getName())) {
-                    return EventType.STRUCTURAL;
-                }
-                if (deleteEvent.getFile().isDirectory()) {
-                    return EventType.STRUCTURAL;
-                }
-                return EventType.NONE;
-            }
-            default -> {
-            }
+        }
+
+        if (event instanceof VFileMoveEvent moveEvent) {
+            return isRelevantName(moveEvent.getFile().getName()) || moveEvent.getFile().isDirectory();
+        }
+
+        if (event instanceof VFileDeleteEvent) {
+            var file = event.getFile();
+            return isRelevantName(file.getName()) || file.isDirectory();
         }
 
         var fileName = getFileName(event);
-        if (fileName == null) {
-            return EventType.NONE;
-        }
-
-        return isRelevantName(fileName) ? EventType.STRUCTURAL : EventType.NONE;
+        return fileName != null && isRelevantName(fileName);
     }
 
-    private boolean isRelevantName(@NotNull String name) {
+    private static boolean isRelevantName(@NotNull String name) {
         return ConcordFile.isConcordFileName(name) || ".gitignore".equals(name);
     }
 
-    private @Nullable String getFileName(@NotNull VFileEvent event) {
+    private static @Nullable String getFileName(@NotNull VFileEvent event) {
         if (event instanceof VFileCreateEvent createEvent) {
             return createEvent.getChildName();
         }
-
         var file = event.getFile();
-        if (file != null) {
-            return file.getName();
-        }
-
-        return null;
+        return file != null ? file.getName() : null;
     }
 
     @Override
-    public void dispose() {
-        // Connection is disposed automatically via Disposable parent
-    }
+    public void dispose() {}
 }
