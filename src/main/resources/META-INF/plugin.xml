@@ -95,6 +95,7 @@
         <!-- Navigation -->
         <fileBasedIndex implementation="brig.concord.navigation.FlowNamesIndex"/>
         <searchEverywhereContributor implementation="brig.concord.navigation.FlowDefinitionSearchEverywhereContributor$Factory"/>
+        <gotoRelatedProvider implementation="brig.concord.navigation.ConcordRootGotoRelatedProvider"/>
 
         <!-- Call Hierarchy -->
         <callHierarchyProvider language="Concord"
