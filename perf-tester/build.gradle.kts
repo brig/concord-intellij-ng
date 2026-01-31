@@ -76,4 +76,8 @@ tasks {
     buildSearchableOptions {
         enabled = false
     }
+
+    instrumentCode {
+        enabled = false
+    }
 }

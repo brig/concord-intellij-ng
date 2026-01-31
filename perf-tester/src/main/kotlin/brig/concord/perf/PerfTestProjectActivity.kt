@@ -100,11 +100,8 @@ class PerfTestProjectActivity : ProjectActivity {
             }
 
             // Trigger highlighting
-            val psiFile = project.service<PsiManager>().findFile(file)
-            if (psiFile != null) {
-                DaemonCodeAnalyzer.getInstance(project).restart(psiFile)
-                // println("PERF-TEST: Highlighting restarted")
-            }
+            DaemonCodeAnalyzer.getInstance(project).restart()
+            // println("PERF-TEST: Highlighting restarted")
         }
     }
 }
