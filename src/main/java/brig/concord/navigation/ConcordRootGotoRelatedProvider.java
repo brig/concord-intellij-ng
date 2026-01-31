@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * Provides navigation from any Concord file to its root concord.yaml file(s).
- * Accessible via Navigate → Related Symbol (Ctrl+Alt+Home on Mac).
+ * Accessible via Navigate → Related Symbol (Ctrl+Cmd+Up on Mac).
  */
 public class ConcordRootGotoRelatedProvider extends GotoRelatedProvider {
 
