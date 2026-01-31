@@ -2,10 +2,19 @@ package brig.concord.psi;
 
 import brig.concord.ConcordYamlTestBase;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiPolyVariantReference;
+import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ConcordScopeServiceTest extends ConcordYamlTestBase {
 
@@ -23,7 +32,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
 
         Assertions.assertNotNull(roots);
         Assertions.assertEquals(1, roots.size());
@@ -41,7 +50,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         var vFile = yaml.getVirtualFile();
         var service = ConcordScopeService.getInstance(getProject());
 
-        var scopes = service.getScopesForFile(vFile);
+        var scopes = ReadAction.compute(() -> service.getScopesForFile(vFile));
         Assertions.assertNotNull(scopes);
         Assertions.assertEquals(1, scopes.size());
     }
@@ -107,11 +116,11 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
         // Both should be roots because root1 doesn't include root2's file in its patterns
         Assertions.assertEquals(2, roots.size());
 
-        var scopes = service.getScopesForFile(sharedFile.getVirtualFile());
+        var scopes = ReadAction.compute(() -> service.getScopesForFile(sharedFile.getVirtualFile()));
         Assertions.assertEquals(2, scopes.size());
     }
 
@@ -140,7 +149,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
 
         // Should find both roots
         Assertions.assertTrue(roots.size() >= 2, () -> "Expected at least 2 roots, found: " + roots.size());
@@ -168,7 +177,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
         Assertions.assertEquals(1, roots.size());
 
         // Find the root for my-project
@@ -177,7 +186,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
 
         // The nested file should be contained in the scope
         // Note: This test verifies the pattern matching works with the default concord pattern
-        Assertions.assertTrue(myProjectRoot.contains(nestedFile.getVirtualFile()), "Nested file should be contained in scope");
+        Assertions.assertTrue(ReadAction.compute(() -> myProjectRoot.contains(nestedFile.getVirtualFile())), "Nested file should be contained in scope");
     }
 
     @Test
@@ -205,7 +214,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = service.findRoots();
+        var roots = ReadAction.compute(() -> service.findRoots());
         Assertions.assertEquals(2, roots.size());
 
         // Find the root
@@ -215,6 +224,83 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                 .orElse(null);
 
         Assertions.assertNotNull(narrowRoot, "Should find narrow-project root");
+    }
+
+    /**
+     * This test verifies that cache is invalidated when concord.yaml content changes.
+     * ConcordModificationTracker tracks content changes of concord.yaml files.
+     */
+    @Test
+    public void testCacheInvalidationOnPatternChange() {
+        // Create root with narrow pattern - only includes flows/*.concord.yaml
+        var root = myFixture.addFileToProject(
+                "my-project/concord.yaml",
+                """
+                        resources:
+                          concord:
+                            - "glob:flows/*.concord.yaml"
+                        configuration:
+                          runtime: concord-v2
+                        """);
+
+        // Create file that matches the pattern
+        var insideFile = myFixture.addFileToProject(
+                "my-project/flows/utils.concord.yaml",
+                "flows: {}");
+
+        // Create file outside the pattern (in other/ directory)
+        var outsideFile = myFixture.addFileToProject(
+                "my-project/other/helper.concord.yaml",
+                "flows: {}");
+
+        var service = ConcordScopeService.getInstance(getProject());
+
+        // Verify initial state - outsideFile should NOT be in scope
+        var initialScopes = ReadAction.compute(() -> service.getScopesForFile(outsideFile.getVirtualFile()));
+        Assertions.assertTrue(initialScopes.isEmpty(),
+                "Initially, outsideFile should NOT be in any scope");
+
+        // insideFile SHOULD be in scope
+        var insideScopes = ReadAction.compute(() -> service.getScopesForFile(insideFile.getVirtualFile()));
+        Assertions.assertEquals(1, insideScopes.size(),
+                "insideFile should be in scope");
+
+        // Now change the pattern to include other/ directory
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                var vf = root.getVirtualFile();
+                vf.setBinaryContent("""
+                        resources:
+                          concord:
+                            - "glob:flows/*.concord.yaml"
+                            - "glob:other/*.concord.yaml"
+                        configuration:
+                          runtime: concord-v2
+                        """.getBytes(StandardCharsets.UTF_8));
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // Force PSI to refresh
+        EdtTestUtil.runInEdtAndWait(() ->
+                PsiDocumentManager.getInstance(getProject()).commitAllDocuments()
+        );
+
+        // Verify that file content actually changed (PSI was refreshed)
+        var updatedContent = ReadAction.compute(() ->
+                PsiManager.getInstance(getProject())
+                        .findFile(root.getVirtualFile())
+                        .getText()
+        );
+        Assertions.assertTrue(updatedContent.contains("glob:other/*.concord.yaml"),
+                "File content should be updated with new pattern");
+
+        // Now outsideFile SHOULD be in scope after pattern change
+        // THIS ASSERTION WILL FAIL due to stale cache!
+        var updatedScopes = ReadAction.compute(() -> service.getScopesForFile(outsideFile.getVirtualFile()));
+        Assertions.assertEquals(1, updatedScopes.size(),
+                "After pattern change, outsideFile SHOULD be in scope (cache invalidation bug!)");
     }
 
     @Test
@@ -377,7 +463,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         var service = ConcordScopeService.getInstance(getProject());
 
         // Get search scope for project-a
-        var scopeA = service.createSearchScope(rootA.getVirtualFile());
+        var scopeA = ReadAction.compute(() -> service.createSearchScope(rootA.getVirtualFile()));
 
         // Verify scope-a contains project-a files
         Assertions.assertTrue(scopeA.contains(rootA.getVirtualFile()), "Scope A should contain rootA");
@@ -388,7 +474,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         Assertions.assertFalse(scopeA.contains(utilsB.getVirtualFile()), "Scope A should NOT contain utilsB");
 
         // Get search scope for project-b
-        var scopeB = service.createSearchScope(rootB.getVirtualFile());
+        var scopeB = ReadAction.compute(() -> service.createSearchScope(rootB.getVirtualFile()));
 
         // Verify scope-b contains project-b files
         Assertions.assertTrue(scopeB.contains(rootB.getVirtualFile()), "Scope B should contain rootB");
@@ -445,5 +531,170 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                 );
             }
         });
+    }
+
+    @Test
+    public void testCacheInvalidationOnVcsIgnoredStatusChange() {
+        // Create root and a utility file
+        var root = myFixture.addFileToProject(
+                "my-project/concord.yaml",
+                """
+                        configuration:
+                          runtime: concord-v2
+                        flows:
+                          main:
+                            - log: "Hello"
+                        """);
+
+        var utilsFile = myFixture.addFileToProject(
+                "my-project/concord/utils.concord.yaml",
+                """
+                        flows:
+                          utilsFlow:
+                            - log: "Utils"
+                        """);
+
+        var service = ConcordScopeService.getInstance(getProject());
+        var tracker = ConcordModificationTracker.getInstance(getProject());
+
+        // Track which files are "ignored" - initially none
+        Set<VirtualFile> ignoredFiles = new HashSet<>();
+        service.setIgnoredFileChecker(ignoredFiles::contains);
+
+        // Get initial search scope using PsiElement version (which uses caching)
+        var initialScope = ReadAction.compute(() -> service.createSearchScope(root));
+        Assertions.assertTrue(initialScope.contains(utilsFile.getVirtualFile()),
+                "Initially, utils file should be in search scope");
+
+        // Now "ignore" the utils file (simulates adding to .gitignore)
+        ignoredFiles.add(utilsFile.getVirtualFile());
+
+        // Simulate VCS change notification (in real scenario this happens via ChangeListListener)
+        tracker.invalidate();
+
+        // Get scope again - cache should be invalidated, ignored file should be excluded
+        var updatedScope = ReadAction.compute(() -> service.createSearchScope(root));
+
+        // After cache invalidation, ignored file should NOT be in scope
+        Assertions.assertFalse(updatedScope.contains(utilsFile.getVirtualFile()),
+                "After VCS change, ignored file should NOT be in search scope");
+    }
+
+    @Test
+    public void testIgnoredRootDoesNotMaskNestedRoot() {
+        // Create a root at the top level
+        var root1 = myFixture.addFileToProject(
+                "concord.yaml",
+                """
+                        configuration:
+                          runtime: concord-v2
+                        """);
+
+        // Create a nested root
+        var root2 = myFixture.addFileToProject(
+                "concord/concord.yaml",
+                """
+                        configuration:
+                          runtime: concord-v2
+                        """);
+
+        var service = ConcordScopeService.getInstance(getProject());
+
+        // Initially, root1 masks root2 (default behavior)
+        var initialRoots = ReadAction.compute(() -> service.findRoots());
+        Assertions.assertEquals(1, initialRoots.size(), "Initially, only the top-level root should be found");
+        Assertions.assertEquals(root1.getVirtualFile(), initialRoots.get(0).getRootFile());
+
+        // Now mark the top-level root as ignored
+        Set<VirtualFile> ignoredFiles = new HashSet<>();
+        ignoredFiles.add(root1.getVirtualFile());
+        service.setIgnoredFileChecker(ignoredFiles::contains);
+
+        // Invalidate cache to force re-computation of roots
+        ConcordModificationTracker.getInstance(getProject()).invalidate();
+
+        // Now root2 should be found because root1 is ignored and shouldn't mask it
+        var updatedRoots = ReadAction.compute(() -> service.findRoots());
+        boolean foundRoot2 = updatedRoots.stream()
+                .anyMatch(r -> r.getRootFile().equals(root2.getVirtualFile()));
+
+        Assertions.assertTrue(foundRoot2, "Nested root should be found when parent root is ignored");
+    }
+
+    @Test
+    public void testCacheInvalidationOnDirectoryRename() {
+        var root = myFixture.addFileToProject(
+                "my-project/concord.yaml",
+                """
+                        configuration:
+                          runtime: concord-v2
+                        """);
+
+        var service = ConcordScopeService.getInstance(getProject());
+        var roots = ReadAction.compute(() -> service.findRoots());
+        Assertions.assertEquals(1, roots.size());
+        var concordRoot = roots.get(0);
+        Assertions.assertTrue(concordRoot.getRootDir().toString().endsWith("my-project"));
+
+        // Rename the directory
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                var dir = root.getVirtualFile().getParent();
+                dir.rename(this, "my-project-renamed");
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // Verify that roots are updated
+        var updatedRoots = ReadAction.compute(() -> service.findRoots());
+        Assertions.assertEquals(1, updatedRoots.size());
+        var updatedConcordRoot = updatedRoots.get(0);
+
+        Assertions.assertTrue(updatedConcordRoot.getRootDir().toString().endsWith("my-project-renamed"),
+                "Root directory path should be updated after directory rename. Current path: " + updatedConcordRoot.getRootDir());
+    }
+
+    /**
+     * This test verifies that getScopesForFile correctly filters ignored files
+     * after cache invalidation.
+     */
+    @Test
+    public void testIgnoredFileFiltering() {
+        var root = myFixture.addFileToProject(
+                "my-project/concord.yaml",
+                """
+                        configuration:
+                          runtime: concord-v2
+                        """);
+
+        var utilsFile = myFixture.addFileToProject(
+                "my-project/concord/utils.concord.yaml",
+                "flows: {}");
+
+        var service = ConcordScopeService.getInstance(getProject());
+        var tracker = ConcordModificationTracker.getInstance(getProject());
+
+        // Track ignored files
+        Set<VirtualFile> ignoredFiles = new HashSet<>();
+        service.setIgnoredFileChecker(ignoredFiles::contains);
+
+        // Invalidate to apply new checker
+        tracker.invalidate();
+
+        // Initially not ignored - should have scopes
+        var scopesBefore = ReadAction.compute(() -> service.getScopesForFile(utilsFile.getVirtualFile()));
+        Assertions.assertEquals(1, scopesBefore.size(),
+                "Non-ignored file should be in scope");
+
+        // Now ignore the file
+        ignoredFiles.add(utilsFile.getVirtualFile());
+
+        // Invalidate cache to reflect ignored status change
+        tracker.invalidate();
+
+        var scopesAfter = ReadAction.compute(() -> service.getScopesForFile(utilsFile.getVirtualFile()));
+        Assertions.assertTrue(scopesAfter.isEmpty(),
+                "Ignored file should return empty scopes");
     }
 }

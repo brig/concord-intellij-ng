@@ -102,9 +102,6 @@ public class ProcessDefinition {
         List<PsiElement> result = new ArrayList<>();
         var scopeService = ConcordScopeService.getInstance(project);
         for (var file : files.getResults()) {
-            if (scopeService.isIgnored(file)) {
-                continue;
-            }
             var psiFile = PsiManager.getInstance(project).findFile(file);
             if (psiFile == null) {
                 continue;

@@ -2,6 +2,7 @@ package brig.concord.psi;
 
 import brig.concord.ConcordYamlTestBase;
 import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -30,11 +31,11 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBase {
         service.setIgnoredFileChecker(file -> file.getPath().contains("/ignored/"));
 
         // Ignored root should not appear as a scope for itself
-        var ignoredRootScopes = service.getScopesForFile(ignoredRoot.getVirtualFile());
+        var ignoredRootScopes = ReadAction.compute(() -> service.getScopesForFile(ignoredRoot.getVirtualFile()));
         Assertions.assertTrue(ignoredRootScopes.isEmpty(), "Ignored root should have no scopes");
 
         // Visible root should work normally
-        var visibleRootScopes = service.getScopesForFile(visibleRoot.getVirtualFile());
+        var visibleRootScopes = ReadAction.compute(() -> service.getScopesForFile(visibleRoot.getVirtualFile()));
         Assertions.assertEquals(1, visibleRootScopes.size(), "Visible root should have one scope");
         Assertions.assertEquals(visibleRoot.getVirtualFile(), visibleRootScopes.getFirst().getRootFile());
     }
@@ -55,7 +56,7 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBase {
 
         // It is ignored, so it should NOT be considered out of scope (no warning)
         // because we don't want to show errors for ignored files.
-        boolean outOfScope = service.isOutOfScope(ignoredFile.getVirtualFile());
+        boolean outOfScope = ReadAction.compute(() -> service.isOutOfScope(ignoredFile.getVirtualFile()));
         Assertions.assertFalse(outOfScope, "Ignored file should not be reported as out of scope");
     }
 
@@ -85,13 +86,13 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBase {
 
         service.setIgnoredFileChecker(file -> file.getPath().contains("/ignored/"));
 
-        var scopes = service.getScopesForFile(visibleFile.getVirtualFile());
+        var scopes = ReadAction.compute(() -> service.getScopesForFile(visibleFile.getVirtualFile()));
         Assertions.assertEquals(1, scopes.size());
 
-        var rootScopes = service.findRoots();
+        var rootScopes = ReadAction.compute(() -> service.findRoots());
         Assertions.assertEquals(1, rootScopes.size());
 
-        var ignoredFileScopes = service.getScopesForFile(ignoredFile.getVirtualFile());
+        var ignoredFileScopes = ReadAction.compute(() -> service.getScopesForFile(ignoredFile.getVirtualFile()));
         Assertions.assertTrue(ignoredFileScopes.isEmpty(), "Ignored file should not be returned in getScopesForFile");
     }
 
