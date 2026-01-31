@@ -656,11 +656,11 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     /**
-     * This test verifies that getScopesForFile correctly filters ignored files,
-     * but the filtering happens at query time, not via cache invalidation.
+     * This test verifies that getScopesForFile correctly filters ignored files
+     * after cache invalidation.
      */
     @Test
-    public void testIgnoredFileFilteringAtQueryTime() {
+    public void testIgnoredFileFiltering() {
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
                 """
@@ -673,10 +673,14 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                 "flows: {}");
 
         var service = ConcordScopeService.getInstance(getProject());
+        var tracker = ConcordModificationTracker.getInstance(getProject());
 
         // Track ignored files
         Set<VirtualFile> ignoredFiles = new HashSet<>();
         service.setIgnoredFileChecker(ignoredFiles::contains);
+
+        // Invalidate to apply new checker
+        tracker.invalidate();
 
         // Initially not ignored - should have scopes
         var scopesBefore = ReadAction.compute(() -> service.getScopesForFile(utilsFile.getVirtualFile()));
@@ -686,7 +690,9 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         // Now ignore the file
         ignoredFiles.add(utilsFile.getVirtualFile());
 
-        // getScopesForFile checks isIgnored at query time, so this DOES work
+        // Invalidate cache to reflect ignored status change
+        tracker.invalidate();
+
         var scopesAfter = ReadAction.compute(() -> service.getScopesForFile(utilsFile.getVirtualFile()));
         Assertions.assertTrue(scopesAfter.isEmpty(),
                 "Ignored file should return empty scopes");

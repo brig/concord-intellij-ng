@@ -34,10 +34,10 @@ public final class ConcordRoot {
     private static final Key<CachedValue<List<PathMatcher>>> PATTERNS_CACHE_KEY =
             Key.create("ConcordRoot.patterns");
 
+    private final Project project;
     private final VirtualFile rootFile;
     private final Path rootDir;
     private final String rootDirPrefix;
-    private final CachedValue<List<PathMatcher>> patternsCache;
 
     /**
      * Creates a ConcordRoot from a root YAML document.
@@ -46,6 +46,7 @@ public final class ConcordRoot {
      * @param rootFile the root concord.yaml file
      */
     public ConcordRoot(@NotNull Project project, @NotNull VirtualFile rootFile) {
+        this.project = project;
         this.rootFile = rootFile;
 
         var parent = rootFile.getParent();
@@ -53,24 +54,6 @@ public final class ConcordRoot {
 
         this.rootDir = Paths.get(parentPath);
         this.rootDirPrefix = parentPath.endsWith("/") ? parentPath : parentPath + "/";
-
-        this.patternsCache = CachedValuesManager.getManager(project).createCachedValue(() -> {
-            var psiFile = PsiManager.getInstance(project).findFile(rootFile);
-            if (psiFile == null) {
-                return CachedValueProvider.Result.create(
-                        Collections.singletonList(parsePattern(DEFAULT_CONCORD_RESOURCES)),
-                        rootFile
-                );
-            }
-
-            var patterns = CachedValuesManager.getCachedValue(psiFile, PATTERNS_CACHE_KEY, () -> {
-                var doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
-                var p = parsePatterns(doc);
-                return CachedValueProvider.Result.create(p, psiFile);
-            });
-
-            return CachedValueProvider.Result.create(patterns, psiFile);
-        }, false);
     }
 
     /**
@@ -95,7 +78,17 @@ public final class ConcordRoot {
     }
 
     public @NotNull List<PathMatcher> getPatterns() {
-        return patternsCache.getValue();
+        var psiFile = PsiManager.getInstance(project).findFile(rootFile);
+        if (psiFile == null) {
+            return Collections.singletonList(parsePattern(DEFAULT_CONCORD_RESOURCES));
+        }
+
+        // Cache is stored on PsiFile, survives ConcordRoot recreation
+        return CachedValuesManager.getCachedValue(psiFile, PATTERNS_CACHE_KEY, () -> {
+            var doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
+            var patterns = parsePatterns(doc);
+            return CachedValueProvider.Result.create(patterns, psiFile);
+        });
     }
 
     /**
