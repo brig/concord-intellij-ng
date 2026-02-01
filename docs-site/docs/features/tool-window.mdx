@@ -1,0 +1,42 @@
+---
+sidebar_position: 15
+---
+
+# Concord Tool Window
+
+The Concord plugin adds a dedicated **Concord** tool window to IntelliJ IDEA,
+providing a structural view of all [Concord project scopes](./scopes) detected in your workspace.
+
+## Overview
+
+The Concord tool window allows you to:
+- View all active [Concord scopes](./scopes) (defined by `concord.yaml` files).
+- [Navigate](./navigation) quickly to the root definition of any scope.
+- Visualize the hierarchy of your Concord projects.
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/concord-tool-window.png').default} alt="Concord Tool Window" />
+    <figcaption>
+        Concord Tool Window showing all detected project scopes and their root files.
+    </figcaption>
+</figure>
+
+## Using the Tool Window
+
+1.  Open the tool window by clicking on **Concord** in the tool window bar (usually on the right or bottom),
+or via **View | Tool Windows | Concord**.
+2.  The tree view displays a list of detected [Concord scopes](./scopes). Each node represents a root Concord file.
+3.  **Double-click** on a node to open the corresponding `concord.yaml` file in the editor.
+4.  Use the **Refresh** button in the toolbar to manually reload the list of scopes if changes aren't reflected immediately
+(though the plugin tracks changes automatically).
+
+## Node Representation
+
+- **Scope Name**: The node displays the relative path of the directory containing the root Concord file,
+effectively showing which folders are Concord roots.
+- **Icon**: Standard folder icon indicating it represents a directory scope.
+
+## Automatic Updates
+
+The tool window listens for changes in your project structure (like adding or removing `concord.yaml` files)
+and updates automatically.

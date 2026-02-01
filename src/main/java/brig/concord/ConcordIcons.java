@@ -6,6 +6,8 @@ import javax.swing.*;
 
 public final class ConcordIcons {
 
+    public static final Icon TOOLBOX = IconLoader.getIcon("/icons/toolbox.png", ConcordIcons.class);
+
     public static final Icon FILE = IconLoader.getIcon("/icons/concord.png", ConcordIcons.class);
 
     public static final Icon KEY = IconLoader.getIcon("/icons/structure-view/key.svg", ConcordIcons.class);

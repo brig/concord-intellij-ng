@@ -202,6 +202,12 @@
         <codeInsight.lineMarkerProvider
                 language="Concord"
                 implementationClass="brig.concord.run.ConcordFlowRunLineMarkerProvider"/>
+
+        <!-- Tool Window -->
+        <toolWindow id="Concord"
+                    anchor="right"
+                    icon="brig.concord.ConcordIcons.TOOLBOX"
+                    factoryClass="brig.concord.toolwindow.ConcordToolWindowFactory"/>
     </extensions>
 
 </idea-plugin>

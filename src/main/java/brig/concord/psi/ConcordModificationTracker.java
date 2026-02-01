@@ -31,10 +31,13 @@ import java.util.List;
 @Service(Service.Level.PROJECT)
 public final class ConcordModificationTracker implements Disposable {
 
+    private final Project project;
     private final SimpleModificationTracker structureTracker = new SimpleModificationTracker();
     private final SimpleModificationTracker scopeTracker = new SimpleModificationTracker();
+    private volatile boolean vcsInitialized = false;
 
     public ConcordModificationTracker(@NotNull Project project) {
+        this.project = project;
         var connection = project.getMessageBus().connect(this);
 
         // Track VFS structural changes
@@ -52,7 +55,7 @@ public final class ConcordModificationTracker implements Disposable {
 
                 if (structuralChange) {
                     structureTracker.incModificationCount();
-                    scopeTracker.incModificationCount();
+                    incrementScopeAndNotify();
                 }
             }
         });
@@ -84,14 +87,19 @@ public final class ConcordModificationTracker implements Disposable {
         ChangeListManager.getInstance(project).addChangeListListener(new ChangeListListener() {
             @Override
             public void changeListUpdateDone() {
+                vcsInitialized = true;
                 structureTracker.incModificationCount();
-                scopeTracker.incModificationCount();
+                incrementScopeAndNotify();
             }
         }, this);
     }
 
     public static @NotNull ConcordModificationTracker getInstance(@NotNull Project project) {
         return project.getService(ConcordModificationTracker.class);
+    }
+
+    public boolean isVcsInitialized() {
+        return vcsInitialized;
     }
 
     public @NotNull ModificationTracker structure() {
@@ -108,6 +116,11 @@ public final class ConcordModificationTracker implements Disposable {
         scopeTracker.incModificationCount();
     }
 
+    private void incrementScopeAndNotify() {
+        scopeTracker.incModificationCount();
+        project.getMessageBus().syncPublisher(ConcordScopeListener.TOPIC).scopesChanged();
+    }
+
     private void handlePsiChange(@NotNull PsiTreeChangeEvent event) {
         var file = event.getFile();
         if (file == null) {
@@ -119,7 +132,7 @@ public final class ConcordModificationTracker implements Disposable {
 
         if (file != null && ConcordFile.isRootFileName(file.getName())) {
             if (isRelevantPsiChange(event)) {
-                scopeTracker.incModificationCount();
+                incrementScopeAndNotify();
             }
         }
     }

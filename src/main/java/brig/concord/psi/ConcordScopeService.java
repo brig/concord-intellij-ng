@@ -1,7 +1,9 @@
 package brig.concord.psi;
 
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -43,7 +45,20 @@ public final class ConcordScopeService {
 
     public ConcordScopeService(@NotNull Project project) {
         this.project = project;
-        this.ignoredFileChecker = file -> ChangeListManager.getInstance(project).isIgnoredFile(file);
+        this.ignoredFileChecker = file -> {
+            if (!ConcordModificationTracker.getInstance(project).isVcsInitialized()) {
+                if (file.getPath().contains("/target/")) {
+                    return true;
+                }
+                if (FileTypeManager.getInstance().isFileIgnored(file)) {
+                    return true;
+                }
+                if (ProjectFileIndex.getInstance(project).isExcluded(file)) {
+                    return true;
+                }
+            }
+            return ChangeListManager.getInstance(project).isIgnoredFile(file);
+        };
     }
 
     public static @NotNull ConcordScopeService getInstance(@NotNull Project project) {
@@ -156,7 +171,7 @@ public final class ConcordScopeService {
      *
      * @return list of all detected Concord roots
      */
-    @NotNull List<ConcordRoot> findRoots() {
+    public @NotNull List<ConcordRoot> findRoots() {
         return CachedValuesManager.getManager(project).getCachedValue(project, ROOTS_CACHE_KEY, () -> {
             var roots = computeRoots();
             return CachedValueProvider.Result.create(
