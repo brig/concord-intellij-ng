@@ -18,6 +18,7 @@ import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public final class ConcordScopeService {
         this.project = project;
         this.ignoredFileChecker = file -> {
             if (!ConcordModificationTracker.getInstance(project).isVcsInitialized()) {
-                if (file.getPath().contains("/target/")) {
+                if (file.getPath().contains(File.separator + "target" + File.separator)) {
                     return true;
                 }
                 if (FileTypeManager.getInstance().isFileIgnored(file)) {
