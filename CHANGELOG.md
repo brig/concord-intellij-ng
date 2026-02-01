@@ -4,6 +4,8 @@
 
 ### Added
 
+- added Concord tool window
+([#88](https://github.com/brig/concord-intellij-ng/pull/88))
 - added a performance testing project for the Concord IntelliJ plugin
 ([#86](https://github.com/brig/concord-intellij-ng/pull/86))
 - added Related Symbol navigation from any Concord file to the project’s root concord.yaml file(s).
