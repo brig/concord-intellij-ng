@@ -1,7 +1,7 @@
 package brig.concord.toolwindow;
 
 import brig.concord.psi.ConcordModificationTracker;
-import brig.concord.psi.ConcordScopeListener;
+import brig.concord.psi.ConcordProjectListener;
 import brig.concord.toolwindow.nodes.ConcordTreeNode;
 import brig.concord.toolwindow.nodes.RootNode;
 import com.intellij.icons.AllIcons;
@@ -60,7 +60,7 @@ public class ConcordProjectsPanel extends JPanel implements Disposable {
 
         // Subscribe to scope changes
         project.getMessageBus().connect(this)
-                .subscribe(ConcordScopeListener.TOPIC, (ConcordScopeListener) () ->
+                .subscribe(ConcordProjectListener.TOPIC, (ConcordProjectListener) () ->
                         ApplicationManager.getApplication().invokeLater(this::refresh));
     }
 

@@ -190,7 +190,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testFileOutsideScope() {
+    public void testFileOutsideScope() throws Exception {
         // Create root with pattern
         var root = myFixture.addFileToProject(
                 "narrow-project/concord.yaml",
@@ -212,6 +212,8 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                             - log: "Other"
                         """
         );
+
+        Thread.sleep(5_000);
 
         var service = ConcordScopeService.getInstance(getProject());
         var roots = ReadAction.compute(() -> service.findRoots());
