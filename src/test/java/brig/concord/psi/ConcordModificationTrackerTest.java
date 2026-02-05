@@ -447,7 +447,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testDependenciesIncrementOnceThenDoNotFlapOnInvalidNonRootYaml() throws Exception {
+    public void testDependenciesDoNotIncrementThenDoNotFlapOnInvalidNonRootYaml() throws Exception {
         var file = myFixture.addFileToProject("bad.concord.yaml", """
             configuration:
               dependencies:
@@ -477,8 +477,8 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBase {
         awaitProcessing();
         long afterFirstInvalid = tracker.dependencies().getModificationCount();
 
-        Assertions.assertEquals(initialDeps + 1, afterFirstInvalid,
-                "Dependencies count should increment ONCE on transition valid -> invalid");
+        Assertions.assertEquals(initialDeps, afterFirstInvalid,
+                "Dependencies count should NOT increment on transition valid -> invalid");
 
         WriteCommandAction.runWriteCommandAction(getProject(), () -> {
             try {
