@@ -47,7 +47,9 @@ public final class ConcordScopeService {
     public ConcordScopeService(@NotNull Project project) {
         this.project = project;
         this.ignoredFileChecker = file -> {
-            if (file.getPath().contains(File.separator + "target" + File.separator)) {
+            // getPath javadoc:
+            // t is an absolute file path with file separator characters (File.separatorChar) replaced to the forward slash ('/').
+            if (file.getPath().contains("/target/")) {
                 return true;
             }
             if (FileTypeManager.getInstance().isFileIgnored(file)) {
