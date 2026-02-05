@@ -8,7 +8,7 @@ public interface ConcordProjectListener {
     Topic<ConcordProjectListener> TOPIC = Topic.create("Concord Project Changes", ConcordProjectListener.class);
 
     /**
-     * Called when Concord project have changed: concord yamls, scopes, dependencies
+     * Called when the Concord project has changed: concord yamls, scopes, dependencies
      */
     void projectChanged();
 }
