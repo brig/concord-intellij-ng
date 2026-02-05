@@ -1,6 +1,7 @@
 package brig.concord;
 
 import brig.concord.lexer.FlowDocTokenTypes;
+import brig.concord.psi.ConcordModificationTracker;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
 import brig.concord.yaml.psi.*;
@@ -29,6 +30,7 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
     @BeforeEach
     protected void setUp() throws Exception {
         super.setUp();
+        ConcordModificationTracker.getInstance(getProject()).setForceSyncInTests(true);
     }
 
     @Override

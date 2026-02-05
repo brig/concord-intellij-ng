@@ -47,16 +47,16 @@ public final class ConcordScopeService {
     public ConcordScopeService(@NotNull Project project) {
         this.project = project;
         this.ignoredFileChecker = file -> {
-            if (!ConcordModificationTracker.getInstance(project).isVcsInitialized()) {
-                if (file.getPath().contains(File.separator + "target" + File.separator)) {
-                    return true;
-                }
-                if (FileTypeManager.getInstance().isFileIgnored(file)) {
-                    return true;
-                }
-                if (ProjectFileIndex.getInstance(project).isExcluded(file)) {
-                    return true;
-                }
+            // getPath javadoc:
+            // t is an absolute file path with file separator characters (File.separatorChar) replaced to the forward slash ('/').
+            if (file.getPath().contains("/target/")) {
+                return true;
+            }
+            if (FileTypeManager.getInstance().isFileIgnored(file)) {
+                return true;
+            }
+            if (ProjectFileIndex.getInstance(project).isExcluded(file)) {
+                return true;
             }
             return ChangeListManager.getInstance(project).isIgnoredFile(file);
         };
@@ -177,7 +177,7 @@ public final class ConcordScopeService {
             var roots = computeRoots();
             return CachedValueProvider.Result.create(
                     roots,
-                    ConcordModificationTracker.getInstance(project).scope()
+                    ConcordModificationTracker.getInstance(project).structure()
             );
         }, false);
     }
@@ -218,7 +218,7 @@ public final class ConcordScopeService {
             var map = computeScopeFilesMap();
             return CachedValueProvider.Result.create(
                     map,
-                    ConcordModificationTracker.getInstance(project).scope()
+                    ConcordModificationTracker.getInstance(project).structure()
             );
         }, false);
     }
