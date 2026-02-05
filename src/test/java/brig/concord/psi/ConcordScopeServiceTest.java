@@ -32,7 +32,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = ReadAction.compute(() -> service.findRoots());
+        var roots = ReadAction.compute(service::findRoots);
 
         Assertions.assertNotNull(roots);
         Assertions.assertEquals(1, roots.size());
@@ -116,7 +116,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = ReadAction.compute(() -> service.findRoots());
+        var roots = ReadAction.compute(service::findRoots);
         // Both should be roots because root1 doesn't include root2's file in its patterns
         Assertions.assertEquals(2, roots.size());
 
@@ -149,7 +149,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = ReadAction.compute(() -> service.findRoots());
+        var roots = ReadAction.compute(service::findRoots);
 
         // Should find both roots
         Assertions.assertTrue(roots.size() >= 2, () -> "Expected at least 2 roots, found: " + roots.size());
@@ -177,7 +177,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         );
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = ReadAction.compute(() -> service.findRoots());
+        var roots = ReadAction.compute(service::findRoots);
         Assertions.assertEquals(1, roots.size());
 
         // Find the root for my-project
@@ -213,10 +213,8 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                         """
         );
 
-        Thread.sleep(5_000);
-
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = ReadAction.compute(() -> service.findRoots());
+        var roots = ReadAction.compute(service::findRoots);
         Assertions.assertEquals(2, roots.size());
 
         // Find the root
