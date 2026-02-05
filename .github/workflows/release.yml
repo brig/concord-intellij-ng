@@ -128,7 +128,7 @@ jobs:
           
           git checkout -b "$BRANCH"
           git add gradle.properties CHANGELOG.md docs-site/blog/xxxx-xx-xx-release-$NEXT_VERSION.mdx
-          git commit -m "chore: bump version to $NEXT_VERSION"
+          git commit -m "Release $NEXT_VERSION"
           git push origin "$BRANCH"
 
           gh pr create \
