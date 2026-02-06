@@ -114,5 +114,9 @@ class MavenCoordinateTest {
         assertNull(MavenCoordinate.parse("mvn://com.example:../artifact:1.0.0"));
         assertNull(MavenCoordinate.parse("mvn://com.example:artifact:../1.0.0"));
         assertNull(MavenCoordinate.parse("mvn://com.example:/artifact:1.0.0"));
+        assertNull(MavenCoordinate.parse("mvn://com.example:artifact:jar:../../etc/passwd:1.0.0"),
+                "classifier with path traversal should be rejected");
+        assertNull(MavenCoordinate.parse("mvn://com.example:artifact:../jar:1.0.0"),
+                "type with path traversal should be rejected");
     }
 }

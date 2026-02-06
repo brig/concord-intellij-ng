@@ -62,7 +62,8 @@ public final class MavenCoordinate {
         var classifier = get(matcher.group(6), null);
         var version = matcher.group(7);
 
-        if (containsPathTraversal(groupId) || containsPathTraversal(artifactId) || containsPathTraversal(version)) {
+        if (containsPathTraversal(groupId) || containsPathTraversal(artifactId) || containsPathTraversal(version)
+                || containsPathTraversal(type) || (classifier != null && containsPathTraversal(classifier))) {
             return null;
         }
 

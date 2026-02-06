@@ -44,12 +44,6 @@ public final class DependencyChangeTracker implements Disposable {
     private Set<MavenCoordinate> lastLoadedDeps = null;
 
     /**
-     * Modification count at the time of last successful reload.
-     * Used to detect changes during reload.
-     */
-    private long lastLoadedModCount = -1;
-
-    /**
      * True if dependencies have changed and reload is needed.
      */
     private boolean dirty = false;
@@ -126,11 +120,7 @@ public final class DependencyChangeTracker implements Disposable {
                 return false;
             }
 
-            if (dismissed && currentModCount == dismissedModCount) {
-                return false;
-            }
-
-            return true;
+            return !dismissed || currentModCount != dismissedModCount;
         }
     }
 
@@ -155,7 +145,6 @@ public final class DependencyChangeTracker implements Disposable {
                 // Schedule another check (outside sync block)
             } else {
                 lastLoadedDeps = Set.copyOf(loadedDeps);
-                lastLoadedModCount = currentModCount;
                 dirty = false;
                 dismissed = false;
             }
@@ -179,7 +168,6 @@ public final class DependencyChangeTracker implements Disposable {
 
         synchronized (this) {
             lastLoadedDeps = Set.copyOf(loadedDeps);
-            lastLoadedModCount = getCurrentModCount();
             // Don't touch dirty flag - it should be false anyway
         }
     }

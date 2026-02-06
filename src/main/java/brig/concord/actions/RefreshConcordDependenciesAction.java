@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action to reload Concord dependencies and task names.
  */
-public class RefreshConcordDependenciesAction extends DumbAwareAction {
+public final class RefreshConcordDependenciesAction extends DumbAwareAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

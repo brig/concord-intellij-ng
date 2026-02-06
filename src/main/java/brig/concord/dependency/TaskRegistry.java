@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class TaskRegistry {
 
     private static final Logger LOG = Logger.getInstance(TaskRegistry.class);
+    private static final TaskNameExtractor TASK_NAME_EXTRACTOR = new TaskNameExtractor();
 
     private final Project project;
     private final AtomicBoolean reloading = new AtomicBoolean(false);
@@ -145,7 +146,6 @@ public final class TaskRegistry {
 
         var collector = DependencyCollector.getInstance(project);
         var resolver = new DependencyResolver(project);
-        var extractor = new TaskNameExtractor();
 
         indicator.setText("Collecting dependencies...");
         var scopeDependencies = ReadAction.compute(() -> {
@@ -192,7 +192,7 @@ public final class TaskRegistry {
 
             indicator.setText2("Extracting from " + coord.getArtifactId());
 
-            var taskNames = extractor.extract(jarPath);
+            var taskNames = TASK_NAME_EXTRACTOR.extract(jarPath);
             if (!taskNames.isEmpty()) {
                 taskNamesByCoordinate.put(coord, taskNames);
                 LOG.info("Found " + taskNames.size() + " tasks in " + coord.getArtifactId() + ": " + taskNames);
