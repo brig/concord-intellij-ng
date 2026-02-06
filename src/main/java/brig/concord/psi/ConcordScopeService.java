@@ -141,6 +141,23 @@ public final class ConcordScopeService {
         return createSearchScope(file);
     }
 
+    /**
+     * Returns all Concord files belonging to the given scope (root).
+     * Includes the root file itself plus all files matching its patterns.
+     *
+     * @param root the scope root
+     * @return set of files in this scope (includes root file)
+     */
+    public @NotNull Set<VirtualFile> getFilesInScope(@NotNull ConcordRoot root) {
+        var scopeFiles = getScopeFilesMap().get(root.getRootFile());
+        if (scopeFiles == null) {
+            return Set.of(root.getRootFile());
+        }
+        var result = new HashSet<>(scopeFiles);
+        result.add(root.getRootFile());
+        return result;
+    }
+
     private boolean isInsideScope(@NotNull ConcordRoot scope, @NotNull VirtualFile file) {
         if (file.equals(scope.getRootFile())) {
             return true;

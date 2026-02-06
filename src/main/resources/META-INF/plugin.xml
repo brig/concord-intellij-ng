@@ -4,6 +4,7 @@
     <vendor>brig</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="maven-integration.xml">org.jetbrains.idea.maven</depends>
 
     <projectListeners>
         <listener class="brig.concord.GitIgnoreChangeListener" topic="com.intellij.openapi.vcs.changes.ChangeListListener"/>
@@ -96,6 +97,8 @@
         <fileBasedIndex implementation="brig.concord.navigation.FlowNamesIndex"/>
         <searchEverywhereContributor implementation="brig.concord.navigation.FlowDefinitionSearchEverywhereContributor$Factory"/>
         <gotoRelatedProvider implementation="brig.concord.navigation.ConcordRootGotoRelatedProvider"/>
+
+        <editorFloatingToolbarProvider implementation="brig.concord.dependency.DependenciesRefreshFloatingProvider"/>
 
         <!-- Call Hierarchy -->
         <callHierarchyProvider language="Concord"
@@ -208,6 +211,23 @@
                     anchor="right"
                     icon="brig.concord.ConcordIcons.TOOLBOX"
                     factoryClass="brig.concord.toolwindow.ConcordToolWindowFactory"/>
+
+        <!-- Task names loading on project open -->
+        <backgroundPostStartupActivity implementation="brig.concord.dependency.ConcordDependenciesStartupActivity"/>
     </extensions>
+
+    <actions>
+        <action id="Concord.RefreshProject"
+                class="brig.concord.actions.RefreshConcordDependenciesAction"
+                text="Refresh Concord Dependencies"
+                description="Refresh Concord scopes and dependencies"
+                icon="AllIcons.Actions.Refresh"/>
+
+        <action id="Concord.Refresh.Dismiss"
+                class="brig.concord.actions.DismissConcordRefreshAction"
+                text="Dismiss"
+                description="Hide this notification until the next change"
+                icon="AllIcons.Actions.Close"/>
+    </actions>
 
 </idea-plugin>

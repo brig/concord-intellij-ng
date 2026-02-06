@@ -34,4 +34,6 @@ public final class ConcordIcons {
     public static final Icon PROFILE = IconLoader.getIcon("/icons/structure-view/profile.svg", ConcordIcons.class);
 
     public static final Icon RUN = IconLoader.getIcon("/icons/run.svg", ConcordIcons.class);
+
+    public static final Icon MAVEN_PROJECT = IconLoader.getIcon("/icons/mavenProject.svg", ConcordIcons.class);
 }

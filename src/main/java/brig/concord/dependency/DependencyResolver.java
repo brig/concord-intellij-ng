@@ -1,0 +1,105 @@
+package brig.concord.dependency;
+
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+
+/**
+ * Resolves Maven dependencies to local JAR files.
+ * Uses IntelliJ Maven plugin when available, otherwise falls back to default ~/.m2/repository.
+ */
+public final class DependencyResolver {
+
+    private static final Logger LOG = Logger.getInstance(DependencyResolver.class);
+
+    private final MavenSupport mavenSupport;
+
+    public DependencyResolver(@NotNull Project project) {
+        this.mavenSupport = MavenSupport.create(project);
+    }
+
+    DependencyResolver(@NotNull MavenSupport mavenSupport) {
+        this.mavenSupport = mavenSupport;
+    }
+
+    /**
+     * Resolves a single dependency to a local JAR path.
+     * Downloads the artifact if not found locally.
+     *
+     * @return path to JAR file, null if resolution failed
+     */
+    public @Nullable Path resolve(@NotNull MavenCoordinate coordinate) {
+        var localRepo = mavenSupport.getLocalRepositoryPath();
+        if (localRepo == null) {
+            LOG.warn("Cannot determine local Maven repository path");
+            return null;
+        }
+
+        // Check if already exists locally
+        var jarPath = localRepo.resolve(coordinate.getRepositoryPath());
+        if (Files.isRegularFile(jarPath)) {
+            return jarPath;
+        }
+
+        // Try to download
+        LOG.info("JAR not found locally, downloading: " + coordinate);
+        var downloaded = mavenSupport.downloadArtifact(coordinate);
+        if (downloaded != null && Files.isRegularFile(downloaded)) {
+            return downloaded;
+        }
+
+        LOG.warn("Failed to resolve artifact: " + coordinate);
+        return null;
+    }
+
+    /**
+     * Resolves multiple dependencies to local JAR paths.
+     *
+     * @return map from coordinate to JAR path (only includes found JARs)
+     */
+    public @NotNull Map<MavenCoordinate, Path> resolveAll(@NotNull Collection<MavenCoordinate> coordinates) {
+        var localRepo = mavenSupport.getLocalRepositoryPath();
+        if (localRepo == null) {
+            return Map.of();
+        }
+
+        Map<MavenCoordinate, Path> result = new LinkedHashMap<>();
+        List<MavenCoordinate> toDownload = new ArrayList<>();
+
+        for (var coord : coordinates) {
+            var jarPath = localRepo.resolve(coord.getRepositoryPath());
+            if (Files.isRegularFile(jarPath)) {
+                result.put(coord, jarPath);
+            } else {
+                toDownload.add(coord);
+            }
+        }
+
+        if (!toDownload.isEmpty()) {
+            LOG.info("Downloading " + toDownload.size() + " artifacts not found locally");
+            result.putAll(mavenSupport.downloadAll(toDownload));
+        }
+
+        return result;
+    }
+
+    /**
+     * Checks if Maven plugin support is available.
+     */
+    public boolean isMavenAvailable() {
+        return mavenSupport.isAvailable();
+    }
+
+    /**
+     * Returns the list of remote repositories configured in Maven settings.
+     * Empty list if Maven plugin is not available.
+     */
+    public @NotNull List<String> getRemoteRepositories() {
+        return mavenSupport.getRemoteRepositoryUrls();
+    }
+}
