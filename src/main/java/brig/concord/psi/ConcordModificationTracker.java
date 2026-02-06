@@ -111,6 +111,15 @@ public final class ConcordModificationTracker implements Disposable {
         this.forceSyncInTests = value;
     }
 
+    public void forceRefresh() {
+        structureTracker.incModificationCount();
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (!project.isDisposed()) {
+                project.getMessageBus().syncPublisher(ConcordProjectListener.TOPIC).projectChanged();
+            }
+        });
+    }
+
     @TestOnly
     public void invalidate() {
         structureTracker.incModificationCount();

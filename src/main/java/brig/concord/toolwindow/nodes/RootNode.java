@@ -2,12 +2,10 @@ package brig.concord.toolwindow.nodes;
 
 import brig.concord.psi.ConcordRoot;
 import brig.concord.psi.ConcordScopeService;
+import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.project.Project;
-import com.intellij.pom.Navigatable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.util.Comparator;
 import java.util.List;
 
@@ -16,33 +14,26 @@ import java.util.List;
  */
 public class RootNode extends ConcordTreeNode {
 
-    private final Project project;
-
     public RootNode(@NotNull Project project) {
-        this.project = project;
+        super(project);
     }
 
     @Override
-    public @NotNull String getDisplayName() {
-        return "Concord";
-    }
-
-    @Override
-    public @Nullable Icon getIcon() {
-        return null;
-    }
-
-    @Override
-    public @NotNull List<ConcordTreeNode> getChildren() {
-        List<ConcordRoot> roots = ConcordScopeService.getInstance(project).findRoots();
+    public @NotNull ConcordTreeNode[] getChildren() {
+        if (myProject == null || myProject.isDisposed()) {
+            return new ConcordTreeNode[0];
+        }
+        
+        List<ConcordRoot> roots = ConcordScopeService.getInstance(myProject).findRoots();
         return roots.stream()
-                .map(root -> (ConcordTreeNode) new ScopeNode(project, root))
-                .sorted(Comparator.comparing(ConcordTreeNode::getDisplayName, String.CASE_INSENSITIVE_ORDER))
-                .toList();
+                .map(root -> new ScopeNode(this, root))
+                .sorted(Comparator.comparing(ScopeNode::getDisplayName, String.CASE_INSENSITIVE_ORDER))
+                .toArray(ConcordTreeNode[]::new);
     }
 
     @Override
-    public @Nullable Navigatable getNavigatable() {
-        return null;
+    protected void update(@NotNull PresentationData data) {
+        // Root is invisible, but good to have a name for debugging
+        data.setPresentableText("Concord");
     }
 }
