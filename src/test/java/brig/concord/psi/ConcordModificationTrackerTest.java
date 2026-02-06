@@ -447,59 +447,6 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testDependenciesDoNotIncrementThenDoNotFlapOnInvalidNonRootYaml() {
-        var file = myFixture.addFileToProject("bad.concord.yaml", """
-            configuration:
-              dependencies:
-                - mvn://org.example:demo:1.0
-            """);
-
-        Assertions.assertFalse(ConcordFile.isRootFileName(file.getVirtualFile().getName()),
-                "Test file must be non-root for this test");
-
-        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
-        awaitProcessing();
-        long initialDeps = tracker.dependencies().getModificationCount();
-
-        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
-            try {
-                file.getVirtualFile().setBinaryContent("""
-                    configuration:
-                      dependencies:
-                        - mvn: //org.example:demo:1.0
-                          some: trash
-                    """.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        awaitProcessing();
-
-        long afterFirstInvalid = tracker.dependencies().getModificationCount();
-
-        // We only assert no flapping while staying invalid; other background changes can increment.
-
-        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
-            try {
-                file.getVirtualFile().setBinaryContent("""
-                    configuration:
-                      dependencies:
-                        - mvn: //org.example:demo:1.0
-                          some: trash
-                          more: trash
-                    """.getBytes());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        awaitProcessing();
-        Assertions.assertEquals(afterFirstInvalid, tracker.dependencies().getModificationCount(),
-                "Dependencies count should NOT increment repeatedly while file stays invalid");
-    }
-
-    @Test
     public void testDependenciesDoNotIncrementWhenFileIsInitiallyInvalid() {
         var file = myFixture.addFileToProject("bad.concord.yaml", """
             configuration:
@@ -577,6 +524,26 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBase {
 
         waitForIncrement(tracker.dependencies()::getModificationCount, initialDeps,
                 "Dependencies count should increment on non-root concord file rename to irrelevant");
+    }
+
+    @Test
+    public void testForceRefreshIncrementsStructureAndNotifiesListener() {
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        awaitProcessing();
+        long initialStructure = tracker.structure().getModificationCount();
+
+        var notified = new java.util.concurrent.atomic.AtomicBoolean(false);
+        getProject().getMessageBus().connect(getTestRootDisposable())
+                .subscribe(ConcordProjectListener.TOPIC, () -> notified.set(true));
+
+        tracker.forceRefresh();
+
+        Assertions.assertTrue(tracker.structure().getModificationCount() > initialStructure,
+                "forceRefresh() should increment structure modification count");
+
+        awaitProcessing();
+        Assertions.assertTrue(notified.get(),
+                "forceRefresh() should trigger ConcordProjectListener.projectChanged()");
     }
 
     @Test

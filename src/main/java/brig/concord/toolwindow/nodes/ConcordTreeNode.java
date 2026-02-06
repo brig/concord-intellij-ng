@@ -1,43 +1,25 @@
 package brig.concord.toolwindow.nodes;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.pom.Navigatable;
+import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.util.List;
+public abstract class ConcordTreeNode extends SimpleNode {
 
-public abstract class ConcordTreeNode {
+    protected ConcordTreeNode(Project project) {
+        super(project);
+    }
 
-    /**
-     * Returns the display name shown in the tree.
-     */
-    public abstract @NotNull String getDisplayName();
+    protected ConcordTreeNode(SimpleNode parent) {
+        super(parent);
+    }
 
-    /**
-     * Returns the icon for this node, or null for no icon.
-     */
-    public abstract @Nullable Icon getIcon();
-
-    /**
-     * Returns the children of this node.
-     */
-    public abstract @NotNull List<ConcordTreeNode> getChildren();
-
-    /**
-     * Returns a navigatable to jump to when double-clicked, or null if not navigable.
-     */
-    public abstract @Nullable Navigatable getNavigatable();
-
-    /**
-     * Returns true if this node has no children.
-     */
-    public boolean isLeaf() {
-        return getChildren().isEmpty();
+    public @Nullable Navigatable getNavigatable() {
+        return null;
     }
 
     @Override
-    public String toString() {
-        return getDisplayName();
-    }
+    public abstract @NotNull ConcordTreeNode[] getChildren();
 }

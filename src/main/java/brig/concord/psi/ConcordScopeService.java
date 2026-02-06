@@ -301,6 +301,7 @@ public final class ConcordScopeService {
         var potentialRoots = allConcordFiles.stream()
                 .filter(ConcordScopeService::isRootFile)
                 .map(this::createRoot)
+                .sorted(Comparator.comparingInt(r -> r.getRootFile().getPath().length()))
                 .toList();
 
         if (potentialRoots.isEmpty()) {
@@ -308,10 +309,23 @@ public final class ConcordScopeService {
         }
 
         // Step 2: Filter out non-roots (files that are contained in another root's scope)
-         return potentialRoots.stream()
-                 .filter(candidate -> potentialRoots.stream()
-                         .noneMatch(other -> !candidate.equals(other) && other.contains(candidate.getRootFile())))
-                 .toList();
+        // We sort by path length to process top-level roots first.
+        // A root can only be contained in a root with a shorter path.
+        var confirmedRoots = new ArrayList<ConcordRoot>();
+        for (var candidate : potentialRoots) {
+            boolean isContained = false;
+            for (var root : confirmedRoots) {
+                if (root.contains(candidate.getRootFile())) {
+                    isContained = true;
+                    break;
+                }
+            }
+            if (!isContained) {
+                confirmedRoots.add(candidate);
+            }
+        }
+
+        return confirmedRoots;
     }
 
     private static boolean isRootFile(@NotNull VirtualFile file) {

@@ -2,42 +2,55 @@ package brig.concord.toolwindow.nodes;
 
 import brig.concord.psi.ConcordRoot;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.project.Project;
+import com.intellij.ide.projectView.PresentationData;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.pom.Navigatable;
 import com.intellij.psi.PsiManager;
+import com.intellij.ui.treeStructure.SimpleNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.util.List;
-
-/**
- * Node representing a Concord project scope (root concord.yaml).
- */
 public class ScopeNode extends ConcordTreeNode {
 
-    private final Project project;
     private final ConcordRoot concordRoot;
+    private final String displayName;
 
-    public ScopeNode(@NotNull Project project, @NotNull ConcordRoot concordRoot) {
-        this.project = project;
+    public ScopeNode(@NotNull SimpleNode parent, @NotNull ConcordRoot concordRoot) {
+        super(parent);
         this.concordRoot = concordRoot;
+        this.displayName = calculateDisplayName();
     }
 
     @Override
+    public @Nullable Navigatable getNavigatable() {
+        if (myProject == null) {
+            return null;
+        }
+        var psiFile = PsiManager.getInstance(myProject).findFile(concordRoot.getRootFile());
+        if (psiFile instanceof Navigatable navigatable && navigatable.canNavigate()) {
+            return navigatable;
+        }
+        return null;
+    }
+
     public @NotNull String getDisplayName() {
+        return displayName;
+    }
+
+    private @NotNull String calculateDisplayName() {
         var rootFile = concordRoot.getRootFile();
         var scopeDir = rootFile.getParent();
         if (scopeDir == null) {
             return concordRoot.getScopeName();
         }
 
-        for (var contentRoot : ProjectRootManager.getInstance(project).getContentRoots()) {
-            var relative = VfsUtilCore.getRelativePath(scopeDir, contentRoot);
-            if (relative != null) {
-                return relative.isEmpty() ? "/" : relative;
+        if (myProject != null) {
+            for (var contentRoot : ProjectRootManager.getInstance(myProject).getContentRoots()) {
+                var relative = VfsUtilCore.getRelativePath(scopeDir, contentRoot);
+                if (relative != null) {
+                    return relative.isEmpty() ? "/" : relative;
+                }
             }
         }
 
@@ -45,21 +58,13 @@ public class ScopeNode extends ConcordTreeNode {
     }
 
     @Override
-    public @Nullable Icon getIcon() {
-        return AllIcons.Nodes.Folder;
+    protected void update(@NotNull PresentationData data) {
+        data.setIcon(AllIcons.Nodes.Folder);
+        data.setPresentableText(displayName);
     }
 
     @Override
-    public @NotNull List<ConcordTreeNode> getChildren() {
-        return List.of();
-    }
-
-    @Override
-    public @Nullable Navigatable getNavigatable() {
-        var psiFile = PsiManager.getInstance(project).findFile(concordRoot.getRootFile());
-        if (psiFile instanceof Navigatable navigatable) {
-            return navigatable;
-        }
-        return null;
+    public @NotNull ConcordTreeNode[] getChildren() {
+        return new ConcordTreeNode[0];
     }
 }
