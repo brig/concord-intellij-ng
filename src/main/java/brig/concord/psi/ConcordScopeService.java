@@ -310,7 +310,7 @@ public final class ConcordScopeService {
 
         // Step 2: Filter out non-roots (files that are contained in another root's scope)
         // We sort by path length to process top-level roots first.
-        // A root can only be contained in a root with a shorter (or equal) path.
+        // A root can only be contained in a root with a shorter path.
         var confirmedRoots = new ArrayList<ConcordRoot>();
         for (var candidate : potentialRoots) {
             boolean isContained = false;
