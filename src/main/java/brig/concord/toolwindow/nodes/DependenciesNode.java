@@ -8,10 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Node representing the dependencies section under a scope.
@@ -46,7 +46,7 @@ public class DependenciesNode extends ConcordTreeNode {
         }
 
         return grouped.entrySet().stream()
-                .sorted(Comparator.comparing(e -> e.getKey().toLowerCase()))
+                .sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
                 .map(e -> (ConcordTreeNode) new DependencyNode(project, e.getValue()))
                 .toList();
     }

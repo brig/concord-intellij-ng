@@ -51,7 +51,7 @@ public class RootNode extends ConcordTreeNode {
     }
 
     private @NotNull Set<VirtualFile> computeResourceFiles(@NotNull ConcordScopeService scopeService,
-                                                            @NotNull ConcordRoot root) {
+                                                           @NotNull ConcordRoot root) {
         var allFiles = scopeService.getFilesInScope(root);
         var rootFile = root.getRootFile();
         var result = new HashSet<>(allFiles);

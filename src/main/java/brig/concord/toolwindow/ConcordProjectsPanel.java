@@ -12,9 +12,12 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.ReadAction;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.ColoredTreeCellRenderer;
+import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
@@ -27,13 +30,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ConcordProjectsPanel extends JPanel implements Disposable {
+
+    private static final Logger LOG = Logger.getInstance(ConcordProjectsPanel.class);
 
     private final Project project;
     private final Tree tree;
@@ -52,14 +56,12 @@ public class ConcordProjectsPanel extends JPanel implements Disposable {
         tree.setShowsRootHandles(true);
         tree.setCellRenderer(new ConcordTreeCellRenderer());
 
-        tree.addMouseListener(new MouseAdapter() {
+        new DoubleClickListener() {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    handleDoubleClick();
-                }
+            protected boolean onDoubleClick(@NotNull MouseEvent event) {
+                return handleDoubleClick();
             }
-        });
+        }.installOn(tree);
 
         var scrollPane = new JBScrollPane(tree);
         add(scrollPane, BorderLayout.CENTER);
@@ -116,9 +118,24 @@ public class ConcordProjectsPanel extends JPanel implements Disposable {
     private void doRefresh() {
         refreshPending.set(false);
 
-        ReadAction.nonBlocking(() -> buildTreeData(new RootNode(project)))
+        ReadAction.nonBlocking(() -> {
+                    try {
+                        return buildTreeData(new RootNode(project));
+                    } catch (ProcessCanceledException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        LOG.warn("Failed to build Concord tool window tree", e);
+                        return null;
+                    }
+                })
                 .expireWith(this)
-                .finishOnUiThread(ModalityState.defaultModalityState(), this::applyTreeData)
+                .finishOnUiThread(ModalityState.defaultModalityState(), result -> {
+                    if (result != null) {
+                        applyTreeData(result);
+                    } else {
+                        scheduleNextOrComplete();
+                    }
+                })
                 .submit(AppExecutorUtil.getAppExecutorService());
     }
 
@@ -133,7 +150,10 @@ public class ConcordProjectsPanel extends JPanel implements Disposable {
         tree.expandRow(0);
         state.applyTo(tree);
 
-        // Check if another refresh was requested while we were working
+        scheduleNextOrComplete();
+    }
+
+    private void scheduleNextOrComplete() {
         if (refreshPending.get()) {
             doRefresh();
         } else {
@@ -174,20 +194,20 @@ public class ConcordProjectsPanel extends JPanel implements Disposable {
         }
     }
 
-    private void handleDoubleClick() {
+    private boolean handleDoubleClick() {
         TreePath selectionPath = tree.getSelectionPath();
         if (selectionPath == null) {
-            return;
+            return false;
         }
 
         var lastComponent = selectionPath.getLastPathComponent();
         if (!(lastComponent instanceof DefaultMutableTreeNode treeNode)) {
-            return;
+            return false;
         }
 
         var userObject = treeNode.getUserObject();
         if (!(userObject instanceof TreeNodeData data)) {
-            return;
+            return false;
         }
 
         var targets = data.navigationTargets();
@@ -195,6 +215,7 @@ public class ConcordProjectsPanel extends JPanel implements Disposable {
             var nav = targets.get(0).navigatable();
             if (nav.canNavigate()) {
                 nav.navigate(true);
+                return true;
             }
         } else if (targets.size() > 1) {
             JBPopupFactory.getInstance()
@@ -219,7 +240,9 @@ public class ConcordProjectsPanel extends JPanel implements Disposable {
                     })
                     .createPopup()
                     .showInFocusCenter();
+            return true;
         }
+        return false;
     }
 
     record TreeNodeData(
