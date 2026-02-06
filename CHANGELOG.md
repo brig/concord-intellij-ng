@@ -13,6 +13,8 @@
 
 ### Changed
 
+- refactors the Concord tool window implementation to improve performance
+([#90](https://github.com/brig/concord-intellij-ng/pull/90))
 - ensure flow completion strictly respects search scope
 ([#87](https://github.com/brig/concord-intellij-ng/pull/87))
 
