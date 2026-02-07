@@ -21,6 +21,7 @@ const config: Config = {
                     sidebarPath: require.resolve('./sidebars.ts'),
                     routeBasePath: 'docs',
                     includeCurrentVersion: isDev,
+                    lastVersion: isDev ? 'current' : undefined,
                     versions: isDev ? {
                         current: {
                             label: 'Unreleased'
