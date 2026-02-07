@@ -108,6 +108,10 @@
         <annotator language="Concord"
                    implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>
 
+        <notificationGroup id="Concord Notification Group" displayType="BALLOON" key="notification.group.concord"/>
+
+        <editorNotificationProvider
+                implementation="brig.concord.notification.OutOfScopeEditorNotificationProvider"/>
 
         <!-- inspections -->
         <localInspection language="Concord"
@@ -162,16 +166,11 @@
         <localInspection language="Concord"
                          bundle="messages.ConcordBundle"
                          shortName="UnresolvedDependency"
-                         level="WARNING"
+                         level="ERROR"
                          key="inspections.unresolved.dependency.name"
                          groupKey="inspections.group.name"
                          enabledByDefault="true"
                          implementationClass="brig.concord.inspection.UnresolvedDependencyInspection"/>
-
-        <notificationGroup id="Concord Notification Group" displayType="BALLOON" key="notification.group.concord"/>
-
-        <editorNotificationProvider
-                implementation="brig.concord.notification.OutOfScopeEditorNotificationProvider"/>
 
         <localInspection language="Concord"
                          bundle="messages.ConcordBundle"

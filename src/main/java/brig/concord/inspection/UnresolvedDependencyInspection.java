@@ -31,7 +31,7 @@ public class UnresolvedDependencyInspection extends ConcordInspectionTool {
                                 scalar,
                                 ConcordBundle.message("inspection.invalid.dependency.format.message",
                                         scalar.getTextValue()),
-                                ProblemHighlightType.ERROR
+                                ProblemHighlightType.GENERIC_ERROR_OR_WARNING
                         );
                         return;
                     }
@@ -41,8 +41,8 @@ public class UnresolvedDependencyInspection extends ConcordInspectionTool {
                         holder.registerProblem(
                                 scalar,
                                 ConcordBundle.message("inspection.unresolved.dependency.message",
-                                        coordinate, errorMessage),
-                                ProblemHighlightType.ERROR
+                                        scalar.getTextValue(), errorMessage),
+                                ProblemHighlightType.GENERIC_ERROR_OR_WARNING
                         );
                     }
                 });

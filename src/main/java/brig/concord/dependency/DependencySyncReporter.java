@@ -50,25 +50,33 @@ final class DependencySyncReporter {
     }
 
     void reportCollecting() {
-        if (buildProgress == null) return;
+        if (buildProgress == null) {
+            return;
+        }
 
         buildProgress.output("Collecting dependencies...\n", true);
     }
 
     void reportResolving(int count) {
-        if (buildProgress == null) return;
+        if (buildProgress == null) {
+            return;
+        }
 
         buildProgress.output("Resolving " + count + " artifacts...\n", true);
     }
 
     void reportErrors(@NotNull Map<MavenCoordinate, String> errors,
                       @NotNull List<DependencyCollector.ScopeDependencies> scopeDeps) {
-        if (buildProgress == null || errors.isEmpty()) return;
+        if (buildProgress == null || errors.isEmpty()) {
+            return;
+        }
 
         for (var sd : scopeDeps) {
             for (var occ : sd.occurrences()) {
                 var errorMsg = errors.get(occ.coordinate());
-                if (errorMsg == null) continue;
+                if (errorMsg == null) {
+                    continue;
+                }
 
                 var filePosition = toFilePosition(occ);
                 var message = "Cannot resolve " + occ.coordinate().toGav() + ": " + errorMsg;
@@ -83,7 +91,9 @@ final class DependencySyncReporter {
     }
 
     void finish(int resolvedCount, int errorCount) {
-        if (buildProgress == null) return;
+        if (buildProgress == null) {
+            return;
+        }
 
         var success = errorCount == 0;
         var message = success
