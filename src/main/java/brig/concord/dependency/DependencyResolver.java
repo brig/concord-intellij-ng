@@ -58,23 +58,23 @@ public final class DependencyResolver {
     }
 
     /**
-     * Resolves multiple dependencies to local JAR paths.
+     * Resolves multiple dependencies to local JAR paths, collecting error messages for failures.
      *
-     * @return map from coordinate to JAR path (only includes found JARs)
+     * @return result containing resolved JARs and error messages for failed coordinates
      */
-    public @NotNull Map<MavenCoordinate, Path> resolveAll(@NotNull Collection<MavenCoordinate> coordinates) {
+    public @NotNull DependencyResolveResult resolveAll(@NotNull Collection<MavenCoordinate> coordinates) {
         var localRepo = mavenSupport.getLocalRepositoryPath();
         if (localRepo == null) {
-            return Map.of();
+            return DependencyResolveResult.allFailed(coordinates, "Cannot determine local Maven repository path");
         }
 
-        Map<MavenCoordinate, Path> result = new LinkedHashMap<>();
+        Map<MavenCoordinate, Path> resolved = new LinkedHashMap<>();
         List<MavenCoordinate> toDownload = new ArrayList<>();
 
         for (var coord : coordinates) {
             var jarPath = localRepo.resolve(coord.getRepositoryPath());
             if (Files.isRegularFile(jarPath)) {
-                result.put(coord, jarPath);
+                resolved.put(coord, jarPath);
             } else {
                 toDownload.add(coord);
             }
@@ -82,10 +82,12 @@ public final class DependencyResolver {
 
         if (!toDownload.isEmpty()) {
             LOG.info("Downloading " + toDownload.size() + " artifacts not found locally");
-            result.putAll(mavenSupport.downloadAll(toDownload));
+            var downloadResult = mavenSupport.downloadAll(toDownload);
+            resolved.putAll(downloadResult.resolved());
+            return new DependencyResolveResult(resolved, downloadResult.errors());
         }
 
-        return result;
+        return new DependencyResolveResult(resolved, Map.of());
     }
 
     /**

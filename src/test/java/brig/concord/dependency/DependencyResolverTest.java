@@ -57,7 +57,7 @@ class DependencyResolverTest {
     }
 
     @Test
-    void resolveAllReturnsOnlyResolved(@TempDir Path tempDir) throws IOException {
+    void resolveAllReturnsResolvedAndErrors(@TempDir Path tempDir) throws IOException {
         var coord1 = MavenCoordinate.parse("mvn://com.example:task-a:1.0.0");
         var coord2 = MavenCoordinate.parse("mvn://com.example:task-b:1.0.0");
 
@@ -69,9 +69,10 @@ class DependencyResolverTest {
         var resolver = new DependencyResolver(stubMavenSupport(tempDir, null));
         var result = resolver.resolveAll(List.of(coord1, coord2));
 
-        assertEquals(1, result.size());
-        assertEquals(jarPath, result.get(coord1));
-        assertNull(result.get(coord2));
+        assertEquals(1, result.resolved().size());
+        assertEquals(jarPath, result.resolved().get(coord1));
+        assertFalse(result.errors().isEmpty());
+        assertNotNull(result.errors().get(coord2));
     }
 
     @Test
@@ -79,7 +80,8 @@ class DependencyResolverTest {
         var resolver = new DependencyResolver(stubMavenSupport(null, null));
         var result = resolver.resolveAll(List.of());
 
-        assertTrue(result.isEmpty());
+        assertTrue(result.resolved().isEmpty());
+        assertTrue(result.errors().isEmpty());
     }
 
     private static MavenSupport stubMavenSupport(@Nullable Path localRepo, @Nullable Path downloadResult) {

@@ -63,19 +63,20 @@ public abstract class MavenSupport {
     public abstract @Nullable Path downloadArtifact(@NotNull MavenCoordinate coordinate);
 
     /**
-     * Downloads multiple artifacts, sharing repository setup overhead.
-     *
-     * @return map from coordinate to downloaded file path (only includes successful downloads)
+     * Downloads multiple artifacts, collecting both results and error messages.
      */
-    public @NotNull Map<MavenCoordinate, Path> downloadAll(@NotNull Collection<MavenCoordinate> coordinates) {
-        Map<MavenCoordinate, Path> result = new LinkedHashMap<>();
+    public @NotNull DependencyResolveResult downloadAll(@NotNull Collection<MavenCoordinate> coordinates) {
+        Map<MavenCoordinate, Path> resolved = new LinkedHashMap<>();
+        Map<MavenCoordinate, String> errors = new LinkedHashMap<>();
         for (var coord : coordinates) {
             var path = downloadArtifact(coord);
             if (path != null) {
-                result.put(coord, path);
+                resolved.put(coord, path);
+            } else {
+                errors.put(coord, "Download failed");
             }
         }
-        return result;
+        return new DependencyResolveResult(resolved, errors);
     }
 
     /**
@@ -107,6 +108,11 @@ public abstract class MavenSupport {
             // Cannot download without Maven plugin
             LOG.info("Maven plugin not available, cannot download: " + coordinate);
             return null;
+        }
+
+        @Override
+        public @NotNull DependencyResolveResult downloadAll(@NotNull Collection<MavenCoordinate> coordinates) {
+            return DependencyResolveResult.allFailed(coordinates, "Maven plugin is not available");
         }
     }
 }

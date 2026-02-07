@@ -10,7 +10,11 @@ import org.jetbrains.idea.maven.aether.ProgressConsumer;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Maven support implementation using IntelliJ Maven plugin.
@@ -99,10 +103,10 @@ final class MavenPluginSupport extends MavenSupport {
     }
 
     @Override
-    public @NotNull Map<MavenCoordinate, Path> downloadAll(@NotNull Collection<MavenCoordinate> coordinates) {
+    public @NotNull DependencyResolveResult downloadAll(@NotNull Collection<MavenCoordinate> coordinates) {
         var localRepo = getLocalRepositoryPath();
         if (localRepo == null) {
-            return Map.of();
+            return DependencyResolveResult.allFailed(coordinates, "Cannot determine local Maven repository path");
         }
 
         try {
@@ -110,23 +114,28 @@ final class MavenPluginSupport extends MavenSupport {
             var repoManager = new ArtifactRepositoryManager(
                     localRepo.toFile(), remoteRepos, ProgressConsumer.DEAF);
 
-            Map<MavenCoordinate, Path> result = new LinkedHashMap<>();
+            Map<MavenCoordinate, Path> resolved = new LinkedHashMap<>();
+            Map<MavenCoordinate, String> errors = new LinkedHashMap<>();
             for (var coord : coordinates) {
                 try {
                     var files = repoManager.resolveDependency(
                             coord.getGroupId(), coord.getArtifactId(), coord.getVersion(),
                             false, List.of());
                     if (!files.isEmpty()) {
-                        result.put(coord, files.iterator().next().toPath());
+                        resolved.put(coord, files.iterator().next().toPath());
+                    } else {
+                        errors.put(coord, "Artifact not found");
                     }
                 } catch (Exception e) {
                     LOG.warn("Failed to download artifact: " + coord, e);
+                    errors.put(coord, e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
                 }
             }
-            return result;
+            return new DependencyResolveResult(resolved, errors);
         } catch (Exception e) {
             LOG.warn("Failed to initialize repository manager", e);
-            return Map.of();
+            var msg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            return DependencyResolveResult.allFailed(coordinates, msg);
         }
     }
 

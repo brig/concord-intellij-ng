@@ -1,6 +1,8 @@
 package brig.concord.dependency;
 
 import brig.concord.psi.ConcordScopeService;
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
@@ -9,7 +11,9 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.problems.WolfTheProblemSolver;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
@@ -32,12 +36,26 @@ public final class TaskRegistry {
     // Task names grouped by scope (root file). Swapped atomically to avoid read-during-update races.
     private volatile Map<VirtualFile, Set<String>> taskNamesByScope = Map.of();
 
+    // Dependencies that failed to resolve, with error messages. Swapped atomically.
+    private volatile Map<MavenCoordinate, String> failedDependencies = Map.of();
+
+    // Files currently marked as having problems in the Project tree via WolfTheProblemSolver.
+    private static final Object DEPENDENCY_PROBLEM_SOURCE = new Object();
+    private volatile Set<VirtualFile> markedProblemFiles = Set.of();
+
     public TaskRegistry(@NotNull Project project) {
         this.project = project;
     }
 
     public static @NotNull TaskRegistry getInstance(@NotNull Project project) {
         return project.getService(TaskRegistry.class);
+    }
+
+    /**
+     * Returns dependencies that failed to resolve, mapped to error messages.
+     */
+    public @NotNull Map<MavenCoordinate, String> getFailedDependencies() {
+        return failedDependencies;
     }
 
     /**
@@ -71,6 +89,14 @@ public final class TaskRegistry {
         }
 
         return result;
+    }
+
+    /**
+     * Sets failed dependencies directly. For testing only.
+     */
+    @TestOnly
+    public void setFailedDependencies(@NotNull Map<MavenCoordinate, String> failures) {
+        this.failedDependencies = failures.isEmpty() ? Map.of() : Map.copyOf(failures);
     }
 
     /**
@@ -144,10 +170,26 @@ public final class TaskRegistry {
 
         LOG.info("Loading task names from dependencies (initial=" + isInitialLoad + ")...");
 
+        var reporter = new DependencySyncReporter(project);
+        reporter.start();
+
+        try {
+            loadTaskNamesImpl(indicator, modCountAtStart, isInitialLoad, reporter);
+        } catch (Exception e) {
+            reporter.finish(0, 1);
+            throw e;
+        }
+    }
+
+    private void loadTaskNamesImpl(@NotNull ProgressIndicator indicator,
+                                   long modCountAtStart,
+                                   boolean isInitialLoad,
+                                   @NotNull DependencySyncReporter reporter) {
         var collector = DependencyCollector.getInstance(project);
         var resolver = new DependencyResolver(project);
 
         indicator.setText("Collecting dependencies...");
+        reporter.reportCollecting();
         var scopeDependencies = ReadAction.compute(() -> {
             if (project.isDisposed()) {
                 return List.<DependencyCollector.ScopeDependencies>of();
@@ -157,7 +199,9 @@ public final class TaskRegistry {
 
         if (scopeDependencies.isEmpty()) {
             LOG.info("No scopes found");
+            updateFailedAndRestart(Map.of(), List.of());
             notifyTracker(Set.of(), modCountAtStart, isInitialLoad);
+            reporter.finish(0, 0);
             return;
         }
 
@@ -171,7 +215,9 @@ public final class TaskRegistry {
 
         if (allCoordinates.isEmpty()) {
             LOG.info("No dependencies found");
+            updateFailedAndRestart(Map.of(), scopeDependencies);
             notifyTracker(Set.of(), modCountAtStart, isInitialLoad);
+            reporter.finish(0, 0);
             return;
         }
 
@@ -179,8 +225,12 @@ public final class TaskRegistry {
 
         // Step 2: Resolve all coordinates at once
         indicator.setText("Resolving " + allCoordinates.size() + " artifacts...");
+        reporter.reportResolving(allCoordinates.size());
         ProgressManager.checkCanceled();
-        var resolvedJars = resolver.resolveAll(allCoordinates);
+        var resolveResult = resolver.resolveAll(allCoordinates);
+        var resolvedJars = resolveResult.resolved();
+        updateFailedAndRestart(resolveResult.errors(), scopeDependencies);
+        reporter.reportErrors(resolveResult.errors(), scopeDependencies);
 
         // Step 3: Extract task names from each JAR once, cache by coordinate
         Map<MavenCoordinate, Set<String>> taskNamesByCoordinate = new HashMap<>();
@@ -225,6 +275,74 @@ public final class TaskRegistry {
 
         // Notify tracker about loaded dependencies
         notifyTracker(allCoordinates, modCountAtStart, isInitialLoad);
+
+        reporter.finish(resolvedJars.size(), resolveResult.errors().size());
+    }
+
+    private void restartInspections(@NotNull Set<VirtualFile> files) {
+        if (project.isDisposed() || files.isEmpty()) return;
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (project.isDisposed()) return;
+            var psiManager = PsiManager.getInstance(project);
+            var analyzer = DaemonCodeAnalyzer.getInstance(project);
+            for (var vf : files) {
+                var psiFile = psiManager.findFile(vf);
+                if (psiFile != null) analyzer.restart(psiFile);
+            }
+        }, project.getDisposed());
+    }
+
+    private void updateProblemFiles(@NotNull Set<VirtualFile> newProblemFiles) {
+        var old = markedProblemFiles;
+        if (old.equals(newProblemFiles)) return;
+
+        var wolf = WolfTheProblemSolver.getInstance(project);
+        for (var file : old) {
+            if (!newProblemFiles.contains(file)) {
+                wolf.clearProblemsFromExternalSource(file, DEPENDENCY_PROBLEM_SOURCE);
+            }
+        }
+        for (var file : newProblemFiles) {
+            if (!old.contains(file)) {
+                wolf.reportProblemsFromExternalSource(file, DEPENDENCY_PROBLEM_SOURCE);
+            }
+        }
+        markedProblemFiles = newProblemFiles.isEmpty() ? Set.of() : Set.copyOf(newProblemFiles);
+    }
+
+    private void updateFailedAndRestart(@NotNull Map<MavenCoordinate, String> newErrors,
+                                         @NotNull List<DependencyCollector.ScopeDependencies> scopeDependencies) {
+        var newFailed = newErrors.isEmpty() ? Map.<MavenCoordinate, String>of() : Map.copyOf(newErrors);
+
+        // Update problem file markers — must happen before the early return because
+        // the set of affected files can change even when the error map stays the same
+        Set<VirtualFile> newProblemFiles = new LinkedHashSet<>();
+        for (var sd : scopeDependencies) {
+            for (var occ : sd.occurrences()) {
+                if (newFailed.containsKey(occ.coordinate())) {
+                    newProblemFiles.add(occ.file());
+                }
+            }
+        }
+        updateProblemFiles(newProblemFiles);
+
+        if (failedDependencies.equals(newFailed)) return;
+        failedDependencies = newFailed;
+
+        Set<VirtualFile> files = new LinkedHashSet<>();
+        for (var sd : scopeDependencies) {
+            for (var occ : sd.occurrences()) files.add(occ.file());
+        }
+
+        if (files.isEmpty()) {
+            // Clearing old errors but no scopes to target — rare, use global restart
+            if (project.isDisposed()) return;
+            ApplicationManager.getApplication().invokeLater(() -> {
+                if (!project.isDisposed()) DaemonCodeAnalyzer.getInstance(project).restart();
+            }, project.getDisposed());
+        } else {
+            restartInspections(files);
+        }
     }
 
     private void notifyTracker(@NotNull Set<MavenCoordinate> loadedDeps,
