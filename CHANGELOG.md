@@ -4,6 +4,8 @@
 
 ### Added
 
+- show unresolved dependency errors as inspections and in Build sync tab
+([#92](https://github.com/brig/concord-intellij-ng/pull/92))
 - added task-name autocompletion backed by Maven dependency scanning,
   reorganizes the Concord tool window tree to display scope files, dependencies, and resources with improved navigation.
 ([#91](https://github.com/brig/concord-intellij-ng/pull/91))
