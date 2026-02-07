@@ -171,7 +171,6 @@ public class YamlMetaTypeProvider {
         if(LOG.isDebugEnabled()) {
             String text = textSupplier.get();
             LOG.debug(text);
-            //System.err.println(text);
         }
     }
 

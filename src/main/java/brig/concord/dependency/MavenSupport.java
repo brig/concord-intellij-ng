@@ -106,7 +106,7 @@ public abstract class MavenSupport {
         @Override
         public @Nullable Path downloadArtifact(@NotNull MavenCoordinate coordinate) {
             // Cannot download without Maven plugin
-            LOG.info("Maven plugin not available, cannot download: " + coordinate);
+            LOG.debug("Maven plugin not available, cannot download: " + coordinate);
             return null;
         }
 

@@ -157,9 +157,9 @@ public final class TaskRegistry {
     /**
      * Loads task names from dependencies.
      *
-     * @param indicator progress indicator
+     * @param indicator       progress indicator
      * @param modCountAtStart modification count at start (ignored for initial load)
-     * @param isInitialLoad true if this is initial load (no prior state)
+     * @param isInitialLoad   true if this is initial load (no prior state)
      */
     private void loadTaskNames(@NotNull ProgressIndicator indicator,
                                long modCountAtStart,
@@ -168,7 +168,7 @@ public final class TaskRegistry {
             return;
         }
 
-        LOG.info("Loading task names from dependencies (initial=" + isInitialLoad + ")...");
+        LOG.debug("Loading task names from dependencies (initial=" + isInitialLoad + ")...");
 
         var reporter = new DependencySyncReporter(project);
         reporter.start();
@@ -198,7 +198,7 @@ public final class TaskRegistry {
         });
 
         if (scopeDependencies.isEmpty()) {
-            LOG.info("No scopes found");
+            LOG.debug("No scopes found");
             updateFailedAndRestart(Map.of(), List.of());
             notifyTracker(Set.of(), modCountAtStart, isInitialLoad);
             reporter.finish(0, 0);
@@ -214,14 +214,14 @@ public final class TaskRegistry {
         }
 
         if (allCoordinates.isEmpty()) {
-            LOG.info("No dependencies found");
+            LOG.debug("No dependencies found");
             updateFailedAndRestart(Map.of(), scopeDependencies);
             notifyTracker(Set.of(), modCountAtStart, isInitialLoad);
             reporter.finish(0, 0);
             return;
         }
 
-        LOG.info("Found " + allCoordinates.size() + " unique dependencies across " + scopeDependencies.size() + " scopes");
+        LOG.debug("Found " + allCoordinates.size() + " unique dependencies across " + scopeDependencies.size() + " scopes");
 
         // Step 2: Resolve all coordinates at once
         indicator.setText("Resolving " + allCoordinates.size() + " artifacts...");
@@ -245,7 +245,7 @@ public final class TaskRegistry {
             var taskNames = TASK_NAME_EXTRACTOR.extract(jarPath);
             if (!taskNames.isEmpty()) {
                 taskNamesByCoordinate.put(coord, taskNames);
-                LOG.info("Found " + taskNames.size() + " tasks in " + coord.getArtifactId() + ": " + taskNames);
+                LOG.debug("Found " + taskNames.size() + " tasks in " + coord.getArtifactId() + ": " + taskNames);
             }
         }
 
@@ -265,13 +265,13 @@ public final class TaskRegistry {
 
             if (!scopeTaskNames.isEmpty()) {
                 newTaskNamesByScope.put(root.getRootFile(), scopeTaskNames);
-                LOG.info("Scope " + root.getRootFile().getName() + ": " + scopeTaskNames.size() + " tasks");
+                LOG.debug("Scope " + root.getRootFile().getName() + ": " + scopeTaskNames.size() + " tasks");
             }
         }
 
         taskNamesByScope = Map.copyOf(newTaskNamesByScope);
 
-        LOG.info("Task loading complete. Scopes with tasks: " + taskNamesByScope.size());
+        LOG.debug("Task loading complete. Scopes with tasks: " + taskNamesByScope.size());
 
         // Notify tracker about loaded dependencies
         notifyTracker(allCoordinates, modCountAtStart, isInitialLoad);
@@ -280,21 +280,30 @@ public final class TaskRegistry {
     }
 
     private void restartInspections(@NotNull Set<VirtualFile> files) {
-        if (project.isDisposed() || files.isEmpty()) return;
+        if (project.isDisposed() || files.isEmpty()) {
+            return;
+        }
+
         ApplicationManager.getApplication().invokeLater(() -> {
-            if (project.isDisposed()) return;
+            if (project.isDisposed()) {
+                return;
+            }
             var psiManager = PsiManager.getInstance(project);
             var analyzer = DaemonCodeAnalyzer.getInstance(project);
             for (var vf : files) {
                 var psiFile = psiManager.findFile(vf);
-                if (psiFile != null) analyzer.restart(psiFile);
+                if (psiFile != null) {
+                    analyzer.restart(psiFile);
+                }
             }
         }, project.getDisposed());
     }
 
     private void updateProblemFiles(@NotNull Set<VirtualFile> newProblemFiles) {
         var old = markedProblemFiles;
-        if (old.equals(newProblemFiles)) return;
+        if (old.equals(newProblemFiles)) {
+            return;
+        }
 
         var wolf = WolfTheProblemSolver.getInstance(project);
         for (var file : old) {
@@ -311,7 +320,7 @@ public final class TaskRegistry {
     }
 
     private void updateFailedAndRestart(@NotNull Map<MavenCoordinate, String> newErrors,
-                                         @NotNull List<DependencyCollector.ScopeDependencies> scopeDependencies) {
+                                        @NotNull List<DependencyCollector.ScopeDependencies> scopeDependencies) {
         var newFailed = newErrors.isEmpty() ? Map.<MavenCoordinate, String>of() : Map.copyOf(newErrors);
 
         // Update problem file markers — must happen before the early return because
@@ -324,25 +333,25 @@ public final class TaskRegistry {
                 }
             }
         }
+        // Capture before updateProblemFiles replaces the field
+        var previousProblemFiles = markedProblemFiles;
         updateProblemFiles(newProblemFiles);
 
-        if (failedDependencies.equals(newFailed)) return;
+        if (failedDependencies.equals(newFailed)) {
+            return;
+        }
         failedDependencies = newFailed;
 
+        // Targeted restart: current scope files + previously marked files (to clear stale annotations)
         Set<VirtualFile> files = new LinkedHashSet<>();
         for (var sd : scopeDependencies) {
-            for (var occ : sd.occurrences()) files.add(occ.file());
+            for (var occ : sd.occurrences()) {
+                files.add(occ.file());
+            }
         }
+        files.addAll(previousProblemFiles);
 
-        if (files.isEmpty()) {
-            // Clearing old errors but no scopes to target — rare, use global restart
-            if (project.isDisposed()) return;
-            ApplicationManager.getApplication().invokeLater(() -> {
-                if (!project.isDisposed()) DaemonCodeAnalyzer.getInstance(project).restart();
-            }, project.getDisposed());
-        } else {
-            restartInspections(files);
-        }
+        restartInspections(files);
     }
 
     private void notifyTracker(@NotNull Set<MavenCoordinate> loadedDeps,

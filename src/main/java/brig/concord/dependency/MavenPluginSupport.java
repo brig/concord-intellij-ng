@@ -92,7 +92,7 @@ final class MavenPluginSupport extends MavenSupport {
 
             if (!files.isEmpty()) {
                 var file = files.iterator().next();
-                LOG.info("Downloaded artifact: " + coordinate + " -> " + file);
+                LOG.debug("Downloaded artifact: " + coordinate + " -> " + file);
                 return file.toPath();
             }
         } catch (Exception e) {

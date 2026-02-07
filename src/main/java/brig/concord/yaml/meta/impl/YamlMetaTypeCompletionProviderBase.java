@@ -262,7 +262,6 @@ public abstract class YamlMetaTypeCompletionProviderBase extends CompletionProvi
 
     private static void trace(String text) {
         LOG.trace(text);
-        //System.err.println(getClass().getSimpleName() + ":" + text);
     }
 
     private static boolean isOfType(@Nullable PsiElement psi, IElementType @NotNull ... types) {

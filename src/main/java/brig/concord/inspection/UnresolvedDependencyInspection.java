@@ -23,13 +23,16 @@ public class UnresolvedDependencyInspection extends ConcordInspectionTool {
                 }
 
                 var failedDeps = TaskRegistry.getInstance(holder.getProject()).getFailedDependencies();
-                if (failedDeps.isEmpty()) {
-                    return;
-                }
 
                 DependencyCollector.forEachDependencyScalar(concordFile, scalar -> {
                     var coordinate = MavenCoordinate.parse(scalar.getTextValue());
                     if (coordinate == null) {
+                        holder.registerProblem(
+                                scalar,
+                                ConcordBundle.message("inspection.invalid.dependency.format.message",
+                                        scalar.getTextValue()),
+                                ProblemHighlightType.ERROR
+                        );
                         return;
                     }
 
@@ -39,7 +42,7 @@ public class UnresolvedDependencyInspection extends ConcordInspectionTool {
                                 scalar,
                                 ConcordBundle.message("inspection.unresolved.dependency.message",
                                         coordinate, errorMessage),
-                                ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+                                ProblemHighlightType.ERROR
                         );
                     }
                 });

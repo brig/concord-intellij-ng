@@ -47,7 +47,7 @@ public final class DependencyResolver {
         }
 
         // Try to download
-        LOG.info("JAR not found locally, downloading: " + coordinate);
+        LOG.debug("JAR not found locally, downloading: " + coordinate);
         var downloaded = mavenSupport.downloadArtifact(coordinate);
         if (downloaded != null && Files.isRegularFile(downloaded)) {
             return downloaded;
@@ -81,7 +81,7 @@ public final class DependencyResolver {
         }
 
         if (!toDownload.isEmpty()) {
-            LOG.info("Downloading " + toDownload.size() + " artifacts not found locally");
+            LOG.debug("Downloading " + toDownload.size() + " artifacts not found locally");
             var downloadResult = mavenSupport.downloadAll(toDownload);
             resolved.putAll(downloadResult.resolved());
             return new DependencyResolveResult(resolved, downloadResult.errors());
