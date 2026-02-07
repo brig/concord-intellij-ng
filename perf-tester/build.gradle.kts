@@ -80,4 +80,8 @@ tasks {
     instrumentCode {
         enabled = false
     }
+
+    publishPlugin {
+        enabled = false
+    }
 }
