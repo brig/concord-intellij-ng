@@ -56,28 +56,9 @@ public abstract class MavenSupport {
     public abstract @NotNull List<String> getRemoteRepositoryUrls();
 
     /**
-     * Downloads an artifact and returns path to the downloaded file.
-     *
-     * @return path to downloaded JAR or null if download failed
-     */
-    public abstract @Nullable Path downloadArtifact(@NotNull MavenCoordinate coordinate);
-
-    /**
      * Downloads multiple artifacts, collecting both results and error messages.
      */
-    public @NotNull DependencyResolveResult downloadAll(@NotNull Collection<MavenCoordinate> coordinates) {
-        Map<MavenCoordinate, Path> resolved = new LinkedHashMap<>();
-        Map<MavenCoordinate, String> errors = new LinkedHashMap<>();
-        for (var coord : coordinates) {
-            var path = downloadArtifact(coord);
-            if (path != null) {
-                resolved.put(coord, path);
-            } else {
-                errors.put(coord, "Download failed");
-            }
-        }
-        return new DependencyResolveResult(resolved, errors);
-    }
+    public abstract @NotNull DependencyResolveResult downloadAll(@NotNull Collection<MavenCoordinate> coordinates);
 
     /**
      * Fallback implementation when Maven plugin is not available.
@@ -101,13 +82,6 @@ public abstract class MavenSupport {
         @Override
         public @NotNull List<String> getRemoteRepositoryUrls() {
             return List.of("https://repo.maven.apache.org/maven2");
-        }
-
-        @Override
-        public @Nullable Path downloadArtifact(@NotNull MavenCoordinate coordinate) {
-            // Cannot download without Maven plugin
-            LOG.debug("Maven plugin not available, cannot download: " + coordinate);
-            return null;
         }
 
         @Override

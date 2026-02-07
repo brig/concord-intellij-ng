@@ -1,6 +1,6 @@
 ---
 title: Dependencies
-description: Automatic resolution and task name extraction from Concord dependencies
+description: Automatic resolution, error reporting, and task name extraction from Concord dependencies
 sidebar_position: 16
 ---
 
@@ -58,6 +58,45 @@ Task name suggestions are **scope-aware**: each [scope](./scopes) only shows tas
 :::tip
 Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> in a `task:` value to see all available task names for the current scope.
 :::
+
+## Error Reporting
+
+When a dependency cannot be resolved — for example, due to incorrect coordinates or an unavailable artifact — the plugin
+reports the problem in three places simultaneously.
+
+### Inline Editor Errors
+
+Each unresolvable `mvn://` string is highlighted directly in the editor as an inspection error.
+The error message includes the reason for the failure (e.g. "artifact not found").
+
+Invalid dependency format (not matching the `mvn://group:artifact:version` pattern) is also flagged.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/unresolved-dependency-editor.png').default} alt="Unresolved dependency highlighted in editor" />
+    <figcaption>
+        Unresolvable dependency string highlighted with an error and a tooltip showing the reason.
+    </figcaption>
+</figure>
+
+:::tip
+You can configure the severity of this inspection (Error, Warning, etc.) in
+**Settings | Editor | Inspections | Concord | Unresolved dependency**.
+:::
+
+### Build Sync Tab
+
+Dependency resolution progress and errors are reported in the **Build** tool window under the **Sync** tab.
+Clicking an error navigates to the exact line in the YAML file where the dependency is declared.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/unresolved-dependency-sync.png').default} alt="Dependency errors in Build Sync tab" />
+    <figcaption>
+        Build tool window showing dependency resolution errors with clickable file links.
+    </figcaption>
+</figure>
+
+Additionally, files that contain unresolved dependencies are marked as problem files in the **Project** tree
+(file names displayed in red), making it easy to spot affected files at a glance.
 
 ## Dependency Change Tracking
 

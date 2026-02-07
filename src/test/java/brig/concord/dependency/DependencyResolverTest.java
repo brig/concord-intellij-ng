@@ -8,14 +8,14 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DependencyResolverTest {
 
     private static final MavenCoordinate COORD =
-            MavenCoordinate.parse("mvn://com.example:my-task:1.0.0");
+            Objects.requireNonNull(MavenCoordinate.parse("mvn://com.example:my-task:1.0.0"));
 
     @Test
     void resolvesFromLocalRepo(@TempDir Path tempDir) throws IOException {
@@ -24,9 +24,11 @@ class DependencyResolverTest {
         Files.writeString(jarPath, "fake-jar");
 
         var resolver = new DependencyResolver(stubMavenSupport(tempDir, null));
-        var result = resolver.resolve(COORD);
+        var result = resolver.resolveAll(List.of(COORD));
 
-        assertEquals(jarPath, result);
+        assertEquals(1, result.resolved().size());
+        assertEquals(jarPath, result.resolved().get(COORD));
+        assertTrue(result.errors().isEmpty());
     }
 
     @Test
@@ -34,26 +36,32 @@ class DependencyResolverTest {
         var downloadedJar = tempDir.resolve("downloaded.jar");
         Files.writeString(downloadedJar, "downloaded-fake-jar");
 
-        var resolver = new DependencyResolver(stubMavenSupport(tempDir, downloadedJar));
-        var result = resolver.resolve(COORD);
+        var resolver = new DependencyResolver(stubMavenSupport(tempDir, Map.of(COORD, downloadedJar)));
+        var result = resolver.resolveAll(List.of(COORD));
 
-        assertEquals(downloadedJar, result);
+        assertEquals(1, result.resolved().size());
+        assertEquals(downloadedJar, result.resolved().get(COORD));
+        assertTrue(result.errors().isEmpty());
     }
 
     @Test
-    void returnsNullWhenLocalRepoUnavailable() {
+    void returnsErrorsWhenLocalRepoUnavailable() {
         var resolver = new DependencyResolver(stubMavenSupport(null, null));
-        var result = resolver.resolve(COORD);
+        var result = resolver.resolveAll(List.of(COORD));
 
-        assertNull(result);
+        assertTrue(result.resolved().isEmpty());
+        assertEquals(1, result.errors().size());
+        assertNotNull(result.errors().get(COORD));
     }
 
     @Test
-    void returnsNullWhenDownloadFails(@TempDir Path tempDir) {
+    void returnsErrorsWhenDownloadFails(@TempDir Path tempDir) {
         var resolver = new DependencyResolver(stubMavenSupport(tempDir, null));
-        var result = resolver.resolve(COORD);
+        var result = resolver.resolveAll(List.of(COORD));
 
-        assertNull(result);
+        assertTrue(result.resolved().isEmpty());
+        assertEquals(1, result.errors().size());
+        assertNotNull(result.errors().get(COORD));
     }
 
     @Test
@@ -84,7 +92,8 @@ class DependencyResolverTest {
         assertTrue(result.errors().isEmpty());
     }
 
-    private static MavenSupport stubMavenSupport(@Nullable Path localRepo, @Nullable Path downloadResult) {
+    private static MavenSupport stubMavenSupport(@Nullable Path localRepo,
+                                                  @Nullable Map<MavenCoordinate, Path> downloadResults) {
         return new MavenSupport() {
             @Override
             public boolean isAvailable() {
@@ -102,8 +111,18 @@ class DependencyResolverTest {
             }
 
             @Override
-            public @Nullable Path downloadArtifact(@NotNull MavenCoordinate coordinate) {
-                return downloadResult;
+            public @NotNull DependencyResolveResult downloadAll(@NotNull Collection<MavenCoordinate> coordinates) {
+                Map<MavenCoordinate, Path> resolved = new LinkedHashMap<>();
+                Map<MavenCoordinate, String> errors = new LinkedHashMap<>();
+                for (var coord : coordinates) {
+                    Path path = downloadResults != null ? downloadResults.get(coord) : null;
+                    if (path != null) {
+                        resolved.put(coord, path);
+                    } else {
+                        errors.put(coord, "Download failed");
+                    }
+                }
+                return new DependencyResolveResult(resolved, errors);
             }
         };
     }

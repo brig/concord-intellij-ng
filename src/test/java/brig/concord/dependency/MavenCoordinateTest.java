@@ -119,4 +119,16 @@ class MavenCoordinateTest {
         assertNull(MavenCoordinate.parse("mvn://com.example:artifact:../jar:1.0.0"),
                 "type with path traversal should be rejected");
     }
+
+    @Test
+    public void parseGroovy() {
+        var coord = MavenCoordinate.parse("mvn://org.codehaus.groovy:groovy-all:pom:2.5.21");
+
+        assertNotNull(coord);
+        assertEquals("org.codehaus.groovy", coord.getGroupId());
+        assertEquals("groovy-all", coord.getArtifactId());
+        assertEquals("2.5.21", coord.getVersion());
+        assertNull(coord.getClassifier());
+        assertEquals("pom", coord.getType());
+    }
 }

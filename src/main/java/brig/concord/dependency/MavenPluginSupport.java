@@ -4,7 +4,6 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.idea.maven.aether.ArtifactRepositoryManager;
 import org.jetbrains.idea.maven.aether.ProgressConsumer;
 import org.jetbrains.idea.maven.project.MavenProjectsManager;
@@ -35,7 +34,7 @@ final class MavenPluginSupport extends MavenSupport {
     }
 
     @Override
-    public @Nullable Path getLocalRepositoryPath() {
+    public @NotNull Path getLocalRepositoryPath() {
         var manager = MavenProjectsManager.getInstance(project);
         var localRepoPath = manager.getRepositoryPath();
         if (localRepoPath != null) {
@@ -54,7 +53,7 @@ final class MavenPluginSupport extends MavenSupport {
         List<String> urls = new ArrayList<>();
         for (var repo : repos) {
             var url = repo.getUrl();
-            if (url != null && !url.isBlank()) {
+            if (!url.isBlank()) {
                 urls.add(url);
             }
         }
@@ -68,46 +67,8 @@ final class MavenPluginSupport extends MavenSupport {
     }
 
     @Override
-    public @Nullable Path downloadArtifact(@NotNull MavenCoordinate coordinate) {
-        var localRepo = getLocalRepositoryPath();
-        if (localRepo == null) {
-            return null;
-        }
-
-        try {
-            var remoteRepos = buildRemoteRepositories();
-            var repoManager = new ArtifactRepositoryManager(
-                    localRepo.toFile(),
-                    remoteRepos,
-                    ProgressConsumer.DEAF
-            );
-
-            var files = repoManager.resolveDependency(
-                    coordinate.getGroupId(),
-                    coordinate.getArtifactId(),
-                    coordinate.getVersion(),
-                    false,  // no transitive dependencies
-                    List.of()
-            );
-
-            if (!files.isEmpty()) {
-                var file = files.iterator().next();
-                LOG.debug("Downloaded artifact: " + coordinate + " -> " + file);
-                return file.toPath();
-            }
-        } catch (Exception e) {
-            LOG.warn("Failed to download artifact: " + coordinate, e);
-        }
-
-        return null;
-    }
-
-    @Override
     public @NotNull DependencyResolveResult downloadAll(@NotNull Collection<MavenCoordinate> coordinates) {
         var localRepo = getLocalRepositoryPath();
-        if (localRepo == null) {
-            return DependencyResolveResult.allFailed(coordinates, "Cannot determine local Maven repository path");
-        }
 
         try {
             var remoteRepos = buildRemoteRepositories();
@@ -117,6 +78,10 @@ final class MavenPluginSupport extends MavenSupport {
             Map<MavenCoordinate, Path> resolved = new LinkedHashMap<>();
             Map<MavenCoordinate, String> errors = new LinkedHashMap<>();
             for (var coord : coordinates) {
+                if (!"jar".equals(coord.getType())) {
+                    continue;
+                }
+
                 try {
                     var files = repoManager.resolveDependency(
                             coord.getGroupId(), coord.getArtifactId(), coord.getVersion(),

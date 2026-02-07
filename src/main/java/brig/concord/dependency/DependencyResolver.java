@@ -3,7 +3,6 @@ package brig.concord.dependency;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,36 +24,6 @@ public final class DependencyResolver {
 
     DependencyResolver(@NotNull MavenSupport mavenSupport) {
         this.mavenSupport = mavenSupport;
-    }
-
-    /**
-     * Resolves a single dependency to a local JAR path.
-     * Downloads the artifact if not found locally.
-     *
-     * @return path to JAR file, null if resolution failed
-     */
-    public @Nullable Path resolve(@NotNull MavenCoordinate coordinate) {
-        var localRepo = mavenSupport.getLocalRepositoryPath();
-        if (localRepo == null) {
-            LOG.warn("Cannot determine local Maven repository path");
-            return null;
-        }
-
-        // Check if already exists locally
-        var jarPath = localRepo.resolve(coordinate.getRepositoryPath());
-        if (Files.isRegularFile(jarPath)) {
-            return jarPath;
-        }
-
-        // Try to download
-        LOG.debug("JAR not found locally, downloading: " + coordinate);
-        var downloaded = mavenSupport.downloadArtifact(coordinate);
-        if (downloaded != null && Files.isRegularFile(downloaded)) {
-            return downloaded;
-        }
-
-        LOG.warn("Failed to resolve artifact: " + coordinate);
-        return null;
     }
 
     /**

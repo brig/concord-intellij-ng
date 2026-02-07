@@ -26,6 +26,11 @@ Detects mismatches between the actual parameters used in a flow and those descri
 ### 5. Type Mismatches
 Checks that parameter types defined in documentation match the values being passed in <span className="tokenBadge" data-kind="step">call</span> steps.
 
+### 6. Unresolved Dependencies
+Highlights Maven dependency strings (`mvn://...`) that could not be resolved — for example, due to incorrect
+coordinates or unavailable artifacts. Invalid dependency format is also flagged.
+See [Dependencies — Error Reporting](./dependencies#error-reporting) for details.
+
 ## Configuring Inspections
 
 You can control which inspections are enabled and their severity (Error, Warning, Information):
