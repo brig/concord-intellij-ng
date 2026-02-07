@@ -1,0 +1,221 @@
+package brig.concord.schema;
+
+import brig.concord.ConcordBundle;
+import brig.concord.inspection.InspectionTestBase;
+import brig.concord.inspection.MissingKeysInspection;
+import brig.concord.inspection.UnknownKeysInspection;
+import brig.concord.inspection.ValueInspection;
+import com.intellij.codeInspection.LocalInspectionTool;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.Collection;
+import java.util.List;
+
+public class TaskSchemaInspectionTest extends InspectionTestBase {
+
+    @Override
+    @BeforeEach
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        // register a provider that also loads test-only schemas
+        var registry = TaskSchemaRegistry.getInstance(getProject());
+        registry.setProvider(taskName -> {
+            var path = "/taskSchema/" + taskName + ".schema.json";
+            return TaskSchemaInspectionTest.class.getResourceAsStream(path);
+        });
+    }
+
+    @Override
+    protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
+        return List.of(UnknownKeysInspection.class, MissingKeysInspection.class, ValueInspection.class);
+    }
+
+    // --- positive tests: valid YAML, no errors ---
+
+    @Test
+    public void testValidConcordTask_noErrors() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: concord
+                      in:
+                        action: start
+                        project: myProject
+                      out:
+                        ok: true
+                """);
+
+        assertNoErrors();
+    }
+
+    @Test
+    public void testAdditionalPropertiesAllowed_noErrors() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: concord
+                      in:
+                        action: start
+                        project: myProject
+                        customParam: someValue
+                """);
+
+        assertNoErrors();
+    }
+
+    @Test
+    public void testValidStrictTask_noErrors() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: strictTask
+                      in:
+                        url: "http://example.com"
+                        method: GET
+                """);
+
+        assertNoErrors();
+    }
+
+    @Test
+    public void testUnknownTask_noErrors() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: unknownTask
+                      in:
+                        anything: goes
+                """);
+
+        assertNoErrors();
+    }
+
+    // --- negative tests: unknown keys ---
+
+    @Test
+    public void testUnknownKeyWithStrictSchema() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: strictTask
+                      in:
+                        url: "http://example.com"
+                        unknownParam: value
+                """);
+
+        inspection(key("/flows/main[0]/in/unknownParam"))
+                .expectHighlight(ConcordBundle.message(
+                        "YamlUnknownKeysInspectionBase.unknown.key", "unknownParam"));
+    }
+
+    @Test
+    public void testMultipleUnknownKeysWithStrictSchema() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: strictTask
+                      in:
+                        url: "http://example.com"
+                        foo: bar
+                        baz: qux
+                """);
+
+        inspection(key("/flows/main[0]/in/foo"))
+                .expectHighlight(ConcordBundle.message(
+                        "YamlUnknownKeysInspectionBase.unknown.key", "foo"));
+        inspection(key("/flows/main[0]/in/baz"))
+                .expectHighlight(ConcordBundle.message(
+                        "YamlUnknownKeysInspectionBase.unknown.key", "baz"));
+    }
+
+    @Test
+    public void testUnknownKeyInOutWithStrictSchema() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: strictTask
+                      in:
+                        url: "http://example.com"
+                      out:
+                        ok: result
+                        unknownOut: value
+                """);
+
+        inspection(key("/flows/main[0]/out/unknownOut"))
+                .expectHighlight(ConcordBundle.message(
+                        "YamlUnknownKeysInspectionBase.unknown.key", "unknownOut"));
+    }
+
+    // --- negative tests: missing required keys ---
+
+    @Test
+    public void testMissingRequiredKey() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: strictTask
+                      in:
+                        method: GET
+                """);
+
+        inspection(key("/flows/main[0]/in"))
+                .expectHighlight(ConcordBundle.message(
+                        "YamlMissingKeysInspectionBase.missing.keys", "url"));
+    }
+
+    // --- negative tests: invalid enum values ---
+
+    @Test
+    public void testInvalidEnumValue() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: strictTask
+                      in:
+                        url: "http://example.com"
+                        method: PATCH
+                """);
+
+        inspection(value("/flows/main[0]/in/method"))
+                .expectHighlight(ConcordBundle.message(
+                        "invalid.value", "enum|expression"));
+    }
+
+    @Test
+    public void testInvalidConcordActionEnum() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: concord
+                      in:
+                        action: invalidAction
+                """);
+
+        inspection(value("/flows/main[0]/in/action"))
+                .expectHighlight(ConcordBundle.message(
+                        "invalid.value", "enum|expression"));
+    }
+
+    // --- oneOf polymorphic types ---
+
+    @Test
+    public void testOneOfPolymorphicType_arrayValueShouldBeValid() {
+        // concord schema defines instanceId as oneOf: [string, array<string>]
+        // but the parser only takes the first type (string),
+        // so providing an array produces a false positive error
+        configureFromText("""
+                flows:
+                  main:
+                    - task: concord
+                      in:
+                        action: kill
+                        instanceId:
+                          - "id-1"
+                          - "id-2"
+                """);
+
+        assertNoErrors();
+    }
+}

@@ -81,7 +81,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return allFeatures;
     }
 

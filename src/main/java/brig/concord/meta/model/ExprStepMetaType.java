@@ -1,6 +1,7 @@
 package brig.concord.meta.model;
 
 import brig.concord.yaml.meta.model.YamlMetaType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class ExprStepMetaType extends IdentityMetaType {
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 }

@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import static brig.concord.completion.provider.FlowCallParamsProvider.*;
+import static brig.concord.meta.model.ParamMetaTypes.*;
 import static brig.concord.assertions.InspectionAssertions.dump;
 
 public class ErrorInspectionTests extends InspectionTestBase {

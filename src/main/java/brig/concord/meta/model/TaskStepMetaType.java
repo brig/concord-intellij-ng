@@ -3,6 +3,8 @@ package brig.concord.meta.model;
 import brig.concord.dependency.TaskRegistry;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.schema.TaskInParamsMetaType;
+import brig.concord.schema.TaskOutParamsMetaType;
 import brig.concord.yaml.meta.model.CompletionContext;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLScalar;
@@ -28,7 +30,7 @@ public class TaskStepMetaType extends IdentityMetaType {
     private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
             "task", TaskNameMetaType::getInstance,
             "name", StepNameMetaType::getInstance,
-            "in", InParamsMetaType::getInstance,
+            "in", TaskInParamsMetaType::getInstance,
             "out", TaskOutParamsMetaType::getInstance,
             "ignoreErrors", BooleanMetaType::getInstance,
             "loop", LoopMetaType::getInstance,
@@ -42,7 +44,7 @@ public class TaskStepMetaType extends IdentityMetaType {
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 

@@ -31,8 +31,8 @@ public abstract class MapMetaType extends ConcordMetaType {
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return new HashMap<>();
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        return Map.of();
     }
 
     @Override

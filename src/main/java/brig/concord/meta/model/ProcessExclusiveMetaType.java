@@ -37,7 +37,7 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 
