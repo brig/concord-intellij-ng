@@ -1,6 +1,29 @@
 # Changelog
 
-## 0.17.0 - 2026-01-31
+## Unreleased
+
+### Added
+
+- show unresolved dependency errors as inspections and in Build sync tab
+([#92](https://github.com/brig/concord-intellij-ng/pull/92))
+- added task-name autocompletion backed by Maven dependency scanning,
+  reorganizes the Concord tool window tree to display scope files, dependencies, and resources with improved navigation.
+([#91](https://github.com/brig/concord-intellij-ng/pull/91))
+- added Concord tool window
+([#88](https://github.com/brig/concord-intellij-ng/pull/88))
+- added a performance testing project for the Concord IntelliJ plugin
+([#86](https://github.com/brig/concord-intellij-ng/pull/86))
+- added Related Symbol navigation from any Concord file to the project’s root concord.yaml file(s).
+([#85](https://github.com/brig/concord-intellij-ng/pull/85))
+
+### Changed
+
+- refactors the Concord tool window implementation to improve performance
+([#90](https://github.com/brig/concord-intellij-ng/pull/90))
+- ensure flow completion strictly respects search scope
+([#87](https://github.com/brig/concord-intellij-ng/pull/87))
+
+## 0.17.0 - 2026-01-30
 
 ### Added
 

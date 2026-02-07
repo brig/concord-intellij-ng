@@ -134,8 +134,9 @@ jobs:
           gh pr create \
             --title "v$NEXT_VERSION release" \
             --body "Automated PR after release.
-          
+
             - Bumps version to \`$NEXT_VERSION\` 📈
             - Adds \`[Unreleased]\` section to Changelog 📝" \
             --base main \
-            --head "$BRANCH"
+            --head "$BRANCH" \
+            --label release
