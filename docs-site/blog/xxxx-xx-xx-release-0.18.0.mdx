@@ -1,6 +1,80 @@
 ---
 slug: whats-new-0.18.0
-title: What’s New in Concord IntelliJ 0.18.0
+title: What's New in Concord IntelliJ 0.18.0
 authors: [brig]
 tags: [release, features]
 ---
+
+import Keystroke from '@site/src/components/Keystroke';
+import DependenciesIcon from '@site/src/icons/dependencies.svg';
+
+The `0.18.0` release introduces the **[Concord Tool Window](/docs/features/tool-window)** for a bird's-eye view of your project,
+**[Dependency Management](/docs/features/dependencies)** with task name completion and error reporting,
+and **[Related Symbol](/docs/features/navigation#related-symbol)** navigation to quickly jump to root files.
+
+<!--truncate-->
+
+## Concord Tool Window
+
+A new dedicated tool window gives you an at-a-glance overview of your Concord project structure.
+The tree displays your scopes, root files, dependencies, and resources in a single panel.
+
+*   **Navigate Instantly:** Double-click any item to jump directly to its source.
+*   **Always Up-to-Date:** The tree automatically refreshes when project files change.
+*   **Scope Awareness:** Each scope is displayed as a top-level node, making it easy to work with monorepos.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/concord-tool-window.png').default} alt="Concord Tool Window" />
+    <figcaption>
+        The Concord Tool Window shows your project's scopes, root files, dependencies, and resources.
+    </figcaption>
+</figure>
+
+## Dependency Management
+
+### Task Name Completion
+
+The plugin now scans Maven dependencies declared in your `concord.yaml` and extracts `@Named` task names from JARs.
+This means you get scope-aware autocompletion for <span className="tokenBadge" data-kind="step">task</span> step values—no more guessing task names or hunting through documentation.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/task-name-autocompletion.png').default} alt="Task Name Autocompletion" />
+    <figcaption>
+        Task names are extracted from Maven dependencies and suggested as you type.
+    </figcaption>
+</figure>
+
+### Dependency Error Reporting
+
+Unresolved dependencies are now surfaced directly in the editor as inline inspections,
+so you can spot configuration problems without leaving your flow file.
+Errors are also reported in the **Build Sync** tab with clickable navigation,
+and problem files are marked red in the Project tree.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/unresolved-dependency-editor.png').default} alt="Unresolved Dependency Editor Inspection" />
+    <figcaption>
+        Unresolved dependencies appear as inline editor inspections with descriptive messages.
+    </figcaption>
+</figure>
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/unresolved-dependency-sync.png').default} alt="Unresolved Dependency Build Sync" />
+    <figcaption>
+        The Build Sync tab lists all dependency errors with clickable links to the source.
+    </figcaption>
+</figure>
+
+## Related Symbol Navigation
+
+You can now navigate from any Concord file to its associated root `concord.yaml` file.
+This is especially useful in large projects where resource files are deeply nested.
+
+*   **Shortcut:** <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {icon: "⌘", label: "Cmd"}, {icon: "↑", label: "Up"}]} win={[{label: "Ctrl"}, {label: "Alt"}, {label: "Home"}]} />
+*   **Menu:** Go to **Navigate** > **Related Symbol**
+
+If a file belongs to multiple scopes, a popup will let you choose which root to navigate to.
+
+## Other Improvements
+
+*   **Scope-Strict Flow Completion:** Flow completion now strictly respects the search scope, preventing suggestions from leaking across project boundaries.
