@@ -5,16 +5,11 @@ import brig.concord.toolwindow.nodes.ConcordTreeNode;
 import brig.concord.toolwindow.nodes.RootNode;
 import brig.concord.toolwindow.nodes.ScopeNode;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.pom.Navigatable;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ConcordToolWindowTest extends ConcordYamlTestBase {
 
@@ -22,11 +17,11 @@ public class ConcordToolWindowTest extends ConcordYamlTestBase {
     public void testTreeStructureWithSingleRoot() {
         myFixture.addFileToProject("concord.yaml", "");
 
-        RootNode rootNode = new RootNode(getProject());
-        ConcordTreeNode[] children = ReadAction.compute(rootNode::getChildren);
+        var rootNode = new RootNode(getProject());
+        var children = ReadAction.compute(rootNode::getChildren);
 
-        assertEquals(1, children.length);
-        assertInstanceOf(children[0], ScopeNode.class);
+        Assertions.assertEquals(1, children.size());
+        Assertions.assertInstanceOf(ScopeNode.class, children.getFirst());
     }
 
     @Test
@@ -34,17 +29,17 @@ public class ConcordToolWindowTest extends ConcordYamlTestBase {
         myFixture.addFileToProject("a/concord.yaml", "");
         myFixture.addFileToProject("b/concord.yaml", "");
 
-        RootNode rootNode = new RootNode(getProject());
-        ConcordTreeNode[] children = ReadAction.compute(rootNode::getChildren);
+        var rootNode = new RootNode(getProject());
+        var children = ReadAction.compute(rootNode::getChildren);
 
-        assertEquals(2, children.length);
+        Assertions.assertEquals(2, children.size());
 
-        var names = Arrays.stream(children)
-                .map(node -> ((ScopeNode) node).getDisplayName())
+        var names = children.stream()
+                .map(ConcordTreeNode::getDisplayName)
                 .collect(Collectors.toList());
 
-        List<String> expected = List.of("a", "b");
-        assertEquals(expected, names);
+        var expected = List.of("a", "b");
+        Assertions.assertEquals(expected, names);
     }
 
     @Test
@@ -52,48 +47,49 @@ public class ConcordToolWindowTest extends ConcordYamlTestBase {
         myFixture.addFileToProject("z/concord.yaml", "");
         myFixture.addFileToProject("a/concord.yaml", "");
 
-        RootNode rootNode = new RootNode(getProject());
-        ConcordTreeNode[] children = ReadAction.compute(rootNode::getChildren);
+        var rootNode = new RootNode(getProject());
+        var children = ReadAction.compute(rootNode::getChildren);
 
-        assertEquals(2, children.length);
-        assertEquals("a", ((ScopeNode) children[0]).getDisplayName());
-        assertEquals("z", ((ScopeNode) children[1]).getDisplayName());
+        Assertions.assertEquals(2, children.size());
+        Assertions.assertEquals("a", children.get(0).getDisplayName());
+        Assertions.assertEquals("z", children.get(1).getDisplayName());
     }
 
     @Test
     public void testScopeNodePresentation() {
         myFixture.addFileToProject("demo/concord.yaml", "");
 
-        RootNode rootNode = new RootNode(getProject());
-        ConcordTreeNode[] children = ReadAction.compute(rootNode::getChildren);
-        assertEquals(1, children.length);
+        var rootNode = new RootNode(getProject());
+        var children = ReadAction.compute(rootNode::getChildren);
+        Assertions.assertEquals(1, children.size());
 
-        ScopeNode node = (ScopeNode) children[0];
+        var node = (ScopeNode) children.getFirst();
 
         // Verify displayName property
-        assertEquals("demo", node.getDisplayName());
-
-        // Verify SimpleNode presentation update
-        node.update();
-        assertEquals("demo", node.getPresentation().getPresentableText());
+        Assertions.assertEquals("demo", node.getDisplayName());
     }
 
     @Test
     public void testScopeNodeGetNavigatable() {
         myFixture.addFileToProject("nav/concord.yaml", "flows: {}");
 
-        RootNode rootNode = new RootNode(getProject());
-        ConcordTreeNode[] children = ReadAction.compute(rootNode::getChildren);
-        assertEquals(1, children.length);
+        var rootNode = new RootNode(getProject());
+        var children = ReadAction.compute(rootNode::getChildren);
+        Assertions.assertEquals(1, children.size());
 
-        ScopeNode node = (ScopeNode) children[0];
-        Navigatable navigatable = ReadAction.compute(node::getNavigatable);
-        assertNotNull(navigatable);
+        var node = (ScopeNode) children.getFirst();
+        children = ReadAction.compute(node::getChildren);
+        Assertions.assertEquals(1, children.size());
+
+        var concordYamlNode = children.getFirst();
+
+        var navigatable = ReadAction.compute(concordYamlNode::getNavigatable);
+        Assertions.assertNotNull(navigatable);
     }
 
     @Test
     public void testRootNodeGetNavigatableReturnsNull() {
-        RootNode rootNode = new RootNode(getProject());
-        assertNull(rootNode.getNavigatable());
+        var rootNode = new RootNode(getProject());
+        Assertions.assertNull(rootNode.getNavigatable());
     }
 }

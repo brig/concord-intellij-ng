@@ -1,11 +1,18 @@
 package brig.concord.meta.model;
 
+import brig.concord.dependency.TaskRegistry;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.yaml.meta.model.CompletionContext;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLScalar;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -50,6 +57,20 @@ public class TaskStepMetaType extends IdentityMetaType {
         @Override
         public @Nullable TextAttributesKey getValueHighlight(String value) {
             return ConcordHighlightingColors.TARGET_IDENTIFIER;
+        }
+
+        @Override
+        public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar,
+                                                                      @Nullable CompletionContext completionContext) {
+            var project = insertedScalar.getProject();
+            var taskNames = TaskRegistry.getInstance(project).getTaskNames(insertedScalar);
+
+            return taskNames.stream()
+                    .sorted()
+                    .map(name -> LookupElementBuilder.create(name)
+                            .withPresentableText(name)
+                            .withTypeText("task"))
+                    .toList();
         }
     }
 }

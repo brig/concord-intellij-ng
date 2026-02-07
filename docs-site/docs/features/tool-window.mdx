@@ -11,13 +11,14 @@ providing a structural view of all [Concord project scopes](./scopes) detected i
 
 The Concord tool window allows you to:
 - View all active [Concord scopes](./scopes) (defined by `concord.yaml` files).
-- [Navigate](./navigation) quickly to the root definition of any scope.
+- See the **root file**, **dependencies**, and **resource files** for each scope.
+- [Navigate](./navigation) quickly to any file or dependency declaration.
 - Visualize the hierarchy of your Concord projects.
 
-<figure className="docFigure docFigure--md">
+<figure className="docFigure docFigure--lg">
     <img src={require('@site/static/img/concord-tool-window.png').default} alt="Concord Tool Window" />
     <figcaption>
-        Concord Tool Window showing all detected project scopes and their root files.
+        Concord Tool Window showing project scopes with dependencies and resource files.
     </figcaption>
 </figure>
 
@@ -25,18 +26,41 @@ The Concord tool window allows you to:
 
 1.  Open the tool window by clicking on **Concord** in the tool window bar (usually on the right or bottom),
 or via **View | Tool Windows | Concord**.
-2.  The tree view displays a list of detected [Concord scopes](./scopes). Each node represents a root Concord file.
-3.  **Double-click** on a node to open the corresponding `concord.yaml` file in the editor.
-4.  Use the **Refresh** button in the toolbar to manually reload the list of scopes if changes aren't reflected immediately
+2.  The tree view displays a list of detected [Concord scopes](./scopes).
+3.  Expand a scope node to see its root file, dependencies, and resource files.
+4.  **Double-click** on any node to navigate to the corresponding file or dependency declaration.
+5.  Use the **Refresh** button in the toolbar to manually reload the tree
 (though the plugin tracks changes automatically).
 
-## Node Representation
+## Tree Structure
 
-- **Scope Name**: The node displays the relative path of the directory containing the root Concord file,
-effectively showing which folders are Concord roots.
-- **Icon**: Standard folder icon indicating it represents a directory scope.
+Each scope in the tree has the following child nodes:
+
+### Root File
+
+The `concord.yaml` (or `.concord.yml`, etc.) file that defines the scope. Double-click to open it in the editor.
+
+### Dependencies
+
+Lists all Maven dependencies declared in the scope's `configuration.dependencies` and `configuration.extraDependencies`
+sections (including those inside `profiles`).
+
+Each dependency is displayed as a `groupId:artifactId:version` string. Double-click a dependency to navigate to its
+declaration in the YAML file. If the same dependency is declared in multiple files within the scope,
+a popup lets you choose which occurrence to navigate to.
+
+:::tip
+Dependencies are used by the plugin to provide [task name completion](./dependencies#task-name-completion).
+:::
+
+### Resources
+
+Lists all YAML resource files that belong to the scope (files in the `concord/` directory or matched by
+the `resources` directive). Double-click any file to open it in the editor.
+
+File paths are shown relative to the scope root directory.
 
 ## Automatic Updates
 
-The tool window listens for changes in your project structure (like adding or removing `concord.yaml` files)
-and updates automatically.
+The tool window listens for changes in your project structure (like adding or removing `concord.yaml` files
+or modifying dependency declarations) and updates automatically.

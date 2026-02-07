@@ -54,6 +54,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     implementation("com.cronutils:cron-utils:9.2.0")
+    implementation("org.ow2.asm:asm:9.7")
 }
 
 kotlin {

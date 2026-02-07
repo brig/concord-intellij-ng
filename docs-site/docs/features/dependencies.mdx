@@ -1,0 +1,77 @@
+---
+title: Dependencies
+description: Automatic resolution and task name extraction from Concord dependencies
+sidebar_position: 16
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+
+# Dependencies
+
+Concord flows use <span className="tokenBadge" data-kind="step">task</span> provided by external Java libraries (plugins). These are declared as Maven dependencies
+in your `concord.yaml`. The plugin understands these declarations and uses them to power features like
+[task name completion](#task-name-completion) and the [Dependencies view](./tool-window#dependencies) in the tool window.
+
+## How it Works
+
+When a project is opened, the plugin:
+
+1. **Collects** all dependency declarations from `configuration.dependencies`, `configuration.extraDependencies`,
+   and the same sections inside <span className="tokenBadge" data-kind="section">profiles</span>.
+2. **Resolves** each dependency to a local JAR file using your Maven local repository (`~/.m2/repository`).
+   If a JAR is not found locally and the IntelliJ Maven plugin is available, it will attempt to download it.
+3. **Extracts** task names by scanning `@Named` annotations inside the JARs
+   (via the `META-INF/sisu/javax.inject.Named` index).
+4. **Provides** the extracted names as completion suggestions for <span className="tokenBadge" data-kind="step">task:</span> values, scoped to the correct project.
+
+### Supported Dependency Locations
+
+The plugin looks for dependency lists in the following YAML paths:
+
+```concord
+configuration:
+  dependencies:
+    - "mvn://com.walmartlabs.concord.plugins.basic:smtp-tasks:2.8.0"
+  extraDependencies:
+    - "mvn://com.walmartlabs.concord.plugins:git:2.12.0"
+
+profiles:
+  production:
+    configuration:
+      dependencies:
+        - "mvn://com.walmartlabs.concord.plugins:s3:1.5.0"
+```
+
+## Task Name Completion
+
+Once dependencies are resolved, the plugin provides autocompletion for the <span className="tokenBadge" data-kind="step">task:</span> field in flow steps:
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/task-name-autocompletion.png').default} alt="Concord Task" />
+    <figcaption>
+        Context-aware autocompletion for task names extracted from Maven dependencies.
+    </figcaption>
+</figure>
+
+Task name suggestions are **scope-aware**: each [scope](./scopes) only shows tasks from its own dependencies.
+
+:::tip
+Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> in a `task:` value to see all available task names for the current scope.
+:::
+
+## Dependency Change Tracking
+
+The plugin monitors your dependency declarations for changes. When you add, remove, or modify a dependency
+in `configuration.dependencies` (or `extraDependencies`), a **floating toolbar** appears at the top of the editor
+with two actions:
+
+- **Refresh** — Triggers a background reload: re-resolves JARs and re-extracts task names.
+- **Dismiss** — Hides the notification until the next dependency change.
+
+The initial load happens automatically when the project is opened. After that, the plugin only prompts
+for a reload when actual dependency values change (whitespace-only edits are ignored).
+
+:::note Maven Integration
+If the IntelliJ Maven plugin is installed, the plugin uses its configured repositories and local repository path.
+Otherwise, it falls back to the default `~/.m2/repository` location.
+:::

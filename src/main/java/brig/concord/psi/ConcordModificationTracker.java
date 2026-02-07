@@ -125,6 +125,11 @@ public final class ConcordModificationTracker implements Disposable {
         structureTracker.incModificationCount();
     }
 
+    @TestOnly
+    public void invalidateDependencies() {
+        dependenciesTracker.incModificationCount();
+    }
+
     private void onDirty(@NotNull DirtyState delta) {
         if (delta.isEmpty() || project.isDisposed()) {
             return;
