@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Collects Maven dependencies from Concord files in a project.
@@ -115,27 +116,36 @@ public final class DependencyCollector {
                 continue;
             }
 
-            collectFromConfiguration(concordFile, virtualFile, occurrences);
-            collectFromProfiles(concordFile, virtualFile, occurrences);
+            forEachDependencyScalar(concordFile, scalar -> {
+                var coordinate = MavenCoordinate.parse(scalar.getTextValue());
+                if (coordinate != null) {
+                    occurrences.add(new DependencyOccurrence(coordinate, virtualFile, scalar.getTextOffset()));
+                }
+            });
         }
 
         return new ScopeDependencies(root, occurrences);
     }
 
-    private void collectFromConfiguration(@NotNull ConcordFile file,
-                                          @NotNull VirtualFile virtualFile,
-                                          @NotNull List<DependencyOccurrence> target) {
+    /**
+     * Iterates over all dependency scalar values in a Concord file.
+     * Visits scalars in:
+     * <ul>
+     *     <li>configuration.dependencies</li>
+     *     <li>configuration.extraDependencies</li>
+     *     <li>profiles.*.configuration.dependencies</li>
+     *     <li>profiles.*.configuration.extraDependencies</li>
+     * </ul>
+     */
+    public static void forEachDependencyScalar(@NotNull ConcordFile file,
+                                               @NotNull Consumer<YAMLScalar> consumer) {
         file.configuration().ifPresent(configKv -> {
             var configValue = configKv.getValue();
             if (configValue instanceof YAMLMapping configMapping) {
-                extractDependencies(configMapping, virtualFile, target);
+                visitDependencyScalars(configMapping, consumer);
             }
         });
-    }
 
-    private void collectFromProfiles(@NotNull ConcordFile file,
-                                     @NotNull VirtualFile virtualFile,
-                                     @NotNull List<DependencyOccurrence> target) {
         file.profiles().ifPresent(profilesKv -> {
             var profilesValue = profilesKv.getValue();
             if (!(profilesValue instanceof YAMLMapping profilesMapping)) {
@@ -155,23 +165,21 @@ public final class DependencyCollector {
 
                 var configValue = configKv.getValue();
                 if (configValue instanceof YAMLMapping configMapping) {
-                    extractDependencies(configMapping, virtualFile, target);
+                    visitDependencyScalars(configMapping, consumer);
                 }
             }
         });
     }
 
-    private void extractDependencies(@NotNull YAMLMapping configMapping,
-                                     @NotNull VirtualFile virtualFile,
-                                     @NotNull List<DependencyOccurrence> target) {
-        extractDependenciesFromKey(configMapping, "dependencies", virtualFile, target);
-        extractDependenciesFromKey(configMapping, "extraDependencies", virtualFile, target);
+    private static void visitDependencyScalars(@NotNull YAMLMapping configMapping,
+                                               @NotNull Consumer<YAMLScalar> consumer) {
+        visitSequenceScalars(configMapping, "dependencies", consumer);
+        visitSequenceScalars(configMapping, "extraDependencies", consumer);
     }
 
-    private void extractDependenciesFromKey(@NotNull YAMLMapping configMapping,
-                                            @NotNull String key,
-                                            @NotNull VirtualFile virtualFile,
-                                            @NotNull List<DependencyOccurrence> target) {
+    private static void visitSequenceScalars(@NotNull YAMLMapping configMapping,
+                                             @NotNull String key,
+                                             @NotNull Consumer<YAMLScalar> consumer) {
         var depsKv = configMapping.getKeyValueByKey(key);
         if (depsKv == null) {
             return;
@@ -185,11 +193,7 @@ public final class DependencyCollector {
         for (var item : depsSeq.getItems()) {
             var itemValue = item.getValue();
             if (itemValue instanceof YAMLScalar scalar) {
-                var depString = scalar.getTextValue();
-                var coordinate = MavenCoordinate.parse(depString);
-                if (coordinate != null) {
-                    target.add(new DependencyOccurrence(coordinate, virtualFile, scalar.getTextOffset()));
-                }
+                consumer.accept(scalar);
             }
         }
     }
