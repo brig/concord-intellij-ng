@@ -4,6 +4,7 @@
     <vendor>brig</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="maven-integration.xml">org.jetbrains.idea.maven</depends>
 
     <projectListeners>
         <listener class="brig.concord.GitIgnoreChangeListener" topic="com.intellij.openapi.vcs.changes.ChangeListListener"/>
@@ -95,6 +96,9 @@
         <!-- Navigation -->
         <fileBasedIndex implementation="brig.concord.navigation.FlowNamesIndex"/>
         <searchEverywhereContributor implementation="brig.concord.navigation.FlowDefinitionSearchEverywhereContributor$Factory"/>
+        <gotoRelatedProvider implementation="brig.concord.navigation.ConcordRootGotoRelatedProvider"/>
+
+        <editorFloatingToolbarProvider implementation="brig.concord.dependency.DependenciesRefreshFloatingProvider"/>
 
         <!-- Call Hierarchy -->
         <callHierarchyProvider language="Concord"
@@ -104,6 +108,10 @@
         <annotator language="Concord"
                    implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>
 
+        <notificationGroup id="Concord Notification Group" displayType="BALLOON" key="notification.group.concord"/>
+
+        <editorNotificationProvider
+                implementation="brig.concord.notification.OutOfScopeEditorNotificationProvider"/>
 
         <!-- inspections -->
         <localInspection language="Concord"
@@ -155,10 +163,14 @@
                          enabledByDefault="true"
                          implementationClass="brig.concord.inspection.DuplicateFlowNameInspection"/>
 
-        <notificationGroup id="Concord Notification Group" displayType="BALLOON" key="notification.group.concord"/>
-
-        <editorNotificationProvider
-                implementation="brig.concord.notification.OutOfScopeEditorNotificationProvider"/>
+        <localInspection language="Concord"
+                         bundle="messages.ConcordBundle"
+                         shortName="UnresolvedDependency"
+                         level="ERROR"
+                         key="inspections.unresolved.dependency.name"
+                         groupKey="inspections.group.name"
+                         enabledByDefault="true"
+                         implementationClass="brig.concord.inspection.UnresolvedDependencyInspection"/>
 
         <localInspection language="Concord"
                          bundle="messages.ConcordBundle"
@@ -201,6 +213,31 @@
         <codeInsight.lineMarkerProvider
                 language="Concord"
                 implementationClass="brig.concord.run.ConcordFlowRunLineMarkerProvider"/>
+
+        <!-- Tool Window -->
+        <toolWindow id="Concord"
+                    anchor="right"
+                    icon="brig.concord.ConcordIcons.TOOLBOX"
+                    factoryClass="brig.concord.toolwindow.ConcordToolWindowFactory"/>
+
+        <!-- Task names loading on project open -->
+        <backgroundPostStartupActivity implementation="brig.concord.dependency.ConcordDependenciesStartupActivity"/>
+
+        <problemFileHighlightFilter implementation="brig.concord.ConcordProblemFileHighlightFilter"/>
     </extensions>
+
+    <actions>
+        <action id="Concord.RefreshProject"
+                class="brig.concord.actions.RefreshConcordDependenciesAction"
+                text="Refresh Concord Dependencies"
+                description="Refresh Concord scopes and dependencies"
+                icon="AllIcons.Actions.Refresh"/>
+
+        <action id="Concord.Refresh.Dismiss"
+                class="brig.concord.actions.DismissConcordRefreshAction"
+                text="Dismiss"
+                description="Hide this notification until the next change"
+                icon="AllIcons.Actions.Close"/>
+    </actions>
 
 </idea-plugin>

@@ -1,93 +1,97 @@
 package brig.concord.psi;
 
-import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.SimpleModificationTracker;
-import com.intellij.openapi.vcs.changes.ChangeListListener;
-import com.intellij.openapi.vcs.changes.ChangeListManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.*;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.util.concurrency.AppExecutorUtil;
+import com.intellij.util.ui.update.MergingUpdateQueue;
+import com.intellij.util.ui.update.Update;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * A modification tracker that tracks changes relevant to Concord scopes.
- * <p>
- * Two levels of tracking:
- * <ul>
- *   <li>{@link #structure()} - VFS structural changes (create/delete/move/rename), .gitignore changes</li>
- *   <li>{@link #scope()} - structural changes + granular content changes to root files (resources section)</li>
- * </ul>
+ * A modification tracker that tracks changes relevant to Concord scopes and dependencies.
+ * Change categories:
+ * - STRUCTURE_CHANGE: structural VFS changes, .gitignore changes, resources.concord changes (in root files only).
+ * - DEPENDENCIES_CHANGE: dependency sections changes (root + profiles) in ANY Concord file.
  */
 @Service(Service.Level.PROJECT)
 public final class ConcordModificationTracker implements Disposable {
 
+    private static final int QUEUE_DELAY_MS = 200;
+
+    private enum ProcessingState {
+        IDLE,
+        COLLECTING,
+        PROCESSING
+    }
+
+    private final Project project;
     private final SimpleModificationTracker structureTracker = new SimpleModificationTracker();
-    private final SimpleModificationTracker scopeTracker = new SimpleModificationTracker();
+    private final SimpleModificationTracker dependenciesTracker = new SimpleModificationTracker();
+
+    private final AtomicReference<DirtyState> dirtyRef = new AtomicReference<>(DirtyState.empty());
+    private final AtomicReference<ProcessingState> state = new AtomicReference<>(ProcessingState.IDLE);
+
+    // Unified cache for all Concord files
+    private final ConcurrentMap<VirtualFile, ConcordFileFingerprint> fileCache = new ConcurrentHashMap<>();
+
+    private final MergingUpdateQueue queue;
+    private final Update update;
+    private volatile boolean forceSyncInTests = false;
 
     public ConcordModificationTracker(@NotNull Project project) {
+        this.project = project;
+
+        var unitTestMode = ApplicationManager.getApplication().isUnitTestMode();
+        var delay = unitTestMode ? 0 : QUEUE_DELAY_MS;
+
+        this.queue = new MergingUpdateQueue(
+                "concord.recalc",
+                delay,
+                true,
+                null,
+                this,
+                null,
+                unitTestMode
+        );
+
+        this.update = new Update("concord.recalc") {
+            @Override
+            public void run() {
+                processBatch();
+            }
+        };
+
         var connection = project.getMessageBus().connect(this);
 
-        // Track VFS structural changes
-        connection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
-            @Override
-            public void after(@NotNull List<? extends VFileEvent> events) {
-                var structuralChange = false;
+        connection.subscribe(VirtualFileManager.VFS_CHANGES, new ConcordVfsListener());
 
-                for (var event : events) {
-                    if (isStructuralEvent(event)) {
-                        structuralChange = true;
-                        break;
-                    }
-                }
-
-                if (structuralChange) {
-                    structureTracker.incModificationCount();
-                    scopeTracker.incModificationCount();
-                }
-            }
-        });
-
-        // Track granular content changes via PSI
-        PsiManager.getInstance(project).addPsiTreeChangeListener(new PsiTreeChangeAdapter() {
-            @Override
-            public void childAdded(@NotNull PsiTreeChangeEvent event) {
-                handlePsiChange(event);
-            }
-
-            @Override
-            public void childRemoved(@NotNull PsiTreeChangeEvent event) {
-                handlePsiChange(event);
-            }
-
-            @Override
-            public void childReplaced(@NotNull PsiTreeChangeEvent event) {
-                handlePsiChange(event);
-            }
-
-            @Override
-            public void childrenChanged(@NotNull PsiTreeChangeEvent event) {
-                handlePsiChange(event);
-            }
-        }, this);
-
-        // Track VCS/gitignore changes
-        ChangeListManager.getInstance(project).addChangeListListener(new ChangeListListener() {
-            @Override
-            public void changeListUpdateDone() {
-                structureTracker.incModificationCount();
-                scopeTracker.incModificationCount();
-            }
-        }, this);
+        EditorFactory.getInstance().getEventMulticaster().addDocumentListener(new ConcordDocumentChangeListener(), this);
     }
 
     public static @NotNull ConcordModificationTracker getInstance(@NotNull Project project) {
@@ -98,106 +102,421 @@ public final class ConcordModificationTracker implements Disposable {
         return structureTracker;
     }
 
-    public @NotNull ModificationTracker scope() {
-        return scopeTracker;
+    public @NotNull ModificationTracker dependencies() {
+        return dependenciesTracker;
+    }
+
+    @TestOnly
+    public void setForceSyncInTests(boolean value) {
+        this.forceSyncInTests = value;
+    }
+
+    public void forceRefresh() {
+        structureTracker.incModificationCount();
+        ApplicationManager.getApplication().invokeLater(() -> {
+            if (!project.isDisposed()) {
+                project.getMessageBus().syncPublisher(ConcordProjectListener.TOPIC).projectChanged();
+            }
+        });
     }
 
     @TestOnly
     public void invalidate() {
         structureTracker.incModificationCount();
-        scopeTracker.incModificationCount();
     }
 
-    private void handlePsiChange(@NotNull PsiTreeChangeEvent event) {
-        var file = event.getFile();
-        if (file == null) {
-            var parent = event.getParent();
-            if (parent != null && parent.isValid()) {
-                file = parent.getContainingFile();
+    @TestOnly
+    public void invalidateDependencies() {
+        dependenciesTracker.incModificationCount();
+    }
+
+    private void onDirty(@NotNull DirtyState delta) {
+        if (delta.isEmpty() || project.isDisposed()) {
+            return;
+        }
+
+        if (forceSyncInTests && ApplicationManager.getApplication().isUnitTestMode()) {
+            structureTracker.incModificationCount();
+            dependenciesTracker.incModificationCount();
+            return;
+        }
+
+        dirtyRef.getAndUpdate(prev -> prev.merge(delta));
+
+        var prevState = state.getAndUpdate(current ->
+                current == ProcessingState.IDLE ? ProcessingState.COLLECTING : current
+        );
+
+        if (prevState == ProcessingState.IDLE) {
+            queue.queue(update);
+        }
+    }
+
+    private void processBatch() {
+        if (project.isDisposed()) {
+            dirtyRef.set(DirtyState.empty());
+            state.set(ProcessingState.IDLE);
+            return;
+        }
+
+        if (!state.compareAndSet(ProcessingState.COLLECTING, ProcessingState.PROCESSING)) {
+            return;
+        }
+
+        var batch = dirtyRef.getAndSet(DirtyState.empty());
+        if (batch.isEmpty()) {
+            state.set(ProcessingState.IDLE);
+            return;
+        }
+
+        ApplicationManager.getApplication().invokeLater(() -> {
+
+            if (project.isDisposed()) {
+                state.set(ProcessingState.IDLE);
+                return;
             }
-        }
 
-        if (file != null && ConcordFile.isRootFileName(file.getName())) {
-            if (isRelevantPsiChange(event)) {
-                scopeTracker.incModificationCount();
-            }
-        }
-    }
-
-    /**
-     * Checks if the PSI change affects the /resources/concord section.
-     * Only changes to this section affect scope (patterns).
-     */
-    private static boolean isRelevantPsiChange(@NotNull PsiTreeChangeEvent event) {
-        var element = event.getParent();
-        if (element == null || element instanceof PsiFile) {
-            return true;
-        }
-
-        // Check fixed structure: .../resources/concord/...
-        var concordKv = getAncestor(element, 3, YAMLKeyValue.class);
-        if (concordKv == null || !"concord".equals(concordKv.getKeyText())) {
-            return false;
-        }
-
-        var resourcesKv = getAncestor(concordKv, 2, YAMLKeyValue.class);
-        if (resourcesKv == null || !"resources".equals(resourcesKv.getKeyText())) {
-            return false;
-        }
-
-        return getAncestor(resourcesKv, 3, ConcordFile.class) != null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T getAncestor(PsiElement element, int levels, Class<T> type) {
-        var current = element;
-        for (int i = 0; i < levels && current != null; i++) {
-            current = current.getParent();
-        }
-        return type.isInstance(current) ? (T) current : null;
-    }
-
-    private static boolean isStructuralEvent(@NotNull VFileEvent event) {
-        if (event instanceof VFileContentChangeEvent) {
-            return false;
-        }
-
-        if (event instanceof VFilePropertyChangeEvent propEvent) {
-            if (VirtualFile.PROP_NAME.equals(propEvent.getPropertyName())) {
-                if (isRelevantName(propEvent.getOldValue().toString()) ||
-                        isRelevantName(propEvent.getNewValue().toString())) {
-                    return true;
+            PsiDocumentManager.getInstance(project).performWhenAllCommitted(() -> {
+                if (project.isDisposed()) {
+                    state.set(ProcessingState.IDLE);
+                    return;
                 }
+
+                var readTask = ReadAction.nonBlocking(() -> processBatchRead(batch))
+                        .expireWith(this);
+
+                if (batch.requiresSmartMode() && needsIndexScan()) {
+                    readTask = readTask.inSmartMode(project);
+                }
+
+                readTask.finishOnUiThread(ModalityState.nonModal(), result -> {
+                    if (project.isDisposed()) {
+                        state.set(ProcessingState.IDLE);
+                        return;
+                    }
+
+                    applyBatchResult(result);
+
+                    if (dirtyRef.get().isEmpty()) {
+                        state.set(ProcessingState.IDLE);
+                    } else {
+                        state.set(ProcessingState.COLLECTING);
+                        queue.queue(update);
+                    }
+                }).submit(AppExecutorUtil.getAppExecutorService());
+            });
+        }, ModalityState.nonModal());
+    }
+
+    private boolean needsIndexScan() {
+        return false;
+    }
+
+    private BatchResult processBatchRead(@NotNull DirtyState batch) {
+        if (project.isDisposed()) {
+            return BatchResult.empty();
+        }
+
+        var structureChanged = batch.structureDirty || batch.gitignoreDirty;
+        var dependenciesChanged = false;
+
+        // Process all dirty files
+        for (var vf : batch.dirtyFiles) {
+            boolean isRoot = vf.isValid() && ConcordFile.isRootFileName(vf.getName());
+            boolean isConcord = vf.isValid() && ConcordFile.isConcordFileName(vf.getName());
+
+            if (!vf.isValid() || !isConcord) {
+                var oldFp = fileCache.remove(vf);
+                if (oldFp != null) {
+                    // File was tracked, now invalid or not concord
+                    if (oldFp.hasDependencies()) {
+                        dependenciesChanged = true;
+                    }
+                    // If it was a root file and had resources, technically structure changed,
+                    // but we usually catch file deletion/rename in VFS listener already setting structureDirty=true.
+                    // We can double check resources if we want to be super precise, but VFS events usually cover this.
+                }
+                continue;
+            }
+
+            PsiFile psiFile = PsiManager.getInstance(project).findFile(vf);
+            if (!(psiFile instanceof ConcordFile concordFile)) {
+                var oldFp = fileCache.remove(vf);
+                if (oldFp != null && oldFp.hasDependencies()) {
+                    dependenciesChanged = true;
+                }
+                continue;
+            }
+
+            var newFp = ConcordFingerprintComputer.compute(concordFile, isRoot);
+            if (newFp == null) {
+                var old = fileCache.remove(vf);
+                if (old != null) {
+                    if (old.hasDependencies()) {
+                        dependenciesChanged = true;
+                    }
+                    if (isRoot && !old.resourcePatterns().isEmpty()) {
+                        structureChanged = true;
+                    }
+                }
+                continue;
+            }
+
+            var oldFp = fileCache.put(vf, newFp);
+            if (oldFp == null) {
+                // New file tracked
+                if (newFp.hasDependencies()) {
+                    dependenciesChanged = true;
+                }
+                // If it's a new root file with resources, structure changed.
+                if (isRoot && !newFp.resourcePatterns().isEmpty()) {
+                    structureChanged = true;
+                }
+            } else {
+                // Existing file changed
+                if (isRoot && !oldFp.resourcePatterns().equals(newFp.resourcePatterns())) {
+                    structureChanged = true;
+                }
+
+                if (!oldFp.dependenciesEquals(newFp)) {
+                    dependenciesChanged = true;
+                }
+            }
+        }
+
+        if (structureChanged || batch.cleanupNeeded) {
+            var iterator = fileCache.entrySet().iterator();
+            while (iterator.hasNext()) {
+                var entry = iterator.next();
+                var vf = entry.getKey();
+
+                boolean remove = !vf.isValid() || !ConcordFile.isConcordFileName(vf.getName());
+
+                if (remove) {
+                    var fp = entry.getValue();
+                    if (fp.hasDependencies()) {
+                        dependenciesChanged = true;
+                    }
+                    iterator.remove();
+                }
+            }
+        }
+
+        return new BatchResult(structureChanged, dependenciesChanged);
+    }
+
+    private void applyBatchResult(@NotNull BatchResult result) {
+        if (result.structureChanged) {
+            structureTracker.incModificationCount();
+            project.getMessageBus().syncPublisher(ConcordProjectListener.TOPIC).projectChanged();
+        }
+
+        if (result.dependenciesChanged) {
+            dependenciesTracker.incModificationCount();
+            project.getMessageBus().syncPublisher(ConcordDependenciesListener.TOPIC).dependenciesChanged();
+        }
+    }
+
+    private record BatchResult(boolean structureChanged, boolean dependenciesChanged) {
+        private static final BatchResult EMPTY = new BatchResult(false, false);
+
+        private static BatchResult empty() {
+            return EMPTY;
+        }
+    }
+
+    private final class ConcordVfsListener implements BulkFileListener {
+        @Override
+        public void after(@NotNull List<? extends VFileEvent> events) {
+            var builder = new DirtyStateBuilder();
+
+            for (var event : events) {
                 var file = event.getFile();
+                var resolvedFile = file != null ? file : resolveFile(event);
+                var fileName = resolvedFile != null ? resolvedFile.getName() : getFileName(event);
+                var isDirectory = isDirectoryEvent(resolvedFile, event);
+
+                if (isDirectory) {
+                    builder.structureDirty = true;
+                }
+
+                if (event instanceof VFilePropertyChangeEvent propEvent
+                        && VirtualFile.PROP_NAME.equals(propEvent.getPropertyName())) {
+                    var oldName = String.valueOf(propEvent.getOldValue());
+                    var newName = String.valueOf(propEvent.getNewValue());
+
+                    var oldConcord = ConcordFile.isConcordFileName(oldName);
+                    var newConcord = ConcordFile.isConcordFileName(newName);
+                    var oldGitignore = ".gitignore".equals(oldName);
+                    var newGitignore = ".gitignore".equals(newName);
+
+                    if (oldConcord || newConcord || oldGitignore || newGitignore) {
+                        builder.structureDirty = true;
+                    }
+                    if (oldGitignore || newGitignore) {
+                        builder.gitignoreDirty = true;
+                    }
+
+                    if (resolvedFile != null && (oldConcord || newConcord)) {
+                        builder.dirtyFiles.add(resolvedFile);
+                    }
+
+                    continue;
+                }
+
+                if (isGitignoreEvent(event, resolvedFile, fileName)) {
+                    builder.structureDirty = true;
+                    builder.gitignoreDirty = true;
+                    continue;
+                }
+
+                if (event instanceof VFileContentChangeEvent) {
+                    if (resolvedFile != null && ConcordFile.isConcordFileName(resolvedFile.getName())) {
+                        builder.dirtyFiles.add(resolvedFile);
+                    }
+                    continue;
+                }
+
+                if (fileName != null && ConcordFile.isConcordFileName(fileName)) {
+                    builder.structureDirty = true; // Added/Deleted/Moved concord file affects structure/scopes
+                    if (resolvedFile != null) {
+                        builder.dirtyFiles.add(resolvedFile);
+                    } else {
+                        builder.cleanupNeeded = true;
+                    }
+                }
+            }
+
+            onDirty(builder.build());
+        }
+
+        private boolean isGitignoreEvent(@NotNull VFileEvent event, @Nullable VirtualFile file, @Nullable String fileName) {
+            var isGitignore = false;
+            if (file != null) {
+                isGitignore = ".gitignore".equals(file.getName());
+            } else if (fileName != null) {
+                isGitignore = ".gitignore".equals(fileName);
+            } else {
+                var path = event.getPath();
+                isGitignore = path.endsWith("/.gitignore") || path.endsWith("\\.gitignore");
+            }
+
+            if (!isGitignore) {
+                return false;
+            }
+
+            return event instanceof VFileContentChangeEvent
+                    || event instanceof VFileCreateEvent
+                    || event instanceof VFileDeleteEvent
+                    || event instanceof VFileMoveEvent;
+        }
+
+        private @Nullable String getFileName(@NotNull VFileEvent event) {
+            if (event instanceof VFileCreateEvent createEvent) {
+                return createEvent.getChildName();
+            }
+
+            var path = event.getPath();
+            var slash = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
+            if (slash < 0 || slash == path.length() - 1) {
+                return null;
+            }
+            return path.substring(slash + 1);
+        }
+
+        private @Nullable VirtualFile resolveFile(@NotNull VFileEvent event) {
+            if (event instanceof VFileCreateEvent createEvent) {
+                var parent = createEvent.getParent();
+                return parent.findChild(createEvent.getChildName());
+            }
+            return null;
+        }
+
+        private boolean isDirectoryEvent(@Nullable VirtualFile file, @NotNull VFileEvent event) {
+            if (file != null) {
                 return file.isDirectory();
             }
+            if (event instanceof VFileCreateEvent createEvent) {
+                return createEvent.isDirectory();
+            }
+            return false;
         }
-
-        if (event instanceof VFileMoveEvent moveEvent) {
-            return isRelevantName(moveEvent.getFile().getName()) || moveEvent.getFile().isDirectory();
-        }
-
-        if (event instanceof VFileDeleteEvent) {
-            var file = event.getFile();
-            return isRelevantName(file.getName()) || file.isDirectory();
-        }
-
-        var fileName = getFileName(event);
-        return fileName != null && isRelevantName(fileName);
     }
 
-    private static boolean isRelevantName(@NotNull String name) {
-        return ConcordFile.isConcordFileName(name) || ".gitignore".equals(name);
+    private final class ConcordDocumentChangeListener implements DocumentListener {
+        @Override
+        public void documentChanged(@NotNull DocumentEvent event) {
+            var document = event.getDocument();
+            var vf = FileDocumentManager.getInstance().getFile(document);
+            if (vf == null) {
+                return;
+            }
+
+            var name = vf.getName();
+            if (ConcordFile.isConcordFileName(name)) {
+                onDirty(DirtyState.create(vf));
+            }
+        }
     }
 
-    private static @Nullable String getFileName(@NotNull VFileEvent event) {
-        if (event instanceof VFileCreateEvent createEvent) {
-            return createEvent.getChildName();
+    private static final class DirtyStateBuilder {
+        private boolean structureDirty;
+        private boolean gitignoreDirty;
+        private boolean cleanupNeeded;
+        private final Set<VirtualFile> dirtyFiles = new HashSet<>();
+
+        DirtyState build() {
+            return new DirtyState(structureDirty, gitignoreDirty, cleanupNeeded, dirtyFiles);
         }
-        var file = event.getFile();
-        return file != null ? file.getName() : null;
+    }
+
+    private record DirtyState(
+            boolean structureDirty,
+            boolean gitignoreDirty,
+            boolean cleanupNeeded,
+            Set<VirtualFile> dirtyFiles
+    ) {
+
+        private DirtyState(boolean structureDirty, boolean gitignoreDirty, boolean cleanupNeeded, Set<VirtualFile> dirtyFiles) {
+            this.structureDirty = structureDirty;
+            this.gitignoreDirty = gitignoreDirty;
+            this.cleanupNeeded = cleanupNeeded;
+            this.dirtyFiles = Set.copyOf(dirtyFiles);
+        }
+
+        static DirtyState empty() {
+            return new DirtyState(false, false, false, Set.of());
+        }
+
+        static DirtyState create(@NotNull VirtualFile file) {
+            return new DirtyState(
+                    false,
+                    false,
+                    false,
+                    Set.of(file)
+            );
+        }
+
+        boolean isEmpty() {
+            return !structureDirty && !gitignoreDirty && !cleanupNeeded && dirtyFiles.isEmpty();
+        }
+
+        boolean requiresSmartMode() {
+            return structureDirty || gitignoreDirty;
+        }
+
+        DirtyState merge(@NotNull DirtyState other) {
+            var sd = structureDirty || other.structureDirty;
+            var gd = gitignoreDirty || other.gitignoreDirty;
+            var cn = cleanupNeeded || other.cleanupNeeded;
+            var files = new HashSet<>(dirtyFiles);
+            files.addAll(other.dirtyFiles);
+            return new DirtyState(sd, gd, cn, files);
+        }
     }
 
     @Override
-    public void dispose() {}
+    public void dispose() {
+        queue.cancelAllUpdates();
+    }
 }

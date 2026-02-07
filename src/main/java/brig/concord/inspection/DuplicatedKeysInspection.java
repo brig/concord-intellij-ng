@@ -1,12 +1,9 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
-import brig.concord.psi.ConcordFile;
-import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;
-import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.psi.PsiElementVisitor;

@@ -42,9 +42,13 @@ public class YAMLFoldingBuilder extends CustomFoldingBuilder {
                 descriptors.add(new FoldingDescriptor(element, element.getTextRange()));
             }
         }
-        else if (element instanceof YAMLScalar && ((YAMLScalar)element).isMultiline()
-                ||
-                element instanceof YAMLKeyValue && ((YAMLKeyValue)element).getValue() instanceof YAMLCompoundValue
+        else if (element instanceof YAMLScalar) {
+            if (((YAMLScalar)element).isMultiline()) {
+                descriptors.add(new FoldingDescriptor(element, element.getTextRange()));
+            }
+            return;
+        }
+        else if (element instanceof YAMLKeyValue && ((YAMLKeyValue)element).getValue() instanceof YAMLCompoundValue
                 ||
                 element instanceof YAMLSequenceItem && ((YAMLSequenceItem)element).getValue() instanceof YAMLCompoundValue) {
             descriptors.add(new FoldingDescriptor(element, element.getTextRange()));

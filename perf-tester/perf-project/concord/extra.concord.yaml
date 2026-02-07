@@ -1,0 +1,26 @@
+flows:
+  extraFlow1:
+    - log: "Extra flow 1"
+    - call: extraFlow2
+    - call: helperFlow1
+
+  extraFlow2:
+    - log: "Extra flow 2"
+    - call: extraFlow3
+
+  extraFlow3:
+    - log: "Extra flow 3"
+    - call: step1
+
+  batchProcess:
+    - call: validateInput
+    - call: processData
+    - call: sendNotification
+    - log: "Batch complete"
+
+  scheduledTask:
+    - log: "Running scheduled task"
+    - call: longFlow1
+    - call: longFlow2
+    - call: longFlow3
+# move here

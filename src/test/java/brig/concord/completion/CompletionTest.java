@@ -2,6 +2,9 @@ package brig.concord.completion;
 
 import brig.concord.ConcordYamlTestBase;
 import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.psi.PsiDocumentManager;
+import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Test;
 
 public class CompletionTest extends ConcordYamlTestBase {
@@ -97,5 +100,57 @@ public class CompletionTest extends ConcordYamlTestBase {
         var lookupElementStrings = myFixture.getLookupElementStrings();
         assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "myFlow");
+    }
+
+    @Test
+    public void testCompletionMultiScopeAfterEdit() {
+        var fa = createFile("project-a/concord.yaml",
+                """
+                        flows:
+                          default:
+                            - call: <caret>
+                          myflow1:
+                            - log: "ME"
+                        """);
+
+        var fb = createFile(
+                "concord.yaml",
+                """
+                        configuration:
+                          runtime: concord-v2
+                        flows:
+                          flowB:
+                            - log: "B"
+                        """);
+
+        myFixture.configureFromExistingVirtualFile(fa.getVirtualFile());
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookupElementStrings = myFixture.getLookupElementStrings();
+        assertNotNull(lookupElementStrings);
+        assertSameElements(lookupElementStrings, "myflow1");
+
+        // Edit flowB -> flowB1
+        EdtTestUtil.runInEdtAndWait(() -> {
+            myFixture.openFileInEditor(fb.getVirtualFile());
+
+            var document = myFixture.getEditor().getDocument();
+            var text = document.getText();
+            var offset = text.indexOf("flowB:");
+
+            WriteCommandAction.runWriteCommandAction(getProject(), () ->
+                    document.replaceString(offset, offset + 5, "flowB1"));
+
+            PsiDocumentManager.getInstance(getProject()).commitAllDocuments();
+        });
+
+        // Verify completion still works after edit
+        myFixture.configureFromExistingVirtualFile(fa.getVirtualFile());
+        myFixture.complete(CompletionType.BASIC);
+
+        lookupElementStrings = myFixture.getLookupElementStrings();
+        assertNotNull(lookupElementStrings);
+        assertSameElements(lookupElementStrings, "myflow1");
     }
 }

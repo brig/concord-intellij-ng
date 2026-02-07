@@ -1,0 +1,12 @@
+<idea-plugin>
+    <id>brig.concord.perf</id>
+    <name>Concord Perf Test Helper</name>
+    <vendor>brig</vendor>
+    
+    <depends>com.intellij.modules.platform</depends>
+    <depends>brig.concord.intellij</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <postStartupActivity implementation="brig.concord.perf.PerfTestProjectActivity"/>
+    </extensions>
+</idea-plugin>

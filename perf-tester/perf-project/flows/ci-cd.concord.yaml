@@ -1,0 +1,300 @@
+flows:
+  ##
+  # Main CI/CD pipeline
+  # in:
+  #   repoUrl: string, mandatory, Git repository URL
+  #   branch: string, mandatory, Branch to build
+  #   commitSha: string, optional, Specific commit SHA
+  #   skipTests: boolean, optional, Skip test execution
+  # out:
+  #   buildId: string, Build identifier
+  #   artifacts: string[], List of artifact URLs
+  ##
+  cicdPipeline:
+    - log: "Starting CI/CD pipeline for ${repoUrl}:${branch}"
+    - set:
+        startTime: "${currentTimeMillis()}"
+        buildId: "${uuid()}"
+    - call: checkoutCode
+      in:
+        repo: "${repoUrl}"
+        branch: "${branch}"
+        commit: "${commitSha}"
+      out:
+        workDir: "${checkoutPath}"
+    - call: detectProjectType
+      in:
+        path: "${workDir}"
+      out:
+        projectType: "${type}"
+    - call: runBuild
+      in:
+        workDir: "${workDir}"
+        type: "${projectType}"
+      out:
+        buildArtifacts: "${artifacts}"
+    - if: "${!skipTests}"
+      then:
+        - call: runTests
+          in:
+            workDir: "${workDir}"
+            type: "${projectType}"
+          out:
+            testResults: "${results}"
+        - call: publishTestResults
+          in:
+            results: "${testResults}"
+            buildId: "${buildId}"
+    - call: runSecurityScan
+      in:
+        workDir: "${workDir}"
+      out:
+        vulnerabilities: "${findings}"
+    - call: publishArtifacts
+      in:
+        artifacts: "${buildArtifacts}"
+        buildId: "${buildId}"
+      out:
+        artifactUrls: "${urls}"
+    - set:
+        artifacts: "${artifactUrls}"
+    - call: sendSlackNotification
+      in:
+        channel: "#builds"
+        message: "Build ${buildId} completed for ${branch}"
+
+  checkoutCode:
+    - task: git
+      in:
+        action: clone
+        url: "${repo}"
+        baseBranch: "${branch}"
+        out: "${workDir}/checkout"
+      out:
+        checkoutPath: "${result.path}"
+    - if: "${commit != null}"
+      then:
+        - task: git
+          in:
+            action: checkout
+            workDir: "${checkoutPath}"
+            ref: "${commit}"
+
+  detectProjectType:
+    - log: "Detecting project type in ${path}"
+    - if: "${fileExists(path + '/pom.xml')}"
+      then:
+        - set:
+            type: "maven"
+      else:
+        - if: "${fileExists(path + '/build.gradle') || fileExists(path + '/build.gradle.kts')}"
+          then:
+            - set:
+                type: "gradle"
+          else:
+            - if: "${fileExists(path + '/package.json')}"
+              then:
+                - set:
+                    type: "npm"
+              else:
+                - set:
+                    type: "unknown"
+    - log: "Detected project type: ${type}"
+
+  # move here
+
+  ##
+  # Run build for detected project type
+  # in:
+  #   workDir: string, mandatory, Working directory
+  #   type: string, mandatory, Project type
+  # out:
+  #   artifacts: string[], Build artifacts
+  ##
+  runBuild:
+    - switch: "${type}"
+      maven:
+        - call: buildMaven
+          in:
+            path: "${workDir}"
+          out:
+            artifacts: "${mavenArtifacts}"
+      gradle:
+        - call: buildGradle
+          in:
+            path: "${workDir}"
+          out:
+            artifacts: "${gradleArtifacts}"
+      npm:
+        - call: buildNpm
+          in:
+            path: "${workDir}"
+          out:
+            artifacts: "${npmArtifacts}"
+      default:
+        - throw: "Unknown project type: ${type}"
+
+  buildMaven:
+    - log: "Building Maven project"
+    - task: exec
+      in:
+        workDir: "${path}"
+        command: "mvn"
+        args:
+          - "clean"
+          - "package"
+          - "-DskipTests"
+    - set:
+        mavenArtifacts:
+          - "${path}/target/*.jar"
+
+  buildGradle:
+    - log: "Building Gradle project"
+    - task: exec
+      in:
+        workDir: "${path}"
+        command: "./gradlew"
+        args:
+          - "build"
+          - "-x"
+          - "test"
+    - set:
+        gradleArtifacts:
+          - "${path}/build/libs/*.jar"
+
+  buildNpm:
+    - log: "Building NPM project"
+    - task: exec
+      in:
+        workDir: "${path}"
+        command: "npm"
+        args:
+          - "ci"
+    - task: exec
+      in:
+        workDir: "${path}"
+        command: "npm"
+        args:
+          - "run"
+          - "build"
+    - set:
+        npmArtifacts:
+          - "${path}/dist/*"
+
+  runTests:
+    - log: "Running tests for ${type} project"
+    - switch: "${type}"
+      maven:
+        - task: exec
+          in:
+            workDir: "${workDir}"
+            command: "mvn"
+            args:
+              - "test"
+          out:
+            results:
+              passed: true
+              report: "${workDir}/target/surefire-reports"
+      gradle:
+        - task: exec
+          in:
+            workDir: "${workDir}"
+            command: "./gradlew"
+            args:
+              - "test"
+          out:
+            results:
+              passed: true
+              report: "${workDir}/build/reports/tests"
+      npm:
+        - task: exec
+          in:
+            workDir: "${workDir}"
+            command: "npm"
+            args:
+              - "test"
+          out:
+            results:
+              passed: true
+              report: "${workDir}/coverage"
+
+  publishTestResults:
+    - log: "Publishing test results for build ${buildId}"
+    - task: http
+      in:
+        url: "https://ci.example.com/api/builds/${buildId}/tests"
+        method: POST
+        body: "${results}"
+
+  runSecurityScan:
+    - log: "Running security scan"
+    - parallel:
+        - call: runDependencyCheck
+          in:
+            path: "${workDir}"
+          out:
+            depFindings: "${findings}"
+        - call: runStaticAnalysis
+          in:
+            path: "${workDir}"
+          out:
+            saFindings: "${findings}"
+    - set:
+        findings:
+          dependencies: "${depFindings}"
+          static: "${saFindings}"
+
+  runDependencyCheck:
+    - log: "Checking dependencies for vulnerabilities"
+    - set:
+        findings: []
+
+  runStaticAnalysis:
+    - log: "Running static analysis"
+    - set:
+        findings: []
+
+  publishArtifacts:
+    - log: "Publishing ${artifacts.size()} artifacts"
+    - set:
+        urls: []
+    - call: forEach
+      in:
+        items: "${artifacts}"
+        flow: publishSingleArtifact
+    - set:
+        urls: "${publishedUrls}"
+
+  publishSingleArtifact:
+    - task: http
+      in:
+        url: "https://artifacts.example.com/upload"
+        method: POST
+        body:
+          buildId: "${buildId}"
+          path: "${item}"
+      out:
+        url: "${result.body.url}"
+    - expr: "${publishedUrls.add(url)}"
+
+  ##
+  # Trigger downstream builds
+  # in:
+  #   buildId: string, mandatory, Current build ID
+  #   downstreamProjects: string[], mandatory, List of downstream projects
+  ##
+  triggerDownstream:
+    - log: "Triggering ${downstreamProjects.size()} downstream builds"
+    - call: forEach
+      in:
+        items: "${downstreamProjects}"
+        flow: triggerSingleDownstream
+
+  triggerSingleDownstream:
+    - log: "Triggering build for ${item}"
+    - task: http
+      in:
+        url: "https://ci.example.com/api/projects/${item}/builds"
+        method: POST
+        body:
+          trigger: "${buildId}"

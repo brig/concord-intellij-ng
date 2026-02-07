@@ -1,7 +1,9 @@
 package brig.concord.psi;
 
 import com.intellij.openapi.components.Service;
+import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -16,6 +18,7 @@ import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -43,7 +46,20 @@ public final class ConcordScopeService {
 
     public ConcordScopeService(@NotNull Project project) {
         this.project = project;
-        this.ignoredFileChecker = file -> ChangeListManager.getInstance(project).isIgnoredFile(file);
+        this.ignoredFileChecker = file -> {
+            // getPath javadoc:
+            // t is an absolute file path with file separator characters (File.separatorChar) replaced to the forward slash ('/').
+            if (file.getPath().contains("/target/")) {
+                return true;
+            }
+            if (FileTypeManager.getInstance().isFileIgnored(file)) {
+                return true;
+            }
+            if (ProjectFileIndex.getInstance(project).isExcluded(file)) {
+                return true;
+            }
+            return ChangeListManager.getInstance(project).isIgnoredFile(file);
+        };
     }
 
     public static @NotNull ConcordScopeService getInstance(@NotNull Project project) {
@@ -125,6 +141,23 @@ public final class ConcordScopeService {
         return createSearchScope(file);
     }
 
+    /**
+     * Returns all Concord files belonging to the given scope (root).
+     * Includes the root file itself plus all files matching its patterns.
+     *
+     * @param root the scope root
+     * @return set of files in this scope (includes root file)
+     */
+    public @NotNull Set<VirtualFile> getFilesInScope(@NotNull ConcordRoot root) {
+        var scopeFiles = getScopeFilesMap().get(root.getRootFile());
+        if (scopeFiles == null) {
+            return Set.of(root.getRootFile());
+        }
+        var result = new HashSet<>(scopeFiles);
+        result.add(root.getRootFile());
+        return result;
+    }
+
     private boolean isInsideScope(@NotNull ConcordRoot scope, @NotNull VirtualFile file) {
         if (file.equals(scope.getRootFile())) {
             return true;
@@ -156,12 +189,12 @@ public final class ConcordScopeService {
      *
      * @return list of all detected Concord roots
      */
-    @NotNull List<ConcordRoot> findRoots() {
+    public @NotNull List<ConcordRoot> findRoots() {
         return CachedValuesManager.getManager(project).getCachedValue(project, ROOTS_CACHE_KEY, () -> {
             var roots = computeRoots();
             return CachedValueProvider.Result.create(
                     roots,
-                    ConcordModificationTracker.getInstance(project).scope()
+                    ConcordModificationTracker.getInstance(project).structure()
             );
         }, false);
     }
@@ -202,7 +235,7 @@ public final class ConcordScopeService {
             var map = computeScopeFilesMap();
             return CachedValueProvider.Result.create(
                     map,
-                    ConcordModificationTracker.getInstance(project).scope()
+                    ConcordModificationTracker.getInstance(project).structure()
             );
         }, false);
     }
@@ -285,6 +318,7 @@ public final class ConcordScopeService {
         var potentialRoots = allConcordFiles.stream()
                 .filter(ConcordScopeService::isRootFile)
                 .map(this::createRoot)
+                .sorted(Comparator.comparingInt(r -> r.getRootFile().getPath().length()))
                 .toList();
 
         if (potentialRoots.isEmpty()) {
@@ -292,10 +326,23 @@ public final class ConcordScopeService {
         }
 
         // Step 2: Filter out non-roots (files that are contained in another root's scope)
-         return potentialRoots.stream()
-                 .filter(candidate -> potentialRoots.stream()
-                         .noneMatch(other -> !candidate.equals(other) && other.contains(candidate.getRootFile())))
-                 .toList();
+        // We sort by path length to process top-level roots first.
+        // A root can only be contained in a root with a shorter path.
+        var confirmedRoots = new ArrayList<ConcordRoot>();
+        for (var candidate : potentialRoots) {
+            boolean isContained = false;
+            for (var root : confirmedRoots) {
+                if (root.contains(candidate.getRootFile())) {
+                    isContained = true;
+                    break;
+                }
+            }
+            if (!isContained) {
+                confirmedRoots.add(candidate);
+            }
+        }
+
+        return confirmedRoots;
     }
 
     private static boolean isRootFile(@NotNull VirtualFile file) {
