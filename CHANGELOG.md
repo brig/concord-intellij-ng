@@ -4,6 +4,9 @@
 
 ### Added
 
+- added task-name autocompletion backed by Maven dependency scanning,
+  reorganizes the Concord tool window tree to display scope files, dependencies, and resources with improved navigation.
+([#91](https://github.com/brig/concord-intellij-ng/pull/91))
 - added Concord tool window
 ([#88](https://github.com/brig/concord-intellij-ng/pull/88))
 - added a performance testing project for the Concord IntelliJ plugin
