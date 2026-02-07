@@ -18,7 +18,7 @@ module.exports = function prismIncludeLanguages(Prism) {
       alias: ['step'],
     },
     dslKey: {
-      pattern: /\b(runtime|in|out|meta|method|body|headers|auth|debug|entryPoint|arguments|exclusive|tasks)\b(?=\s*:)/m,
+      pattern: /\b(runtime|in|out|meta|method|body|headers|auth|debug|entryPoint|arguments|exclusive|tasks|dependencies)\b(?=\s*:)/m,
       alias: ['dsl-key'],
     },
     expression: {
@@ -26,7 +26,7 @@ module.exports = function prismIncludeLanguages(Prism) {
       alias: ['expression'],
     },
     flowName: {
-      pattern: /\b(main|default|deployApp|myFlow|anotherFlow|deploy)\b(?=\s*:)/,
+      pattern: /\b(main|default|deployApp|myFlow|anotherFlow|deploy|production)\b(?=\s*:)/,
       alias: 'flow-name',
     },
     targetId: {
