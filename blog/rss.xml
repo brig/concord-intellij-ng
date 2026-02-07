@@ -4,10 +4,55 @@
         <title>Concord IntelliJ Plugin Blog</title>
         <link>https://brig.github.io/concord-intellij-ng/blog</link>
         <description>Concord IntelliJ Plugin Blog</description>
-        <lastBuildDate>Fri, 30 Jan 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sat, 07 Feb 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[What's New in Concord IntelliJ 0.18.0]]></title>
+            <link>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0</link>
+            <guid>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0</guid>
+            <pubDate>Sat, 07 Feb 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[The 0.18.0 release introduces the Concord Tool Window for a bird's-eye view of your project,]]></description>
+            <content:encoded><![CDATA[<p>The <code>0.18.0</code> release introduces the <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/tool-window">Concord Tool Window</a></strong> for a bird's-eye view of your project,
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/dependencies">Dependency Management</a></strong> with task name completion and error reporting,
+and <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/navigation#related-symbol">Related Symbol</a></strong> navigation to quickly jump to root files.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="concord-tool-window">Concord Tool Window<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0#concord-tool-window" class="hash-link" aria-label="Direct link to Concord Tool Window" title="Direct link to Concord Tool Window" translate="no">​</a></h2>
+<p>A new dedicated tool window gives you an at-a-glance overview of your Concord project structure.
+The tree displays your scopes, root files, dependencies, and resources in a single panel.</p>
+<ul>
+<li class=""><strong>Navigate Instantly:</strong> Double-click any item to jump directly to its source.</li>
+<li class=""><strong>Always Up-to-Date:</strong> The tree automatically refreshes when project files change.</li>
+<li class=""><strong>Scope Awareness:</strong> Each scope is displayed as a top-level node, making it easy to work with monorepos.</li>
+</ul>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/concord-tool-window-4a2b49c107b71107b8148ad7ea12604c.png" alt="Concord Tool Window"><figcaption><p>The Concord Tool Window shows your project's scopes, root files, dependencies, and resources.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="dependency-management">Dependency Management<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0#dependency-management" class="hash-link" aria-label="Direct link to Dependency Management" title="Direct link to Dependency Management" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="task-name-completion">Task Name Completion<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0#task-name-completion" class="hash-link" aria-label="Direct link to Task Name Completion" title="Direct link to Task Name Completion" translate="no">​</a></h3>
+<p>The plugin now scans Maven dependencies declared in your <code>concord.yaml</code> and extracts <code>@Named</code> task names from JARs.
+This means you get scope-aware autocompletion for <span class="tokenBadge" data-kind="step">task</span> step values—no more guessing task names or hunting through documentation.</p>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/task-name-autocompletion-18027f0e144370d6be87fd9bfbad6428.png" alt="Task Name Autocompletion"><figcaption><p>Task names are extracted from Maven dependencies and suggested as you type.</p></figcaption></figure>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="dependency-error-reporting">Dependency Error Reporting<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0#dependency-error-reporting" class="hash-link" aria-label="Direct link to Dependency Error Reporting" title="Direct link to Dependency Error Reporting" translate="no">​</a></h3>
+<p>Unresolved dependencies are now surfaced directly in the editor as inline inspections,
+so you can spot configuration problems without leaving your flow file.
+Errors are also reported in the <strong>Build Sync</strong> tab with clickable navigation,
+and problem files are marked red in the Project tree.</p>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/unresolved-dependency-editor-b7abcc9565d9810084731376cbee814e.png" alt="Unresolved Dependency Editor Inspection"><figcaption><p>Unresolved dependencies appear as inline editor inspections with descriptive messages.</p></figcaption></figure>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/unresolved-dependency-sync-6d8bb6ed40a27da16ff4be1e4f9ea72a.png" alt="Unresolved Dependency Build Sync"><figcaption><p>The Build Sync tab lists all dependency errors with clickable links to the source.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="related-symbol-navigation">Related Symbol Navigation<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0#related-symbol-navigation" class="hash-link" aria-label="Direct link to Related Symbol Navigation" title="Direct link to Related Symbol Navigation" translate="no">​</a></h2>
+<p>You can now navigate from any Concord file to its associated root <code>concord.yaml</code> file.
+This is especially useful in large projects where resource files are deeply nested.</p>
+<ul>
+<li class=""><strong>Shortcut:</strong> <span class="keystroke__keystrokes"><kbd class="keystroke">Ctrl</kbd><kbd class="keystroke">Alt</kbd><kbd class="keystroke">Home</kbd></span></li>
+<li class=""><strong>Menu:</strong> Go to <strong>Navigate</strong> &gt; <strong>Related Symbol</strong></li>
+</ul>
+<p>If a file belongs to multiple scopes, a popup will let you choose which root to navigate to.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="other-improvements">Other Improvements<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0#other-improvements" class="hash-link" aria-label="Direct link to Other Improvements" title="Direct link to Other Improvements" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Scope-Strict Flow Completion:</strong> Flow completion now strictly respects the search scope, preventing suggestions from leaking across project boundaries.</li>
+</ul>]]></content:encoded>
+            <category>Release</category>
+            <category>Features</category>
+        </item>
         <item>
             <title><![CDATA[What’s New in Concord IntelliJ 0.17.0]]></title>
             <link>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.17.0</link>
