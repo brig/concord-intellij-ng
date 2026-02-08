@@ -34,7 +34,7 @@ public class TaskInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
     public YamlMetaType resolve(PsiElement element) {
         var schema = findTaskSchema(element);
         if (schema == null) {
-            return new TaskInParamsMetaType(AnyMapMetaType.getInstance());
+            return INSTANCE;
         }
 
         var currentValues = readCurrentValues(element);
