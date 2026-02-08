@@ -240,6 +240,10 @@ public final class TaskRegistry {
             var coord = entry.getKey();
             var jarPath = entry.getValue();
 
+            if (!coord.isJar()) {
+                continue;
+            }
+
             indicator.setText2("Extracting from " + coord.getArtifactId());
 
             var taskNames = TASK_NAME_EXTRACTOR.extract(jarPath);

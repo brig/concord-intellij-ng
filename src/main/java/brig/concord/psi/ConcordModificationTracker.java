@@ -341,7 +341,7 @@ public final class ConcordModificationTracker implements Disposable {
             if (ApplicationManager.getApplication().isUnitTestMode()) {
                 return true;
             }
-            if (file != null) {
+            if (file != null && file.isValid()) {
                 return ProjectFileIndex.getInstance(project).isInContent(file);
             }
 

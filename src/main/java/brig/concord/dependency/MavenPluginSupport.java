@@ -78,7 +78,7 @@ final class MavenPluginSupport extends MavenSupport {
             Map<MavenCoordinate, Path> resolved = new LinkedHashMap<>();
             Map<MavenCoordinate, String> errors = new LinkedHashMap<>();
             for (var coord : coordinates) {
-                if (!"jar".equals(coord.getType())) {
+                if (!coord.isJar()) {
                     continue;
                 }
 
