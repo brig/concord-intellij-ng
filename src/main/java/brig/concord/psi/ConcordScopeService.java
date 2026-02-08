@@ -1,5 +1,6 @@
 package brig.concord.psi;
 
+import brig.concord.ConcordFileType;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
@@ -8,7 +9,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
@@ -18,7 +19,6 @@ import com.intellij.util.containers.CollectionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
-import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -279,30 +279,11 @@ public final class ConcordScopeService {
 
     /**
      * Computes all Concord files in the project.
-     * Scans FilenameIndex once and filters by Concord naming patterns.
      */
     private @NotNull Collection<VirtualFile> computeAllConcordFiles() {
-        Set<String> concordFileNames = CollectionFactory.createSmallMemoryFootprintSet();
         var projectScope = GlobalSearchScope.projectScope(project);
-
-        FilenameIndex.processAllFileNames(name -> {
-            if (isConcordFileName(name)) {
-                concordFileNames.add(name);
-            }
-            return true;
-        }, projectScope, null);
-
-        if (concordFileNames.isEmpty()) {
-            return List.of();
-        }
-
-        var result = new ArrayList<VirtualFile>();
-        FilenameIndex.processFilesByNames(concordFileNames, true, projectScope, null, file -> {
-            result.add(file);
-            return true;
-        });
-
-        return result.stream()
+        return FileTypeIndex.getFiles(ConcordFileType.INSTANCE, projectScope)
+                .stream()
                 .filter(f -> !isIgnored(f))
                 .toList();
     }

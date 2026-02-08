@@ -8,10 +8,11 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.util.ModificationTracker;
 import com.intellij.openapi.util.SimpleModificationTracker;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
@@ -222,8 +223,8 @@ public final class ConcordModificationTracker implements Disposable {
 
         // Process all dirty files
         for (var vf : batch.dirtyFiles) {
-            boolean isRoot = vf.isValid() && ConcordFile.isRootFileName(vf.getName());
-            boolean isConcord = vf.isValid() && ConcordFile.isConcordFileName(vf.getName());
+            var isRoot = vf.isValid() && ConcordFile.isRootFileName(vf.getName());
+            var isConcord = vf.isValid() && ConcordFile.isConcordFileName(vf.getName());
 
             if (!vf.isValid() || !isConcord) {
                 var oldFp = fileCache.remove(vf);
@@ -239,7 +240,12 @@ public final class ConcordModificationTracker implements Disposable {
                 continue;
             }
 
-            PsiFile psiFile = PsiManager.getInstance(project).findFile(vf);
+            PsiFile psiFile;
+            try {
+                psiFile = PsiManager.getInstance(project).findFile(vf);
+            } catch (IllegalArgumentException e) {
+                psiFile = null;
+            }
             if (!(psiFile instanceof ConcordFile concordFile)) {
                 var oldFp = fileCache.remove(vf);
                 if (oldFp != null && oldFp.hasDependencies()) {
@@ -290,7 +296,7 @@ public final class ConcordModificationTracker implements Disposable {
                 var entry = iterator.next();
                 var vf = entry.getKey();
 
-                boolean remove = !vf.isValid() || !ConcordFile.isConcordFileName(vf.getName());
+                var remove = !vf.isValid() || !ConcordFile.isConcordFileName(vf.getName());
 
                 if (remove) {
                     var fp = entry.getValue();
@@ -326,6 +332,23 @@ public final class ConcordModificationTracker implements Disposable {
     }
 
     private final class ConcordVfsListener implements BulkFileListener {
+
+        private boolean isInProject(@Nullable VirtualFile file, @NotNull VFileEvent event) {
+            if (project.isDisposed()) {
+                return false;
+            }
+
+            if (ApplicationManager.getApplication().isUnitTestMode()) {
+                return true;
+            }
+            if (file != null && file.isValid()) {
+                return ProjectFileIndex.getInstance(project).isInContent(file);
+            }
+
+            var basePath = project.getBasePath();
+            return basePath != null && FileUtil.isAncestor(basePath, event.getPath(), false);
+        }
+
         @Override
         public void after(@NotNull List<? extends VFileEvent> events) {
             var builder = new DirtyStateBuilder();
@@ -333,6 +356,9 @@ public final class ConcordModificationTracker implements Disposable {
             for (var event : events) {
                 var file = event.getFile();
                 var resolvedFile = file != null ? file : resolveFile(event);
+                if (!isInProject(resolvedFile, event)) {
+                    continue;
+                }
                 var fileName = resolvedFile != null ? resolvedFile.getName() : getFileName(event);
                 var isDirectory = isDirectoryEvent(resolvedFile, event);
 
@@ -444,18 +470,29 @@ public final class ConcordModificationTracker implements Disposable {
     }
 
     private final class ConcordDocumentChangeListener implements DocumentListener {
+
         @Override
         public void documentChanged(@NotNull DocumentEvent event) {
-            var document = event.getDocument();
-            var vf = FileDocumentManager.getInstance().getFile(document);
+            if (project.isDisposed()) {
+                return;
+            }
+
+            var psi = PsiDocumentManager.getInstance(project).getCachedPsiFile(event.getDocument());
+            if (!(psi instanceof ConcordFile)) {
+                return;
+            }
+
+            var vf = psi.getVirtualFile();
             if (vf == null) {
                 return;
             }
 
-            var name = vf.getName();
-            if (ConcordFile.isConcordFileName(name)) {
-                onDirty(DirtyState.create(vf));
+            if (!ApplicationManager.getApplication().isUnitTestMode()
+                    && !ProjectFileIndex.getInstance(project).isInContent(vf)) {
+                return;
             }
+
+            onDirty(DirtyState.create(vf));
         }
     }
 

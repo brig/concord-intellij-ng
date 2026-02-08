@@ -110,6 +110,10 @@ public final class MavenCoordinate {
         return type;
     }
 
+    public boolean isJar() {
+        return "jar".equals(type);
+    }
+
     /**
      * Returns the GAV string (groupId:artifactId:version).
      */
