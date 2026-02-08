@@ -12,8 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IdentityElementMetaTypeTest {
 
-    // -- test fixtures --
-
     private static class TestEntry extends IdentityMetaType {
 
         private final Map<String, Supplier<YamlMetaType>> features;
@@ -159,5 +157,12 @@ class IdentityElementMetaTypeTest {
     @Test
     void findFeatureByName_returnsNullForUnknownFeature() {
         assertNull(container.findFeatureByName("unknown"));
+    }
+
+    // -- resolve (DynamicMetaType) tests --
+
+    @Test
+    void resolve_returnsNullForNonMappingElement() {
+        assertNull(container.resolve(null));
     }
 }

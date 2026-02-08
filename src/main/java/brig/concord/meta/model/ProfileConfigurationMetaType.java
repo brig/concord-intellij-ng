@@ -6,11 +6,7 @@ import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
-import brig.concord.meta.model.value.AnyMapMetaType;
-import brig.concord.meta.model.value.BooleanMetaType;
-import brig.concord.meta.model.value.DurationMetaType;
-import brig.concord.meta.model.value.StringArrayMetaType;
-import brig.concord.meta.model.value.StringMetaType;
+import brig.concord.meta.model.value.*;
 
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlIntegerType;
@@ -44,7 +40,7 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Doc
         features.put("exclusive", ProcessExclusiveMetaType::getInstance);
         features.put("out", StringArrayMetaType::getInstance);
         features.put("template", StringMetaType::getInstance);
-        features.put("parallelLoopParallelism", () -> YamlIntegerType.getInstance(false));
+        features.put("parallelLoopParallelism", IntegerMetaType::getInstance);
     }
 
     public static ProfileConfigurationMetaType getInstance() {

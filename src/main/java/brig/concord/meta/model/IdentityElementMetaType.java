@@ -1,18 +1,21 @@
 package brig.concord.meta.model;
 
+import brig.concord.meta.DynamicMetaType;
 import brig.concord.psi.YamlPsiUtils;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.*;
 
-public abstract class IdentityElementMetaType extends YamlAnyOfType {
+public abstract class IdentityElementMetaType extends YamlAnyOfType implements DynamicMetaType {
 
     private final List<IdentityMetaType> entries;
 
@@ -24,6 +27,14 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
 
     public IdentityMetaType findEntry(YAMLMapping element) {
         return findEntry(YamlPsiUtils.keys(element));
+    }
+
+    @Override
+    public @Nullable YamlMetaType resolve(PsiElement element) {
+        if (element instanceof YAMLMapping m) {
+            return findEntry(m);
+        }
+        return null;
     }
 
     @Override
