@@ -4,6 +4,10 @@ import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.StringArrayMetaType;
+import brig.concord.meta.model.value.StringMetaType;
+
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;

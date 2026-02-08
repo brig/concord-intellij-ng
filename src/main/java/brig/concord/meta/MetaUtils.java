@@ -1,6 +1,6 @@
 package brig.concord.meta;
 
-import brig.concord.meta.model.AnythingMetaType;
+import brig.concord.meta.model.value.AnythingMetaType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 
 public final class MetaUtils {

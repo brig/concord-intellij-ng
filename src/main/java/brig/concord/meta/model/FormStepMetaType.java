@@ -1,5 +1,11 @@
 package brig.concord.meta.model;
 
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.BooleanMetaType;
+import brig.concord.meta.model.value.ExpressionMetaType;
+import brig.concord.meta.model.value.MapMetaType;
+import brig.concord.meta.model.value.StringMetaType;
+
 import com.intellij.codeInsight.lookup.LookupElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

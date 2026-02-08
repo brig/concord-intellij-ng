@@ -1,8 +1,8 @@
 package brig.concord.meta.model.call;
 
-import brig.concord.meta.model.AnyMapMetaType;
-import brig.concord.meta.model.StringArrayMetaType;
-import brig.concord.meta.model.StringMetaType;
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.StringArrayMetaType;
+import brig.concord.meta.model.value.StringMetaType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

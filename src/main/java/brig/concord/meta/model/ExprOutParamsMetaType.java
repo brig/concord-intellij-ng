@@ -1,5 +1,8 @@
 package brig.concord.meta.model;
 
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.StringMetaType;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;

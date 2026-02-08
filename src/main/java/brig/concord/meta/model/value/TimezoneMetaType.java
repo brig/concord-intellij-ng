@@ -1,4 +1,4 @@
-package brig.concord.meta.model;
+package brig.concord.meta.model.value;
 
 import brig.concord.ConcordBundle;
 import com.intellij.codeInspection.ProblemHighlightType;

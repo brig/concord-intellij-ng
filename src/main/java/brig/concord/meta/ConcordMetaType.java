@@ -1,7 +1,7 @@
 package brig.concord.meta;
 
 import brig.concord.ConcordBundle;
-import brig.concord.meta.model.AnyOfType;
+import brig.concord.meta.model.value.AnyOfType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NonNls;

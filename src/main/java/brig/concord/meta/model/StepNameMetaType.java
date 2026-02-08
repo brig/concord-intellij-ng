@@ -2,6 +2,8 @@ package brig.concord.meta.model;
 
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.meta.model.value.StringMetaType;
+
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.Nullable;
 

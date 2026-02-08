@@ -1,7 +1,7 @@
 package brig.concord.completion.provider;
 
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.model.*;
+import brig.concord.meta.model.value.*;
 import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;

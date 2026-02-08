@@ -1,6 +1,6 @@
 package brig.concord.meta.model.call;
 
-import brig.concord.meta.model.AnyMapMetaType;
+import brig.concord.meta.model.value.AnyMapMetaType;
 
 public class AnyMapInParamMetaType extends AnyMapMetaType implements CallInParamMetaType {
 

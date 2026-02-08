@@ -3,6 +3,9 @@ package brig.concord.meta.model;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.ExpressionMetaType;
+
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;

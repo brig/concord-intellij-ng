@@ -1,4 +1,4 @@
-package brig.concord.meta.model;
+package brig.concord.meta.model.value;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
