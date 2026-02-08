@@ -203,8 +203,8 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     @Test
     public void testOneOfPolymorphicType_arrayValueShouldBeValid() {
         // concord schema defines instanceId as oneOf: [string, array<string>]
-        // but the parser only takes the first type (string),
-        // so providing an array produces a false positive error
+        // and the parser now reads oneOf into a composite schema type,
+        // so both a single string and an array of strings should validate without errors
         configureFromText("""
                 flows:
                   main:
