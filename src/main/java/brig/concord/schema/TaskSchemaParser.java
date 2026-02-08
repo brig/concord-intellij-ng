@@ -215,22 +215,24 @@ public class TaskSchemaParser {
             var propElement = resolveRef(root, entry.getValue());
             if (!propElement.isJsonObject()) continue;
             var propObj = propElement.getAsJsonObject();
-            result.put(name, parseProperty(name, propObj));
+            result.put(name, parseProperty(root, name, propObj));
         }
         return result;
     }
 
-    private @NotNull TaskSchemaProperty parseProperty(@NotNull String name, @NotNull JsonObject propObj) {
+    private @NotNull TaskSchemaProperty parseProperty(@NotNull JsonObject root,
+                                                        @NotNull String name,
+                                                        @NotNull JsonObject propObj) {
         var description = getString(propObj, "description");
-        var schemaType = parseSchemaType(propObj);
+        var schemaType = parseSchemaType(root, propObj);
         return new TaskSchemaProperty(name, schemaType, description, false);
     }
 
-    private @NotNull SchemaType parseSchemaType(@NotNull JsonObject obj) {
+    private @NotNull SchemaType parseSchemaType(@NotNull JsonObject root, @NotNull JsonObject obj) {
         // 1. Handle oneOf / anyOf → Composite (or unwrap if single alternative)
-        var compositeAlternatives = parseCompositeAlternatives(obj, "oneOf");
+        var compositeAlternatives = parseCompositeAlternatives(root, obj, "oneOf");
         if (compositeAlternatives == null) {
-            compositeAlternatives = parseCompositeAlternatives(obj, "anyOf");
+            compositeAlternatives = parseCompositeAlternatives(root, obj, "anyOf");
         }
         if (compositeAlternatives != null) {
             return compositeAlternatives.size() == 1
@@ -257,13 +259,15 @@ public class TaskSchemaParser {
         }
 
         if ("array".equals(type)) {
-            return new SchemaType.Array(getArrayItemType(obj));
+            return new SchemaType.Array(getArrayItemType(root, obj));
         }
 
         return new SchemaType.Scalar(type);
     }
 
-    private @Nullable List<SchemaType> parseCompositeAlternatives(@NotNull JsonObject obj, @NotNull String keyword) {
+    private @Nullable List<SchemaType> parseCompositeAlternatives(@NotNull JsonObject root,
+                                                                     @NotNull JsonObject obj,
+                                                                     @NotNull String keyword) {
         var arr = obj.getAsJsonArray(keyword);
         if (arr == null) {
             return null;
@@ -271,17 +275,22 @@ public class TaskSchemaParser {
 
         var alternatives = new ArrayList<SchemaType>();
         for (var element : arr) {
-            if (element.isJsonObject()) {
-                alternatives.add(parseSchemaType(element.getAsJsonObject()));
+            var resolved = resolveRef(root, element);
+            if (resolved.isJsonObject()) {
+                alternatives.add(parseSchemaType(root, resolved.getAsJsonObject()));
             }
         }
         return alternatives.isEmpty() ? null : List.copyOf(alternatives);
     }
 
-    private @Nullable String getArrayItemType(@NotNull JsonObject obj) {
-        var items = obj.getAsJsonObject("items");
-        if (items != null) {
-            return getString(items, "type");
+    private @Nullable String getArrayItemType(@NotNull JsonObject root, @NotNull JsonObject obj) {
+        var itemsElement = obj.get("items");
+        if (itemsElement == null) {
+            return null;
+        }
+        var resolved = resolveRef(root, itemsElement);
+        if (resolved.isJsonObject()) {
+            return getString(resolved.getAsJsonObject(), "type");
         }
         return null;
     }

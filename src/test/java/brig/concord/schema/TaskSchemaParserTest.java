@@ -12,6 +12,7 @@ public class TaskSchemaParserTest {
 
     private TaskSchema schema;
     private TaskSchema multiKeySchema;
+    private TaskSchema refCompositeSchema;
 
     @BeforeEach
     void setUp() {
@@ -23,6 +24,10 @@ public class TaskSchemaParserTest {
         var multiKeyStream = getClass().getResourceAsStream("/taskSchema/multiKeyTask.schema.json");
         assertNotNull(multiKeyStream, "multiKeyTask.schema.json not found");
         multiKeySchema = parser.parse("multiKeyTask", multiKeyStream);
+
+        var refCompositeStream = getClass().getResourceAsStream("/taskSchema/refInComposite.schema.json");
+        assertNotNull(refCompositeStream, "refInComposite.schema.json not found");
+        refCompositeSchema = parser.parse("refComposite", refCompositeStream);
     }
 
     @Test
@@ -216,5 +221,84 @@ public class TaskSchemaParserTest {
         // action=upload → destination should be present (single-key conditional still works)
         var section = multiKeySchema.resolveInSection(Map.of("action", "upload"));
         assertTrue(section.properties().containsKey("destination"));
+    }
+
+    @Test
+    public void testOneOfWithRefAlternatives() {
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("oneOfWithRef");
+        assertNotNull(prop);
+        assertEquals(
+                new SchemaType.Composite(List.of(
+                        new SchemaType.Scalar("string"),
+                        new SchemaType.Array("string")
+                )),
+                prop.schemaType()
+        );
+    }
+
+    @Test
+    public void testAnyOfWithRefAlternatives() {
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("anyOfWithRef");
+        assertNotNull(prop);
+        assertEquals(
+                new SchemaType.Composite(List.of(
+                        new SchemaType.Scalar("string"),
+                        new SchemaType.Scalar("integer")
+                )),
+                prop.schemaType()
+        );
+    }
+
+    @Test
+    public void testArrayItemsWithRef() {
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("arrayWithRefItems");
+        assertNotNull(prop);
+        assertEquals(new SchemaType.Array("string"), prop.schemaType());
+    }
+
+    @Test
+    public void testOneOfMixedRefAndInline() {
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("oneOfMixed");
+        assertNotNull(prop);
+        assertEquals(
+                new SchemaType.Composite(List.of(
+                        new SchemaType.Enum(List.of("active", "inactive")),
+                        new SchemaType.Scalar("boolean")
+                )),
+                prop.schemaType()
+        );
+    }
+
+    @Test
+    public void testOneOfWithChainedRef() {
+        // nestedRef → $ref → stringType, should resolve through the chain
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("oneOfNestedRef");
+        assertNotNull(prop);
+        assertEquals(
+                new SchemaType.Composite(List.of(
+                        new SchemaType.Scalar("string"),
+                        new SchemaType.Scalar("integer")
+                )),
+                prop.schemaType()
+        );
+    }
+
+    @Test
+    public void testOutSectionOneOfWithRef() {
+        var out = refCompositeSchema.getOutSection();
+        var prop = out.properties().get("result");
+        assertNotNull(prop);
+        assertEquals(
+                new SchemaType.Composite(List.of(
+                        new SchemaType.Scalar("string"),
+                        new SchemaType.Scalar("integer")
+                )),
+                prop.schemaType()
+        );
     }
 }
