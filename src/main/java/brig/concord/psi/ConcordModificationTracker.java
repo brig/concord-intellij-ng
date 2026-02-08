@@ -334,14 +334,13 @@ public final class ConcordModificationTracker implements Disposable {
     private final class ConcordVfsListener implements BulkFileListener {
 
         private boolean isInProject(@Nullable VirtualFile file, @NotNull VFileEvent event) {
-            if (ApplicationManager.getApplication().isUnitTestMode()) {
-                return true;
-            }
-
             if (project.isDisposed()) {
                 return false;
             }
 
+            if (ApplicationManager.getApplication().isUnitTestMode()) {
+                return true;
+            }
             if (file != null) {
                 return ProjectFileIndex.getInstance(project).isInContent(file);
             }
