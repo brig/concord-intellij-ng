@@ -5,7 +5,6 @@ import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLSequence;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,10 +17,6 @@ public final class ConcordFingerprintComputer {
     }
 
     public static @Nullable ConcordFileFingerprint compute(@NotNull ConcordFile yamlFile, boolean isRoot) {
-        if (PsiTreeUtil.findChildOfType(yamlFile, PsiErrorElement.class) != null) {
-            return null;
-        }
-
         var doc = PsiTreeUtil.getChildOfType(yamlFile, YAMLDocument.class);
         if (doc == null) {
             return ConcordFileFingerprint.EMPTY;

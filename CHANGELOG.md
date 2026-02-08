@@ -4,6 +4,8 @@
 
 ### Changed
 
+- Improve performance by replacing filename-based scanning with indexed lookups and simplifying fingerprint computation
+([#98](https://github.com/brig/concord-intellij-ng/pull/98))
 - Fixes Concord modification tracking in multi-project scenarios by filtering filesystem/document 
 events to the current project and hardening PSI lookups
 ([#97](https://github.com/brig/concord-intellij-ng/pull/97))
