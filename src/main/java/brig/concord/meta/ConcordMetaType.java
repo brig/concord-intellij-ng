@@ -66,13 +66,12 @@ public abstract class ConcordMetaType extends YamlMetaType {
             return null;
         }
 
-        if (!(metaType instanceof YamlAnyOfType)) {
+        if (!(metaType instanceof YamlAnyOfType anyOfType)) {
             return new Field(name, metaType);
         }
 
-// AnyOfType: only set SEQUENCE_ITEM type (for arrays), keep AnyOfType for SCALAR_VALUE validation
-        if (metaType instanceof AnyOfType anyOfType) {
-            var arrayType = findArrayType(anyOfType);
+        if (metaType instanceof AnyOfType) {
+            var arrayType = AnyOfField.findArrayType(anyOfType);
             if (arrayType != null) {
                 return new Field(name, metaType)
                         .withRelationSpecificType(Field.Relation.SEQUENCE_ITEM, arrayType.getElementType());
@@ -80,45 +79,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
             return new Field(name, metaType);
         }
 
-        return new Field(name, metaType) {
-            @Override
-            public @NotNull Field resolveToSpecializedField(@NotNull YAMLValue element) {
-                var anyType = (YamlAnyOfType) metaType;
-                var result = new Field(name, metaType);
-                var arrayType = findArrayType(anyType);
-                if (arrayType != null) {
-                    result = result.withRelationSpecificType(Relation.SEQUENCE_ITEM, arrayType.getElementType());
-                }
-                var scalar = findScalarType(element, anyType);
-                if (scalar != null) {
-                    result = result.withRelationSpecificType(Relation.SCALAR_VALUE, scalar);
-                }
-                return result;
-            }
-
-            private static YamlMetaType findScalarType(YAMLValue element, YamlAnyOfType anyType) {
-                YamlMetaType def = null;
-                for (var t : anyType.getSubTypes()) {
-                    if (t instanceof YamlIntegerType) {
-                        if (element.getText().matches("[0-9]+")) {
-                            return t;
-                        }
-                    } else if (t instanceof YamlScalarType) {
-                        def = t;
-                    }
-                }
-                return def;
-            }
-        };
-    }
-
-    private static YamlArrayType findArrayType(YamlAnyOfType anyType) {
-        for (var t : anyType.getSubTypes()) {
-            if (t instanceof YamlArrayType) {
-                return (YamlArrayType) t;
-            }
-        }
-        return null;
+        return new AnyOfField(name, anyOfType);
     }
 
     @Override
