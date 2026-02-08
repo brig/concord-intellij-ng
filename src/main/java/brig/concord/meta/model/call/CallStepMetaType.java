@@ -2,6 +2,7 @@ package brig.concord.meta.model.call;
 
 import brig.concord.meta.model.*;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +32,7 @@ public class CallStepMetaType extends IdentityMetaType {
     }
 
     @Override
-    public Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 }

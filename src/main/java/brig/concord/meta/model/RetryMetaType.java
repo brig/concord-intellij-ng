@@ -35,7 +35,7 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 

@@ -7,6 +7,7 @@ import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.yaml.meta.model.YamlArrayType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -40,7 +41,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 
@@ -74,7 +75,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
                 "enabled", BooleanMetaType::getInstance);
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
 
@@ -104,7 +105,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         );
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
 
@@ -142,7 +143,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         );
 
         @Override
-        public Map<String, Supplier<YamlMetaType>> getFeatures() {
+        public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
 

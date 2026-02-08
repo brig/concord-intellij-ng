@@ -51,7 +51,7 @@ public class ImportElementMetaType extends IdentityElementMetaType implements Hi
         }
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
 

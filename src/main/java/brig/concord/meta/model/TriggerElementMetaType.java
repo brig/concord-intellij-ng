@@ -35,8 +35,8 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         }
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
-            return null;
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+            return Map.of();
         }
     };
 
@@ -80,7 +80,7 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         }
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
     }

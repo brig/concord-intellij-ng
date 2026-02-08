@@ -3,6 +3,7 @@ package brig.concord.meta.model;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,7 @@ public class GenericTriggerEntryMetaType extends ConcordMetaType {
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 

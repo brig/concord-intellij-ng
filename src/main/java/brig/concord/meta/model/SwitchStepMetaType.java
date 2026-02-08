@@ -29,7 +29,7 @@ public class SwitchStepMetaType extends IdentityMetaType {
     }
 
     @Override
-    public Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return Collections.emptyMap();
     }
 

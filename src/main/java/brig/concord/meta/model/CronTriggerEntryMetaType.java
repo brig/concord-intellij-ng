@@ -6,6 +6,7 @@ import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -37,7 +38,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 
@@ -68,7 +69,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
         );
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
     }
