@@ -697,8 +697,8 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         });
 
         // After deletion, the nested file should no longer be in any scope
-        var deletedFileScopes = ReadAction.compute(() -> service.getScopesForFile(nestedFile.getVirtualFile()));
-        Assertions.assertTrue(deletedFileScopes.isEmpty(),
+        var filesInScope = ReadAction.compute(() -> service.getFilesInScope(roots.getFirst()));
+        Assertions.assertEquals(1, filesInScope.size(),
                 "Deleted file should no longer be in any scope");
 
         // Top-level root should still exist
