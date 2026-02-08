@@ -4,7 +4,14 @@
 
 ### Added
 
+- adds JSON-based task schema support to power YAML inspections and completion for task `in`/`out` parameters,
+starting with the built-in Concord task schema
+([#96](https://github.com/brig/concord-intellij-ng/pull/96))
+
 ### Changed
+
+- project: intellij plugins version up 
+([#95](https://github.com/brig/concord-intellij-ng/pull/95))
 
 ## 0.18.1 - 2026-02-07
 
