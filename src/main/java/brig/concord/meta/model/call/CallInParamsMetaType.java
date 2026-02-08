@@ -2,7 +2,7 @@ package brig.concord.meta.model.call;
 
 import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.DynamicMetaType;
-import brig.concord.meta.model.ExpressionMetaType;
+import brig.concord.meta.model.value.ExpressionMetaType;
 import com.intellij.psi.PsiElement;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;

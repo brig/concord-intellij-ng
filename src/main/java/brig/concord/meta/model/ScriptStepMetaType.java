@@ -1,5 +1,7 @@
 package brig.concord.meta.model;
 
+import brig.concord.meta.model.value.StringMetaType;
+
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,16 +20,12 @@ public class ScriptStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", StepNameMetaType::getInstance,
-            SCRIPT_KEY, StringMetaType::getInstance,
-            BODY_KEY, StringMetaType::getInstance,
-            "in", InParamsMetaType::getInstance,
-            "out", ScriptOutParamsMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance,
-            "loop", LoopMetaType::getInstance,
-            "retry", RetryMetaType::getInstance,
-            "error", StepsMetaType::getInstance
+    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
+            StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
+            Map.of(SCRIPT_KEY, StringMetaType::getInstance,
+                   BODY_KEY, StringMetaType::getInstance,
+                   "in", InParamsMetaType::getInstance,
+                   "out", ScriptOutParamsMetaType::getInstance)
     );
 
     protected ScriptStepMetaType() {

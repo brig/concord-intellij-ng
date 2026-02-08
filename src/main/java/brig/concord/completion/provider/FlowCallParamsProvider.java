@@ -1,8 +1,8 @@
 package brig.concord.completion.provider;
 
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.model.*;
-import brig.concord.meta.model.call.*;
+import brig.concord.meta.model.value.*;
+import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
 import brig.concord.psi.YamlPsiUtils;
@@ -131,7 +131,7 @@ public class FlowCallParamsProvider {
 
     private static YamlMetaType toMetaType(FlowDocParameter parameter) {
         if (parameter == null) {
-            return AnyInParamMetaType.getInstance();
+            return AnythingMetaType.getInstance();
         }
 
         if (parameter.isArrayType()) {
@@ -149,7 +149,7 @@ public class FlowCallParamsProvider {
             case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
             case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
             case "number", "int", "integer" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
-            default -> AnyInParamMetaType.getInstance();
+            default -> AnythingMetaType.getInstance();
         };
     }
 

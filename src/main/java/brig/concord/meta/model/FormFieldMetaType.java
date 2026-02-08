@@ -3,6 +3,12 @@ package brig.concord.meta.model;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.meta.model.value.AnythingMetaType;
+import brig.concord.meta.model.value.BooleanMetaType;
+import brig.concord.meta.model.value.IntegerMetaType;
+import brig.concord.meta.model.value.RegexpMetaType;
+import brig.concord.meta.model.value.StringMetaType;
+
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;

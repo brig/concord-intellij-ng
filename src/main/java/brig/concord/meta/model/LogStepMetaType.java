@@ -1,5 +1,7 @@
 package brig.concord.meta.model;
 
+import brig.concord.meta.model.value.StringMetaType;
+
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,10 +17,10 @@ public class LogStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "log", StringMetaType::getInstance,
-            "name", StepNameMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance);
+    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
+            StepFeatures.NAME_AND_META,
+            Map.of("log", StringMetaType::getInstance)
+    );
 
     protected LogStepMetaType() {
         super("Log", "log", Set.of("log"));

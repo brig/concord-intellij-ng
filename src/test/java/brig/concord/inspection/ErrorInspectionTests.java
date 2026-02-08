@@ -1,7 +1,7 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
-import brig.concord.meta.model.AnyOfType;
+import brig.concord.meta.model.value.AnyOfType;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.lang.annotation.HighlightSeverity;
@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import static brig.concord.meta.model.ParamMetaTypes.*;
+import static brig.concord.meta.model.value.ParamMetaTypes.*;
 import static brig.concord.assertions.InspectionAssertions.dump;
 
 public class ErrorInspectionTests extends InspectionTestBase {

@@ -3,6 +3,10 @@ package brig.concord.meta.model;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.meta.model.value.AnyOfType;
+import brig.concord.meta.model.value.ExpressionMetaType;
+import brig.concord.meta.model.value.IntegerMetaType;
+
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;

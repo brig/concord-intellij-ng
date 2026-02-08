@@ -2,7 +2,7 @@ package brig.concord.yaml.meta.model;
 
 // Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 
-import brig.concord.meta.model.BooleanMetaType;
+import brig.concord.meta.model.value.BooleanMetaType;
 import brig.concord.yaml.meta.impl.YamlMetaUtil;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.util.ArrayUtil;

@@ -1,18 +1,21 @@
 package brig.concord.meta.model;
 
+import brig.concord.meta.DynamicMetaType;
 import brig.concord.psi.YamlPsiUtils;
 import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.*;
 
-public abstract class IdentityElementMetaType extends YamlAnyOfType {
+public abstract class IdentityElementMetaType extends YamlAnyOfType implements DynamicMetaType {
 
     private final List<IdentityMetaType> entries;
 
@@ -27,9 +30,16 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
     }
 
     @Override
+    public @Nullable YamlMetaType resolve(PsiElement element) {
+        if (element instanceof YAMLMapping m) {
+            return findEntry(m);
+        }
+        return null;
+    }
+
+    @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        var meta = findEntry(Set.of(name));
-        if (meta == null) {
+        if (!hasFeature(name)) {
             return null;
         }
 
@@ -118,12 +128,15 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
         return null;
     }
 
-    private IdentityMetaType findEntry(Set<String> existingKeys) {
-        var result = identifyEntry(existingKeys);
-        if (result != null) {
-            return result;
-        }
-
+    /**
+     * Best-effort fuzzy matching when no identity key is present (e.g. incomplete YAML
+     * during editing). Picks the entry whose features overlap the most with the given keys.
+     * Ties are broken by declaration order (first entry wins).
+     *
+     * <p>This is a UX heuristic — not suitable for strict validation.
+     */
+    protected IdentityMetaType guessEntry(Set<String> existingKeys) {
+        IdentityMetaType result = null;
         var maxMatches = 0;
         var existingKeysSize = existingKeys.size();
         for (var s : entries) {
@@ -144,5 +157,20 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType {
         }
 
         return result;
+    }
+
+    /**
+     * Checks whether any entry declares a feature with the given name.
+     */
+    protected boolean hasFeature(String name) {
+        return entries.stream().anyMatch(entry -> entry.getFeatures().containsKey(name));
+    }
+
+    private IdentityMetaType findEntry(Set<String> existingKeys) {
+        var result = identifyEntry(existingKeys);
+        if (result != null) {
+            return result;
+        }
+        return guessEntry(existingKeys);
     }
 }

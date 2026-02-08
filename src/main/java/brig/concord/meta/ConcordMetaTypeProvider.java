@@ -1,7 +1,5 @@
 package brig.concord.meta;
 
-import brig.concord.meta.model.IdentityElementMetaType;
-import brig.concord.meta.model.IdentityMetaType;
 import brig.concord.psi.ConcordFile;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
@@ -17,7 +15,6 @@ import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.ModelAccess;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
-import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Optional;
@@ -64,17 +61,11 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
             return null;
         }
 
-        if (result.getMetaType() instanceof IdentityElementMetaType identity) {
-            if (element instanceof YAMLMapping m) {
-                IdentityMetaType mt = identity.findEntry(m);
-                if (mt != null) {
-                    return of(result, mt);
-                }
-            }
-        }
-
         if (result.getMetaType() instanceof DynamicMetaType dynamicMetaType) {
-            return of(result, dynamicMetaType.resolve(element));
+            var resolved = dynamicMetaType.resolve(element);
+            if (resolved != null) {
+                return of(result, resolved);
+            }
         }
 
         return result;

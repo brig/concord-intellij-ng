@@ -1,10 +1,15 @@
-package brig.concord.meta.model;
+package brig.concord.meta.model.value;
 
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnything;
+import brig.concord.yaml.meta.model.YamlMetaType;
 
 public class AnythingMetaType extends YamlAnything {
+
+    public static boolean isInstance(YamlMetaType type) {
+        return type instanceof AnythingMetaType;
+    }
 
     private static final AnythingMetaType INSTANCE = new AnythingMetaType();
 

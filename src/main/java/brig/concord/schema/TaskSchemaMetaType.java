@@ -1,10 +1,10 @@
 package brig.concord.schema;
 
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.model.AnyOfType;
-import brig.concord.meta.model.ExpressionMetaType;
-import brig.concord.meta.model.AnythingMetaType;
-import brig.concord.meta.model.ParamMetaTypes;
+import brig.concord.meta.model.value.AnyOfType;
+import brig.concord.meta.model.value.ExpressionMetaType;
+import brig.concord.meta.model.value.AnythingMetaType;
+import brig.concord.meta.model.value.ParamMetaTypes;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;

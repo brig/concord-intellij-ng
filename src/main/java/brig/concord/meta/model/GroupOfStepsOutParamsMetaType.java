@@ -1,5 +1,8 @@
 package brig.concord.meta.model;
 
+import brig.concord.meta.model.value.StringArrayMetaType;
+import brig.concord.meta.model.value.StringMetaType;
+
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 
 import java.util.List;

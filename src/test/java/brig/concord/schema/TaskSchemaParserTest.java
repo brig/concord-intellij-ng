@@ -13,6 +13,7 @@ public class TaskSchemaParserTest {
     private TaskSchema schema;
     private TaskSchema multiKeySchema;
     private TaskSchema refCompositeSchema;
+    private TaskSchema strictSchema;
 
     @BeforeEach
     void setUp() {
@@ -28,6 +29,10 @@ public class TaskSchemaParserTest {
         var refCompositeStream = getClass().getResourceAsStream("/taskSchema/refInComposite.schema.json");
         assertNotNull(refCompositeStream, "refInComposite.schema.json not found");
         refCompositeSchema = parser.parse("refComposite", refCompositeStream);
+
+        var strictStream = getClass().getResourceAsStream("/taskSchema/strictTask.schema.json");
+        assertNotNull(strictStream, "strictTask.schema.json not found");
+        strictSchema = parser.parse("strictTask", strictStream);
     }
 
     @Test
@@ -300,5 +305,53 @@ public class TaskSchemaParserTest {
                 )),
                 prop.schemaType()
         );
+    }
+
+    @Test
+    public void testPropertyDescription() {
+        var base = schema.getBaseInSection();
+        var actionProp = base.properties().get("action");
+        assertNotNull(actionProp);
+        assertEquals("The action to perform", actionProp.description());
+    }
+
+    @Test
+    public void testPropertyWithoutType() {
+        // "meta" in concord.schema.json has description but no type → SchemaType.Any
+        var section = schema.resolveInSection(Map.of("action", "start"));
+        var metaProp = section.properties().get("meta");
+        assertNotNull(metaProp);
+        assertInstanceOf(SchemaType.Any.class, metaProp.schemaType());
+        assertEquals("Metadata", metaProp.description());
+    }
+
+    @Test
+    public void testStrictAdditionalProperties() {
+        assertFalse(strictSchema.getBaseInSection().additionalProperties());
+        assertFalse(strictSchema.getOutSection().additionalProperties());
+    }
+
+    @Test
+    public void testStrictRequiredProperties() {
+        var base = strictSchema.getBaseInSection();
+        assertTrue(base.requiredFields().contains("url"));
+        assertFalse(base.requiredFields().contains("method"));
+        assertFalse(base.requiredFields().contains("debug"));
+    }
+
+    @Test
+    public void testPropertyRequiredFlag() {
+        var base = strictSchema.getBaseInSection();
+        var urlProp = base.properties().get("url");
+        assertNotNull(urlProp);
+        assertTrue(urlProp.required());
+
+        var methodProp = base.properties().get("method");
+        assertNotNull(methodProp);
+        assertFalse(methodProp.required());
+
+        var debugProp = base.properties().get("debug");
+        assertNotNull(debugProp);
+        assertFalse(debugProp.required());
     }
 }

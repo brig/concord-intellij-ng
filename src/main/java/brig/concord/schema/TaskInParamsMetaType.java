@@ -1,8 +1,8 @@
 package brig.concord.schema;
 
 import brig.concord.meta.DynamicMetaType;
-import brig.concord.meta.model.AnyMapMetaType;
-import brig.concord.meta.model.ExpressionMetaType;
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.psi.YamlPsiUtils;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;

@@ -4,7 +4,7 @@ import brig.concord.ConcordBundle;
 import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.inspection.fix.AddParameterToFlowDocQuickFix;
 import brig.concord.meta.ConcordMetaTypeProvider;
-import brig.concord.meta.model.AnyOfType;
+import brig.concord.meta.model.value.AnyOfType;
 import brig.concord.meta.model.call.CallInParamsMetaType;
 import brig.concord.psi.ConcordFile;
 import brig.concord.yaml.meta.impl.YamlMetaTypeInspectionBase;
