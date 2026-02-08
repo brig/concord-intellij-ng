@@ -16,15 +16,11 @@ public class CallStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", StepNameMetaType::getInstance,
-            "call", CallMetaType::getInstance,
-            "in", CallInParamsMetaType::getInstance,
-            "out", CallOutParamsMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance,
-            "loop", LoopMetaType::getInstance,
-            "retry", RetryMetaType::getInstance,
-            "error", StepsMetaType::getInstance
+    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
+            StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
+            Map.of("call", CallMetaType::getInstance,
+                   "in", CallInParamsMetaType::getInstance,
+                   "out", CallOutParamsMetaType::getInstance)
     );
 
     protected CallStepMetaType() {

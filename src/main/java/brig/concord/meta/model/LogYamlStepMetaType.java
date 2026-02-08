@@ -15,10 +15,10 @@ public class LogYamlStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "logYaml", StringMetaType::getInstance,
-            "name", StepNameMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance);
+    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
+            StepFeatures.NAME_AND_META,
+            Map.of("logYaml", StringMetaType::getInstance)
+    );
 
     protected LogYamlStepMetaType() {
         super("LogYaml", "logYaml", Set.of("logYaml"));
