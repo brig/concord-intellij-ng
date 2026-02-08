@@ -190,7 +190,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testFileOutsideScope() throws Exception {
+    public void testFileOutsideScope() {
         // Create root with pattern
         var root = myFixture.addFileToProject(
                 "narrow-project/concord.yaml",
@@ -601,9 +601,9 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         var service = ConcordScopeService.getInstance(getProject());
 
         // Initially, root1 masks root2 (default behavior)
-        var initialRoots = ReadAction.compute(() -> service.findRoots());
+        var initialRoots = ReadAction.compute(service::findRoots);
         Assertions.assertEquals(1, initialRoots.size(), "Initially, only the top-level root should be found");
-        Assertions.assertEquals(root1.getVirtualFile(), initialRoots.get(0).getRootFile());
+        Assertions.assertEquals(root1.getVirtualFile(), initialRoots.getFirst().getRootFile());
 
         // Now mark the top-level root as ignored
         Set<VirtualFile> ignoredFiles = new HashSet<>();
@@ -614,7 +614,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         ConcordModificationTracker.getInstance(getProject()).invalidate();
 
         // Now root2 should be found because root1 is ignored and shouldn't mask it
-        var updatedRoots = ReadAction.compute(() -> service.findRoots());
+        var updatedRoots = ReadAction.compute(service::findRoots);
         boolean foundRoot2 = updatedRoots.stream()
                 .anyMatch(r -> r.getRootFile().equals(root2.getVirtualFile()));
 
@@ -631,9 +631,9 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
                         """);
 
         var service = ConcordScopeService.getInstance(getProject());
-        var roots = ReadAction.compute(() -> service.findRoots());
+        var roots = ReadAction.compute(service::findRoots);
         Assertions.assertEquals(1, roots.size());
-        var concordRoot = roots.get(0);
+        var concordRoot = roots.getFirst();
         Assertions.assertTrue(concordRoot.getRootDir().toString().endsWith("my-project"));
 
         // Rename the directory
@@ -647,12 +647,66 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         });
 
         // Verify that roots are updated
-        var updatedRoots = ReadAction.compute(() -> service.findRoots());
+        var updatedRoots = ReadAction.compute(service::findRoots);
         Assertions.assertEquals(1, updatedRoots.size());
-        var updatedConcordRoot = updatedRoots.get(0);
+        var updatedConcordRoot = updatedRoots.getFirst();
 
         Assertions.assertTrue(updatedConcordRoot.getRootDir().toString().endsWith("my-project-renamed"),
                 "Root directory path should be updated after directory rename. Current path: " + updatedConcordRoot.getRootDir());
+    }
+
+    @Test
+    public void testScopeUpdateOnDirectoryDeletion() {
+        // Create top-level root
+        var root = myFixture.addFileToProject(
+                "concord.yaml",
+                """
+                        configuration:
+                          runtime: concord-v2
+                        """);
+
+        // Create concord/ subdirectory with a concord file (matches default pattern)
+        var nestedFile = myFixture.addFileToProject(
+                "concord/concord.yml",
+                """
+                        flows:
+                          nestedFlow:
+                            - log: "Nested"
+                        """);
+
+        var service = ConcordScopeService.getInstance(getProject());
+
+        // Top-level root should mask the nested root file
+        var roots = ReadAction.compute(service::findRoots);
+        Assertions.assertEquals(1, roots.size(),
+                "Top-level root should mask nested root");
+
+        // Nested file should be in scope (it's under the top-level root's default pattern)
+        var nestedScopes = ReadAction.compute(() -> service.getScopesForFile(nestedFile.getVirtualFile()));
+        Assertions.assertFalse(nestedScopes.isEmpty(),
+                "Nested concord file should be in scope of top-level root");
+
+        // Delete the entire concord/ directory
+        var concordDir = nestedFile.getVirtualFile().getParent();
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                concordDir.delete(this);
+            } catch (java.io.IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // After deletion, the nested file should no longer be in any scope
+        var deletedFileScopes = ReadAction.compute(() -> service.getScopesForFile(nestedFile.getVirtualFile()));
+        Assertions.assertTrue(deletedFileScopes.isEmpty(),
+                "Deleted file should no longer be in any scope");
+
+        // Top-level root should still exist
+        var updatedRoots = ReadAction.compute(service::findRoots);
+        Assertions.assertEquals(1, updatedRoots.size(),
+                "Top-level root should still exist after deleting concord/ directory");
+        Assertions.assertEquals(root.getVirtualFile(), updatedRoots.getFirst().getRootFile(),
+                "Remaining root should be the top-level concord.yaml");
     }
 
     /**
