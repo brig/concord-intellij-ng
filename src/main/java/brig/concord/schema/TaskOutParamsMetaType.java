@@ -46,12 +46,12 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
     public YamlMetaType resolve(PsiElement element) {
         var schema = TaskInParamsMetaType.findTaskSchema(element);
         if (schema == null) {
-            return new TaskOutParamsMetaType();
+            return INSTANCE;
         }
 
         var outSection = schema.getOutSection();
         if (outSection.properties().isEmpty()) {
-            return new TaskOutParamsMetaType();
+            return INSTANCE;
         }
 
         var metaType = new TaskSchemaMetaType(outSection, Collections.emptySet());
