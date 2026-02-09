@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class StepsHighlightingTest extends HighlightingTestBase {
+class StepsHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testTaskStep() {
+    void testTaskStep() {
         configureFromText("""
             flows:
               default:
@@ -60,7 +60,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testCallStep() {
+    void testCallStep() {
         configureFromText("""
             flows:
               default:
@@ -112,7 +112,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testLogStep() {
+    void testLogStep() {
         configureFromText("""
             flows:
               default:
@@ -131,7 +131,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testLogYamlStep() {
+    void testLogYamlStep() {
         configureFromText("""
             flows:
               default:
@@ -150,7 +150,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testCheckpointStep() {
+    void testCheckpointStep() {
         configureFromText("""
             flows:
               default:
@@ -165,7 +165,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testIfStep() {
+    void testIfStep() {
         configureFromText("""
             flows:
               main:
@@ -182,7 +182,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testSetStep() {
+    void testSetStep() {
         configureFromText("""
             flows:
               main:
@@ -195,7 +195,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testThrowStep() {
+    void testThrowStep() {
         configureFromText("""
             flows:
               default:
@@ -210,7 +210,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testThrowStepNameWithoutQ() {
+    void testThrowStepNameWithoutQ() {
         configureFromText("""
             flows:
               default:
@@ -225,7 +225,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testSuspendStep() {
+    void testSuspendStep() {
         configureFromText("""
             flows:
               default:
@@ -236,7 +236,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testExprStep() {
+    void testExprStep() {
         configureFromText("""
             flows:
               default:
@@ -251,7 +251,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testParallel() {
+    void testParallel() {
         configureFromText("""
             flows:
               default:
@@ -275,7 +275,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testScriptStep() {
+    void testScriptStep() {
         configureFromText("""
             flows:
               default:
@@ -293,7 +293,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testSwitchStep() {
+    void testSwitchStep() {
         configureFromText("""
             flows:
               default:
@@ -314,7 +314,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testTryStep() {
+    void testTryStep() {
         configureFromText("""
             flows:
               default:
@@ -329,7 +329,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testBlock() {
+    void testBlock() {
         configureFromText("""
             flows:
               default:
@@ -349,7 +349,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testFormStep() {
+    void testFormStep() {
         configureFromText("""
             flows:
               default:
@@ -368,7 +368,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testReturn() {
+    void testReturn() {
         configureFromText("""
             flows:
               default:
@@ -379,7 +379,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testReturnQuoted() {
+    void testReturnQuoted() {
         configureFromText("""
             flows:
               default:
@@ -390,7 +390,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testReturnQuotedSingle() {
+    void testReturnQuotedSingle() {
         configureFromText("""
             flows:
               default:
@@ -401,7 +401,7 @@ public class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testExit() {
+    void testExit() {
         configureFromText("""
             flows:
               default:

@@ -1,42 +1,89 @@
 package brig.concord;
 
+import brig.concord.assertions.FlowDocAssertions;
 import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.psi.ConcordModificationTracker;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
-import brig.concord.yaml.psi.*;
+import brig.concord.yaml.psi.YAMLFile;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.testFramework.EdtTestUtil;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
+import com.intellij.testFramework.LightProjectDescriptor;
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
+import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
+import com.intellij.testFramework.fixtures.impl.LightTempDirTestFixtureImpl;
+import com.intellij.testFramework.junit5.RunInEdt;
+import com.intellij.testFramework.junit5.impl.TestApplicationExtension;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.function.Consumer;
 
-public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
+import static org.junit.jupiter.api.Assertions.fail;
 
+@ExtendWith(TestApplicationExtension.class)
+@RunInEdt(writeIntent = true)
+public abstract class ConcordYamlTestBaseJunit5 {
+
+    protected CodeInsightTestFixture myFixture;
     protected ConcordYamlPath yamlPath;
 
-    @Override
     @BeforeEach
     protected void setUp() throws Exception {
-        super.setUp();
+        var factory = IdeaTestFixtureFactory.getFixtureFactory();
+        var builder = factory.createLightFixtureBuilder(new LightProjectDescriptor(), "test");
+        var projectFixture = builder.getFixture();
+        myFixture = factory.createCodeInsightFixture(projectFixture, new LightTempDirTestFixtureImpl(true));
+        myFixture.setUp();
         ConcordModificationTracker.getInstance(getProject()).setForceSyncInTests(true);
     }
 
-    @Override
     @AfterEach
     protected void tearDown() throws Exception {
-        super.tearDown();
+        try {
+            myFixture.tearDown();
+        } finally {
+            myFixture = null;
+            yamlPath = null;
+            // LightIdeaTestFixtureImpl.tearDown() disposes the project via forceCloseProject()
+            // but does NOT clear the static LightPlatformTestCase.ourProject reference.
+            // TestApplicationExtension's LeakHunter detects this as a project leak.
+            // closeAndDeleteProject() clears the static reference in its finally block.
+            // Use reflection to call LightPlatformTestCase.closeAndDeleteProject()
+            // because LightPlatformTestCase extends JUnit 4's TestCase which is no longer on the classpath.
+            try {
+                var cls = Class.forName("com.intellij.testFramework.LightPlatformTestCase");
+                var method = cls.getMethod("closeAndDeleteProject");
+                method.invoke(null);
+            } catch (AssertionError ignored) {
+                // expected: project already closed by fixture teardown
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                if (!(e.getCause() instanceof AssertionError)) {
+                    throw new RuntimeException(e);
+                }
+                // expected: project already closed by fixture teardown
+            } catch (Exception ignored) {
+                // class/method not found — safe to ignore
+            }
+        }
+    }
+
+    protected Project getProject() {
+        return myFixture.getProject();
     }
 
     protected PsiFile createFile(String path, String content) {
@@ -71,7 +118,7 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         EdtTestUtil.runInEdtAndWait(() ->
                 myFixture.openFileInEditor(file.getVirtualFile())
         );
-        yamlPath = new ConcordYamlPath((YAMLFile)file);
+        yamlPath = new ConcordYamlPath((YAMLFile) file);
     }
 
     protected @NotNull AbstractTarget doc() {
@@ -94,33 +141,78 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
     protected void moveCaretTo(@NotNull AbstractTarget target) {
         EdtTestUtil.runInEdtAndWait(() -> {
             var offset = target.range().getStartOffset();
-            Assertions.assertTrue( offset >= 0, target + " not found in test file");
+            Assertions.assertTrue(offset >= 0, target + " not found in test file");
             myFixture.getEditor().getCaretModel().moveToOffset(offset);
         });
     }
 
     protected @NotNull KeyTarget key(@NotNull String path) {
-        if (yamlPath == null) {
-            fail("yamlPath is null. Did you call configureFromText(...) ?");
-        }
+        Assertions.assertNotNull(yamlPath, "yamlPath is null. Did you call configureFromText(...) ?");
         return new KeyTarget(path, 1);
     }
 
     protected @NotNull KeyTarget key(@NotNull String path, int occurrence) {
-        if (yamlPath == null) {
-            fail("yamlPath is null. Did you call configureFromText(...) ?");
-        }
-        if (occurrence < 1) {
-            fail("occurrence must be >= 1");
-        }
+        Assertions.assertNotNull(yamlPath, "yamlPath is null. Did you call configureFromText(...) ?");
+        Assertions.assertTrue(occurrence >= 1, "occurrence must be >= 1");
         return new KeyTarget(path, occurrence);
     }
 
     protected @NotNull ValueTarget value(@NotNull String path) {
-        if (yamlPath == null) {
-            fail("yamlPath is null. Did you call configureFromText(...) ?");
-        }
+        Assertions.assertNotNull(yamlPath, "yamlPath is null. Did you call configureFromText(...) ?");
         return new ValueTarget(path);
+    }
+
+
+    protected void assertFlowDoc(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
+        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
+    }
+
+    /**
+     * Get flow documentation target for the flow at the given path.
+     * @param flowPath path to the flow key (e.g., "/flows/myFlow")
+     * @return target for the FlowDocumentation element before this flow
+     */
+    protected @NotNull FlowDocTarget flowDoc(@NotNull String flowPath) {
+        return new FlowDocTarget(flowPath);
+    }
+
+    /**
+     * Get the nth FlowDocumentation element in the file (0-indexed).
+     * Useful for testing orphaned documentation.
+     */
+    protected @NotNull FlowDocByIndexTarget flowDocByIndex(int index) {
+        return new FlowDocByIndexTarget(index);
+    }
+
+    /**
+     * Get a parameter target from flow documentation.
+     * @param flowPath path to the flow key
+     * @param paramName name of the parameter
+     * @return target for the FlowDocParameter element
+     */
+    protected @NotNull FlowDocParamTarget flowDocParam(@NotNull String flowPath, @NotNull String paramName) {
+        return new FlowDocParamTarget(flowPath, paramName);
+    }
+
+    /**
+     * Get a parameter target by occurrence (for duplicates).
+     * @param flowPath path to the flow key
+     * @param paramName name of the parameter
+     * @param occurrence 1-based occurrence index
+     * @return target for the FlowDocParameter element
+     */
+    protected @NotNull FlowDocParamTarget flowDocParam(@NotNull String flowPath, @NotNull String paramName, int occurrence) {
+        return new FlowDocParamTarget(flowPath, paramName, occurrence);
+    }
+
+    /**
+     * Get target for unknown keyword in flow doc parameter.
+     * @param flowPath path to the flow key
+     * @param paramName name of the parameter
+     * @return target for the FLOW_DOC_UNKNOWN_KEYWORD token
+     */
+    protected @NotNull UnknownKeywordTarget unknownKeyword(@NotNull String flowPath, @NotNull String paramName) {
+        return new UnknownKeywordTarget(flowPath, paramName);
     }
 
     public static @NotNull String loadResource(@NotNull String path) {
@@ -128,7 +220,7 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
     }
 
     public static @NotNull String loadResource(@NotNull String path, boolean trim) {
-        try (var stream = ConcordYamlTestBase.class.getResourceAsStream(path)) {
+        try (var stream = ConcordYamlTestBaseJunit5.class.getResourceAsStream(path)) {
             if (stream == null) {
                 throw new IllegalArgumentException("Resource not found: " + path);
             }
@@ -140,6 +232,10 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private @NotNull Document document() {
+        return myFixture.getEditor().getDocument();
     }
 
     public static abstract class AbstractTarget {
@@ -238,7 +334,7 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
             throw new AssertionError("Key '" + name + "' occurrence #" + occurrence + " not found under " + path);
         }
 
-        private static Split splitParentAndName(String fullPath) {
+        private static KeyTarget.Split splitParentAndName(String fullPath) {
             var p = fullPath.trim();
             if (p.endsWith("/")) p = p.substring(0, p.length() - 1);
             int last = p.lastIndexOf('/');
@@ -247,7 +343,7 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
             }
             var parent = (last == 0) ? "" : p.substring(0, last);
             var name = p.substring(last + 1);
-            return new Split(parent, name);
+            return new KeyTarget.Split(parent, name);
         }
 
         private record Split(String parentPath, String name) {}
@@ -305,58 +401,6 @@ public abstract class ConcordYamlTestBase extends BasePlatformTestCase {
         public @NotNull TextRange range() {
             return TextRange.from(offset, needle.length());
         }
-    }
-
-    private @NotNull Document document() {
-        return myFixture.getEditor().getDocument();
-    }
-
-    /**
-     * Get flow documentation target for the flow at the given path.
-     * @param flowPath path to the flow key (e.g., "/flows/myFlow")
-     * @return target for the FlowDocumentation element before this flow
-     */
-    protected @NotNull FlowDocTarget flowDoc(@NotNull String flowPath) {
-        return new FlowDocTarget(flowPath);
-    }
-
-    /**
-     * Get the nth FlowDocumentation element in the file (0-indexed).
-     * Useful for testing orphaned documentation.
-     */
-    protected @NotNull FlowDocByIndexTarget flowDocByIndex(int index) {
-        return new FlowDocByIndexTarget(index);
-    }
-
-    /**
-     * Get a parameter target from flow documentation.
-     * @param flowPath path to the flow key
-     * @param paramName name of the parameter
-     * @return target for the FlowDocParameter element
-     */
-    protected @NotNull FlowDocParamTarget flowDocParam(@NotNull String flowPath, @NotNull String paramName) {
-        return new FlowDocParamTarget(flowPath, paramName);
-    }
-
-    /**
-     * Get a parameter target by occurrence (for duplicates).
-     * @param flowPath path to the flow key
-     * @param paramName name of the parameter
-     * @param occurrence 1-based occurrence index
-     * @return target for the FlowDocParameter element
-     */
-    protected @NotNull FlowDocParamTarget flowDocParam(@NotNull String flowPath, @NotNull String paramName, int occurrence) {
-        return new FlowDocParamTarget(flowPath, paramName, occurrence);
-    }
-
-    /**
-     * Get target for unknown keyword in flow doc parameter.
-     * @param flowPath path to the flow key
-     * @param paramName name of the parameter
-     * @return target for the FLOW_DOC_UNKNOWN_KEYWORD token
-     */
-    protected @NotNull UnknownKeywordTarget unknownKeyword(@NotNull String flowPath, @NotNull String paramName) {
-        return new UnknownKeywordTarget(flowPath, paramName);
     }
 
     public final class FlowDocTarget extends AbstractTarget {

@@ -1,6 +1,6 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -16,10 +16,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ConcordScopeServiceTest extends ConcordYamlTestBase {
+class ConcordScopeServiceTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testFindRootsWithSingleRoot() {
+    void testFindRootsWithSingleRoot() {
         myFixture.addFileToProject(
                 "concord.yaml",
                 """
@@ -39,7 +39,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testGetScopesForRootFile() {
+    void testGetScopesForRootFile() {
         var yaml = myFixture.addFileToProject(
                 "concord.yaml",
                 """
@@ -56,7 +56,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testCreateSearchScopeFromElement() {
+    void testCreateSearchScopeFromElement() {
         var yaml = myFixture.addFileToProject(
                 "concord.yaml",
                 """
@@ -74,7 +74,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testCreateSearchScopeFromVirtualFile() {
+    void testCreateSearchScopeFromVirtualFile() {
         var yaml = myFixture.addFileToProject(
                 "concord.yaml",
                 """
@@ -90,7 +90,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testMultipleScopesForFile() {
+    void testMultipleScopesForFile() {
         // Root 1 at the top, but it ONLY includes files in sub/shared/
         var root1 = myFixture.addFileToProject(
                 "concord.yaml",
@@ -125,7 +125,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testMultipleRoots() {
+    void testMultipleRoots() {
         var root1 = myFixture.addFileToProject(
                 "project-a/concord.yaml",
                 """
@@ -156,7 +156,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testNestedFileInScope() {
+    void testNestedFileInScope() {
         // Create root with default resources pattern (which includes concord/**/*.concord.yaml)
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
@@ -190,7 +190,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testFileOutsideScope() {
+    void testFileOutsideScope() {
         // Create root with pattern
         var root = myFixture.addFileToProject(
                 "narrow-project/concord.yaml",
@@ -231,7 +231,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
      * ConcordModificationTracker tracks content changes of concord.yaml files.
      */
     @Test
-    public void testCacheInvalidationOnPatternChange() {
+    void testCacheInvalidationOnPatternChange() {
         // Create root with narrow pattern - only includes flows/*.concord.yaml
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
@@ -304,7 +304,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testSameServiceInstance() {
+    void testSameServiceInstance() {
         configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -313,11 +313,11 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         var service1 = ConcordScopeService.getInstance(getProject());
         var service2 = ConcordScopeService.getInstance(getProject());
 
-        assertSame("Should return same service instance", service1, service2);
+        Assertions.assertSame(service1, service2, "Should return same service instance");
     }
 
     @Test
-    public void testCallNavigatesToCorrectScope() {
+    void testCallNavigatesToCorrectScope() {
         // Setup Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -358,7 +358,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testCallNavigatesToCorrectScopeLocalDefinition() {
+    void testCallNavigatesToCorrectScopeLocalDefinition() {
         // Setup Project A (Local definition)
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -391,7 +391,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testCallNavigatesToCorrectScopeOverwriteLocalDefinition() {
+    void testCallNavigatesToCorrectScopeOverwriteLocalDefinition() {
         // Setup Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -436,7 +436,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testSearchScopeIsolation() {
+    void testSearchScopeIsolation() {
         // Create two isolated projects
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -534,7 +534,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testCacheInvalidationOnVcsIgnoredStatusChange() {
+    void testCacheInvalidationOnVcsIgnoredStatusChange() {
         // Create root and a utility file
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
@@ -581,7 +581,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testIgnoredRootDoesNotMaskNestedRoot() {
+    void testIgnoredRootDoesNotMaskNestedRoot() {
         // Create a root at the top level
         var root1 = myFixture.addFileToProject(
                 "concord.yaml",
@@ -622,7 +622,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testCacheInvalidationOnDirectoryRename() {
+    void testCacheInvalidationOnDirectoryRename() {
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
                 """
@@ -656,7 +656,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testScopeUpdateOnDirectoryDeletion() {
+    void testScopeUpdateOnDirectoryDeletion() {
         // Create top-level root
         var root = myFixture.addFileToProject(
                 "concord.yaml",
@@ -714,7 +714,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
      * after cache invalidation.
      */
     @Test
-    public void testIgnoredFileFiltering() {
+    void testIgnoredFileFiltering() {
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
                 """

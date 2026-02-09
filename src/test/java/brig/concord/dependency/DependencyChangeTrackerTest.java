@@ -1,6 +1,6 @@
 package brig.concord.dependency;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.psi.ConcordModificationTracker;
 import com.intellij.openapi.command.WriteCommandAction;
 import org.junit.jupiter.api.Assertions;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
+class DependencyChangeTrackerTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     void needsReloadReturnsFalseWhenNeverLoaded() {
@@ -32,6 +32,8 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
 
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var dep = MavenCoordinate.parse("mvn://com.example:lib:1.0.0");
+
+        Assertions.assertNotNull(dep);
 
         // When: initial load
         tracker.markInitialLoad(Set.of(dep));
@@ -85,6 +87,7 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
 
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var dep = MavenCoordinate.parse("mvn://com.example:lib:1.0.0");
+        Assertions.assertNotNull(dep);
 
         // Reset state after file creation (file creation triggers events)
         tracker.setStateForTest(Set.of(dep), false);
@@ -113,7 +116,9 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
     void needsReloadReturnsFalseAfterMarkReloaded() {
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var oldDep = MavenCoordinate.parse("mvn://com.example:old:1.0.0");
+        Assertions.assertNotNull(oldDep);
         var newDep = MavenCoordinate.parse("mvn://com.example:new:2.0.0");
+        Assertions.assertNotNull(newDep);
 
         // Setup: initial load, then simulate dirty state
         tracker.markInitialLoad(Set.of(oldDep));
@@ -134,6 +139,7 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
     void needsReloadReturnsFalseAfterDismiss() {
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var dep = MavenCoordinate.parse("mvn://com.example:lib:1.0.0");
+        Assertions.assertNotNull(dep);
 
         // Setup: dirty state
         tracker.markInitialLoad(Set.of(dep));
@@ -159,6 +165,7 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
 
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var v1Dep = MavenCoordinate.parse("mvn://com.example:v1:1.0.0");
+        Assertions.assertNotNull(v1Dep);
 
         // Initial load and force dirty
         tracker.markInitialLoad(Set.of(v1Dep));
@@ -184,6 +191,7 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
     void markReloadedDoesNotClearDirtyWhenModCountChanged() {
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var dep = MavenCoordinate.parse("mvn://com.example:lib:1.0.0");
+        Assertions.assertNotNull(dep);
 
         // Initial load
         tracker.markInitialLoad(Set.of(dep));
@@ -221,6 +229,7 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
     void scheduleCheckSkipsWhenAlreadyDirty() {
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var dep = MavenCoordinate.parse("mvn://com.example:lib:1.0.0");
+        Assertions.assertNotNull(dep);
 
         // Initial load and force dirty
         tracker.markInitialLoad(Set.of(dep));
@@ -258,6 +267,7 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
 
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var lib1 = MavenCoordinate.parse("mvn://com.example:lib1:1.0.0");
+        Assertions.assertNotNull(lib1);
 
         // Reset state after file creation (file creation triggers events)
         tracker.setStateForTest(Set.of(lib1), false);
@@ -291,7 +301,9 @@ public class DependencyChangeTrackerTest extends ConcordYamlTestBase {
 
         var tracker = DependencyChangeTracker.getInstance(getProject());
         var lib1 = MavenCoordinate.parse("mvn://com.example:lib1:1.0.0");
+        Assertions.assertNotNull(lib1);
         var lib2 = MavenCoordinate.parse("mvn://com.example:lib2:1.0.0");
+        Assertions.assertNotNull(lib2);
 
         // Reset state after file creation (file creation triggers events)
         tracker.setStateForTest(Set.of(lib1, lib2), false);

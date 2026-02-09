@@ -1,13 +1,16 @@
 package brig.concord.schema;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.codeInsight.completion.CompletionType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testInParamsCompletion() {
+    void testInParamsCompletion() {
         configureFromText("""
                 flows:
                   main:
@@ -19,13 +22,13 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
+        Assertions.assertNotNull(lookupElements);
         // Should have the discriminator key "action" in the list
-        assertContainsElements(lookupElements, "action");
+        assertThat(lookupElements).contains("action");
     }
 
     @Test
-    public void testActionEnumCompletion() {
+    void testActionEnumCompletion() {
         configureFromText("""
                 flows:
                   main:
@@ -37,12 +40,12 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "start", "startExternal", "fork", "kill", "createApiKey", "createOrUpdateApiKey");
+        Assertions.assertNotNull(lookupElements);
+        assertThat(lookupElements).contains("start", "startExternal", "fork", "kill", "createApiKey", "createOrUpdateApiKey");
     }
 
     @Test
-    public void testStartActionParams() {
+    void testStartActionParams() {
         configureFromText("""
                 flows:
                   main:
@@ -55,12 +58,12 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "project", "payload", "entryPoint", "sync", "activeProfiles");
+        Assertions.assertNotNull(lookupElements);
+        assertThat(lookupElements).contains("project", "payload", "entryPoint", "sync", "activeProfiles");
     }
 
     @Test
-    public void testKillActionParams() {
+    void testKillActionParams() {
         configureFromText("""
                 flows:
                   main:
@@ -73,14 +76,14 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "instanceId", "sync");
+        Assertions.assertNotNull(lookupElements);
+        assertThat(lookupElements).contains("instanceId", "sync");
         // Should not have start-specific params
-        assertDoesntContain(lookupElements, "project", "payload", "entryPoint");
+        assertThat(lookupElements).doesNotContain("project", "payload", "entryPoint");
     }
 
     @Test
-    public void testCreateApiKeyParams() {
+    void testCreateApiKeyParams() {
         configureFromText("""
                 flows:
                   main:
@@ -93,12 +96,12 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "userId", "username", "userType", "name");
+        Assertions.assertNotNull(lookupElements);
+        assertThat(lookupElements).contains("userId", "username", "userType", "name");
     }
 
     @Test
-    public void testOutParamsCompletion() {
+    void testOutParamsCompletion() {
         configureFromText("""
                 flows:
                   main:
@@ -113,12 +116,12 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "ok", "id", "ids", "name", "key", "result");
+        Assertions.assertNotNull(lookupElements);
+        assertThat(lookupElements).contains("ok", "id", "ids", "name", "key", "result");
     }
 
     @Test
-    public void testUnknownTaskFallsBackToAnyMap() {
+    void testUnknownTaskFallsBackToAnyMap() {
         configureFromText("""
                 flows:
                   main:
@@ -132,11 +135,11 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         // Should not crash; falls back to any map (no specific completions)
         var lookupElements = myFixture.getLookupElementStrings();
         // No schema for unknownTask, so no specific completions
-        assertTrue(lookupElements == null || lookupElements.isEmpty());
+        Assertions.assertTrue(lookupElements == null || lookupElements.isEmpty());
     }
 
     @Test
-    public void testDiscriminatorKeyFirst() {
+    void testDiscriminatorKeyFirst() {
         configureFromText("""
                 flows:
                   main:
@@ -148,14 +151,14 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
-        assertFalse(lookupElements.isEmpty());
+        Assertions.assertNotNull(lookupElements);
+        Assertions.assertFalse(lookupElements.isEmpty());
         // "action" should be among the first completions (discriminator key)
-        assertEquals("action", lookupElements.get(0));
+        Assertions.assertEquals("action", lookupElements.get(0));
     }
 
     @Test
-    public void testForkActionParams() {
+    void testForkActionParams() {
         configureFromText("""
                 flows:
                   main:
@@ -168,14 +171,14 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "forks", "entryPoint", "sync");
+        Assertions.assertNotNull(lookupElements);
+        assertThat(lookupElements).contains("forks", "entryPoint", "sync");
         // Should not have kill-specific params
-        assertDoesntContain(lookupElements, "instanceId");
+        assertThat(lookupElements).doesNotContain("instanceId");
     }
 
     @Test
-    public void testStartExternalParams() {
+    void testStartExternalParams() {
         configureFromText("""
                 flows:
                   main:
@@ -188,8 +191,8 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElements = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElements);
+        Assertions.assertNotNull(lookupElements);
         // Should have start params + external-specific
-        assertContainsElements(lookupElements, "project", "baseUrl", "apiKey");
+        assertThat(lookupElements).contains("project", "baseUrl", "apiKey");
     }
 }

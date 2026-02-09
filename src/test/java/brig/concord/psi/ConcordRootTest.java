@@ -1,14 +1,15 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ConcordRootTest extends ConcordYamlTestBase {
+class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testDefaultPatterns() {
+    void testDefaultPatterns() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -17,14 +18,14 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         VirtualFile rootFile = yaml.getVirtualFile();
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
-        assertEquals(rootFile, root.getRootFile());
-        assertNotNull(root.getRootDir());
-        assertNotNull(root.getScopeName());
-        ReadAction.run(() -> assertFalse(root.getPatterns().isEmpty()));
+        Assertions.assertEquals(rootFile, root.getRootFile());
+        Assertions.assertNotNull(root.getRootDir());
+        Assertions.assertNotNull(root.getScopeName());
+        ReadAction.run(() -> Assertions.assertFalse(root.getPatterns().isEmpty()));
     }
 
     @Test
-    public void testCustomResourcesPatterns() {
+    void testCustomResourcesPatterns() {
         var yaml = configureFromText("""
                 resources:
                   concord:
@@ -37,11 +38,11 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         VirtualFile rootFile = yaml.getVirtualFile();
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
-        ReadAction.run(() -> assertEquals(2, root.getPatterns().size()));
+        ReadAction.run(() -> Assertions.assertEquals(2, root.getPatterns().size()));
     }
 
     @Test
-    public void testContainsRootFile() {
+    void testContainsRootFile() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -51,11 +52,11 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
         // Root file should always be contained in its own scope
-        ReadAction.run(() -> assertTrue(root.contains(rootFile)));
+        ReadAction.run(() -> Assertions.assertTrue(root.contains(rootFile)));
     }
 
     @Test
-    public void testScopeName() {
+    void testScopeName() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -65,12 +66,12 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
         // Scope name should be the parent directory name
-        assertNotNull(root.getScopeName());
-        assertFalse(root.getScopeName().isEmpty());
+        Assertions.assertNotNull(root.getScopeName());
+        Assertions.assertFalse(root.getScopeName().isEmpty());
     }
 
     @Test
-    public void testEquality() {
+    void testEquality() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -81,12 +82,12 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         ConcordRoot root1 = new ConcordRoot(getProject(), rootFile);
         ConcordRoot root2 = new ConcordRoot(getProject(), rootFile);
 
-        assertEquals(root1, root2);
-        assertEquals(root1.hashCode(), root2.hashCode());
+        Assertions.assertEquals(root1, root2);
+        Assertions.assertEquals(root1.hashCode(), root2.hashCode());
     }
 
     @Test
-    public void testNullDocument() {
+    void testNullDocument() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -97,12 +98,12 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         // Should not throw when document is null
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
-        assertEquals(rootFile, root.getRootFile());
-        ReadAction.run(() -> assertFalse(root.getPatterns().isEmpty()));
+        Assertions.assertEquals(rootFile, root.getRootFile());
+        ReadAction.run(() -> Assertions.assertFalse(root.getPatterns().isEmpty()));
     }
 
     @Test
-    public void testEmptyResourcesConcord() {
+    void testEmptyResourcesConcord() {
         var yaml = configureFromText("""
                 resources:
                   concord: []
@@ -114,11 +115,11 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
         // Should fall back to default patterns
-        ReadAction.run(() -> assertFalse(root.getPatterns().isEmpty()));
+        ReadAction.run(() -> Assertions.assertFalse(root.getPatterns().isEmpty()));
     }
 
     @Test
-    public void testRegexPattern() {
+    void testRegexPattern() {
         var yaml = configureFromText("""
                 resources:
                   concord:
@@ -130,11 +131,11 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         VirtualFile rootFile = yaml.getVirtualFile();
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
-        ReadAction.run(() -> assertEquals(1, root.getPatterns().size()));
+        ReadAction.run(() -> Assertions.assertEquals(1, root.getPatterns().size()));
     }
 
     @Test
-    public void testPlainFilePattern() {
+    void testPlainFilePattern() {
         var yaml = configureFromText("""
                 resources:
                   concord:
@@ -146,6 +147,6 @@ public class ConcordRootTest extends ConcordYamlTestBase {
         VirtualFile rootFile = yaml.getVirtualFile();
         ConcordRoot root = new ConcordRoot(getProject(), rootFile);
 
-        ReadAction.run(() -> assertEquals(1, root.getPatterns().size()));
+        ReadAction.run(() -> Assertions.assertEquals(1, root.getPatterns().size()));
     }
 }

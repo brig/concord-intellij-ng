@@ -2,12 +2,13 @@ package brig.concord.inspection;
 
 import brig.concord.yaml.psi.YAMLFile;
 import com.intellij.codeInspection.LocalInspectionTool;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 
-public class DuplicatedKeysInspectionTest extends InspectionTestBase {
+class DuplicatedKeysInspectionTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -15,7 +16,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDuplicatesInSameMapping() {
+    void testDuplicatesInSameMapping() {
         configureFromText("""
                 configuration:
                   a: 1
@@ -28,7 +29,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testArrayItems() {
+    void testArrayItems() {
         configureFromText(
                 """
                         flows:
@@ -42,7 +43,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testNoDuplicates() {
+    void testNoDuplicates() {
         configureFromText("""
             configuration:
               a: 1
@@ -54,7 +55,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testSameKeyInDifferentMappings_isOk() {
+    void testSameKeyInDifferentMappings_isOk() {
         configureFromText("""
             configuration:
               a: 1
@@ -66,7 +67,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDuplicatesInNestedMapping() {
+    void testDuplicatesInNestedMapping() {
         configureFromText("""
             configuration:
               nested:
@@ -79,7 +80,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDuplicatesInSequenceItemMapping() {
+    void testDuplicatesInSequenceItemMapping() {
         configureFromText("""
             profiles:
               - configuration:
@@ -92,7 +93,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testMultipleDuplicates_threeOccurrences() {
+    void testMultipleDuplicates_threeOccurrences() {
         configureFromText("""
             configuration:
               a: 1
@@ -106,7 +107,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDuplicatesForMultipleKeys() {
+    void testDuplicatesForMultipleKeys() {
         configureFromText("""
             configuration:
               a: 1
@@ -120,7 +121,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testQuotedAndUnquotedSameKey() {
+    void testQuotedAndUnquotedSameKey() {
         configureFromText("""
             configuration:
               "a": 1
@@ -132,7 +133,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDoesNotRunOnNonConcordYaml() {
+    void testDoesNotRunOnNonConcordYaml() {
         var file = myFixture.configureByText(
                 "test.yml",
                 """
@@ -141,7 +142,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
                   a: 2
                 """
         );
-        assertFalse(file instanceof YAMLFile);
+        Assertions.assertFalse(file instanceof YAMLFile);
 
         inspection(doc()).expectNoErrors();
     }

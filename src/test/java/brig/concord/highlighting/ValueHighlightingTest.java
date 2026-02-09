@@ -5,10 +5,10 @@ import com.intellij.openapi.util.TextRange;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-public class ValueHighlightingTest extends HighlightingTestBase {
+class ValueHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testText() {
+    void testText() {
         var file = configureFromText("""
             flows
             """);
@@ -32,7 +32,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     // ==================== Boolean Values ====================
 
     @Test
-    public void testTrueValue() {
+    void testTrueValue() {
         configureFromText("""
             flows:
               main:
@@ -44,7 +44,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testFalseValue() {
+    void testFalseValue() {
         configureFromText("""
             configuration:
               debug: false
@@ -54,7 +54,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testMultipleBooleans() {
+    void testMultipleBooleans() {
         configureFromText("""
             flows:
               main:
@@ -72,7 +72,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     // ==================== Null Values ====================
 
     @Test
-    public void testNullValue() {
+    void testNullValue() {
         configureFromText("""
             configuration:
               arguments:
@@ -83,7 +83,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testTildeAsNull() {
+    void testTildeAsNull() {
         configureFromText("""
             configuration:
               arguments:
@@ -96,7 +96,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     // ==================== Mixed Values ====================
 
     @Test
-    public void testMixedValuesInStep() {
+    void testMixedValuesInStep() {
         configureFromText("""
             flows:
               main:
@@ -121,7 +121,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testExpressionNotConfusedWithString() {
+    void testExpressionNotConfusedWithString() {
         // A string that looks like expression syntax but isn't
         configureFromText("""
             flows:
@@ -141,7 +141,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testNestedExpressions() {
+    void testNestedExpressions() {
         configureFromText("""
             flows:
               main:
@@ -158,7 +158,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testStringValue() {
+    void testStringValue() {
         configureFromText("""
             flows:
               main:
@@ -170,7 +170,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testQStringValue() {
+    void testQStringValue() {
         configureFromText("""
             flows:
               main:
@@ -182,7 +182,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testMStringValue() {
+    void testMStringValue() {
         configureFromText("""
             flows:
               main:
@@ -195,7 +195,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testNumValue() {
+    void testNumValue() {
         configureFromText("""
             flows:
               main:
@@ -207,7 +207,7 @@ public class ValueHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testSingleQuotedStringValue() {
+    void testSingleQuotedStringValue() {
         configureFromText("""
             configuration:
               runtime: 'concord-v2'

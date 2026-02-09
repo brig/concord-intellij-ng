@@ -8,11 +8,12 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static brig.concord.ConcordYamlTestBase.*;
+import static brig.concord.ConcordYamlTestBaseJunit5.*;
 
 public class HighlightAssertion {
 
@@ -57,12 +58,12 @@ public class HighlightAssertion {
         all.addAll(daemonKeysCovering(start, end));
 
         if (!all.contains(expected)) {
-            fail("Expected highlight '" + expected.getExternalName() + "' not found. Keys: " + describeKeys(all));
+            Assertions.fail("Expected highlight '" + expected.getExternalName() + "' not found. Keys: " + describeKeys(all));
         }
 
         var forbidden = all.stream().filter(k -> !allowed.contains(k)).toList();
         if (!forbidden.isEmpty()) {
-            fail(
+            Assertions.fail(
                     "Found forbidden highlights: " + describeKeys(forbidden) + "\n" +
                             "Allowed: " + describeKeys(allowed) + "\n" +
                             "All: " + describeKeys(all) + "\n" +
@@ -101,7 +102,7 @@ public class HighlightAssertion {
     public HighlightAssertion containsExactly(@NotNull TextAttributesKey expected, int expectedCount) {
         var actual = countMergedSlices(expected);
         if (actual != expectedCount) {
-            fail(
+            Assertions.fail(
                     "Expected exactly " + expectedCount + " occurrences of '" + expected.getExternalName() + "' " +
                             "inside range " + target.range().getStartOffset() + ".." + target.range().getEndOffset() + "\n" +
                             "Target text:\n" + target.text() + "\n\n" +
@@ -133,12 +134,12 @@ public class HighlightAssertion {
             hits.add(formatHit(info, key, inter));
         }
 
-        assertTrue(
+        Assertions.assertTrue(
+                hits.isEmpty(),
                 "Did NOT expect highlight '" + forbidden.getExternalName() + "' intersecting range " +
                         hostRange.getStartOffset() + ".." + hostRange.getEndOffset() + "\n" +
                         "Target text:\n" + target.text() + "\n\n" +
-                        "Forbidden hits:\n  " + (hits.isEmpty() ? "<none>" : String.join("\n  ", hits)),
-                hits.isEmpty()
+                        "Forbidden hits:\n  " + (hits.isEmpty() ? "<none>" : String.join("\n  ", hits))
         );
 
         return this;
@@ -184,7 +185,8 @@ public class HighlightAssertion {
             }
         }
 
-        assertTrue(
+        Assertions.assertTrue(
+                foundInLexer || foundInVisitor,
                 "Expected highlight '" + expected.getExternalName() + "' for text '" + text + "'\n" +
                         "Offset: " + offset + ".." + endOffset + "\n\n" +
                         "Lexer keys at offset:\n  " +
@@ -196,8 +198,7 @@ public class HighlightAssertion {
                         "\n\nVisitor highlights covering range:\n  " +
                         (visitorHits.isEmpty()
                                 ? "<none>"
-                                : String.join("\n  ", visitorHits)),
-                foundInLexer || foundInVisitor
+                                : String.join("\n  ", visitorHits))
         );
     }
 
@@ -231,7 +232,8 @@ public class HighlightAssertion {
             }
         }
 
-        assertFalse(
+        Assertions.assertFalse(
+                foundInLexer || foundInVisitor,
                 "Did NOT expect highlight '" + forbidden.getExternalName() + "' for text '" + text + "'\n" +
                         "Offset: " + offset + ".." + endOffset + "\n\n" +
                         "Lexer keys:\n  " +
@@ -240,8 +242,7 @@ public class HighlightAssertion {
                                 : lexerKeys.stream().map(TextAttributesKey::getExternalName)
                                 .collect(Collectors.joining(", "))) +
                         "\n\nVisitor highlights:\n  " +
-                        (visitorHits.isEmpty() ? "<none>" : String.join("\n  ", visitorHits)),
-                foundInLexer || foundInVisitor
+                        (visitorHits.isEmpty() ? "<none>" : String.join("\n  ", visitorHits))
         );
     }
 
@@ -292,14 +293,14 @@ public class HighlightAssertion {
             found = true;
         }
 
-        assertTrue(
+        Assertions.assertTrue(
+                found,
                 "Expected at least one highlight '" + expected.getExternalName() + "' intersecting range " +
                         hostRange.getStartOffset() + ".." + hostRange.getEndOffset() + "\n" +
                         "Target text:\n" + target.text() + "\n\n" +
                         "Matching hits:\n  " + (hits.isEmpty() ? "<none>" : String.join("\n  ", hits)) + "\n\n" +
                         "All highlights intersecting range:\n  " +
-                        String.join("\n  ", collectAllIntersectingHits(hostRange)),
-                found
+                        String.join("\n  ", collectAllIntersectingHits(hostRange))
         );
     }
 
@@ -337,7 +338,7 @@ public class HighlightAssertion {
             }
         }
 
-        fail(
+        Assertions.fail(
                 "Expected highlight '" + expected.getExternalName() + "' with text (ws-normalized):\n" +
                         expectedHighlightedText + "\n\n" +
                         "Target range: " + hostRange.getStartOffset() + ".." + hostRange.getEndOffset() + "\n" +

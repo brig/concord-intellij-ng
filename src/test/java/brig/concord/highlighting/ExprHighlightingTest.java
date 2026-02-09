@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class ExprHighlightingTest extends HighlightingTestBase {
+class ExprHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testSimpleExpression() {
+    void testSimpleExpression() {
         configureFromText("""
             flows:
               main:
@@ -16,7 +16,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testExprInName() {
+    void testExprInName() {
         configureFromText("""
             flows:
               main:
@@ -29,7 +29,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testExpressionWithDot() {
+    void testExpressionWithDot() {
         configureFromText("""
             flows:
               main:
@@ -40,7 +40,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testExpressionInCondition() {
+    void testExpressionInCondition() {
         configureFromText("""
             flows:
               main:
@@ -53,7 +53,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testExpressionInTaskInput() {
+    void testExpressionInTaskInput() {
         configureFromText("""
             flows:
               main:
@@ -69,7 +69,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testComplexExpression() {
+    void testComplexExpression() {
         configureFromText("""
             flows:
               main:
@@ -82,7 +82,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testQuotedScalarSingleExpression() {
+    void testQuotedScalarSingleExpression() {
         configureFromText("""
             flows:
               main:
@@ -94,7 +94,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testQuotedScalarMultipleExpressions() {
+    void testQuotedScalarMultipleExpressions() {
         configureFromText("""
             flows:
               main:
@@ -108,7 +108,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testQuotedScalarEscapedExpressionNotMatched() {
+    void testQuotedScalarEscapedExpressionNotMatched() {
         configureFromText("""
             flows:
               main:
@@ -123,7 +123,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testQuotedScalarNestedBracesInExpression() {
+    void testQuotedScalarNestedBracesInExpression() {
         configureFromText("""
             flows:
               main:
@@ -138,7 +138,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testBlockScalarFoldedGreaterThan() {
+    void testBlockScalarFoldedGreaterThan() {
         configureFromText("""
             flows:
               main:
@@ -161,7 +161,7 @@ public class ExprHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testBlockScalarLiteralPipe() {
+    void testBlockScalarLiteralPipe() {
         configureFromText("""
             flows:
               main:

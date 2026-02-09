@@ -1,16 +1,22 @@
 package brig.concord.completion;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.dependency.TaskRegistry;
 import com.intellij.codeInsight.completion.CompletionType;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 
-public class TaskCompletionTest extends ConcordYamlTestBase {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testTaskCompletion() {
+    void testTaskCompletion() {
         var file = configureFromText("""
                 flows:
                   main:
@@ -23,12 +29,12 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
-        assertContainsElements(lookupElementStrings, "http", "slack", "git");
+        Assertions.assertNotNull(lookupElementStrings);
+        assertThat(lookupElementStrings).contains("http", "slack", "git");
     }
 
     @Test
-    public void testTaskCompletionWithPrefix() {
+    void testTaskCompletionWithPrefix() {
         var file = configureFromText("""
                 flows:
                   main:
@@ -40,13 +46,13 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
-        assertContainsElements(lookupElementStrings, "http", "httpPost");
-        assertDoesntContain(lookupElementStrings, "slack");
+        Assertions.assertNotNull(lookupElementStrings);
+        assertThat(lookupElementStrings).contains("http", "httpPost");
+        assertThat(lookupElementStrings).doesNotContain("slack");
     }
 
     @Test
-    public void testTaskCompletionEmpty() {
+    void testTaskCompletionEmpty() {
         var file = configureFromText("""
                 flows:
                   main:
@@ -60,11 +66,11 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         // Should be null or empty when no completions available
-        assertTrue(lookupElementStrings == null || lookupElementStrings.isEmpty());
+        Assertions.assertTrue(lookupElementStrings == null || lookupElementStrings.isEmpty());
     }
 
     @Test
-    public void testTaskCompletionInLoop() {
+    void testTaskCompletionInLoop() {
         var file = configureFromText("""
                 flows:
                   main:
@@ -82,12 +88,12 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
-        assertContainsElements(lookupElementStrings, "http", "log");
+        Assertions.assertNotNull(lookupElementStrings);
+        assertThat(lookupElementStrings).contains("http", "log");
     }
 
     @Test
-    public void testTaskCompletionMultiScope() {
+    void testTaskCompletionMultiScope() {
         // Scope A with its tasks
         var fileA = createFile("project-a/concord.yaml", """
                 flows:
@@ -110,8 +116,8 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
-        assertContainsElements(lookupElementStrings, "http", "slack");
-        assertDoesntContain(lookupElementStrings, "unexpected1");
+        Assertions.assertNotNull(lookupElementStrings);
+        assertThat(lookupElementStrings).contains("http", "slack");
+        assertThat(lookupElementStrings).doesNotContain("unexpected1");
     }
 }

@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class ImportsHighlightingTest extends HighlightingTestBase {
+class ImportsHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testImportsSection() {
+    void testImportsSection() {
         configureFromText("""
             imports:
               - git:
@@ -16,7 +16,7 @@ public class ImportsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testGitImportType() {
+    void testGitImportType() {
         configureFromResource("/highlighting/git-import.concord.yaml");
 
         highlight(key("/imports[0]/git")).is(ConcordHighlightingColors.DSL_KIND);
@@ -36,7 +36,7 @@ public class ImportsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testMvnImportType() {
+    void testMvnImportType() {
         configureFromText("""
             imports:
               - mvn:
@@ -51,7 +51,7 @@ public class ImportsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testDirImportType() {
+    void testDirImportType() {
         configureFromText("""
             imports:
               - dir:
@@ -66,7 +66,7 @@ public class ImportsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testMultipleImports() {
+    void testMultipleImports() {
         configureFromText("""
             imports:
               - git:

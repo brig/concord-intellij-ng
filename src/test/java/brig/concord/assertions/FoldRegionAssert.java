@@ -1,6 +1,6 @@
 package brig.concord.assertions;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.codeInsight.folding.CodeFoldingManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.FoldRegion;
@@ -13,7 +13,7 @@ public class FoldRegionAssert {
 
     private final FoldRegion region;
 
-    public static FoldRegionAssert foldRegion(CodeInsightTestFixture fixture, ConcordYamlTestBase.AbstractTarget target) {
+    public static FoldRegionAssert foldRegion(CodeInsightTestFixture fixture, ConcordYamlTestBaseJunit5.AbstractTarget target) {
         updateFolding(fixture);
         return new FoldRegionAssert(findRegionForRange(fixture, target.range()));
     }

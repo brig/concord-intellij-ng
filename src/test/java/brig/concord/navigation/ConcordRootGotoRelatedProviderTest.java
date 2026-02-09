@@ -1,6 +1,6 @@
 package brig.concord.navigation;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.navigation.GotoRelatedItem;
 import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class ConcordRootGotoRelatedProviderTest extends ConcordYamlTestBase {
+class ConcordRootGotoRelatedProviderTest extends ConcordYamlTestBaseJunit5 {
 
     private final ConcordRootGotoRelatedProvider provider = new ConcordRootGotoRelatedProvider();
 
     @Test
-    public void testReturnsRootForFileInScope() {
+    void testReturnsRootForFileInScope() {
         // Create root file
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
@@ -42,7 +42,7 @@ public class ConcordRootGotoRelatedProviderTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testReturnsEmptyForRootFile() {
+    void testReturnsEmptyForRootFile() {
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
                 """
@@ -58,7 +58,7 @@ public class ConcordRootGotoRelatedProviderTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testReturnsEmptyForOutOfScopeFile() {
+    void testReturnsEmptyForOutOfScopeFile() {
         // Create root with narrow pattern
         myFixture.addFileToProject(
                 "my-project/concord.yaml",
@@ -85,7 +85,7 @@ public class ConcordRootGotoRelatedProviderTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testReturnsMultipleRootsWhenFileInMultipleScopes() {
+    void testReturnsMultipleRootsWhenFileInMultipleScopes() {
         // Root 1 includes files in sub/shared/
         myFixture.addFileToProject(
                 "concord.yaml",
@@ -124,7 +124,7 @@ public class ConcordRootGotoRelatedProviderTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testNavigatesToCorrectFile() {
+    void testNavigatesToCorrectFile() {
         var root = myFixture.addFileToProject(
                 "my-project/concord.yaml",
                 """

@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class ResourcesHighlightingTest extends HighlightingTestBase {
+class ResourcesHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testResourcesSection() {
+    void testResourcesSection() {
         configureFromText("""
             resources:
               concord:

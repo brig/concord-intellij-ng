@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class ConfigurationHighlightingTest extends HighlightingTestBase {
+class ConfigurationHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testConfigurationSection() {
+    void testConfigurationSection() {
         configureFromText("""
             configuration:
               runtime: "concord-v2"
@@ -15,7 +15,7 @@ public class ConfigurationHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testUserKeyInArguments() {
+    void testUserKeyInArguments() {
         configureFromText("""
             configuration:
               arguments:
@@ -28,7 +28,7 @@ public class ConfigurationHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testFullConfiguration() {
+    void testFullConfiguration() {
         configureFromResource("/highlighting/configuration.concord.yaml");
 
         highlight(key("configuration")).is(ConcordHighlightingColors.DSL_SECTION);

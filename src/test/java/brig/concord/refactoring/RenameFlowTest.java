@@ -1,19 +1,17 @@
 package brig.concord.refactoring;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiNamedElement;
 import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class RenameFlowTest extends ConcordYamlTestBase {
+class RenameFlowTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testRenameFlow() {
+    void testRenameFlow() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -30,7 +28,7 @@ public class RenameFlowTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testRenameFlowMultipleCalls() {
+    void testRenameFlowMultipleCalls() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -53,7 +51,7 @@ public class RenameFlowTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void renameInMultiFiles() {
+    void renameInMultiFiles() {
         // Setup Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -94,7 +92,7 @@ public class RenameFlowTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void renameInMultiScopes() {
+    void renameInMultiScopes() {
         // Setup Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -171,7 +169,7 @@ public class RenameFlowTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void renameInMultiFiles2() {
+    void renameInMultiFiles2() {
         // Setup Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -218,7 +216,7 @@ public class RenameFlowTest extends ConcordYamlTestBase {
     private void assertFileText(PsiFile file, String expected) {
         ReadAction.run(() -> {
             var doc = FileDocumentManager.getInstance().getDocument(file.getVirtualFile());
-            assertNotNull(doc);
+            Assertions.assertNotNull(doc);
 
             Assertions.assertEquals(expected, doc.getText());
         });

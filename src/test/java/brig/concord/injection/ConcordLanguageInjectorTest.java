@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class ConcordLanguageInjectorTest extends HighlightingTestBase {
+class ConcordLanguageInjectorTest extends HighlightingTestBase {
 
     @Test
-    public void testJsInjection() {
+    void testJsInjection() {
         configureFromText("""
             flows:
               default:
@@ -45,7 +45,7 @@ public class ConcordLanguageInjectorTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testGroovyInjection() {
+    void testGroovyInjection() {
         configureFromText("""
             flows:
               default:

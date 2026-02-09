@@ -1,6 +1,6 @@
 package brig.concord.hierarchy;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.openapi.application.ReadAction;
@@ -12,10 +12,10 @@ import java.util.List;
 
 import static brig.concord.psi.ProcessDefinition.findEnclosingFlowDefinition;
 
-public class FlowCallHierarchyTest extends ConcordYamlTestBase {
+class FlowCallHierarchyTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testFindCallersSimple() {
+    void testFindCallersSimple() {
         configureFromText("""
                 flows:
                   callerFlow:
@@ -44,7 +44,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testFindCallersMultiple() {
+    void testFindCallersMultiple() {
         configureFromText("""
                 flows:
                   flow1:
@@ -81,7 +81,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testFindCalleesSimple() {
+    void testFindCalleesSimple() {
         configureFromText("""
                 flows:
                   mainFlow:
@@ -110,7 +110,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testFindCalleesNested() {
+    void testFindCalleesNested() {
         configureFromText("""
                 flows:
                   mainFlow:
@@ -153,7 +153,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testFindCalleesInSwitchStep() {
+    void testFindCalleesInSwitchStep() {
         configureFromText("""
                 flows:
                   mainFlow:
@@ -193,7 +193,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testDynamicExpression() {
+    void testDynamicExpression() {
         configureFromText("""
                 flows:
                   mainFlow:
@@ -224,7 +224,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testFindContainingFlow() {
+    void testFindContainingFlow() {
         configureFromText("""
                 flows:
                   outerFlow:
@@ -248,7 +248,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testResolveCallToFlow() {
+    void testResolveCallToFlow() {
         configureFromText("""
                 flows:
                   mainFlow:
@@ -272,7 +272,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testCallerTreeStructure() {
+    void testCallerTreeStructure() {
         configureFromText("""
                 flows:
                   caller1:
@@ -298,7 +298,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testCalleeTreeStructure() {
+    void testCalleeTreeStructure() {
         configureFromText("""
                 flows:
                   main:
@@ -325,7 +325,7 @@ public class FlowCallHierarchyTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testHierarchyProviderTarget() {
+    void testHierarchyProviderTarget() {
         configureFromText("""
                 flows:
                   testFlow:
