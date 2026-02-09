@@ -1,6 +1,6 @@
 package brig.concord.navigation;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.navigation.GotoRelatedItem;
 import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class ConcordRootGotoRelatedProviderTest extends ConcordYamlTestBase {
+public class ConcordRootGotoRelatedProviderTest extends ConcordYamlTestBaseJunit5 {
 
     private final ConcordRootGotoRelatedProvider provider = new ConcordRootGotoRelatedProvider();
 

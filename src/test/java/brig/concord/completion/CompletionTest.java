@@ -1,13 +1,14 @@
 package brig.concord.completion;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.testFramework.EdtTestUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class CompletionTest extends ConcordYamlTestBase {
+public class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testCompletion() {
@@ -16,7 +17,7 @@ public class CompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "p1");
     }
 
@@ -27,7 +28,7 @@ public class CompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "block", "call", "checkpoint", "exit", "expr", "form", "if", "log", "logYaml", "parallel", "return", "script", "set", "suspend", "switch", "task", "throw", "try");
     }
 
@@ -38,7 +39,7 @@ public class CompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "myflow1");
     }
 
@@ -78,7 +79,7 @@ public class CompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "myflow1");
     }
 
@@ -89,7 +90,7 @@ public class CompletionTest extends ConcordYamlTestBase {
                         flows:
                           myFlow:
                             - log: "default"
-                        
+
                         triggers:
                           - manual:
                               entryPoint: <caret>
@@ -98,7 +99,7 @@ public class CompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "myFlow");
     }
 
@@ -128,7 +129,7 @@ public class CompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "myflow1");
 
         // Edit flowB -> flowB1
@@ -150,7 +151,7 @@ public class CompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "myflow1");
     }
 }

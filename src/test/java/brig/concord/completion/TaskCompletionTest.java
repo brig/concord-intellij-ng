@@ -1,13 +1,17 @@
 package brig.concord.completion;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.dependency.TaskRegistry;
 import com.intellij.codeInsight.completion.CompletionType;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Set;
 
-public class TaskCompletionTest extends ConcordYamlTestBase {
+public class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testTaskCompletion() {
@@ -23,7 +27,7 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertContainsElements(lookupElementStrings, "http", "slack", "git");
     }
 
@@ -40,7 +44,7 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertContainsElements(lookupElementStrings, "http", "httpPost");
         assertDoesntContain(lookupElementStrings, "slack");
     }
@@ -60,7 +64,7 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         // Should be null or empty when no completions available
-        assertTrue(lookupElementStrings == null || lookupElementStrings.isEmpty());
+        Assertions.assertTrue(lookupElementStrings == null || lookupElementStrings.isEmpty());
     }
 
     @Test
@@ -82,7 +86,7 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertContainsElements(lookupElementStrings, "http", "log");
     }
 
@@ -110,7 +114,7 @@ public class TaskCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertContainsElements(lookupElementStrings, "http", "slack");
         assertDoesntContain(lookupElementStrings, "unexpected1");
     }

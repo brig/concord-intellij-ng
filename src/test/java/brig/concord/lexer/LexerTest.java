@@ -2,7 +2,7 @@ package brig.concord.lexer;
 
 import org.junit.jupiter.api.Test;
 
-import static brig.concord.ConcordYamlTestBase.loadResource;
+import static brig.concord.ConcordYamlTestBaseJunit5.loadResource;
 import static brig.concord.assertions.TokenAssertions.assertTokens;
 
 public class LexerTest {

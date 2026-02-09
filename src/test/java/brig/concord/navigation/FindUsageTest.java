@@ -1,23 +1,11 @@
 package brig.concord.navigation;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import com.intellij.usages.Usage;
-import com.intellij.usages.UsageInfo2UsageAdapter;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-
-public class FindUsageTest extends ConcordYamlTestBase {
-
-    @Override
-    protected String getTestDataPath() {
-        return "./src/test/resources/findUsage";
-    }
+public class FindUsageTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void findUsageTest() {
@@ -36,6 +24,6 @@ public class FindUsageTest extends ConcordYamlTestBase {
             return result;
         });
 
-        assertEquals(1, usageInfos.size());
+        Assertions.assertEquals(1, usageInfos.size());
     }
 }

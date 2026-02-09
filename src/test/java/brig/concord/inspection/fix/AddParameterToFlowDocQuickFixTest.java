@@ -1,15 +1,23 @@
 package brig.concord.inspection.fix;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.inspection.InspectionTestBase;
 import brig.concord.inspection.UnknownKeysInspection;
-import com.intellij.testFramework.EdtTestUtil;
+import com.intellij.codeInspection.LocalInspectionTool;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
+import java.util.Collection;
+import java.util.List;
+
+public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
+
+    @Override
+    protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
+        return List.of(UnknownKeysInspection.class);
+    }
 
     @Test
     public void testAddParamToExistingDoc() {
-        myFixture.enableInspections(UnknownKeysInspection.class);
         configureFromText("""
             flows:
               ##
@@ -27,7 +35,7 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Add 'newParam' to flow documentation");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -50,7 +58,6 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
 
     @Test
     public void testAddParamToNewDoc() {
-        myFixture.enableInspections(UnknownKeysInspection.class);
         configureFromText("""
             flows:
               ##
@@ -68,12 +75,11 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
         // The inspection does NOT trigger if there are no parameters defined in the doc (it treats it as accepting any params).
         // So we expect NO quick fix here.
         var intentions = myFixture.filterAvailableIntentions("Add 'newParam' to flow documentation");
-        assertTrue("Quick fix should NOT be available", intentions.isEmpty());
+        Assertions.assertTrue(intentions.isEmpty(), "Quick fix should NOT be available");
     }
-    
+
     @Test
     public void testAddParamToMissingDoc() {
-        myFixture.enableInspections(UnknownKeysInspection.class);
         configureFromText("""
             flows:
               myFlow:
@@ -86,12 +92,11 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Add 'newParam' to flow documentation");
-        assertTrue("Quick fix should NOT be available when flow doc is missing", intentions.isEmpty());
+        Assertions.assertTrue(intentions.isEmpty(), "Quick fix should NOT be available when flow doc is missing");
     }
 
     @Test
     public void testAddParamWithBooleanType() {
-        myFixture.enableInspections(UnknownKeysInspection.class);
         configureFromText("""
             flows:
               ##
@@ -109,7 +114,7 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Add 'flag' to flow documentation");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -132,7 +137,6 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
 
     @Test
     public void testAddParamWithIntType() {
-        myFixture.enableInspections(UnknownKeysInspection.class);
         configureFromText("""
             flows:
               ##
@@ -150,7 +154,7 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Add 'count' to flow documentation");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -173,7 +177,6 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
 
     @Test
     public void testAddParamWithObjectType() {
-        myFixture.enableInspections(UnknownKeysInspection.class);
         configureFromText("""
             flows:
               ##
@@ -192,7 +195,7 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Add 'config' to flow documentation");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -216,7 +219,6 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
 
     @Test
     public void testAddParamWithArrayType() {
-        myFixture.enableInspections(UnknownKeysInspection.class);
         configureFromText("""
             flows:
               ##
@@ -236,7 +238,7 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Add 'items' to flow documentation");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -261,7 +263,6 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
 
     @Test
     public void testAddParamWithExpressionType() {
-        myFixture.enableInspections(UnknownKeysInspection.class);
         configureFromText("""
             flows:
               ##
@@ -279,7 +280,7 @@ public class AddParameterToFlowDocQuickFixTest extends ConcordYamlTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Add 'dynamic' to flow documentation");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""

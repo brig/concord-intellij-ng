@@ -1,6 +1,6 @@
 package brig.concord.inspection;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.assertions.InspectionAssertions;
 import com.intellij.codeInspection.LocalInspectionTool;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Collection;
 
-public abstract class InspectionTestBase extends ConcordYamlTestBase {
+public abstract class InspectionTestBase extends ConcordYamlTestBaseJunit5 {
 
     @Override
     @BeforeEach
@@ -27,7 +27,7 @@ public abstract class InspectionTestBase extends ConcordYamlTestBase {
         InspectionAssertions.assertNoErrors(this.myFixture);
     }
 
-    protected @NotNull InspectionAssertions inspection(@NotNull ConcordYamlTestBase.AbstractTarget target) {
+    protected @NotNull InspectionAssertions inspection(@NotNull ConcordYamlTestBaseJunit5.AbstractTarget target) {
         return new InspectionAssertions(myFixture, target);
     }
 }

@@ -2,6 +2,7 @@ package brig.concord.dependency;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DependencyResolverTest {
 
-    private static final MavenCoordinate COORD =
+    private static final @NotNull MavenCoordinate COORD =
             Objects.requireNonNull(MavenCoordinate.parse("mvn://com.example:my-task:1.0.0"));
 
     @Test
@@ -67,7 +68,9 @@ class DependencyResolverTest {
     @Test
     void resolveAllReturnsResolvedAndErrors(@TempDir Path tempDir) throws IOException {
         var coord1 = MavenCoordinate.parse("mvn://com.example:task-a:1.0.0");
+        Assertions.assertNotNull(coord1);
         var coord2 = MavenCoordinate.parse("mvn://com.example:task-b:1.0.0");
+        Assertions.assertNotNull(coord2);
 
         // Only coord1 exists locally
         var jarPath = tempDir.resolve(coord1.getRepositoryPath());

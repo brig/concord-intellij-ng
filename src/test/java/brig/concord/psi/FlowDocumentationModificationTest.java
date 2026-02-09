@@ -1,10 +1,10 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.command.WriteCommandAction;
 import org.junit.jupiter.api.Test;
 
-public class FlowDocumentationModificationTest extends ConcordYamlTestBase {
+public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testAddInputParameterToExistingSection() {

@@ -1,7 +1,7 @@
 package brig.concord.assertions;
 
 import brig.concord.ConcordYamlPath;
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
 import com.intellij.openapi.application.ReadAction;
@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FlowDocAssertions {
 
-    public static void assertFlowDoc(ConcordYamlPath yamlPath, ConcordYamlTestBase.KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
+    public static void assertFlowDoc(ConcordYamlPath yamlPath, ConcordYamlTestBaseJunit5.KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
         ReadAction.run(() -> {
             var kv = yamlPath.keyElement(flowKey.path()).getParent();
 

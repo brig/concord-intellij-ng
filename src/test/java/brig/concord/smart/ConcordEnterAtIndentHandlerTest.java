@@ -1,10 +1,10 @@
 package brig.concord.smart;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.actionSystem.IdeActions;
 import org.junit.jupiter.api.Test;
 
-public class ConcordEnterAtIndentHandlerTest extends ConcordYamlTestBase {
+public class ConcordEnterAtIndentHandlerTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testMapping() {

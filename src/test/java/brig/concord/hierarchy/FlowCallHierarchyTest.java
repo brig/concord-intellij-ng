@@ -1,6 +1,6 @@
 package brig.concord.hierarchy;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.openapi.application.ReadAction;
@@ -12,7 +12,7 @@ import java.util.List;
 
 import static brig.concord.psi.ProcessDefinition.findEnclosingFlowDefinition;
 
-public class FlowCallHierarchyTest extends ConcordYamlTestBase {
+public class FlowCallHierarchyTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testFindCallersSimple() {

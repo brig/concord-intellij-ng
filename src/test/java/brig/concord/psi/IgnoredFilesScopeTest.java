@@ -1,12 +1,12 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class IgnoredFilesScopeTest extends ConcordYamlTestBase {
+public class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testIgnoredRootIsNotDiscovered() {
@@ -135,7 +135,7 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
-        assertNotNull(lookupElementStrings);
+        Assertions.assertNotNull(lookupElementStrings);
         assertSameElements(lookupElementStrings, "flowB", "myflow1");
     }
 

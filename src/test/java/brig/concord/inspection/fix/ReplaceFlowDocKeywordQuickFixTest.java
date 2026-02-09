@@ -3,6 +3,7 @@ package brig.concord.inspection.fix;
 import brig.concord.inspection.FlowDocumentationInspection;
 import brig.concord.inspection.InspectionTestBase;
 import com.intellij.codeInspection.LocalInspectionTool;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -28,7 +29,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Change keyword to 'mandatory'");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -55,7 +56,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Change keyword to 'optional'");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -82,10 +83,10 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Change keyword to 'mandatory'");
-        assertFalse("Quick fix 'mandatory' should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix 'mandatory' should be available");
 
         var intentionsOpt = myFixture.filterAvailableIntentions("Change keyword to 'optional'");
-        assertFalse("Quick fix 'optional' should be available", intentionsOpt.isEmpty());
+        Assertions.assertFalse(intentionsOpt.isEmpty(), "Quick fix 'optional' should be available");
 
         myFixture.launchAction(intentions.getFirst());
 

@@ -1,6 +1,6 @@
 package brig.concord.toolwindow;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.toolwindow.nodes.ConcordTreeNode;
 import brig.concord.toolwindow.nodes.RootNode;
 import brig.concord.toolwindow.nodes.ScopeNode;
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ConcordToolWindowTest extends ConcordYamlTestBase {
+public class ConcordToolWindowTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testTreeStructureWithSingleRoot() {

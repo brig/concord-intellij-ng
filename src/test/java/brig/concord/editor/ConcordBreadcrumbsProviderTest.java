@@ -1,6 +1,6 @@
 package brig.concord.editor;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.ui.components.breadcrumbs.Crumb;
 import org.junit.jupiter.api.Assertions;
@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBase {
+public class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testFlowDefinition() {

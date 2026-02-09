@@ -1,20 +1,17 @@
 package brig.concord;
 
-import brig.concord.yaml.psi.YAMLFile;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ConcordYamlPathTest extends BasePlatformTestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private ConcordYamlPath path;
+public class ConcordYamlPathTest extends ConcordYamlTestBaseJunit5 {
 
     @Override
     @BeforeEach
     protected void setUp() throws Exception {
         super.setUp();
-        myFixture.configureByText("test.concord.yml", """
+        configureFromText("test.concord.yml", """
             flows:
               main:
                 - task: "http"
@@ -26,28 +23,21 @@ public class ConcordYamlPathTest extends BasePlatformTestCase {
                   meta:
                     segmentName: "API Call"
             """);
-        path = new ConcordYamlPath((YAMLFile) myFixture.getFile());
-    }
-
-    @Override
-    @AfterEach
-    protected void tearDown() throws Exception {
-        super.tearDown();
     }
 
     @Test
     public void testResolveKeyText() {
-        assertEquals("flows", path.keyText("flows"));
-        assertEquals("main", path.keyText("flows/main"));
-        assertEquals("task", path.keyText("flows/main[0]/task"));
-        assertEquals("in", path.keyText("flows/main[0]/in"));
-        assertEquals("times", path.keyText("flows/main[0]/retry/times"));
+        assertEquals("flows", yamlPath.keyText("flows"));
+        assertEquals("main", yamlPath.keyText("flows/main"));
+        assertEquals("task", yamlPath.keyText("flows/main[0]/task"));
+        assertEquals("in", yamlPath.keyText("flows/main[0]/in"));
+        assertEquals("times", yamlPath.keyText("flows/main[0]/retry/times"));
     }
 
     @Test
     public void testResolveKeyOffsets() {
-        var a = path.keyStartOffset("flows/main[0]/in");
-        var b = path.keyStartOffset("/flows/main[0]/in/");
+        var a = yamlPath.keyStartOffset("flows/main[0]/in");
+        var b = yamlPath.keyStartOffset("/flows/main[0]/in/");
         assertEquals(a, b);
 
         // sanity check: extracted text at that offset is "in"
@@ -58,17 +48,17 @@ public class ConcordYamlPathTest extends BasePlatformTestCase {
     @Test
     public void testValueRangesAndScalarValues() {
         // url value
-        var urlRange = path.valueRange("flows/main[0]/in/url");
+        var urlRange = yamlPath.valueRange("flows/main[0]/in/url");
         var urlText = myFixture.getEditor().getDocument().getText(urlRange);
         assertEquals("\"https://example.com\"", urlText); // PSI range includes quotes
 
         // retry times value
-        var timesRange = path.valueRange("flows/main[0]/retry/times");
+        var timesRange = yamlPath.valueRange("flows/main[0]/retry/times");
         var timesText = myFixture.getEditor().getDocument().getText(timesRange);
         assertEquals("3", timesText.trim());
 
         // meta segmentName value
-        var segRange = path.valueRange("flows/main[0]/meta/segmentName");
+        var segRange = yamlPath.valueRange("flows/main[0]/meta/segmentName");
         var segText = myFixture.getEditor().getDocument().getText(segRange);
         assertEquals("\"API Call\"", segText);
     }

@@ -1,6 +1,6 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ConcordScopeServiceTest extends ConcordYamlTestBase {
+public class ConcordScopeServiceTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testFindRootsWithSingleRoot() {
@@ -313,7 +313,7 @@ public class ConcordScopeServiceTest extends ConcordYamlTestBase {
         var service1 = ConcordScopeService.getInstance(getProject());
         var service2 = ConcordScopeService.getInstance(getProject());
 
-        assertSame("Should return same service instance", service1, service2);
+        Assertions.assertSame(service1, service2, "Should return same service instance");
     }
 
     @Test

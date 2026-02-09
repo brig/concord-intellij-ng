@@ -6,6 +6,7 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -2036,7 +2037,7 @@ public class ErrorInspectionTests extends InspectionTestBase {
                     .filter(highlightInfo -> highlightInfo.getSeverity() == HighlightSeverity.ERROR)
                     .toList());
 
-            assertEquals(dump(highlighting) + "\n", errors.size(), highlighting.size());
+            Assertions.assertEquals(errors.size(), highlighting.size(), dump(highlighting) + "\n");
 
             for (String error : errors) {
                 boolean hasError = false;
@@ -2050,11 +2051,11 @@ public class ErrorInspectionTests extends InspectionTestBase {
                 }
 
                 if (!hasError) {
-                    fail(dump(highlighting) + "\n '" + error + "' not found\n");
+                    Assertions.fail(dump(highlighting) + "\n '" + error + "' not found\n");
                 }
             }
 
-            assertTrue(dump(highlighting), highlighting.isEmpty());
+            Assertions.assertTrue(highlighting.isEmpty(), dump(highlighting));
         }
     }
 }

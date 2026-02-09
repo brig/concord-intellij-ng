@@ -1,15 +1,16 @@
 package brig.concord.inspection.fix;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.assertions.FlowDocAssertions;
 import brig.concord.assertions.InspectionAssertions;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.testFramework.EdtTestUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
-public class InsertClosingMarkerFixTest extends ConcordYamlTestBase {
+public class InsertClosingMarkerFixTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testQuickFixForUnclosedFlowDoc() {
@@ -27,8 +28,8 @@ public class InsertClosingMarkerFixTest extends ConcordYamlTestBase {
         var errors = myFixture.doHighlighting().stream()
                 .filter(info -> info.getSeverity().compareTo(HighlightSeverity.ERROR) >= 0)
                 .toList();
-        assertEquals(1, errors.size());
-        assertEquals("Expected closing ## marker", errors.getFirst().getDescription());
+        Assertions.assertEquals(1, errors.size());
+        Assertions.assertEquals("Expected closing ## marker", errors.getFirst().getDescription());
 
         // Move caret to error location
         EdtTestUtil.runInEdtAndWait(() ->
@@ -36,7 +37,7 @@ public class InsertClosingMarkerFixTest extends ConcordYamlTestBase {
 
         // Apply quick fix
         var intentions = myFixture.filterAvailableIntentions("Insert closing ## marker");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         // Verify the resulting text
@@ -74,11 +75,11 @@ public class InsertClosingMarkerFixTest extends ConcordYamlTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Insert closing ## marker");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
 
         String preview = myFixture.getIntentionPreviewText(intentions.getFirst());
-        assertNotNull("Preview should be available", preview);
-        assertTrue("Preview should contain closing marker", preview.contains("##\n"));
+        Assertions.assertNotNull(preview, "Preview should be available");
+        Assertions.assertTrue(preview.contains("##\n"), "Preview should contain closing marker");
     }
 
     private void assertFlowDoc(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {

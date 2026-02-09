@@ -1,6 +1,6 @@
 package brig.concord.parser;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.assertions.FlowDocAssertions;
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 import static brig.concord.assertions.FlowDocAssertions.assertFlowDocCount;
 
-public class FlowDocumentationParserTest extends ConcordYamlTestBase {
+public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testBasicFlowDocumentation() {

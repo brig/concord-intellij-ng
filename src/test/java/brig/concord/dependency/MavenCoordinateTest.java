@@ -1,5 +1,6 @@
 package brig.concord.dependency;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
@@ -100,8 +101,11 @@ class MavenCoordinateTest {
     @Test
     void equality() {
         var coord1 = MavenCoordinate.parse("mvn://com.example:artifact:1.0.0");
+        Assertions.assertNotNull(coord1);
         var coord2 = MavenCoordinate.parse("mvn://com.example:artifact:1.0.0");
+        Assertions.assertNotNull(coord2);
         var coord3 = MavenCoordinate.parse("mvn://com.example:artifact:2.0.0");
+        Assertions.assertNotNull(coord3);
 
         assertEquals(coord1, coord2);
         assertEquals(coord1.hashCode(), coord2.hashCode());

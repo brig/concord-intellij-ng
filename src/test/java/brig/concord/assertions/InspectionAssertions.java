@@ -1,7 +1,7 @@
 package brig.concord.assertions;
 
 import brig.concord.ConcordBundle;
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.util.TextRange;
@@ -17,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class InspectionAssertions {
 
     private final CodeInsightTestFixture myFixture;
-    private final ConcordYamlTestBase.AbstractTarget target;
+    private final ConcordYamlTestBaseJunit5.AbstractTarget target;
     private List<HighlightInfo> cachedHighlights;
 
-    public InspectionAssertions(CodeInsightTestFixture myFixture, ConcordYamlTestBase.AbstractTarget target) {
+    public InspectionAssertions(CodeInsightTestFixture myFixture, ConcordYamlTestBaseJunit5.AbstractTarget target) {
         this.myFixture = myFixture;
         this.target = target;
     }

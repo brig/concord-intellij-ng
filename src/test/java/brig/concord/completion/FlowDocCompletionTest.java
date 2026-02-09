@@ -1,12 +1,13 @@
 package brig.concord.completion;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.codeInsight.completion.CompletionType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class FlowDocCompletionTest extends ConcordYamlTestBase {
+public class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     private static final List<String> ALL_TYPES = List.of(
             "string", "boolean", "int", "integer", "number", "object", "any",
@@ -30,7 +31,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookups = myFixture.getLookupElementStrings();
-        assertNotNull(lookups);
+        Assertions.assertNotNull(lookups);
         assertContainsElements(lookups, ALL_TYPES);
     }
 
@@ -49,7 +50,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookups = myFixture.getLookupElementStrings();
-        assertNotNull(lookups);
+        Assertions.assertNotNull(lookups);
         assertContainsElements(lookups, "string", "string[]");
     }
 
@@ -68,7 +69,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookups = myFixture.getLookupElementStrings();
-        assertNotNull(lookups);
+        Assertions.assertNotNull(lookups);
         assertContainsElements(lookups, KEYWORDS);
     }
 

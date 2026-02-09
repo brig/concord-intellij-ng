@@ -1,11 +1,11 @@
 package brig.concord.notification;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class OutOfScopeEditorNotificationProviderTest extends ConcordYamlTestBase {
+public class OutOfScopeEditorNotificationProviderTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testRootFile_noNotification() {

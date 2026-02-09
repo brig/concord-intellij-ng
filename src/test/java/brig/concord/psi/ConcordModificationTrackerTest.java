@@ -1,21 +1,23 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.application.impl.NonBlockingReadActionImpl;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.EdtTestUtil;
 import com.intellij.testFramework.PlatformTestUtil;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.LongSupplier;
 
-public class ConcordModificationTrackerTest extends ConcordYamlTestBase {
+public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
 
     @Override
     @BeforeEach
@@ -532,8 +534,8 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBase {
         awaitProcessing();
         long initialStructure = tracker.structure().getModificationCount();
 
-        var notified = new java.util.concurrent.atomic.AtomicBoolean(false);
-        getProject().getMessageBus().connect(getTestRootDisposable())
+        var notified = new AtomicBoolean(false);
+        getProject().getMessageBus().connect(myFixture.getTestRootDisposable())
                 .subscribe(ConcordProjectListener.TOPIC, () -> notified.set(true));
 
         tracker.forceRefresh();

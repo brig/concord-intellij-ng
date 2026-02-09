@@ -1,12 +1,12 @@
 package brig.concord.dependency;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DependencyCollectorTest extends ConcordYamlTestBase {
+public class DependencyCollectorTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     void collectFromConfiguration() {
@@ -21,7 +21,7 @@ public class DependencyCollectorTest extends ConcordYamlTestBase {
                 """);
 
         var collector = DependencyCollector.getInstance(getProject());
-        var deps = ReadAction.compute(() -> collector.collectAll());
+        var deps = ReadAction.compute(collector::collectAll);
 
         assertEquals(2, deps.size());
         assertTrue(deps.stream().anyMatch(d -> d.getArtifactId().equals("http-tasks")));
@@ -72,7 +72,7 @@ public class DependencyCollectorTest extends ConcordYamlTestBase {
                 """);
 
         var collector = DependencyCollector.getInstance(getProject());
-        var deps = ReadAction.compute(() -> collector.collectAll());
+        var deps = ReadAction.compute(collector::collectAll);
 
         assertEquals(4, deps.size());
         assertTrue(deps.stream().anyMatch(d -> d.getArtifactId().equals("base")));
@@ -118,7 +118,7 @@ public class DependencyCollectorTest extends ConcordYamlTestBase {
                 """);
 
         var collector = DependencyCollector.getInstance(getProject());
-        var deps = ReadAction.compute(() -> collector.collectAll());
+        var deps = ReadAction.compute(collector::collectAll);
 
         assertEquals(1, deps.size());
         assertEquals("valid", deps.iterator().next().getArtifactId());
@@ -136,10 +136,10 @@ public class DependencyCollectorTest extends ConcordYamlTestBase {
                 """);
 
         var collector = DependencyCollector.getInstance(getProject());
-        var scopeDeps = ReadAction.compute(() -> collector.collectByScope());
+        var scopeDeps = ReadAction.compute(collector::collectByScope);
 
         assertEquals(1, scopeDeps.size());
-        var first = scopeDeps.get(0);
+        var first = scopeDeps.getFirst();
         assertFalse(first.isEmpty());
         assertEquals(1, first.occurrences().size());
         assertEquals("root-dep", first.occurrences().get(0).coordinate().getArtifactId());
@@ -156,7 +156,7 @@ public class DependencyCollectorTest extends ConcordYamlTestBase {
                 """);
 
         var collector = DependencyCollector.getInstance(getProject());
-        var deps = ReadAction.compute(() -> collector.collectAll());
+        var deps = ReadAction.compute(collector::collectAll);
 
         assertTrue(deps.isEmpty());
     }
@@ -184,7 +184,7 @@ public class DependencyCollectorTest extends ConcordYamlTestBase {
                 """);
 
         var collector = DependencyCollector.getInstance(getProject());
-        var deps = ReadAction.compute(() -> collector.collectAll());
+        var deps = ReadAction.compute(collector::collectAll);
 
         assertEquals(2, deps.size());
         assertTrue(deps.stream().anyMatch(d -> d.getArtifactId().equals("root-dep")));

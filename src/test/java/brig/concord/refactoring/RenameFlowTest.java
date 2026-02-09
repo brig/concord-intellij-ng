@@ -1,16 +1,14 @@
 package brig.concord.refactoring;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiNamedElement;
 import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class RenameFlowTest extends ConcordYamlTestBase {
+public class RenameFlowTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testRenameFlow() {
@@ -218,7 +216,7 @@ public class RenameFlowTest extends ConcordYamlTestBase {
     private void assertFileText(PsiFile file, String expected) {
         ReadAction.run(() -> {
             var doc = FileDocumentManager.getInstance().getDocument(file.getVirtualFile());
-            assertNotNull(doc);
+            Assertions.assertNotNull(doc);
 
             Assertions.assertEquals(expected, doc.getText());
         });

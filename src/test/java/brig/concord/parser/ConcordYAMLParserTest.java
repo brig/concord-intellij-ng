@@ -1,27 +1,22 @@
 package brig.concord.parser;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.impl.DebugUtil;
-import com.intellij.psi.impl.source.tree.ForeignLeafPsiElement;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.testFramework.ParsingTestUtil;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-import static com.intellij.testFramework.ParsingTestCase.*;
-
-public class ConcordYAMLParserTest extends ConcordYamlTestBase {
+public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     public void testBlockMapping() {
@@ -364,11 +359,22 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
 
     private void doSanityChecks(PsiFile root) {
         Assertions.assertEquals(root.getViewProvider().getContents().toString(), root.getText(), "psi text mismatch");
-        ensureParsed(root);
+        // ensureParsed: walk PSI tree to force lazy parsing
+        root.accept(new PsiRecursiveElementWalkingVisitor() {});
         ReadAction.run(() -> {
             ensureCorrectReparse(root);
             checkRangeConsistency(root);
         });
+    }
+
+    private static void ensureCorrectReparse(PsiFile file) {
+        try {
+            var cls = Class.forName("com.intellij.testFramework.ParsingTestCase");
+            var method = cls.getMethod("ensureCorrectReparse", PsiFile.class);
+            method.invoke(null, file);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected static String toParseTreeText(@NotNull PsiElement file,  boolean skipSpaces, boolean printRanges) {
@@ -394,44 +400,13 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     private static void checkRangeConsistency(PsiFile file) {
-        file.accept(new PsiRecursiveElementWalkingVisitor() {
-            @Override
-            public void visitElement(@NotNull PsiElement element) {
-                if (element instanceof ForeignLeafPsiElement) return;
-
-                try {
-                    ensureNodeRangeConsistency(element, file);
-                }
-                catch (Throwable e) {
-                    throw new AssertionError("In " + element + " of " + element.getClass(), e);
-                }
-                super.visitElement(element);
-            }
-
-            private void ensureNodeRangeConsistency(PsiElement parent, PsiFile file) {
-                int parentOffset = parent.getTextRange().getStartOffset();
-                int childOffset = 0;
-                ASTNode child = parent.getNode().getFirstChildNode();
-                if (child != null) {
-                    while (child != null) {
-                        int childLength = checkChildRangeConsistency(file, parentOffset, childOffset, child);
-                        childOffset += childLength;
-                        child = child.getTreeNext();
-                    }
-                    assertEquals(childOffset, parent.getTextLength());
-                }
-            }
-
-            private static int checkChildRangeConsistency(PsiFile file, int parentOffset, int childOffset, ASTNode child) {
-                assertEquals(child.getStartOffsetInParent(), childOffset);
-                assertEquals(child.getStartOffset(), childOffset + parentOffset);
-                int childLength = child.getTextLength();
-                assertEquals(TextRange.from(childOffset + parentOffset, childLength), child.getTextRange());
-                if (!(child.getPsi() instanceof ForeignLeafPsiElement)) {
-                    assertEquals(child.getTextRange().substring(file.getText()), child.getText());
-                }
-                return childLength;
-            }
-        });
+        try {
+            var cls = Class.forName("com.intellij.testFramework.ParsingTestCase");
+            var method = cls.getDeclaredMethod("checkRangeConsistency", PsiFile.class);
+            method.setAccessible(true);
+            method.invoke(null, file);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

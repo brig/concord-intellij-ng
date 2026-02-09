@@ -1,6 +1,6 @@
 package brig.concord.folding;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.assertions.FoldRegionAssert;
 import com.cronutils.descriptor.CronDescriptor;
 import com.cronutils.model.CronType;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
-public class CronExpressionFoldingTest extends ConcordYamlTestBase {
+public class CronExpressionFoldingTest extends ConcordYamlTestBaseJunit5 {
 
     private Locale previousLocale;
 

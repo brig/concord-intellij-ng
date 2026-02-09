@@ -2,6 +2,7 @@ package brig.concord.inspection;
 
 import brig.concord.yaml.psi.YAMLFile;
 import com.intellij.codeInspection.LocalInspectionTool;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -141,7 +142,7 @@ public class DuplicatedKeysInspectionTest extends InspectionTestBase {
                   a: 2
                 """
         );
-        assertFalse(file instanceof YAMLFile);
+        Assertions.assertFalse(file instanceof YAMLFile);
 
         inspection(doc()).expectNoErrors();
     }
