@@ -1,12 +1,10 @@
 package brig.concord.inspection;
 
-import brig.concord.assertions.FlowDocAssertions;
 import com.intellij.codeInspection.LocalInspectionTool;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class FlowDocumentationInspectionTest extends InspectionTestBase {
 
@@ -260,7 +258,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
                 - log: "test: ${bucket}"
             """);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasFlowName("myFlow")
                 .hasInputCount(1)
                 .hasOutputCount(1));
@@ -268,7 +266,4 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
         inspection(doc()).expectNoWarnings();
     }
 
-    private void flowDocFor(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
-        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
-    }
 }

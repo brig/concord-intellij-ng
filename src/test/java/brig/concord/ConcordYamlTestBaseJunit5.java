@@ -1,5 +1,6 @@
 package brig.concord;
 
+import brig.concord.assertions.FlowDocAssertions;
 import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.psi.ConcordModificationTracker;
 import brig.concord.psi.FlowDocParameter;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -160,6 +162,10 @@ public abstract class ConcordYamlTestBaseJunit5 {
         return new ValueTarget(path);
     }
 
+
+    protected void assertFlowDoc(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
+        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
+    }
 
     /**
      * Get flow documentation target for the flow at the given path.

@@ -1,10 +1,7 @@
 package brig.concord.parser;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
-import brig.concord.assertions.FlowDocAssertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Consumer;
 
 import static brig.concord.assertions.FlowDocAssertions.assertFlowDocCount;
 
@@ -27,7 +24,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasDescription("Process S3 files")
                 .hasInputCount(1)
@@ -54,7 +51,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasDescription("Process S3 files")
                 .hasInputCount(1)
@@ -84,7 +81,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasDescription("Process S3 files\nand\nsomething")
                 .hasInputCount(1)
@@ -108,7 +105,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processFiles"), doc -> doc
+        assertFlowDoc(key("/flows/processFiles"), doc -> doc
                 .param("files").hasType("string[]").isArrayType().hasBaseType("string").and()
                 .param("results").hasType("boolean[]").isArrayType().hasBaseType("boolean"));
     }
@@ -128,7 +125,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/connect"), doc -> doc
+        assertFlowDoc(key("/flows/connect"), doc -> doc
                 .hasInputCount(3)
                 .param("config").hasType("object").and()
                 .param("config.host").hasType("string").isMandatory().and()
@@ -152,7 +149,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/process"), doc -> doc
+        assertFlowDoc(key("/flows/process"), doc -> doc
                 .descriptionContains("Process S3 files")
                 .descriptionContains("multiline description")
                 .descriptionContains("spans multiple lines"));
@@ -192,10 +189,10 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/flow1"), doc -> doc
+        assertFlowDoc(key("/flows/flow1"), doc -> doc
                 .hasDescription("First flow"));
 
-        flowDocFor(key("/flows/flow2"), doc -> doc
+        assertFlowDoc(key("/flows/flow2"), doc -> doc
                 .hasDescription("Second flow"));
     }
 
@@ -222,7 +219,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/allTypes"), doc -> doc
+        assertFlowDoc(key("/flows/allTypes"), doc -> doc
                 .hasInputCount(11)
                 .hasFlowName("allTypes")
                 .noDescription()
@@ -254,7 +251,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/testFlow"), doc -> doc
+        assertFlowDoc(key("/flows/testFlow"), doc -> doc
                 .param("input1").isInput().and()
                 .param("output1").isOutput());
     }
@@ -275,7 +272,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasDescription("Process S3 files")
                 .hasInputCount(1)
@@ -300,7 +297,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasInputCount(2)
                 .hasOutputCount(1)
@@ -326,7 +323,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(1)
                 .hasOutputCount(0)
                 .param("param1").hasType("string").isMandatory());
@@ -348,7 +345,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(1)
                 .hasOutputCount(0)
                 .param("param1").hasType("string").isMandatory());
@@ -373,7 +370,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
         configureFromText(yaml);
 
         // out: is nested in in:, so both out and output1 become input parameters
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(3)
                 .hasOutputCount(0)
                 .param("input1").hasType("string").isInput().and()
@@ -398,7 +395,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(1)
                 .hasOutputCount(1)
                 .param("input1").hasType("string").isInput().and()
@@ -420,13 +417,10 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(2)
                 .param("param1").hasType("string").isMandatory().and()
                 .param("param2").hasType("string").isMandatory());
     }
 
-    private void flowDocFor(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
-        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
-    }
 }

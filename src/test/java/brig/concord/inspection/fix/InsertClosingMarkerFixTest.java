@@ -1,14 +1,11 @@
 package brig.concord.inspection.fix;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
-import brig.concord.assertions.FlowDocAssertions;
 import brig.concord.assertions.InspectionAssertions;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Consumer;
 
 public class InsertClosingMarkerFixTest extends ConcordYamlTestBaseJunit5 {
 
@@ -82,7 +79,4 @@ public class InsertClosingMarkerFixTest extends ConcordYamlTestBaseJunit5 {
         Assertions.assertTrue(preview.contains("##\n"), "Preview should contain closing marker");
     }
 
-    private void assertFlowDoc(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
-        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
-    }
 }

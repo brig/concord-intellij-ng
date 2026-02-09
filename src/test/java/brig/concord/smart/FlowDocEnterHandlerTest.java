@@ -1,7 +1,6 @@
 package brig.concord.smart;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
-import brig.concord.assertions.FlowDocAssertions;
 import brig.concord.assertions.InspectionAssertions;
 import brig.concord.inspection.MissingKeysInspection;
 import brig.concord.inspection.UnknownKeysInspection;
@@ -11,8 +10,6 @@ import com.intellij.openapi.actionSystem.IdeActions;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Consumer;
 
 public class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
 
@@ -151,7 +148,4 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
         myFixture.performEditorAction(IdeActions.ACTION_EDITOR_ENTER);
     }
 
-    private void assertFlowDoc(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
-        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
-    }
 }
