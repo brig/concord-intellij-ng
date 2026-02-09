@@ -6,6 +6,8 @@ import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
@@ -136,7 +138,7 @@ class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "flowB", "myflow1");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder("flowB", "myflow1");
     }
 
     @Test

@@ -5,6 +5,8 @@ import com.intellij.codeInsight.completion.CompletionType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
@@ -22,7 +24,7 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
         // Should have the discriminator key "action" in the list
-        assertContainsElements(lookupElements, "action");
+        assertThat(lookupElements).contains("action");
     }
 
     @Test
@@ -39,7 +41,7 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "start", "startExternal", "fork", "kill", "createApiKey", "createOrUpdateApiKey");
+        assertThat(lookupElements).contains("start", "startExternal", "fork", "kill", "createApiKey", "createOrUpdateApiKey");
     }
 
     @Test
@@ -57,7 +59,7 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "project", "payload", "entryPoint", "sync", "activeProfiles");
+        assertThat(lookupElements).contains("project", "payload", "entryPoint", "sync", "activeProfiles");
     }
 
     @Test
@@ -75,9 +77,9 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "instanceId", "sync");
+        assertThat(lookupElements).contains("instanceId", "sync");
         // Should not have start-specific params
-        assertDoesntContain(lookupElements, "project", "payload", "entryPoint");
+        assertThat(lookupElements).doesNotContain("project", "payload", "entryPoint");
     }
 
     @Test
@@ -95,7 +97,7 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "userId", "username", "userType", "name");
+        assertThat(lookupElements).contains("userId", "username", "userType", "name");
     }
 
     @Test
@@ -115,7 +117,7 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "ok", "id", "ids", "name", "key", "result");
+        assertThat(lookupElements).contains("ok", "id", "ids", "name", "key", "result");
     }
 
     @Test
@@ -170,9 +172,9 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
-        assertContainsElements(lookupElements, "forks", "entryPoint", "sync");
+        assertThat(lookupElements).contains("forks", "entryPoint", "sync");
         // Should not have kill-specific params
-        assertDoesntContain(lookupElements, "instanceId");
+        assertThat(lookupElements).doesNotContain("instanceId");
     }
 
     @Test
@@ -191,6 +193,6 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
         // Should have start params + external-specific
-        assertContainsElements(lookupElements, "project", "baseUrl", "apiKey");
+        assertThat(lookupElements).contains("project", "baseUrl", "apiKey");
     }
 }

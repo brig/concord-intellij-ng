@@ -8,6 +8,8 @@ import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
@@ -18,7 +20,7 @@ class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "p1");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder( "p1");
     }
 
     @Test
@@ -29,7 +31,7 @@ class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "block", "call", "checkpoint", "exit", "expr", "form", "if", "log", "logYaml", "parallel", "return", "script", "set", "suspend", "switch", "task", "throw", "try");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder( "block", "call", "checkpoint", "exit", "expr", "form", "if", "log", "logYaml", "parallel", "return", "script", "set", "suspend", "switch", "task", "throw", "try");
     }
 
     @Test
@@ -40,7 +42,7 @@ class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "myflow1");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder( "myflow1");
     }
 
     @Test
@@ -80,7 +82,7 @@ class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "myflow1");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder( "myflow1");
     }
 
     @Test
@@ -100,7 +102,7 @@ class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "myFlow");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder( "myFlow");
     }
 
     @Test
@@ -130,7 +132,7 @@ class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "myflow1");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder( "myflow1");
 
         // Edit flowB -> flowB1
         EdtTestUtil.runInEdtAndWait(() -> {
@@ -152,6 +154,6 @@ class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
         lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "myflow1");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder( "myflow1");
     }
 }

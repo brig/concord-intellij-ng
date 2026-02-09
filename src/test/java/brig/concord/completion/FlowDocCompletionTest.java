@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     private static final List<String> ALL_TYPES = List.of(
@@ -32,7 +34,7 @@ class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookups = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookups);
-        assertContainsElements(lookups, ALL_TYPES);
+        assertThat(lookups).containsAll(ALL_TYPES);
     }
 
     @Test
@@ -51,7 +53,7 @@ class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookups = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookups);
-        assertContainsElements(lookups, "string", "string[]");
+        assertThat(lookups).contains("string", "string[]");
     }
 
     @Test
@@ -70,7 +72,7 @@ class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookups = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookups);
-        assertContainsElements(lookups, KEYWORDS);
+        assertThat(lookups).containsAll(KEYWORDS);
     }
 
     @Test
@@ -90,7 +92,7 @@ class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
         var lookups = myFixture.getLookupElementStrings();
         // May be null if auto-completed, that's OK
         if (lookups != null) {
-            assertContainsElements(lookups, "mandatory");
+            assertThat(lookups).contains("mandatory");
         }
     }
 
@@ -107,8 +109,8 @@ class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
         var lookups = myFixture.getLookupElementStrings();
         // Should not contain flow doc types/keywords
         if (lookups != null) {
-            assertDoesntContain(lookups, ALL_TYPES);
-            assertDoesntContain(lookups, KEYWORDS);
+            assertThat(lookups).doesNotContainAnyElementsOf(ALL_TYPES);
+            assertThat(lookups).doesNotContainAnyElementsOf(KEYWORDS);
         }
     }
 }

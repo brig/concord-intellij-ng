@@ -11,6 +11,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
@@ -28,7 +30,7 @@ class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertContainsElements(lookupElementStrings, "http", "slack", "git");
+        assertThat(lookupElementStrings).contains("http", "slack", "git");
     }
 
     @Test
@@ -45,8 +47,8 @@ class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertContainsElements(lookupElementStrings, "http", "httpPost");
-        assertDoesntContain(lookupElementStrings, "slack");
+        assertThat(lookupElementStrings).contains("http", "httpPost");
+        assertThat(lookupElementStrings).doesNotContain("slack");
     }
 
     @Test
@@ -87,7 +89,7 @@ class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertContainsElements(lookupElementStrings, "http", "log");
+        assertThat(lookupElementStrings).contains("http", "log");
     }
 
     @Test
@@ -115,7 +117,7 @@ class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElementStrings = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElementStrings);
-        assertContainsElements(lookupElementStrings, "http", "slack");
-        assertDoesntContain(lookupElementStrings, "unexpected1");
+        assertThat(lookupElementStrings).contains("http", "slack");
+        assertThat(lookupElementStrings).doesNotContain("unexpected1");
     }
 }
