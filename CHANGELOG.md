@@ -10,6 +10,8 @@ starting with the built-in Concord task schema
 
 ### Changed
 
+- project: migrate to junit5 
+([#101](https://github.com/brig/concord-intellij-ng/pull/101))
 - project: intellij plugins version up 
 ([#95](https://github.com/brig/concord-intellij-ng/pull/95))
 
