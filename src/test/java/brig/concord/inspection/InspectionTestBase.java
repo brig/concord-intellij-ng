@@ -30,4 +30,8 @@ public abstract class InspectionTestBase extends ConcordYamlTestBaseJunit5 {
     protected @NotNull InspectionAssertions inspection(@NotNull ConcordYamlTestBaseJunit5.AbstractTarget target) {
         return new InspectionAssertions(myFixture, target);
     }
+
+    protected @NotNull InspectionAssertions inspection() {
+        return new InspectionAssertions(myFixture);
+    }
 }

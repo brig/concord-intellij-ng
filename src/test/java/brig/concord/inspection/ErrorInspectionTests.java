@@ -1,22 +1,14 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
-import brig.concord.meta.model.value.AnyOfType;
-import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.codeInspection.LocalInspectionTool;
-import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import static brig.concord.meta.model.value.ParamMetaTypes.*;
-import static brig.concord.assertions.InspectionAssertions.dump;
 
 class ErrorInspectionTests extends InspectionTestBase {
 
@@ -1933,129 +1925,4 @@ class ErrorInspectionTests extends InspectionTestBase {
                 .check();
     }
 
-    private Inspection inspection() {
-        return new Inspection(myFixture);
-    }
-
-    private static class Inspection {
-
-        private final CodeInsightTestFixture fixture;
-
-        private final List<String> errors = new ArrayList<>();
-
-        public Inspection(CodeInsightTestFixture fixture) {
-            this.fixture = fixture;
-        }
-
-        public Inspection assertHasError(String message) {
-            errors.add(message);
-            return this;
-        }
-
-        private Inspection assertValueRequired() {
-            errors.add("Value is required");
-            return this;
-        }
-
-        private Inspection assertArrayRequired() {
-            errors.add("Array is required");
-            return this;
-        }
-
-        private Inspection assertObjectRequired() {
-            errors.add(ConcordBundle.message("ConcordMetaType.error.object.is.required"));
-            return this;
-        }
-
-        private Inspection assertUndefinedFlow() {
-            errors.add(ConcordBundle.message("CallStepMetaType.error.undefinedFlow"));
-            return this;
-        }
-
-        private Inspection assertStringValueExpected() {
-            errors.add("String value expected");
-            return this;
-        }
-
-        private Inspection assertIntExpected() {
-            errors.add("Integer value expected");
-            return this;
-        }
-
-        private Inspection assertBooleanExpected() {
-            errors.add("Boolean value expected");
-            return this;
-        }
-
-        private Inspection assertSingleValueExpected() {
-            errors.add("Single value is expected");
-            return this;
-        }
-
-        private Inspection assertExpressionExpected() {
-            errors.add(ConcordBundle.message("ExpressionType.error.invalid.value"));
-            return this;
-        }
-
-        private Inspection assertDurationExpected() {
-            errors.add(ConcordBundle.message("DurationType.error.scalar.value"));
-            return this;
-        }
-
-        private Inspection assertUnknownKey(String key) {
-            errors.add(ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
-            return this;
-        }
-
-        private Inspection assertUnexpectedValue(String value) {
-            errors.add(ConcordBundle.message("YamlEnumType.validation.error.value.unknown", value));
-            return this;
-        }
-
-        private Inspection assertMissingKey(String key) {
-            errors.add("Missing required key(s): '" + key + "'");
-            return this;
-        }
-
-        private Inspection assertUnexpectedKey(String key) {
-            errors.add(ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
-            return this;
-        }
-
-        public Inspection assertUnknownStep() {
-            errors.add(ConcordBundle.message("StepElementMetaType.error.unknown.step"));
-            return this;
-        }
-
-        public Inspection assertInvalidValue(AnyOfType type) {
-            errors.add(ConcordBundle.message("invalid.value", type.expectedString()));
-            return this;
-        }
-
-        void check() {
-            List<HighlightInfo> highlighting = new ArrayList<>(fixture.doHighlighting().stream()
-                    .filter(highlightInfo -> highlightInfo.getSeverity() == HighlightSeverity.ERROR)
-                    .toList());
-
-            Assertions.assertEquals(errors.size(), highlighting.size(), dump(highlighting) + "\n");
-
-            for (String error : errors) {
-                boolean hasError = false;
-                for (Iterator<HighlightInfo> it = highlighting.iterator(); it.hasNext(); ) {
-                    HighlightInfo h = it.next();
-                    if (h.getDescription() != null && h.getDescription().startsWith(error)) {
-                        it.remove();
-                        hasError = true;
-                        break;
-                    }
-                }
-
-                if (!hasError) {
-                    Assertions.fail(dump(highlighting) + "\n '" + error + "' not found\n");
-                }
-            }
-
-            Assertions.assertTrue(highlighting.isEmpty(), dump(highlighting));
-        }
-    }
 }

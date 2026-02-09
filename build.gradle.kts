@@ -53,6 +53,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("junit:junit:4.13.2")
+    testImplementation("org.assertj:assertj-core:3.27.3")
 
     implementation("com.cronutils:cron-utils:9.2.0")
     implementation("org.ow2.asm:asm:9.7")

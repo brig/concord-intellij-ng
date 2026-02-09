@@ -2,23 +2,35 @@ package brig.concord.assertions;
 
 import brig.concord.ConcordBundle;
 import brig.concord.ConcordYamlTestBaseJunit5;
+import brig.concord.meta.model.value.AnyOfType;
 import com.intellij.codeInsight.daemon.impl.HighlightInfo;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class InspectionAssertions {
 
     private final CodeInsightTestFixture myFixture;
-    private final ConcordYamlTestBaseJunit5.AbstractTarget target;
+    private final @Nullable ConcordYamlTestBaseJunit5.AbstractTarget target;
     private List<HighlightInfo> cachedHighlights;
+
+    private final List<String> expectedErrors = new ArrayList<>();
+
+    public InspectionAssertions(CodeInsightTestFixture myFixture) {
+        this.myFixture = myFixture;
+        this.target = null;
+    }
 
     public InspectionAssertions(CodeInsightTestFixture myFixture, ConcordYamlTestBaseJunit5.AbstractTarget target) {
         this.myFixture = myFixture;
@@ -47,6 +59,8 @@ public class InspectionAssertions {
                 + highlighting.stream().map(HighlightInfo::toString).collect(Collectors.joining("\n"))
                 + "\n------ highlighting ------";
     }
+
+    // --- target-range-based (expect*) methods ---
 
     public InspectionAssertions expectDuplicateKey() {
         var keyName = target.text();
@@ -108,6 +122,10 @@ public class InspectionAssertions {
     }
 
     public InspectionAssertions expectHighlight(String expected) {
+        if (target == null) {
+            throw new IllegalStateException("expectHighlight() requires a target. Use the constructor with a target parameter.");
+        }
+
         var infos = assertHighlightAtRange(target.range());
 
         var ok = infos.stream()
@@ -156,6 +174,125 @@ public class InspectionAssertions {
         }
         return this;
     }
+
+    // --- accumulate-then-check (assert*) methods ---
+
+    public InspectionAssertions assertHasError(String message) {
+        expectedErrors.add(message);
+        return this;
+    }
+
+    public InspectionAssertions assertValueRequired() {
+        expectedErrors.add("Value is required");
+        return this;
+    }
+
+    public InspectionAssertions assertArrayRequired() {
+        expectedErrors.add("Array is required");
+        return this;
+    }
+
+    public InspectionAssertions assertObjectRequired() {
+        expectedErrors.add(ConcordBundle.message("ConcordMetaType.error.object.is.required"));
+        return this;
+    }
+
+    public InspectionAssertions assertUndefinedFlow() {
+        expectedErrors.add(ConcordBundle.message("CallStepMetaType.error.undefinedFlow"));
+        return this;
+    }
+
+    public InspectionAssertions assertStringValueExpected() {
+        expectedErrors.add("String value expected");
+        return this;
+    }
+
+    public InspectionAssertions assertIntExpected() {
+        expectedErrors.add("Integer value expected");
+        return this;
+    }
+
+    public InspectionAssertions assertBooleanExpected() {
+        expectedErrors.add("Boolean value expected");
+        return this;
+    }
+
+    public InspectionAssertions assertSingleValueExpected() {
+        expectedErrors.add("Single value is expected");
+        return this;
+    }
+
+    public InspectionAssertions assertExpressionExpected() {
+        expectedErrors.add(ConcordBundle.message("ExpressionType.error.invalid.value"));
+        return this;
+    }
+
+    public InspectionAssertions assertDurationExpected() {
+        expectedErrors.add(ConcordBundle.message("DurationType.error.scalar.value"));
+        return this;
+    }
+
+    public InspectionAssertions assertUnknownKey(String key) {
+        expectedErrors.add(ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
+        return this;
+    }
+
+    public InspectionAssertions assertUnexpectedValue(String value) {
+        expectedErrors.add(ConcordBundle.message("YamlEnumType.validation.error.value.unknown", value));
+        return this;
+    }
+
+    public InspectionAssertions assertMissingKey(String key) {
+        expectedErrors.add("Missing required key(s): '" + key + "'");
+        return this;
+    }
+
+    public InspectionAssertions assertUnexpectedKey(String key) {
+        expectedErrors.add(ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
+        return this;
+    }
+
+    public InspectionAssertions assertUnknownStep() {
+        expectedErrors.add(ConcordBundle.message("StepElementMetaType.error.unknown.step"));
+        return this;
+    }
+
+    public InspectionAssertions assertInvalidValue(AnyOfType type) {
+        expectedErrors.add(ConcordBundle.message("invalid.value", type.expectedString()));
+        return this;
+    }
+
+    public void check() {
+        if (target != null) {
+            throw new IllegalStateException("check() is for file-wide verification. Use expect* methods for target-range-based assertions.");
+        }
+
+        List<HighlightInfo> highlighting = new ArrayList<>(myFixture.doHighlighting().stream()
+                .filter(highlightInfo -> highlightInfo.getSeverity() == HighlightSeverity.ERROR)
+                .toList());
+
+        assertEquals(expectedErrors.size(), highlighting.size(), dump(highlighting) + "\n");
+
+        for (String error : expectedErrors) {
+            boolean hasError = false;
+            for (Iterator<HighlightInfo> it = highlighting.iterator(); it.hasNext(); ) {
+                HighlightInfo h = it.next();
+                if (h.getDescription() != null && h.getDescription().startsWith(error)) {
+                    it.remove();
+                    hasError = true;
+                    break;
+                }
+            }
+
+            if (!hasError) {
+                fail(dump(highlighting) + "\n '" + error + "' not found\n");
+            }
+        }
+
+        assertTrue(highlighting.isEmpty(), dump(highlighting));
+    }
+
+    // --- private helpers ---
 
     private @NotNull List<HighlightInfo> assertHighlightAtRange(@NotNull TextRange range) {
         var result = findHighlightsAt(range);
