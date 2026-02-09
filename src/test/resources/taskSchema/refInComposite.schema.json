@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Test schema for $ref inside oneOf/anyOf/items",
+  "definitions": {
+    "stringType": {
+      "type": "string"
+    },
+    "intType": {
+      "type": "integer"
+    },
+    "stringArrayType": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "statusEnum": {
+      "type": "string",
+      "enum": ["active", "inactive"]
+    },
+    "itemDef": {
+      "type": "string"
+    },
+    "nestedRef": {
+      "$ref": "#/definitions/stringType"
+    }
+  },
+  "in": {
+    "type": "object",
+    "properties": {
+      "oneOfWithRef": {
+        "oneOf": [
+          { "$ref": "#/definitions/stringType" },
+          { "$ref": "#/definitions/stringArrayType" }
+        ],
+        "description": "oneOf with $ref alternatives"
+      },
+      "anyOfWithRef": {
+        "anyOf": [
+          { "$ref": "#/definitions/stringType" },
+          { "$ref": "#/definitions/intType" }
+        ],
+        "description": "anyOf with $ref alternatives"
+      },
+      "arrayWithRefItems": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/itemDef" },
+        "description": "Array with $ref in items"
+      },
+      "oneOfMixed": {
+        "oneOf": [
+          { "$ref": "#/definitions/statusEnum" },
+          { "type": "boolean" }
+        ],
+        "description": "oneOf mixing $ref and inline"
+      },
+      "oneOfNestedRef": {
+        "oneOf": [
+          { "$ref": "#/definitions/nestedRef" },
+          { "type": "integer" }
+        ],
+        "description": "oneOf with chained $ref"
+      }
+    }
+  },
+  "out": {
+    "type": "object",
+    "properties": {
+      "result": {
+        "oneOf": [
+          { "$ref": "#/definitions/stringType" },
+          { "$ref": "#/definitions/intType" }
+        ],
+        "description": "Output with oneOf $ref"
+      }
+    }
+  }
+}

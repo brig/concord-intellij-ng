@@ -1,7 +1,9 @@
 package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
+import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.psi.YamlPsiUtils;
+
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +31,7 @@ public class SwitchStepMetaType extends IdentityMetaType {
     }
 
     @Override
-    public Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return Collections.emptyMap();
     }
 

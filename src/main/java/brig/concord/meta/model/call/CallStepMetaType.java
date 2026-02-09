@@ -2,6 +2,7 @@ package brig.concord.meta.model.call;
 
 import brig.concord.meta.model.*;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
@@ -15,15 +16,11 @@ public class CallStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", StepNameMetaType::getInstance,
-            "call", CallMetaType::getInstance,
-            "in", CallInParamsMetaType::getInstance,
-            "out", CallOutParamsMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance,
-            "loop", LoopMetaType::getInstance,
-            "retry", RetryMetaType::getInstance,
-            "error", StepsMetaType::getInstance
+    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
+            StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
+            Map.of("call", CallMetaType::getInstance,
+                   "in", CallInParamsMetaType::getInstance,
+                   "out", CallOutParamsMetaType::getInstance)
     );
 
     protected CallStepMetaType() {
@@ -31,7 +28,7 @@ public class CallStepMetaType extends IdentityMetaType {
     }
 
     @Override
-    public Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 }

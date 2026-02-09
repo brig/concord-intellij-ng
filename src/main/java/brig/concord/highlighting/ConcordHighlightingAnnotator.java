@@ -4,7 +4,7 @@ import brig.concord.inspection.fix.InsertClosingMarkerFix;
 import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.HighlightProvider;
-import brig.concord.meta.model.ExpressionMetaType;
+import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.psi.ConcordExpressionInDocRanges;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLQuotedText;

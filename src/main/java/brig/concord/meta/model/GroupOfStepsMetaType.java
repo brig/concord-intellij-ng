@@ -22,18 +22,16 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
     }
 
     private static Map<String, Supplier<YamlMetaType>> createFeatures(String name) {
-        return Map.of(
-                "name", StringMetaType::getInstance,
-                name, StepsMetaType::getInstance,
-                "out", GroupOfStepsOutParamsMetaType::getInstance,
-                "meta", StepMetaMetaType::getInstance,
-                "loop", LoopMetaType::getInstance,
-                ERROR, StepsMetaType::getInstance
+        return StepFeatures.combine(
+                StepFeatures.NAME_AND_META, StepFeatures.ERROR,
+                Map.of(name, StepsMetaType::getInstance,
+                       "out", GroupOfStepsOutParamsMetaType::getInstance,
+                       "loop", LoopMetaType::getInstance)
         );
     }
 
     @Override
-    public Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 

@@ -1,8 +1,8 @@
 package brig.concord.completion.provider;
 
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.model.*;
-import brig.concord.meta.model.call.*;
+import brig.concord.meta.model.value.*;
+import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
 import brig.concord.psi.YamlPsiUtils;
@@ -35,17 +35,6 @@ public class FlowCallParamsProvider {
 
     private static final Key<CachedValue<FlowDocMetaType>> FLOW_DOC_META_TYPE_CACHE =
             Key.create("brig.concord.FlowCallParamsProvider.flow.doc.meta.type");
-
-    public static final AnyOfType STRING_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(StringArrayInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
-    public static final AnyOfType BOOLEAN_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(BooleanArrayInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
-    public static final AnyOfType OBJECT_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(ObjectArrayInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
-    public static final AnyOfType NUMBER_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(IntegerArrayInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
-    public static final AnyOfType ARRAY_OR_EXPRESSION = AnyOfType.anyOf(AnyArrayInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
-
-    public static final AnyOfType BOOLEAN_OR_EXPRESSION = AnyOfType.anyOf(BooleanInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
-    public static final AnyOfType OBJECT_OR_EXPRESSION = AnyOfType.anyOf(AnyMapInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
-    public static final AnyOfType NUMBER_OR_EXPRESSION = AnyOfType.anyOf(IntegerInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
-    public static final AnyOfType STRING_OR_EXPRESSION = AnyOfType.anyOf(StringInParamMetaType.getInstance(), ExpressionMetaType.getInstance());
 
     private static final YamlMetaType DEFAULT_OBJECT_TYPE = AnyMapMetaType.getInstance();
 
@@ -99,7 +88,7 @@ public class FlowCallParamsProvider {
         }
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             var f = this.features;
             if (f != null) {
                 return f;
@@ -142,25 +131,25 @@ public class FlowCallParamsProvider {
 
     private static YamlMetaType toMetaType(FlowDocParameter parameter) {
         if (parameter == null) {
-            return AnyInParamMetaType.getInstance();
+            return AnythingMetaType.getInstance();
         }
 
         if (parameter.isArrayType()) {
             return switch (parameter.getBaseType().toLowerCase()) {
-                case "string" -> STRING_ARRAY_OR_EXPRESSION;
-                case "boolean" -> BOOLEAN_ARRAY_OR_EXPRESSION;
-                case "object" -> OBJECT_ARRAY_OR_EXPRESSION;
-                case "number", "int", "integer" -> NUMBER_ARRAY_OR_EXPRESSION;
-                default -> ARRAY_OR_EXPRESSION;
+                case "string" -> ParamMetaTypes.STRING_ARRAY_OR_EXPRESSION;
+                case "boolean" -> ParamMetaTypes.BOOLEAN_ARRAY_OR_EXPRESSION;
+                case "object" -> ParamMetaTypes.OBJECT_ARRAY_OR_EXPRESSION;
+                case "number", "int", "integer" -> ParamMetaTypes.NUMBER_ARRAY_OR_EXPRESSION;
+                default -> ParamMetaTypes.ARRAY_OR_EXPRESSION;
             };
         }
 
         return switch (parameter.getBaseType().toLowerCase()) {
-            case "string" -> STRING_OR_EXPRESSION;
-            case "boolean" -> BOOLEAN_OR_EXPRESSION;
-            case "object" -> OBJECT_OR_EXPRESSION;
-            case "number", "int", "integer" -> NUMBER_OR_EXPRESSION;
-            default -> AnyInParamMetaType.getInstance();
+            case "string" -> ParamMetaTypes.STRING_OR_EXPRESSION;
+            case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
+            case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
+            case "number", "int", "integer" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
+            default -> AnythingMetaType.getInstance();
         };
     }
 

@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class TriggersHighlightingTest extends HighlightingTestBase {
+class TriggersHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testCronTrigger() {
+    void testCronTrigger() {
         configureFromText("""
             triggers:
               - cron:
@@ -28,7 +28,7 @@ public class TriggersHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testManualTrigger() {
+    void testManualTrigger() {
         configureFromText("""
             triggers:
               - manual:
@@ -52,7 +52,7 @@ public class TriggersHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
-    public void testGithubTrigger() {
+    void testGithubTrigger() {
         configureFromResource("/highlighting/github-trigger.concord.yaml");
 
         highlight(key("triggers")).is(ConcordHighlightingColors.DSL_SECTION);

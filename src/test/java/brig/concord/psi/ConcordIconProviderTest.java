@@ -1,17 +1,17 @@
 package brig.concord.psi;
 
 import brig.concord.ConcordIcons;
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 
-public class ConcordIconProviderTest extends ConcordYamlTestBase {
+class ConcordIconProviderTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testSectionIcons() {
+    void testSectionIcons() {
         configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -34,7 +34,7 @@ public class ConcordIconProviderTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testElementIcons() {
+    void testElementIcons() {
         configureFromText("""
                 flows:
                   myFlow:

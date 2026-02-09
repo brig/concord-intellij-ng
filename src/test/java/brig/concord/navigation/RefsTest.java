@@ -1,6 +1,6 @@
 package brig.concord.navigation;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.psi.FlowDocParameter;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.psi.PsiElement;
@@ -10,23 +10,23 @@ import brig.concord.yaml.psi.YAMLKeyValue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class RefsTest extends ConcordYamlTestBase {
+class RefsTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testCallReference() {
+    void testCallReference() {
         configureFromResource("/refs/flowCall/concord.yml");
 
         ReadAction.run(() -> {
             PsiElement elementAtCaret = myFixture.getElementAtCaret();
             Assertions.assertInstanceOf(YAMLKeyValue.class, elementAtCaret);
             YAMLKeyValue flowDef = (YAMLKeyValue)elementAtCaret;
-            assertNotNull(flowDef);
+            Assertions.assertNotNull(flowDef);
             Assertions.assertEquals("test", flowDef.getKeyText());
         });
     }
 
     @Test
-    public void testCallInParamsReference() {
+    void testCallInParamsReference() {
         assertCallInParams("flowCallInParams/1.concord.yml", "k1");
         assertCallInParams("flowCallInParams/2.concord.yml", "k2");
         assertCallInParams("flowCallInParams/3.concord.yml", "k3");

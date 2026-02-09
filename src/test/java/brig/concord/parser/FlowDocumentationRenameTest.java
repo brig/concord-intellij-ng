@@ -1,15 +1,16 @@
 package brig.concord.parser;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.psi.FlowDocumentation;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class FlowDocumentationRenameTest extends ConcordYamlTestBase {
+class FlowDocumentationRenameTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testRenameParameter() {
+    void testRenameParameter() {
         var yaml = """
             flows:
               ##
@@ -22,18 +23,18 @@ public class FlowDocumentationRenameTest extends ConcordYamlTestBase {
 
         var file = configureFromText(yaml);
         var doc = PsiTreeUtil.findChildOfType(file, FlowDocumentation.class);
-        assertNotNull(doc);
+        Assertions.assertNotNull(doc);
 
         WriteCommandAction.runWriteCommandAction(getProject(), () -> {
             var param = doc.findParameter("oldName");
-            assertNotNull(param);
+            Assertions.assertNotNull(param);
 
             param.setName("newName");
 
-            assertEquals("newName", param.getName());
-            assertEquals("string", param.getType());
-            assertTrue(param.isMandatory());
-            assertEquals("Description", param.getDescription());
+            Assertions.assertEquals("newName", param.getName());
+            Assertions.assertEquals("string", param.getType());
+            Assertions.assertTrue(param.isMandatory());
+            Assertions.assertEquals("Description", param.getDescription());
         });
     }
 }

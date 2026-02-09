@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-public class DuplicateFlowNameInspectionTest extends InspectionTestBase {
+class DuplicateFlowNameInspectionTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -14,7 +14,7 @@ public class DuplicateFlowNameInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDuplicateFlowInAnotherFile() {
+    void testDuplicateFlowInAnotherFile() {
         createFile("project-a/concord.yaml", """
                 configuration:
                   runtime: concord-v2
@@ -36,7 +36,7 @@ public class DuplicateFlowNameInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testNoDuplicateInSameScope() {
+    void testNoDuplicateInSameScope() {
         createFile("project-a/concord.yaml", """
                 configuration:
                   runtime: concord-v2
@@ -57,7 +57,7 @@ public class DuplicateFlowNameInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDuplicateFlowInDifferentScopes_noWarning() {
+    void testDuplicateFlowInDifferentScopes_noWarning() {
         // Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -90,7 +90,7 @@ public class DuplicateFlowNameInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testMultipleDuplicates_reportsFirst() {
+    void testMultipleDuplicates_reportsFirst() {
         createFile("project-a/concord.yaml", """
                 configuration:
                   runtime: concord-v2
@@ -119,7 +119,7 @@ public class DuplicateFlowNameInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testSingleFlowDefinition_noWarning() {
+    void testSingleFlowDefinition_noWarning() {
         configureFromText("""
                 configuration:
                   runtime: concord-v2

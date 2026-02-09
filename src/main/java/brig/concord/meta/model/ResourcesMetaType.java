@@ -3,8 +3,11 @@ package brig.concord.meta.model;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.meta.model.value.StringArrayMetaType;
+
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -27,7 +30,7 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 

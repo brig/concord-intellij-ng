@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class ProfilesHighlightingTest extends HighlightingTestBase {
+class ProfilesHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testFormsSection() {
+    void testFormsSection() {
         configureFromText("""
             profiles:
               p1:

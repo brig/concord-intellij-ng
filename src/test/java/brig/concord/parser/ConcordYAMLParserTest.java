@@ -1,95 +1,90 @@
 package brig.concord.parser;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.ReadAction;
-import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.impl.DebugUtil;
-import com.intellij.psi.impl.source.tree.ForeignLeafPsiElement;
 import com.intellij.psi.tree.TokenSet;
 import com.intellij.testFramework.ParsingTestUtil;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-import static com.intellij.testFramework.ParsingTestCase.*;
-
-public class ConcordYAMLParserTest extends ConcordYamlTestBase {
+class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testBlockMapping() {
+    void testBlockMapping() {
         doTest("/parser/blockMapping.concord.yaml");
     }
 
     @Test
-    public void testIndentMapping() {
+    void testIndentMapping() {
         doTest("/parser/indentMapping.concord.yaml");
     }
 
     @Test
-    public void testInlineMapWithBlockScalarValue() {
+    void testInlineMapWithBlockScalarValue() {
         doTest("/parser/InlineMapWithBlockScalarValue.concord.yaml");
     }
 
     @Test
-    public void testErrorInBlockScalarHeader() {
+    void testErrorInBlockScalarHeader() {
         doTest("/parser/errorInBlockScalarHeader.concord.yaml", false);
     }
 
     @Test
-    public void testCommentInBlockScalarHeader() {
+    void testCommentInBlockScalarHeader() {
         doTest("/parser/commentInBlockScalarHeader.concord.yaml");
     }
 
     @Test
-    public void testScalarsWithNewlines() {
+    void testScalarsWithNewlines() {
         doTest("/parser/scalarsWithNewlines.concord.yaml");
     }
 
     @Test
-    public void testMultipleDocsWithMappings() {
+    void testMultipleDocsWithMappings() {
         doTest("/parser/multipleDocsWithMappings.concord.yaml");
     }
 
     @Test
-    public void testKeyValueWithEmptyLineAhead() {
+    void testKeyValueWithEmptyLineAhead() {
         doTest("/parser/keyValueWithEmptyLineAhead.concord.yaml");
     }
 
     @Test
-    public void testIncompleteKeyInHierarchy() {
+    void testIncompleteKeyInHierarchy() {
         doTest("/parser/incompleteKeyInHierarchy.concord.yaml");
     }
 
     @Test
-    public void testAnsibleRoleElkMain() {
+    void testAnsibleRoleElkMain() {
         doTest("/parser/ansibleRoleElkMain.concord.yaml");
     }
 
     @Test
-    public void testAnsibleRoleElkInit() {
+    void testAnsibleRoleElkInit() {
         doTest("/parser/ansibleRoleElkInit.concord.yaml");
     }
 
     @Test
-    public void testSpec2_27() {
+    void testSpec2_27() {
         doTest("/parser/spec2_27.concord.yaml");
     }
 
     @Test
-    public void testExplicitMaps() {
+    void testExplicitMaps() {
         doTest("/parser/explicitMaps.concord.yaml");
     }
 
     @Test
-    public void testShiftedList() {
+    void testShiftedList() {
         doCodeTest("/parser/shiftedList.txt",
                 "    - item1\n" +
                 "    - item2"
@@ -97,7 +92,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testIncompleteKeyWithWhitespace() {
+    void testIncompleteKeyWithWhitespace() {
         doCodeTest("/parser/incompleteKeyWithWhitespace.txt", """
                  logging:
                    config:
@@ -109,14 +104,14 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testShiftedMap() {
+    void testShiftedMap() {
         doCodeTest("/parser/shiftedMap.txt",
                 "    key: ttt\n" +
                 "    ahahah: ppp");
     }
 
     @Test
-    public void testIncompleteKey() {
+    void testIncompleteKey() {
         doCodeTest("/parser/incompleteKey.txt", """
                  logging:
                    config: bla
@@ -124,7 +119,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void test2docs() {
+    void test2docs() {
         doCodeTest("/parser/2doc.txt", """
                  # Ranking of 1998 home runs
                  ---
@@ -139,7 +134,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testIndentation() {
+    void testIndentation() {
         doCodeTest("/parser/indentation.txt", """
                  name: Mark McGwire
                  accomplishment: >
@@ -151,7 +146,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testMap_between_seq() throws Throwable {
+    void testMap_between_seq() throws Throwable {
         doCodeTest("/parser/map_between_seq.txt", """
                  ?
                    - Detroit Tigers
@@ -166,7 +161,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testMap_map() {
+    void testMap_map() {
         doCodeTest("/parser/map_map.txt", """
                  Mark McGwire: {hr: 65, avg: 0.278}
                  Sammy Sosa: {
@@ -176,7 +171,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testSample_log() {
+    void testSample_log() {
         doCodeTest("/parser/sample_log.txt", """
                  Stack:
                    - file: TopClass.py
@@ -190,7 +185,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testSeq_seq() {
+    void testSeq_seq() {
         doCodeTest("/parser/seq_seq.txt", """
                  - [name        , hr, avg  ]
                  - [Mark McGwire, 65, 0.278]
@@ -198,7 +193,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testSequence_mappings() {
+    void testSequence_mappings() {
         doCodeTest("/parser/sequence_mappings.txt", """
                  -
                    name: Mark McGwire
@@ -211,7 +206,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testBalance() {
+    void testBalance() {
         doCodeTest("/parser/balance.txt", """
                  runningTime: 150000
                  scenarios:
@@ -224,12 +219,12 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testInterpolation() {
+    void testInterpolation() {
         doCodeTest("/parser/interpolation.txt", "en:\n  foo: bar %{baz}");
     }
 
     @Test
-    public void testValue_injection() {
+    void testValue_injection() {
         doCodeTest("/parser/value_injection.txt", """
                  key:
                      one: 1 text
@@ -237,7 +232,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testSequence_idea76804() {
+    void testSequence_idea76804() {
         doCodeTest("/parser/sequence_idea76804.txt", """
                  server:
                  - a
@@ -249,7 +244,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testMultiline_ruby16796() throws Throwable {
+    void testMultiline_ruby16796() throws Throwable {
         doCodeTest("/parser/multiline_ruby16796.txt", """
                  code:
                    src="keys/{{item}}"
@@ -260,7 +255,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testRuby17389() throws Throwable {
+    void testRuby17389() throws Throwable {
         doCodeTest("/parser/ruby17389.txt", """
                  ---
                  foo: {}
@@ -268,7 +263,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testRuby19105() {
+    void testRuby19105() {
         doCodeTest("/parser/ruby19105.txt", """
                  'Fn::Join':
                    - ''
@@ -277,7 +272,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testRuby15345() {
+    void testRuby15345() {
         doCodeTest("/parser/ruby15345.txt", """
                  - !qualified.class.name
                      propertyOne: bla bla
@@ -288,7 +283,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testHonestMultiline() {
+    void testHonestMultiline() {
         doCodeTest("/parser/honestMultiline.txt", """
                  ---
                  foo: >
@@ -303,7 +298,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testEmptyMultiline() {
+    void testEmptyMultiline() {
         doCodeTest("/parser/emptyMultiline.txt", """
                  ---
                  foo: >
@@ -315,7 +310,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void test001() {
+    void test001() {
         doTest("/parser/001.concord.yaml");
     }
 
@@ -364,11 +359,22 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
 
     private void doSanityChecks(PsiFile root) {
         Assertions.assertEquals(root.getViewProvider().getContents().toString(), root.getText(), "psi text mismatch");
-        ensureParsed(root);
+        // ensureParsed: walk PSI tree to force lazy parsing
+        root.accept(new PsiRecursiveElementWalkingVisitor() {});
         ReadAction.run(() -> {
             ensureCorrectReparse(root);
             checkRangeConsistency(root);
         });
+    }
+
+    private static void ensureCorrectReparse(PsiFile file) {
+        try {
+            var cls = Class.forName("com.intellij.testFramework.ParsingTestCase");
+            var method = cls.getMethod("ensureCorrectReparse", PsiFile.class);
+            method.invoke(null, file);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected static String toParseTreeText(@NotNull PsiElement file,  boolean skipSpaces, boolean printRanges) {
@@ -394,44 +400,13 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBase {
     }
 
     private static void checkRangeConsistency(PsiFile file) {
-        file.accept(new PsiRecursiveElementWalkingVisitor() {
-            @Override
-            public void visitElement(@NotNull PsiElement element) {
-                if (element instanceof ForeignLeafPsiElement) return;
-
-                try {
-                    ensureNodeRangeConsistency(element, file);
-                }
-                catch (Throwable e) {
-                    throw new AssertionError("In " + element + " of " + element.getClass(), e);
-                }
-                super.visitElement(element);
-            }
-
-            private void ensureNodeRangeConsistency(PsiElement parent, PsiFile file) {
-                int parentOffset = parent.getTextRange().getStartOffset();
-                int childOffset = 0;
-                ASTNode child = parent.getNode().getFirstChildNode();
-                if (child != null) {
-                    while (child != null) {
-                        int childLength = checkChildRangeConsistency(file, parentOffset, childOffset, child);
-                        childOffset += childLength;
-                        child = child.getTreeNext();
-                    }
-                    assertEquals(childOffset, parent.getTextLength());
-                }
-            }
-
-            private static int checkChildRangeConsistency(PsiFile file, int parentOffset, int childOffset, ASTNode child) {
-                assertEquals(child.getStartOffsetInParent(), childOffset);
-                assertEquals(child.getStartOffset(), childOffset + parentOffset);
-                int childLength = child.getTextLength();
-                assertEquals(TextRange.from(childOffset + parentOffset, childLength), child.getTextRange());
-                if (!(child.getPsi() instanceof ForeignLeafPsiElement)) {
-                    assertEquals(child.getTextRange().substring(file.getText()), child.getText());
-                }
-                return childLength;
-            }
-        });
+        try {
+            var cls = Class.forName("com.intellij.testFramework.ParsingTestCase");
+            var method = cls.getDeclaredMethod("checkRangeConsistency", PsiFile.class);
+            method.setAccessible(true);
+            method.invoke(null, file);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

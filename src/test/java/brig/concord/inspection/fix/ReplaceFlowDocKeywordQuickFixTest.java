@@ -3,12 +3,13 @@ package brig.concord.inspection.fix;
 import brig.concord.inspection.FlowDocumentationInspection;
 import brig.concord.inspection.InspectionTestBase;
 import com.intellij.codeInspection.LocalInspectionTool;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 
-public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
+class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -16,7 +17,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownKeyword_Mandatory() {
+    void testFixUnknownKeyword_Mandatory() {
         configureFromText("""
             flows:
               ##
@@ -28,7 +29,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Change keyword to 'mandatory'");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -43,7 +44,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownKeyword_Optional() {
+    void testFixUnknownKeyword_Optional() {
         configureFromText("""
             flows:
               ##
@@ -55,7 +56,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Change keyword to 'optional'");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -70,7 +71,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownKeyword_Fallback() {
+    void testFixUnknownKeyword_Fallback() {
         configureFromText("""
             flows:
               ##
@@ -82,10 +83,10 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Change keyword to 'mandatory'");
-        assertFalse("Quick fix 'mandatory' should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix 'mandatory' should be available");
 
         var intentionsOpt = myFixture.filterAvailableIntentions("Change keyword to 'optional'");
-        assertFalse("Quick fix 'optional' should be available", intentionsOpt.isEmpty());
+        Assertions.assertFalse(intentionsOpt.isEmpty(), "Quick fix 'optional' should be available");
 
         myFixture.launchAction(intentions.getFirst());
 

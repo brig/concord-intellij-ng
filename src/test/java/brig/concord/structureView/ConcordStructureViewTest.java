@@ -1,89 +1,71 @@
 package brig.concord.structureView;
 
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.ide.structureView.StructureViewTreeElement;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import com.intellij.testFramework.EdtTestUtil;
-import com.intellij.testFramework.fixtures.BasePlatformTestCase;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-public class ConcordStructureViewTest extends BasePlatformTestCase {
-
-    @BeforeEach
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @AfterEach
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    @Override
-    protected String getTestDataPath() {
-        return "./src/test/resources/structureView";
-    }
+class ConcordStructureViewTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testStructureViewFull() {
-        myFixture.configureByFile("structure-view.concord.yaml");
+    void testStructureViewFull() {
+        configureFromResource("/structureView/structure-view.concord.yaml");
 
         EdtTestUtil.runInEdtAndWait(() -> {
             myFixture.testStructureView(svc -> {
                 var root = svc.getTreeModel().getRoot();
-                assertNotNull(root);
+                Assertions.assertNotNull(root);
 
 //                printStructure(root, 0);
 
                 var children = root.getChildren();
-                assertNotNull(children);
+                Assertions.assertNotNull(children);
 
                 var configuration = assertElement(children, "configuration");
-                assertEquals(1, configuration.getChildren().length);
+                Assertions.assertEquals(1, configuration.getChildren().length);
 
                 var flows = assertElement(children, "flows");
-                assertEquals(2, flows.getChildren().length);
+                Assertions.assertEquals(2, flows.getChildren().length);
 
                 var forms =  assertElement(children, "forms");
-                assertEquals(1, forms.getChildren().length);
+                Assertions.assertEquals(1, forms.getChildren().length);
 
                 var profiles =  assertElement(children, "profiles");
-                assertEquals(1, profiles.getChildren().length);
+                Assertions.assertEquals(1, profiles.getChildren().length);
 
                 var resources =  assertElement(children, "resources");
-                assertEquals(1, resources.getChildren().length);
+                Assertions.assertEquals(1, resources.getChildren().length);
 
                 var imports =  assertElement(children, "imports");
-                assertEquals(2, imports.getChildren().length);
+                Assertions.assertEquals(2, imports.getChildren().length);
 
                 var triggers =  assertElement(children, "triggers");
-                assertEquals(1, triggers.getChildren().length);
+                Assertions.assertEquals(1, triggers.getChildren().length);
 
                 var publicFlows =  assertElement(children, "publicFlows");
-                assertEquals(2, publicFlows.getChildren().length);
+                Assertions.assertEquals(2, publicFlows.getChildren().length);
             });
         });
     }
 
     @Test
-    public void testStructureViewEmpty() {
-        myFixture.configureByFile("structure-view-empty.concord.yaml");
+    void testStructureViewEmpty() {
+        configureFromResource("/structureView/structure-view-empty.concord.yaml");
 
         EdtTestUtil.runInEdtAndWait(() -> {
             myFixture.testStructureView(svc -> {
                 var root = svc.getTreeModel().getRoot();
-                assertNotNull(root);
+                Assertions.assertNotNull(root);
 
 //                printStructure(root, 0);
 
                 var children = root.getChildren();
-                assertNotNull(children);
-                assertEquals(0, children.length);
+                Assertions.assertNotNull(children);
+                Assertions.assertEquals(0, children.length);
             });
         });
     }

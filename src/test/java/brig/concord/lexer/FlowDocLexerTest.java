@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test;
 
 import static brig.concord.assertions.TokenAssertions.assertTokens;
 
-public class FlowDocLexerTest {
+class FlowDocLexerTest {
 
     @Test
-    public void testFlowDocTokens() {
+    void testFlowDocTokens() {
         var yaml = """
                 flows:
                   ##
@@ -27,7 +27,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testMultipleFlowDocs() {
+    void testMultipleFlowDocs() {
         var yaml = """
                 flows:
                   ##
@@ -52,7 +52,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testCustomTagsInFlowDoc() {
+    void testCustomTagsInFlowDoc() {
         var yaml = """
                 flows:
                   ##
@@ -72,7 +72,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocWithEmptyLines() {
+    void testFlowDocWithEmptyLines() {
         var yaml = """
                 flows:
                   ##
@@ -95,7 +95,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testCommentPrefixIsSeparateToken() {
+    void testCommentPrefixIsSeparateToken() {
         var yaml = """
                 flows:
                   ##
@@ -113,7 +113,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testHashWithoutSpaceInDescription() {
+    void testHashWithoutSpaceInDescription() {
         var yaml = """
                 flows:
                   ##
@@ -130,7 +130,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testHashWithoutSpaceInParams() {
+    void testHashWithoutSpaceInParams() {
         var yaml = """
                 flows:
                   ##
@@ -151,7 +151,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testMandatoryAndOptionalTokens() {
+    void testMandatoryAndOptionalTokens() {
         var yaml = """
                 flows:
                   ##
@@ -172,7 +172,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testRequiredAsAliasForMandatory() {
+    void testRequiredAsAliasForMandatory() {
         var yaml = """
                 flows:
                   ##
@@ -192,7 +192,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testEmptyCommentLine() {
+    void testEmptyCommentLine() {
         var yaml = """
                 flows:
                   ##
@@ -211,7 +211,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testColonAndCommaTokens() {
+    void testColonAndCommaTokens() {
         var yaml = """
                 flows:
                   ##
@@ -233,7 +233,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testArbitraryIndentation() {
+    void testArbitraryIndentation() {
         // Section headers can have any indentation, parameters must have greater indent
         var yaml = """
                 flows:
@@ -260,7 +260,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testUserTagWithSameIndentAsSection() {
+    void testUserTagWithSameIndentAsSection() {
         // User tag with same indent as section should NOT be treated as parameter
         var yaml = """
                 flows:
@@ -281,7 +281,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testUserTagWithSmallerIndentThanSection() {
+    void testUserTagWithSmallerIndentThanSection() {
         // User tag with smaller indent than section should NOT be treated as parameter
         var yaml = """
                 flows:
@@ -302,7 +302,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testNestedSectionIsNotRecognized() {
+    void testNestedSectionIsNotRecognized() {
         // out: with greater indent than in: is nested, NOT a new section
         // All nested content becomes parameters of the parent section
         var yaml = """
@@ -332,7 +332,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testSameIndentSectionsRecognized() {
+    void testSameIndentSectionsRecognized() {
         // in: and out: with same indent are both sections
         var yaml = """
                 flows:
@@ -355,7 +355,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testCommentsUnderConfiguration() {
+    void testCommentsUnderConfiguration() {
         var yaml = """
                 # ---------------------------------------------------------------------
                 ## Github Create Repository
@@ -373,7 +373,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testCommentsUnderFlowName() {
+    void testCommentsUnderFlowName() {
         var yaml = """
                 flows:
                     # ---------------------------------------------------------------------
@@ -391,7 +391,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testTripleHashInsideFlowDoc() {
+    void testTripleHashInsideFlowDoc() {
         // ### inside flow doc should be treated as # (comment prefix) + ## (content)
         var yaml = """
                 flows:
@@ -410,7 +410,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocWithYamlLikeContent() {
+    void testFlowDocWithYamlLikeContent() {
         // Content that looks like YAML should NOT be parsed as YAML
         var yaml = """
                 flows:
@@ -431,7 +431,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocMarkerWithTabs() {
+    void testFlowDocMarkerWithTabs() {
         // ## followed by tabs should still close flow doc
         var yaml = "flows:\n  ##\n  # desc\n  ##\t\n  myFlow:\n    - log: test\n";
 
@@ -440,7 +440,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocMarkerFollowedBySpacesAndContent() {
+    void testFlowDocMarkerFollowedBySpacesAndContent() {
         // ##   content should NOT be a closing marker
         var yaml = """
                 flows:
@@ -457,7 +457,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testEmptyFlowDoc() {
+    void testEmptyFlowDoc() {
         // Just ## ## with nothing in between
         var yaml = """
                 flows:
@@ -472,7 +472,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocAtEndOfFile() {
+    void testFlowDocAtEndOfFile() {
         // Flow doc at EOF without closing marker
         var yaml = """
                 flows:
@@ -488,7 +488,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocAtEndOfFile2() {
+    void testFlowDocAtEndOfFile2() {
         // Flow doc at EOF without closing marker
         var yaml = """
                 flows:
@@ -501,7 +501,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocOutsideFlowsSection() {
+    void testFlowDocOutsideFlowsSection() {
         // ## outside flows section should be regular comment
         var yaml = """
                 configuration:
@@ -520,7 +520,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocWithColonInDescription() {
+    void testFlowDocWithColonInDescription() {
         // Colons in description should not break parsing
         var yaml = """
                 flows:
@@ -540,7 +540,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testConsecutiveFlowDocs() {
+    void testConsecutiveFlowDocs() {
         // Two flow docs back to back
         var yaml = """
                 flows:
@@ -559,7 +559,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocWithOnlyMarkers() {
+    void testFlowDocWithOnlyMarkers() {
         // Multiple ## markers in sequence
         var yaml = """
                 flows:
@@ -577,7 +577,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testHashHashHashHash() {
+    void testHashHashHashHash() {
         // #### - should be # (prefix) + ### (content) when inside flow doc
         var yaml = """
                 flows:
@@ -593,7 +593,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocInsideQuotedString() {
+    void testFlowDocInsideQuotedString() {
         // ## inside quoted string should NOT trigger flow doc
         var yaml = """
                 flows:
@@ -610,7 +610,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocWithDashDashContent() {
+    void testFlowDocWithDashDashContent() {
         // ##---- should be treated as # + #---- content, not as closing marker
         var yaml = """
                 flows:
@@ -627,7 +627,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testTwoFlowsWithHashHashComments() {
+    void testTwoFlowsWithHashHashComments() {
         // ## with content is just a comment, not a flow doc marker
         // Both flow names should be parsed correctly
         var yaml = """
@@ -648,7 +648,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocParamTypeWithSpaces() {
+    void testFlowDocParamTypeWithSpaces() {
         var yaml = """
                 flows:
                   ##
@@ -665,7 +665,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocMarkerInsideFlowSteps() {
+    void testFlowDocMarkerInsideFlowSteps() {
         var yaml = """
                 flows:
                   myFlow:
@@ -678,7 +678,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocMarkerOnlyAtFlowDefLevel() {
+    void testFlowDocMarkerOnlyAtFlowDefLevel() {
         // ## at flow definition level should be FLOW_DOC_MARKER
         // ## inside flow steps should be regular comment
         var yaml = """
@@ -702,7 +702,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocMarkerDeeplyNested() {
+    void testFlowDocMarkerDeeplyNested() {
         // ## deeply nested should always be comment, not flow doc marker
         var yaml = """
                 flows:
@@ -719,7 +719,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocFlowsQuoted() {
+    void testFlowDocFlowsQuoted() {
         var yaml = """
                 "flows":
                     ##
@@ -735,7 +735,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocFlowsSpace() {
+    void testFlowDocFlowsSpace() {
         var yaml = """
                 flows :
                     ##
@@ -751,7 +751,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocFlowsInitialIndent() {
+    void testFlowDocFlowsInitialIndent() {
         var yaml = "    flows:\n" +
                    "        ##\n" +
                    "        # Flow description\n" +
@@ -765,7 +765,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocFlowsSingleQuoted() {
+    void testFlowDocFlowsSingleQuoted() {
         var yaml = """
                 'flows':
                     ##
@@ -781,7 +781,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocExitOnNextTopLevelKey() {
+    void testFlowDocExitOnNextTopLevelKey() {
         // ## after configuration: should NOT be flow doc marker
         var yaml = """
                 flows:
@@ -801,7 +801,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocInProfiles() {
+    void testFlowDocInProfiles() {
         // flows inside profiles should NOT support flow doc
         var yaml = """
                 profiles:
@@ -819,7 +819,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocMultipleFlowsSections() {
+    void testFlowDocMultipleFlowsSections() {
         // Only top-level `flows` should work
         var yaml = """
                 flows:
@@ -843,7 +843,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testNonFlowDocInConfigurationSection() {
+    void testNonFlowDocInConfigurationSection() {
         var yaml = """
                 flows:
                   myFlow:
@@ -863,7 +863,7 @@ public class FlowDocLexerTest {
     }
 
     @Test
-    public void testFlowDocTokensWithAdditionalCharsInHeader() {
+    void testFlowDocTokensWithAdditionalCharsInHeader() {
         var yaml = """
                 flows:
                   ## ----

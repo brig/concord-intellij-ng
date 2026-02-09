@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class UnresolvedDependencyInspectionTest extends InspectionTestBase {
+class UnresolvedDependencyInspectionTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -18,7 +18,7 @@ public class UnresolvedDependencyInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testUnresolvedDependencyInConfiguration() {
+    void testUnresolvedDependencyInConfiguration() {
         configureFromText("""
                 configuration:
                   dependencies:
@@ -32,7 +32,7 @@ public class UnresolvedDependencyInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testResolvedDependencyNoWarning() {
+    void testResolvedDependencyNoWarning() {
         configureFromText("""
                 configuration:
                   dependencies:
@@ -44,7 +44,7 @@ public class UnresolvedDependencyInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testMixedResolvedAndUnresolved() {
+    void testMixedResolvedAndUnresolved() {
         configureFromText("""
                 configuration:
                   dependencies:
@@ -59,7 +59,7 @@ public class UnresolvedDependencyInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testExtraDependenciesInProfile() {
+    void testExtraDependenciesInProfile() {
         configureFromText("""
                 profiles:
                   myProfile:
@@ -75,7 +75,7 @@ public class UnresolvedDependencyInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testNonDependencyScalarsNotAffected() {
+    void testNonDependencyScalarsNotAffected() {
         configureFromText("""
                 configuration:
                   entryPoint: main
@@ -94,7 +94,7 @@ public class UnresolvedDependencyInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testNoDependencySections() {
+    void testNoDependencySections() {
         configureFromText("""
                 flows:
                   main:

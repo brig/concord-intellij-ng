@@ -1,2060 +1,535 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
-import brig.concord.meta.model.AnyOfType;
-import com.intellij.codeInsight.daemon.impl.HighlightInfo;
+import brig.concord.assertions.InspectionAssertions;
 import com.intellij.codeInspection.LocalInspectionTool;
-import com.intellij.lang.annotation.HighlightSeverity;
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-import static brig.concord.completion.provider.FlowCallParamsProvider.*;
-import static brig.concord.assertions.InspectionAssertions.dump;
+import static brig.concord.meta.model.value.ParamMetaTypes.*;
 
-public class ErrorInspectionTests extends InspectionTestBase {
+class ErrorInspectionTests extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
         return List.of(MissingKeysInspection.class, UnknownKeysInspection.class, ValueInspection.class);
     }
 
-    @Test
-    public void testCheckpoint_000() {
-        configureFromResource("/errors/checkpoint/000.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
+    private void runErrorTest(String category, String file, Consumer<InspectionAssertions> assertions) {
+        configureFromResource("/errors/" + category + "/" + file + ".concord.yml");
+        var i = inspection();
+        assertions.accept(i);
+        i.check();
     }
 
-    @Test
-    public void testCheckpoint_001() {
-        configureFromResource("/errors/checkpoint/001.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .check();
+    private static Arguments args(String file, Consumer<InspectionAssertions> assertions) {
+        return Arguments.of(file, assertions);
     }
 
-    @Test
-    public void testCheckpoint_002() {
-        configureFromResource("/errors/checkpoint/002.concord.yml");
+    // --- checkpoint ---
 
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
+    static Stream<Arguments> checkpointCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertStringValueExpected),
+                args("002", a -> a.assertUnknownKey("trash")),
+                args("003", InspectionAssertions::assertObjectRequired),
+                args("004", InspectionAssertions::assertValueRequired),
+                args("005", a -> a.assertUnexpectedKey("trash"))
+        );
     }
 
-    @Test
-    public void testCheckpoint_003() {
-        configureFromResource("/errors/checkpoint/003.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
+    @ParameterizedTest(name = "checkpoint/{0}")
+    @MethodSource("checkpointCases")
+    void testCheckpoint(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("checkpoint", file, assertions);
     }
 
-    @Test
-    public void testCheckpoint_004() {
-        configureFromResource("/errors/checkpoint/004.concord.yml");
+    // --- expression ---
 
-        inspection()
-                .assertValueRequired()
-                .check();
+    static Stream<Arguments> expressionCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", a -> a.assertHasError(ConcordBundle.message("ExpressionType.error.invalid.value"))),
+                args("002", InspectionAssertions::assertValueRequired),
+                args("003", InspectionAssertions::assertStringValueExpected),
+                args("005", InspectionAssertions::assertValueRequired),
+                args("006", InspectionAssertions::assertObjectRequired),
+                args("007", InspectionAssertions::assertValueRequired),
+                args("008", InspectionAssertions::assertArrayRequired),
+                // TODO: IdentityElementMetaType.validateValue
+                args("009", InspectionAssertions::assertArrayRequired),
+                args("010", InspectionAssertions::assertUnknownStep)
+        );
     }
 
-    @Test
-    public void testCheckpoint_005() {
-        configureFromResource("/errors/checkpoint/005.concord.yml");
-        inspection()
-                .assertUnexpectedKey("trash")
-                .check();
+    @ParameterizedTest(name = "expression/{0}")
+    @MethodSource("expressionCases")
+    void testExpression(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("expression", file, assertions);
     }
 
-    @Test
-    public void testExpression_000() {
-        configureFromResource("/errors/expression/000.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
+    // --- imports ---
 
-    @Test
-    public void testExpression_001() {
-        configureFromResource("/errors/expression/001.concord.yml");
-        inspection()
-                .assertHasError(ConcordBundle.message("ExpressionType.error.invalid.value"))
-                .check();
-    }
-
-    @Test
-    public void testExpression_002() {
-        configureFromResource("/errors/expression/002.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testExpression_003() {
-        configureFromResource("/errors/expression/003.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testExpression_005() {
-        configureFromResource("/errors/expression/005.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testExpression_006() {
-        configureFromResource("/errors/expression/006.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testExpression_007() {
-        configureFromResource("/errors/expression/007.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testExpression_008() {
-        configureFromResource("/errors/expression/008.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    // TODO: IdentityElementMetaType.validateValue
-    @Test
-    public void testExpression_009() {
-        configureFromResource("/errors/expression/009.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testExpression_010() {
-        configureFromResource("/errors/expression/010.concord.yml");
-        inspection()
-                .assertUnknownStep()
-                .check();
-    }
-
-    @Test
-    public void testImports_001() {
-        configureFromResource("/errors/imports/001.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testImports_002() {
-        configureFromResource("/errors/imports/002.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .assertUnexpectedKey("k")
-                .check();
-    }
-
-    @Test
-    public void testImports_002_1() {
-        configureFromResource("/errors/imports/002_1.concord.yml");
-        inspection()
-                .assertUnexpectedKey("k")
-                .check();
-    }
-
-    @Test
-    public void testImports_003() {
-        configureFromResource("/errors/imports/003.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testImports_004() {
-        configureFromResource("/errors/imports/004.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testImports_005() {
-        configureFromResource("/errors/imports/005.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testImports_006() {
-        configureFromResource("/errors/imports/006.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testImports_007() {
-        configureFromResource("/errors/imports/007.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testImports_008() {
-        configureFromResource("/errors/imports/008.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testImports_009() {
-        configureFromResource("/errors/imports/009.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testImports_010() {
-        configureFromResource("/errors/imports/010.concord.yml");
-        inspection()
-                .assertMissingKey("name")
-                .check();
-    }
-
-    @Test
-    public void testImports_011() {
-        configureFromResource("/errors/imports/011.concord.yml");
-        inspection()
-                .assertUnexpectedKey("git-trash")
-                .check();
-    }
-
-    @Test
-    public void testImports_012() {
-        configureFromResource("/errors/imports/012.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testImports_013() {
-        configureFromResource("/errors/imports/013.concord.yml");
-        inspection()
-                .assertUnexpectedKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testImports_014() {
-        configureFromResource("/errors/imports/014.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testImports_015() {
-        configureFromResource("/errors/imports/015.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testImports_016() {
-        configureFromResource("/errors/imports/016.concord.yml");
-        inspection()
-                .assertHasError("Valid regular expression or string required. Error: 'Unclosed character class near index 1\n" +
+    static Stream<Arguments> importsCases() {
+        return Stream.of(
+                args("001", InspectionAssertions::assertArrayRequired),
+                args("002", a -> a.assertArrayRequired().assertUnexpectedKey("k")),
+                args("002_1", a -> a.assertUnexpectedKey("k")),
+                args("003", InspectionAssertions::assertValueRequired),
+                args("004", InspectionAssertions::assertObjectRequired),
+                args("005", a -> a.assertValueRequired().assertUnknownKey("trash")),
+                args("006", InspectionAssertions::assertStringValueExpected),
+                args("007", InspectionAssertions::assertStringValueExpected),
+                args("008", InspectionAssertions::assertValueRequired),
+                args("009", InspectionAssertions::assertStringValueExpected),
+                args("010", a -> a.assertMissingKey("name")),
+                args("011", a -> a.assertUnexpectedKey("git-trash")),
+                args("012", InspectionAssertions::assertArrayRequired),
+                args("013", a -> a.assertUnexpectedKey("trash")),
+                args("014", a -> a.assertObjectRequired().assertObjectRequired()),
+                args("015", InspectionAssertions::assertStringValueExpected),
+                args("016", a -> a.assertHasError("Valid regular expression or string required. Error: 'Unclosed character class near index 1\n" +
                         "[.\n" +
-                        " ^'")
-                .check();
+                        " ^'"))
+        );
     }
 
-    @Test
-    public void testTriggers_001() {
-        configureFromResource("/errors/triggers/001.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
+    @ParameterizedTest(name = "imports/{0}")
+    @MethodSource("importsCases")
+    void testImports(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("imports", file, assertions);
     }
 
-    @Test
-    public void testTriggers_002() {
-        configureFromResource("/errors/triggers/002.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
+    // --- triggers ---
 
-    @Test
-    public void testTriggers_003() {
-        configureFromResource("/errors/triggers/003.concord.yml");
-        inspection()
-                .assertMissingKey("conditions, entryPoint")
-                .assertIntExpected()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_004() {
-        configureFromResource("/errors/triggers/004.concord.yml");
-        inspection()
-                .assertMissingKey("conditions, entryPoint")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_005() {
-        configureFromResource("/errors/triggers/005.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_006() {
-        configureFromResource("/errors/triggers/006.concord.yml");
-        inspection()
-                .assertMissingKey("conditions")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_007() {
-        configureFromResource("/errors/triggers/007.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_008() {
-        configureFromResource("/errors/triggers/008.concord.yml");
-
-        inspection()
-                .assertMissingKey("type")
-                .assertUnexpectedKey("test")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_009() {
-        configureFromResource("/errors/triggers/009.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_010() {
-        configureFromResource("/errors/triggers/010.concord.yml");
-        inspection()
-                .assertBooleanExpected()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_011() {
-        configureFromResource("/errors/triggers/011.concord.yml");
-        inspection()
-                .assertBooleanExpected()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_012() {
-        configureFromResource("/errors/triggers/012.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_013() {
-        configureFromResource("/errors/triggers/013.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_014() {
-        configureFromResource("/errors/triggers/014.concord.yml");
-        inspection()
-                .assertHasError("Valid regular expression or string required. Error: 'Dangling meta character '*' near index 0\n" +
+    static Stream<Arguments> triggersCases() {
+        return Stream.of(
+                args("001", InspectionAssertions::assertArrayRequired),
+                args("002", InspectionAssertions::assertValueRequired),
+                args("003", a -> a.assertMissingKey("conditions, entryPoint").assertIntExpected()),
+                args("004", a -> a.assertMissingKey("conditions, entryPoint")),
+                args("005", a -> a.assertStringValueExpected().assertUndefinedFlow()),
+                args("006", a -> a.assertMissingKey("conditions")),
+                args("007", InspectionAssertions::assertObjectRequired),
+                args("008", a -> a.assertMissingKey("type").assertUnexpectedKey("test")),
+                args("009", InspectionAssertions::assertArrayRequired),
+                args("010", InspectionAssertions::assertBooleanExpected),
+                args("011", InspectionAssertions::assertBooleanExpected),
+                args("012", InspectionAssertions::assertObjectRequired),
+                args("013", InspectionAssertions::assertObjectRequired),
+                args("014", a -> a.assertHasError("Valid regular expression or string required. Error: 'Dangling meta character '*' near index 0\n" +
                         "*\n" +
-                        "^'")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_015() {
-        configureFromResource("/errors/triggers/015.concord.yml");
-        inspection()
-                .assertMissingKey("conditions, entryPoint")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_016() {
-        configureFromResource("/errors/triggers/016.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_017() {
-        configureFromResource("/errors/triggers/017.concord.yml");
-        inspection()
-                .assertMissingKey("entryPoint")
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_018() {
-        configureFromResource("/errors/triggers/018.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .assertStringValueExpected()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_019() {
-        configureFromResource("/errors/triggers/019.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_020() {
-        configureFromResource("/errors/triggers/020.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_021() {
-        configureFromResource("/errors/triggers/021.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_022() {
-        configureFromResource("/errors/triggers/022.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_023() {
-        configureFromResource("/errors/triggers/023.concord.yml");
-        inspection()
-                .assertMissingKey("entryPoint")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_024() {
-        configureFromResource("/errors/triggers/024.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    @Disabled("oneops")
-    public void testTriggers_025() {
-        configureFromResource("/errors/triggers/025.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    @Disabled("oneops")
-    public void testTriggers_026() {
-        configureFromResource("/errors/triggers/026.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
+                        "^'")),
+                args("015", a -> a.assertMissingKey("conditions, entryPoint")),
+                args("016", InspectionAssertions::assertValueRequired),
+                args("017", a -> a.assertMissingKey("entryPoint").assertStringValueExpected()),
+                args("018", a -> a.assertStringValueExpected().assertStringValueExpected().assertUndefinedFlow()),
+                args("019", a -> a.assertStringValueExpected().assertUndefinedFlow()),
+                args("020", InspectionAssertions::assertArrayRequired),
+                args("021", InspectionAssertions::assertObjectRequired),
+                args("022", InspectionAssertions::assertValueRequired),
+                args("023", a -> a.assertMissingKey("entryPoint")),
+                args("024", InspectionAssertions::assertArrayRequired),
+                // @Disabled("oneops") - 025, 026, 027
+                // args("025", InspectionAssertions::assertArrayRequired),
+                // args("026", InspectionAssertions::assertArrayRequired),
+                // args("027", InspectionAssertions::assertArrayRequired),
+                // @Disabled("custom trigger")
+                // args("028", InspectionAssertions::assertArrayRequired),
+                args("029", InspectionAssertions::assertSingleValueExpected),
+                args("030", a -> a.assertHasError("Valid timezone required")),
+                args("031", a -> a.assertUnknownKey("trash")),
+                args("031_1", a -> a.assertUnknownKey("unknown")),
+                args("032", InspectionAssertions::assertObjectRequired),
+                args("033", InspectionAssertions::assertValueRequired),
+                args("034", a -> a.assertUnknownKey("trash")),
+                args("035", InspectionAssertions::assertBooleanExpected),
+                args("036", InspectionAssertions::assertStringValueExpected),
+                args("037", a -> a.assertMissingKey("group or groupBy"))
+        );
+    }
+
+    @ParameterizedTest(name = "triggers/{0}")
+    @MethodSource("triggersCases")
+    void testTriggers(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("triggers", file, assertions);
+    }
+
+    // --- tasks ---
+
+    static Stream<Arguments> tasksCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertStringValueExpected),
+                args("002", InspectionAssertions::assertValueRequired),
+                args("003", InspectionAssertions::assertStringValueExpected),
+                args("005", InspectionAssertions::assertValueRequired),
+                args("006", InspectionAssertions::assertExpressionExpected),
+                args("007", InspectionAssertions::assertValueRequired),
+                args("008", InspectionAssertions::assertValueRequired),
+                args("009", InspectionAssertions::assertObjectRequired),
+                args("009_1", InspectionAssertions::assertValueRequired),
+                args("009_2", InspectionAssertions::assertValueRequired),
+                args("009_3", a -> a.assertInvalidValue(NUMBER_OR_EXPRESSION)),
+                args("009_4", a -> a.assertUnexpectedValue("a")),
+                args("010", InspectionAssertions::assertObjectRequired),
+                args("011", InspectionAssertions::assertValueRequired),
+                args("012", InspectionAssertions::assertValueRequired),
+                args("013", InspectionAssertions::assertValueRequired),
+                args("014", InspectionAssertions::assertObjectRequired),
+                args("015", a -> a.assertUnexpectedKey("trash")),
+                args("016", InspectionAssertions::assertValueRequired),
+                args("017", InspectionAssertions::assertObjectRequired),
+                args("018", InspectionAssertions::assertExpressionExpected),
+                args("019", InspectionAssertions::assertStringValueExpected),
+                args("020", a -> a.assertUnexpectedValue("trash").assertExpressionExpected()),
+                args("021", a -> a.assertInvalidValue(NUMBER_OR_EXPRESSION))
+        );
+    }
+
+    @ParameterizedTest(name = "tasks/{0}")
+    @MethodSource("tasksCases")
+    void testTasks(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("tasks", file, assertions);
+    }
+
+    // --- flowCall ---
+
+    static Stream<Arguments> flowCallCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", a -> a.assertStringValueExpected().assertUndefinedFlow()),
+                args("002", a -> a.assertValueRequired().assertUndefinedFlow()),
+                args("003", a -> a.assertStringValueExpected().assertUndefinedFlow()),
+                args("005", a -> a.assertValueRequired().assertUndefinedFlow()),
+                args("006", a -> a.assertExpressionExpected().assertUndefinedFlow()),
+                args("007", a -> a.assertValueRequired().assertUndefinedFlow()),
+                args("008", a -> a.assertUnknownKey("withItems").assertUndefinedFlow()),
+                args("009", a -> a.assertValueRequired().assertUndefinedFlow()),
+                args("010", a -> a.assertObjectRequired().assertUndefinedFlow()),
+                args("011", a -> a.assertValueRequired().assertUndefinedFlow()),
+                args("012", a -> a.assertValueRequired().assertUndefinedFlow()),
+                args("013", a -> a.assertValueRequired().assertUndefinedFlow()),
+                args("014", a -> a.assertObjectRequired().assertUndefinedFlow()),
+                args("015", a -> a.assertUnknownKey("trash").assertUndefinedFlow()),
+                args("016", a -> a.assertValueRequired().assertUndefinedFlow()),
+                args("017", a -> a.assertObjectRequired().assertUndefinedFlow()),
+                args("018", a -> a.assertStringValueExpected().assertUndefinedFlow()),
+                args("019", a -> a.assertObjectRequired().assertUndefinedFlow()),
+                args("020", InspectionAssertions::assertUndefinedFlow),
+                args("021", a -> a.assertUndefinedFlow().assertExpressionExpected()),
+                args("022", a -> a.assertUnexpectedKey("unknown")),
+                args("023", a -> a.assertInvalidValue(STRING_OR_EXPRESSION))
+        );
+    }
+
+    @ParameterizedTest(name = "flowCall/{0}")
+    @MethodSource("flowCallCases")
+    void testFlowCall(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("flowCall", file, assertions);
+    }
+
+    // --- group ---
+
+    static Stream<Arguments> groupCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertArrayRequired),
+                args("002", InspectionAssertions::assertArrayRequired),
+                args("003", a -> a.assertUnknownKey("trash")),
+                args("004", InspectionAssertions::assertValueRequired),
+                args("005", InspectionAssertions::assertValueRequired),
+                args("006", InspectionAssertions::assertValueRequired),
+                args("007", a -> a.assertUnknownKey("trash")),
+                args("008", InspectionAssertions::assertValueRequired)
+        );
+    }
+
+    @ParameterizedTest(name = "group/{0}")
+    @MethodSource("groupCases")
+    void testGroup(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("group", file, assertions);
+    }
+
+    // --- parallel ---
+
+    static Stream<Arguments> parallelCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertArrayRequired),
+                args("002", InspectionAssertions::assertUnknownStep),
+                args("003", a -> a.assertUnknownKey("trash")),
+                args("004", InspectionAssertions::assertValueRequired),
+                args("005", a -> a.assertUnknownKey("trash"))
+        );
+    }
+
+    @ParameterizedTest(name = "parallel/{0}")
+    @MethodSource("parallelCases")
+    void testParallel(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("parallel", file, assertions);
+    }
+
+    // --- forms ---
+
+    static Stream<Arguments> formsCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertArrayRequired),
+                args("002", InspectionAssertions::assertValueRequired),
+                args("003", InspectionAssertions::assertObjectRequired),
+                args("004", InspectionAssertions::assertValueRequired),
+                args("005", a -> a.assertUnexpectedKey("error")),
+                args("006", InspectionAssertions::assertStringValueExpected),
+                args("007", a -> a.assertUnexpectedValue("123")),
+                args("008", a -> a.assertMissingKey("type")),
+                args("009", a -> a.assertUnexpectedValue("123")),
+                args("010", a -> a.assertUnexpectedValue("1")),
+                args("011", InspectionAssertions::assertObjectRequired),
+                args("012", a -> a.assertUnexpectedKey("min").assertUnexpectedKey("max"))
+        );
+    }
+
+    @ParameterizedTest(name = "forms/{0}")
+    @MethodSource("formsCases")
+    void testForms(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("forms", file, assertions);
+    }
+
+    // --- configuration ---
+
+    static Stream<Arguments> configurationCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertValueRequired),
+                args("002", a -> a.assertStringValueExpected().assertUndefinedFlow()),
+                args("003", InspectionAssertions::assertValueRequired),
+                args("004", InspectionAssertions::assertStringValueExpected),
+                args("005", InspectionAssertions::assertValueRequired),
+                args("005_1", InspectionAssertions::assertValueRequired),
+                args("006", a -> a.assertUnknownKey("trash")),
+                args("007", InspectionAssertions::assertObjectRequired),
+                args("008", InspectionAssertions::assertObjectRequired),
+                args("009", InspectionAssertions::assertDurationExpected),
+                args("010", InspectionAssertions::assertObjectRequired),
+                args("011", a -> a.assertMissingKey("group")),
+                args("011_1", a -> a.assertHasError(ConcordBundle.message("StringType.error.empty.scalar.value"))),
+                args("012", a -> a.assertUnknownKey("mode1")),
+                args("013", a -> a.assertUnexpectedValue("canceL")),
+                args("014", InspectionAssertions::assertObjectRequired),
+                args("015", InspectionAssertions::assertArrayRequired),
+                args("016", a -> a.assertUnexpectedValue("1")),
+                args("017", InspectionAssertions::assertArrayRequired),
+                args("018", a -> a.assertUnknownKey("trash")),
+                args("019", InspectionAssertions::assertArrayRequired),
+                args("020", a -> a.assertSingleValueExpected().assertSingleValueExpected()),
+                args("021", a -> a.assertUnexpectedValue("1")),
+                args("022", InspectionAssertions::assertArrayRequired),
+                args("023", InspectionAssertions::assertDurationExpected)
+        );
+    }
+
+    @ParameterizedTest(name = "configuration/{0}")
+    @MethodSource("configurationCases")
+    void testConfiguration(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("configuration", file, assertions);
+    }
+
+    // --- formCall ---
+
+    static Stream<Arguments> formCallCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertStringValueExpected),
+                args("002", a -> a.assertUnexpectedKey("a").assertUnexpectedKey("b")),
+                args("003", InspectionAssertions::assertBooleanExpected),
+                args("004", InspectionAssertions::assertValueRequired),
+                args("005", InspectionAssertions::assertObjectRequired),
+                args("006", InspectionAssertions::assertObjectRequired),
+                args("007", InspectionAssertions::assertExpressionExpected)
+        );
+    }
+
+    @ParameterizedTest(name = "formCall/{0}")
+    @MethodSource("formCallCases")
+    void testFormCall(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("formCall", file, assertions);
+    }
+
+    // --- flows ---
+
+    static Stream<Arguments> flowsCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertObjectRequired),
+                args("002", InspectionAssertions::assertValueRequired),
+                args("003", InspectionAssertions::assertArrayRequired)
+        );
+    }
+
+    @ParameterizedTest(name = "flows/{0}")
+    @MethodSource("flowsCases")
+    void testFlows(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("flows", file, assertions);
+    }
+
+    // --- profiles ---
+
+    static Stream<Arguments> profilesCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertObjectRequired),
+                args("002", InspectionAssertions::assertObjectRequired),
+                args("003", a -> a.assertUnknownKey("trash"))
+        );
+    }
+
+    @ParameterizedTest(name = "profiles/{0}")
+    @MethodSource("profilesCases")
+    void testProfiles(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("profiles", file, assertions);
+    }
+
+    // --- if ---
+
+    static Stream<Arguments> ifCases() {
+        return Stream.of(
+                args("000", a -> a.assertValueRequired().assertMissingKey("then")),
+                args("001", a -> a.assertExpressionExpected().assertMissingKey("then")),
+                args("002", a -> a.assertMissingKey("then")),
+                args("003", InspectionAssertions::assertValueRequired),
+                args("004", a -> a.assertUnknownKey("el")),
+                args("005", InspectionAssertions::assertValueRequired),
+                args("006", a -> a.assertUnknownKey("trash")),
+                args("007", InspectionAssertions::assertValueRequired),
+                args("008", InspectionAssertions::assertArrayRequired)
+        );
     }
-
-    @Test
-    @Disabled("oneops")
-    public void testTriggers_027() {
-        configureFromResource("/errors/triggers/027.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    @Disabled("custom trigger")
-    public void testTriggers_028() {
-        configureFromResource("/errors/triggers/028.concord.yml");
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_029() {
-        configureFromResource("/errors/triggers/029.concord.yml");
-        inspection()
-                .assertSingleValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_030() {
-        configureFromResource("/errors/triggers/030.concord.yml");
-        inspection()
-                .assertHasError("Valid timezone required")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_031() {
-        configureFromResource("/errors/triggers/031.concord.yml");
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_031_1() {
-        configureFromResource("/errors/triggers/031_1.concord.yml");
-        inspection()
-                .assertUnknownKey("unknown")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_032() {
-        configureFromResource("/errors/triggers/032.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_033() {
-        configureFromResource("/errors/triggers/033.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_034() {
-        configureFromResource("/errors/triggers/034.concord.yml");
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testTriggers_035() {
-        configureFromResource("/errors/triggers/035.concord.yml");
-        inspection()
-                .assertBooleanExpected()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_036() {
-        configureFromResource("/errors/triggers/036.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testTriggers_037() {
-        configureFromResource("/errors/triggers/037.concord.yml");
-        inspection()
-                .assertMissingKey("group or groupBy")
-                .check();
-    }
-
-    @Test
-    public void testTasks_000() {
-        configureFromResource("/errors/tasks/000.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_001() {
-        configureFromResource("/errors/tasks/001.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testTasks_002() {
-        configureFromResource("/errors/tasks/002.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_003() {
-        configureFromResource("/errors/tasks/003.concord.yml");
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testTasks_005() {
-        configureFromResource("/errors/tasks/005.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_006() {
-        configureFromResource("/errors/tasks/006.concord.yml");
-        inspection()
-                .assertExpressionExpected()
-                .check();
-    }
-
-    @Test
-    public void testTasks_007() {
-        configureFromResource("/errors/tasks/007.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_008() {
-        configureFromResource("/errors/tasks/008.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_009() {
-        configureFromResource("/errors/tasks/009.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_009_1() {
-        configureFromResource("/errors/tasks/009_1.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_009_2() {
-        configureFromResource("/errors/tasks/009_2.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_009_3() {
-        configureFromResource("/errors/tasks/009_3.concord.yml");
-        inspection()
-                .assertInvalidValue(NUMBER_OR_EXPRESSION)
-                .check();
-    }
-
-    @Test
-    public void testTasks_009_4() {
-        configureFromResource("/errors/tasks/009_4.concord.yml");
-        inspection()
-                .assertUnexpectedValue("a")
-                .check();
-    }
-
-    @Test
-    public void testTasks_010() {
-        configureFromResource("/errors/tasks/010.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_011() {
-        configureFromResource("/errors/tasks/011.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_012() {
-        configureFromResource("/errors/tasks/012.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_013() {
-        configureFromResource("/errors/tasks/013.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_014() {
-        configureFromResource("/errors/tasks/014.concord.yml");
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_015() {
-        configureFromResource("/errors/tasks/015.concord.yml");
-        inspection()
-                .assertUnexpectedKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testTasks_016() {
-        configureFromResource("/errors/tasks/016.concord.yml");
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_017() {
-        configureFromResource("/errors/tasks/017.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testTasks_018() {
-        configureFromResource("/errors/tasks/018.concord.yml");
-
-        inspection()
-                .assertExpressionExpected()
-                .check();
-    }
-
-    @Test
-    public void testTasks_019() {
-        configureFromResource("/errors/tasks/019.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testTasks_020() {
-        configureFromResource("/errors/tasks/020.concord.yml");
-
-        inspection()
-                .assertUnexpectedValue("trash")
-                .assertExpressionExpected()
-                .check();
-    }
-
-    @Test
-    public void testTasks_021() {
-        configureFromResource("/errors/tasks/021.concord.yml");
-
-        inspection()
-                .assertInvalidValue(NUMBER_OR_EXPRESSION)
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_000() {
-        configureFromResource("/errors/flowCall/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_001() {
-        configureFromResource("/errors/flowCall/001.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_002() {
-        configureFromResource("/errors/flowCall/002.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_003() {
-        configureFromResource("/errors/flowCall/003.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_005() {
-        configureFromResource("/errors/flowCall/005.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_006() {
-        configureFromResource("/errors/flowCall/006.concord.yml");
-
-        inspection()
-                .assertExpressionExpected()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_007() {
-        configureFromResource("/errors/flowCall/007.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_008() {
-        configureFromResource("/errors/flowCall/008.concord.yml");
-
-        inspection()
-                .assertUnknownKey("withItems")
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_009() {
-        configureFromResource("/errors/flowCall/009.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_010() {
-        configureFromResource("/errors/flowCall/010.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_011() {
-        configureFromResource("/errors/flowCall/011.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_012() {
-        configureFromResource("/errors/flowCall/012.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_013() {
-        configureFromResource("/errors/flowCall/013.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_014() {
-        configureFromResource("/errors/flowCall/014.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_015() {
-        configureFromResource("/errors/flowCall/015.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_016() {
-        configureFromResource("/errors/flowCall/016.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_017() {
-        configureFromResource("/errors/flowCall/017.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_018() {
-        configureFromResource("/errors/flowCall/018.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_019() {
-        configureFromResource("/errors/flowCall/019.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_020() {
-        configureFromResource("/errors/flowCall/020.concord.yml");
-
-        inspection()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_021() {
-        configureFromResource("/errors/flowCall/021.concord.yml");
-
-        inspection()
-                .assertUndefinedFlow()
-                .assertExpressionExpected()
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_022() {
-        configureFromResource("/errors/flowCall/022.concord.yml");
-
-        inspection()
-                .assertUnexpectedKey("unknown")
-                .check();
-    }
-
-    @Test
-    public void testFlowCall_023() {
-        configureFromResource("/errors/flowCall/023.concord.yml");
-
-        inspection()
-                .assertInvalidValue(STRING_OR_EXPRESSION)
-                .check();
-    }
-
-    @Test
-    public void testGroup_000() {
-        configureFromResource("/errors/group/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testGroup_001() {
-        configureFromResource("/errors/group/001.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testGroup_002() {
-        configureFromResource("/errors/group/002.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testGroup_003() {
-        configureFromResource("/errors/group/003.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testGroup_004() {
-        configureFromResource("/errors/group/004.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testGroup_005() {
-        configureFromResource("/errors/group/005.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testGroup_006() {
-        configureFromResource("/errors/group/006.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testGroup_007() {
-        configureFromResource("/errors/group/007.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testGroup_008() {
-        configureFromResource("/errors/group/008.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testParallel_000() {
-        configureFromResource("/errors/parallel/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testParallel_001() {
-        configureFromResource("/errors/parallel/001.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testParallel_002() {
-        configureFromResource("/errors/parallel/002.concord.yml");
-
-        inspection()
-                .assertUnknownStep()
-                .check();
-    }
-
-    @Test
-    public void testParallel_003() {
-        configureFromResource("/errors/parallel/003.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testParallel_004() {
-        configureFromResource("/errors/parallel/004.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testParallel_005() {
-        configureFromResource("/errors/parallel/005.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testForms_000() {
-        configureFromResource("/errors/forms/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testForms_001() {
-        configureFromResource("/errors/forms/001.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testForms_002() {
-        configureFromResource("/errors/forms/002.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testForms_003() {
-        configureFromResource("/errors/forms/003.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testForms_004() {
-        configureFromResource("/errors/forms/004.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testForms_005() {
-        configureFromResource("/errors/forms/005.concord.yml");
-
-        inspection()
-                .assertUnexpectedKey("error")
-                .check();
-    }
-
-    @Test
-    public void testForms_006() {
-        configureFromResource("/errors/forms/006.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_000() {
-        configureFromResource("/errors/configuration/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_001() {
-        configureFromResource("/errors/configuration/001.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_002() {
-        configureFromResource("/errors/configuration/002.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .assertUndefinedFlow()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_003() {
-        configureFromResource("/errors/configuration/003.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-    @Test
-    public void testConfiguration_004() {
-        configureFromResource("/errors/configuration/004.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_005() {
-        configureFromResource("/errors/configuration/005.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_005_1() {
-        configureFromResource("/errors/configuration/005_1.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_006() {
-        configureFromResource("/errors/configuration/006.concord.yml");
 
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
+    @ParameterizedTest(name = "if/{0}")
+    @MethodSource("ifCases")
+    void testIf(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("if", file, assertions);
     }
 
-    @Test
-    public void testConfiguration_007() {
-        configureFromResource("/errors/configuration/007.concord.yml");
+    // --- switch ---
 
-        inspection()
-                .assertObjectRequired()
-                .check();
+    static Stream<Arguments> switchCases() {
+        return Stream.of(
+                args("000", a -> a.assertValueRequired().assertHasError(ConcordBundle.message("SwitchStepMetaType.error.missing.labels"))),
+                args("001", a -> a.assertHasError(ConcordBundle.message("SwitchStepMetaType.error.missing.labels"))),
+                args("002", InspectionAssertions::assertValueRequired),
+                args("003", InspectionAssertions::assertValueRequired)
+        );
     }
 
-    @Test
-    public void testConfiguration_008() {
-        configureFromResource("/errors/configuration/008.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_009() {
-        configureFromResource("/errors/configuration/009.concord.yml");
-
-        inspection()
-                .assertDurationExpected()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_010() {
-        configureFromResource("/errors/configuration/010.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_011() {
-        configureFromResource("/errors/configuration/011.concord.yml");
-
-        inspection()
-                .assertMissingKey("group")
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_011_1() {
-        configureFromResource("/errors/configuration/011_1.concord.yml");
-
-        inspection()
-                .assertHasError(ConcordBundle.message("StringType.error.empty.scalar.value"))
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_012() {
-        configureFromResource("/errors/configuration/012.concord.yml");
-
-        inspection()
-                .assertUnknownKey("mode1")
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_013() {
-        configureFromResource("/errors/configuration/013.concord.yml");
-
-        inspection()
-                .assertUnexpectedValue("canceL")
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_014() {
-        configureFromResource("/errors/configuration/014.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_015() {
-        configureFromResource("/errors/configuration/015.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_016() {
-        configureFromResource("/errors/configuration/016.concord.yml");
-
-        inspection()
-                .assertUnexpectedValue("1")
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_017() {
-        configureFromResource("/errors/configuration/017.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_018() {
-        configureFromResource("/errors/configuration/018.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_019() {
-        configureFromResource("/errors/configuration/019.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_020() {
-        configureFromResource("/errors/configuration/020.concord.yml");
-
-        inspection()
-                .assertSingleValueExpected()
-                .assertSingleValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_021() {
-        configureFromResource("/errors/configuration/021.concord.yml");
-
-        inspection()
-                .assertUnexpectedValue("1")
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_022() {
-        configureFromResource("/errors/configuration/022.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testConfiguration_023() {
-        configureFromResource("/errors/configuration/023.concord.yml");
-
-        inspection()
-                .assertDurationExpected()
-                .check();
-    }
-
-    @Test
-    public void testForms_007() {
-        configureFromResource("/errors/forms/007.concord.yml");
-
-        inspection()
-                .assertUnexpectedValue("123")
-                .check();
-    }
-
-    @Test
-    public void testForms_008() {
-        configureFromResource("/errors/forms/008.concord.yml");
-
-        inspection()
-                .assertMissingKey("type")
-                .check();
-    }
-
-    @Test
-    public void testForms_009() {
-        configureFromResource("/errors/forms/009.concord.yml");
-
-        inspection()
-                .assertUnexpectedValue("123")
-                .check();
-    }
-
-    @Test
-    public void testForms_010() {
-        configureFromResource("/errors/forms/010.concord.yml");
-
-        inspection()
-                .assertUnexpectedValue("1")
-                .check();
-    }
-
-    @Test
-    public void testForms_011() {
-        configureFromResource("/errors/forms/011.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testForms_012() {
-        configureFromResource("/errors/forms/012.concord.yml");
-
-        inspection()
-                .assertUnexpectedKey("min")
-                .assertUnexpectedKey("max")
-                .check();
-    }
-
-    @Test
-    public void testFormCall_000() {
-        configureFromResource("/errors/formCall/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testFormCall_001() {
-        configureFromResource("/errors/formCall/001.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testFormCall_002() {
-        configureFromResource("/errors/formCall/002.concord.yml");
-
-        inspection()
-                .assertUnexpectedKey("a")
-                .assertUnexpectedKey("b")
-                .check();
-    }
-
-    @Test
-    public void testFormCall_003() {
-        configureFromResource("/errors/formCall/003.concord.yml");
-
-        inspection()
-                .assertBooleanExpected()
-                .check();
-    }
-
-    @Test
-    public void testFormCall_004() {
-        configureFromResource("/errors/formCall/004.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testFormCall_005() {
-        configureFromResource("/errors/formCall/005.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testFormCall_006() {
-        configureFromResource("/errors/formCall/006.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testFormCall_007() {
-        configureFromResource("/errors/formCall/007.concord.yml");
-
-        inspection()
-                .assertExpressionExpected()
-                .check();
-    }
-
-    @Test
-    public void testFlows_000() {
-        configureFromResource("/errors/flows/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testFlows_001() {
-        configureFromResource("/errors/flows/001.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
+    @ParameterizedTest(name = "switch/{0}")
+    @MethodSource("switchCases")
+    void testSwitch(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("switch", file, assertions);
     }
 
-    @Test
-    public void testFlows_002() {
-        configureFromResource("/errors/flows/002.concord.yml");
+    // --- publicFlows ---
 
-        inspection()
-                .assertValueRequired()
-                .check();
+    static Stream<Arguments> publicFlowsCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertArrayRequired),
+                args("002", InspectionAssertions::assertStringValueExpected)
+        );
     }
 
-    @Test
-    public void testFlows_003() {
-        configureFromResource("/errors/flows/003.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testProfiles_000() {
-        configureFromResource("/errors/profiles/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testProfiles_001() {
-        configureFromResource("/errors/profiles/001.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testProfiles_002() {
-        configureFromResource("/errors/profiles/002.concord.yml");
-
-        inspection()
-                .assertObjectRequired()
-                .check();
-    }
-
-    @Test
-    public void testProfiles_003() {
-        configureFromResource("/errors/profiles/003.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testIf_000() {
-        configureFromResource("/errors/if/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertMissingKey("then")
-                .check();
-    }
-
-    @Test
-    public void testIf_001() {
-        configureFromResource("/errors/if/001.concord.yml");
-
-        inspection()
-                .assertExpressionExpected()
-                .assertMissingKey("then")
-                .check();
-    }
-
-    @Test
-    public void testIf_002() {
-        configureFromResource("/errors/if/002.concord.yml");
-
-        inspection()
-                .assertMissingKey("then")
-                .check();
-    }
-
-    @Test
-    public void testIf_003() {
-        configureFromResource("/errors/if/003.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testIf_004() {
-        configureFromResource("/errors/if/004.concord.yml");
-
-        inspection()
-                .assertUnknownKey("el")
-                .check();
-    }
-
-    @Test
-    public void testIf_005() {
-        configureFromResource("/errors/if/005.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testIf_006() {
-        configureFromResource("/errors/if/006.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
-    }
-
-    @Test
-    public void testIf_007() {
-        configureFromResource("/errors/if/007.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testIf_008() {
-        configureFromResource("/errors/if/008.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testSwitch_000() {
-        configureFromResource("/errors/switch/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .assertHasError(ConcordBundle.message("SwitchStepMetaType.error.missing.labels"))
-                .check();
-    }
-
-    @Test
-    public void testSwitch_001() {
-        configureFromResource("/errors/switch/001.concord.yml");
-
-        inspection()
-                .assertHasError(ConcordBundle.message("SwitchStepMetaType.error.missing.labels"))
-                .check();
-    }
-
-    @Test
-    public void testSwitch_002() {
-        configureFromResource("/errors/switch/002.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
+    @ParameterizedTest(name = "publicFlows/{0}")
+    @MethodSource("publicFlowsCases")
+    void testPublicFlows(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("publicFlows", file, assertions);
     }
 
-    @Test
-    public void testSwitch_003() {
-        configureFromResource("/errors/switch/003.concord.yml");
+    // --- scripts ---
 
-        inspection()
-                .assertValueRequired()
-                .check();
+    static Stream<Arguments> scriptsCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", InspectionAssertions::assertStringValueExpected),
+                args("002", a -> a.assertUnknownKey("body1")),
+                args("003", InspectionAssertions::assertUnknownStep)
+        );
     }
 
-    @Test
-    public void testPublicFlows_000() {
-        configureFromResource("/errors/publicFlows/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testPublicFlows_001() {
-        configureFromResource("/errors/publicFlows/001.concord.yml");
-
-        inspection()
-                .assertArrayRequired()
-                .check();
-    }
-
-    @Test
-    public void testPublicFlows_002() {
-        configureFromResource("/errors/publicFlows/002.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testScript_000() {
-        configureFromResource("/errors/scripts/000.concord.yml");
-
-        inspection()
-                .assertValueRequired()
-                .check();
-    }
-
-    @Test
-    public void testScript_001() {
-        configureFromResource("/errors/scripts/001.concord.yml");
-
-        inspection()
-                .assertStringValueExpected()
-                .check();
-    }
-
-    @Test
-    public void testScript_002() {
-        configureFromResource("/errors/scripts/002.concord.yml");
-
-        inspection()
-                .assertUnknownKey("body1")
-                .check();
-    }
-
-    @Test
-    public void testScript_003() {
-        configureFromResource("/errors/scripts/003.concord.yml");
-
-        inspection()
-                .assertUnknownStep()
-                .check();
+    @ParameterizedTest(name = "scripts/{0}")
+    @MethodSource("scriptsCases")
+    void testScripts(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("scripts", file, assertions);
     }
 
-    @Test
-    public void tesResources_000() {
-        configureFromResource("/errors/resources/000.concord.yml");
+    // --- resources ---
 
-        inspection()
-                .assertValueRequired()
-                .check();
+    static Stream<Arguments> resourcesCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", a -> a.assertUnknownKey("trash")),
+                args("002", InspectionAssertions::assertArrayRequired)
+        );
     }
 
-    @Test
-    public void tesResources_001() {
-        configureFromResource("/errors/resources/001.concord.yml");
-
-        inspection()
-                .assertUnknownKey("trash")
-                .check();
+    @ParameterizedTest(name = "resources/{0}")
+    @MethodSource("resourcesCases")
+    void testResources(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("resources", file, assertions);
     }
 
-    @Test
-    public void tesResources_002() {
-        configureFromResource("/errors/resources/002.concord.yml");
+    // --- setVariables ---
 
-        inspection()
-                .assertArrayRequired()
-                .check();
+    static Stream<Arguments> setVariablesCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertValueRequired),
+                args("001", a -> a.assertUnknownKey("meta1"))
+        );
     }
-
-    @Test
-    public void tesSetVariables_000() {
-        configureFromResource("/errors/setVariables/000.concord.yml");
 
-        inspection()
-                .assertValueRequired()
-                .check();
+    @ParameterizedTest(name = "setVariables/{0}")
+    @MethodSource("setVariablesCases")
+    void testSetVariables(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("setVariables", file, assertions);
     }
 
-    @Test
-    public void tesSetVariables_001() {
-        configureFromResource("/errors/setVariables/001.concord.yml");
+    // --- steps ---
 
-        inspection()
-                .assertUnknownKey("meta1")
-                .check();
+    static Stream<Arguments> stepsCases() {
+        return Stream.of(
+                args("000", InspectionAssertions::assertUnknownStep)
+        );
     }
 
-    @Test
-    public void tesSteps_000() {
-        configureFromResource("/errors/steps/000.concord.yml");
-
-        inspection()
-                .assertUnknownStep()
-                .check();
+    @ParameterizedTest(name = "steps/{0}")
+    @MethodSource("stepsCases")
+    void testSteps(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("steps", file, assertions);
     }
 
-    @Test
-    public void tesFlowCallInputParams_000() {
-        configureFromResource("/errors/flowCallInputParams/000.concord.yml");
-
-        inspection()
-                .assertInvalidValue(STRING_OR_EXPRESSION)
-                .assertInvalidValue(BOOLEAN_OR_EXPRESSION)
-                .assertInvalidValue(NUMBER_OR_EXPRESSION)
-                .assertInvalidValue(OBJECT_ARRAY_OR_EXPRESSION)
-                .assertInvalidValue(OBJECT_OR_EXPRESSION)
-                .assertInvalidValue(STRING_OR_EXPRESSION)
-                .check();
-    }
+    // --- flowCallInputParams ---
 
-    private Inspection inspection() {
-        return new Inspection(myFixture);
+    static Stream<Arguments> flowCallInputParamsCases() {
+        return Stream.of(
+                args("000", a -> a.assertInvalidValue(STRING_OR_EXPRESSION)
+                        .assertInvalidValue(BOOLEAN_OR_EXPRESSION)
+                        .assertInvalidValue(NUMBER_OR_EXPRESSION)
+                        .assertInvalidValue(OBJECT_ARRAY_OR_EXPRESSION)
+                        .assertInvalidValue(OBJECT_OR_EXPRESSION)
+                        .assertInvalidValue(STRING_OR_EXPRESSION))
+        );
     }
-
-    private static class Inspection {
-
-        private final CodeInsightTestFixture fixture;
-
-        private final List<String> errors = new ArrayList<>();
-
-        public Inspection(CodeInsightTestFixture fixture) {
-            this.fixture = fixture;
-        }
-
-        public Inspection assertHasError(String message) {
-            errors.add(message);
-            return this;
-        }
-
-        private Inspection assertValueRequired() {
-            errors.add("Value is required");
-            return this;
-        }
-
-        private Inspection assertArrayRequired() {
-            errors.add("Array is required");
-            return this;
-        }
-
-        private Inspection assertObjectRequired() {
-            errors.add(ConcordBundle.message("ConcordMetaType.error.object.is.required"));
-            return this;
-        }
-
-        private Inspection assertUndefinedFlow() {
-            errors.add(ConcordBundle.message("CallStepMetaType.error.undefinedFlow"));
-            return this;
-        }
-
-        private Inspection assertStringValueExpected() {
-            errors.add("String value expected");
-            return this;
-        }
-
-        private Inspection assertIntExpected() {
-            errors.add("Integer value expected");
-            return this;
-        }
-
-        private Inspection assertBooleanExpected() {
-            errors.add("Boolean value expected");
-            return this;
-        }
-
-        private Inspection assertSingleValueExpected() {
-            errors.add("Single value is expected");
-            return this;
-        }
-
-        private Inspection assertExpressionExpected() {
-            errors.add(ConcordBundle.message("ExpressionType.error.invalid.value"));
-            return this;
-        }
-
-        private Inspection assertDurationExpected() {
-            errors.add(ConcordBundle.message("DurationType.error.scalar.value"));
-            return this;
-        }
-
-        private Inspection assertUnknownKey(String key) {
-            errors.add(ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
-            return this;
-        }
-
-        private Inspection assertUnexpectedValue(String value) {
-            errors.add(ConcordBundle.message("YamlEnumType.validation.error.value.unknown", value));
-            return this;
-        }
-
-        private Inspection assertMissingKey(String key) {
-            errors.add("Missing required key(s): '" + key + "'");
-            return this;
-        }
-
-        private Inspection assertUnexpectedKey(String key) {
-            errors.add(ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", key));
-            return this;
-        }
-
-        public Inspection assertUnknownStep() {
-            errors.add(ConcordBundle.message("StepElementMetaType.error.unknown.step"));
-            return this;
-        }
-
-        public Inspection assertInvalidValue(AnyOfType type) {
-            errors.add(ConcordBundle.message("invalid.value", type.expectedString()));
-            return this;
-        }
-
-        public void check() {
-            List<HighlightInfo> highlighting = new ArrayList<>(fixture.doHighlighting().stream()
-                    .filter(highlightInfo -> highlightInfo.getSeverity() == HighlightSeverity.ERROR)
-                    .toList());
-
-            assertEquals(dump(highlighting) + "\n", errors.size(), highlighting.size());
-
-            for (String error : errors) {
-                boolean hasError = false;
-                for (Iterator<HighlightInfo> it = highlighting.iterator(); it.hasNext(); ) {
-                    HighlightInfo h = it.next();
-                    if (h.getDescription() != null && h.getDescription().startsWith(error)) {
-                        it.remove();
-                        hasError = true;
-                        break;
-                    }
-                }
-
-                if (!hasError) {
-                    fail(dump(highlighting) + "\n '" + error + "' not found\n");
-                }
-            }
 
-            assertTrue(dump(highlighting), highlighting.isEmpty());
-        }
+    @ParameterizedTest(name = "flowCallInputParams/{0}")
+    @MethodSource("flowCallInputParamsCases")
+    void testFlowCallInputParams(String file, Consumer<InspectionAssertions> assertions) {
+        runErrorTest("flowCallInputParams", file, assertions);
     }
 }

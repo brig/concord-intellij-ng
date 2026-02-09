@@ -1,13 +1,14 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.application.ReadAction;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ProcessDefinitionTest extends ConcordYamlTestBase {
+class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testFindEnclosingFlowDefinition_insideStep() {
+    void testFindEnclosingFlowDefinition_insideStep() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -18,13 +19,13 @@ public class ProcessDefinitionTest extends ConcordYamlTestBase {
             var logKey = key("/flows/myFlow/[0]/log").element();
             var result = ProcessDefinition.findEnclosingFlowDefinition(logKey);
 
-            assertNotNull(result);
-            assertEquals("myFlow", result.getKeyText());
+            Assertions.assertNotNull(result);
+            Assertions.assertEquals("myFlow", result.getKeyText());
         });
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_onFlowKey() {
+    void testFindEnclosingFlowDefinition_onFlowKey() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -35,13 +36,13 @@ public class ProcessDefinitionTest extends ConcordYamlTestBase {
             var flowKey = key("/flows/myFlow").element();
             var result = ProcessDefinition.findEnclosingFlowDefinition(flowKey);
 
-            assertNotNull(result);
-            assertEquals("myFlow", result.getKeyText());
+            Assertions.assertNotNull(result);
+            Assertions.assertEquals("myFlow", result.getKeyText());
         });
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_outsideFlows() {
+    void testFindEnclosingFlowDefinition_outsideFlows() {
         configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -54,12 +55,12 @@ public class ProcessDefinitionTest extends ConcordYamlTestBase {
             var configKey = key("/configuration/runtime").element();
             var result = ProcessDefinition.findEnclosingFlowDefinition(configKey);
 
-            assertNull(result);
+            Assertions.assertNull(result);
         });
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_deeplyNested() {
+    void testFindEnclosingFlowDefinition_deeplyNested() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -74,13 +75,13 @@ public class ProcessDefinitionTest extends ConcordYamlTestBase {
             var msgKey = key("/flows/myFlow/[0]/then/[0]/in/msg").element();
             var result = ProcessDefinition.findEnclosingFlowDefinition(msgKey);
 
-            assertNotNull(result);
-            assertEquals("myFlow", result.getKeyText());
+            Assertions.assertNotNull(result);
+            Assertions.assertEquals("myFlow", result.getKeyText());
         });
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_nullElement() {
+    void testFindEnclosingFlowDefinition_nullElement() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -89,12 +90,12 @@ public class ProcessDefinitionTest extends ConcordYamlTestBase {
 
         ReadAction.run(() -> {
             var result = ProcessDefinition.findEnclosingFlowDefinition(null);
-            assertNull(result);
+            Assertions.assertNull(result);
         });
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_onFlowsKey() {
+    void testFindEnclosingFlowDefinition_onFlowsKey() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -105,12 +106,12 @@ public class ProcessDefinitionTest extends ConcordYamlTestBase {
             var flowsKey = key("/flows").element();
             var result = ProcessDefinition.findEnclosingFlowDefinition(flowsKey);
 
-            assertNull(result);
+            Assertions.assertNull(result);
         });
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_multipleFlows() {
+    void testFindEnclosingFlowDefinition_multipleFlows() {
         configureFromText("""
                 flows:
                   firstFlow:
@@ -122,13 +123,13 @@ public class ProcessDefinitionTest extends ConcordYamlTestBase {
         ReadAction.run(() -> {
             var firstLogKey = key("/flows/firstFlow/[0]/log").element();
             var firstResult = ProcessDefinition.findEnclosingFlowDefinition(firstLogKey);
-            assertNotNull(firstResult);
-            assertEquals("firstFlow", firstResult.getKeyText());
+            Assertions.assertNotNull(firstResult);
+            Assertions.assertEquals("firstFlow", firstResult.getKeyText());
 
             var secondLogKey = key("/flows/secondFlow/[0]/log").element();
             var secondResult = ProcessDefinition.findEnclosingFlowDefinition(secondLogKey);
-            assertNotNull(secondResult);
-            assertEquals("secondFlow", secondResult.getKeyText());
+            Assertions.assertNotNull(secondResult);
+            Assertions.assertEquals("secondFlow", secondResult.getKeyText());
         });
     }
 }

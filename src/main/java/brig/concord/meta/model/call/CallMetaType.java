@@ -3,7 +3,7 @@ package brig.concord.meta.model.call;
 import brig.concord.ConcordBundle;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
-import brig.concord.meta.model.StringMetaType;
+import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
 import brig.concord.psi.ref.FlowDefinitionReference;
@@ -12,18 +12,15 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.CompletionContext;
 import brig.concord.yaml.psi.YAMLScalar;
-import brig.concord.yaml.psi.YAMLValue;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static brig.concord.meta.model.ExpressionMetaType.containsExpression;
+import static brig.concord.meta.model.value.ExpressionMetaType.containsExpression;
 
 public class CallMetaType extends StringMetaType implements HighlightProvider {
 

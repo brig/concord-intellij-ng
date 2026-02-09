@@ -1,12 +1,15 @@
 package brig.concord.completion;
 
-import brig.concord.ConcordYamlTestBase;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.codeInsight.completion.CompletionType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class FlowDocCompletionTest extends ConcordYamlTestBase {
+import static org.assertj.core.api.Assertions.assertThat;
+
+class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     private static final List<String> ALL_TYPES = List.of(
             "string", "boolean", "int", "integer", "number", "object", "any",
@@ -16,7 +19,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
     private static final List<String> KEYWORDS = List.of("mandatory", "optional");
 
     @Test
-    public void testTypeCompletionAfterColon() {
+    void testTypeCompletionAfterColon() {
         configureFromText("""
             flows:
               ##
@@ -30,12 +33,12 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookups = myFixture.getLookupElementStrings();
-        assertNotNull(lookups);
-        assertContainsElements(lookups, ALL_TYPES);
+        Assertions.assertNotNull(lookups);
+        assertThat(lookups).containsAll(ALL_TYPES);
     }
 
     @Test
-    public void testTypeCompletionWithPrefix() {
+    void testTypeCompletionWithPrefix() {
         configureFromText("""
             flows:
               ##
@@ -49,12 +52,12 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookups = myFixture.getLookupElementStrings();
-        assertNotNull(lookups);
-        assertContainsElements(lookups, "string", "string[]");
+        Assertions.assertNotNull(lookups);
+        assertThat(lookups).contains("string", "string[]");
     }
 
     @Test
-    public void testKeywordCompletionAfterType() {
+    void testKeywordCompletionAfterType() {
         configureFromText("""
             flows:
               ##
@@ -68,12 +71,12 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
         myFixture.complete(CompletionType.BASIC);
 
         var lookups = myFixture.getLookupElementStrings();
-        assertNotNull(lookups);
-        assertContainsElements(lookups, KEYWORDS);
+        Assertions.assertNotNull(lookups);
+        assertThat(lookups).containsAll(KEYWORDS);
     }
 
     @Test
-    public void testKeywordCompletionWithPrefix() {
+    void testKeywordCompletionWithPrefix() {
         configureFromText("""
             flows:
               ##
@@ -89,12 +92,12 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
         var lookups = myFixture.getLookupElementStrings();
         // May be null if auto-completed, that's OK
         if (lookups != null) {
-            assertContainsElements(lookups, "mandatory");
+            assertThat(lookups).contains("mandatory");
         }
     }
 
     @Test
-    public void testNoCompletionOutsideFlowDoc() {
+    void testNoCompletionOutsideFlowDoc() {
         configureFromText("""
             flows:
               myFlow:
@@ -106,8 +109,8 @@ public class FlowDocCompletionTest extends ConcordYamlTestBase {
         var lookups = myFixture.getLookupElementStrings();
         // Should not contain flow doc types/keywords
         if (lookups != null) {
-            assertDoesntContain(lookups, ALL_TYPES);
-            assertDoesntContain(lookups, KEYWORDS);
+            assertThat(lookups).doesNotContainAnyElementsOf(ALL_TYPES);
+            assertThat(lookups).doesNotContainAnyElementsOf(KEYWORDS);
         }
     }
 }

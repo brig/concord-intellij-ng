@@ -2,6 +2,7 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,5 +30,5 @@ public abstract class IdentityMetaType extends ConcordMetaType {
     }
 
     @Override
-    protected abstract Map<String, Supplier<YamlMetaType>> getFeatures();
+    protected abstract @NotNull Map<String, Supplier<YamlMetaType>> getFeatures();
 }

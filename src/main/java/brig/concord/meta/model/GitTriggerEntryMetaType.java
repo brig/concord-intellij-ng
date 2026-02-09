@@ -4,9 +4,18 @@ import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.BooleanMetaType;
+import brig.concord.meta.model.value.IntegerMetaType;
+import brig.concord.meta.model.value.RegexpMetaType;
+import brig.concord.meta.model.value.RegexpOrArrayMetaType;
+import brig.concord.meta.model.value.StringArrayMetaType;
+import brig.concord.meta.model.value.StringMetaType;
+
 import brig.concord.yaml.meta.model.YamlArrayType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -40,7 +49,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 
@@ -74,7 +83,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
                 "enabled", BooleanMetaType::getInstance);
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
 
@@ -104,7 +113,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         );
 
         @Override
-        protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
 
@@ -142,7 +151,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         );
 
         @Override
-        public Map<String, Supplier<YamlMetaType>> getFeatures() {
+        public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
             return features;
         }
 

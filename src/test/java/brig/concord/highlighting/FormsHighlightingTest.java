@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class FormsHighlightingTest extends HighlightingTestBase {
+class FormsHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testFormsSection() {
+    void testFormsSection() {
         configureFromText("""
             forms:
               myForm:

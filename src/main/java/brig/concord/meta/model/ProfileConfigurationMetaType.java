@@ -6,10 +6,13 @@ import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
+import brig.concord.meta.model.value.*;
+
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlIntegerType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -37,7 +40,7 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Doc
         features.put("exclusive", ProcessExclusiveMetaType::getInstance);
         features.put("out", StringArrayMetaType::getInstance);
         features.put("template", StringMetaType::getInstance);
-        features.put("parallelLoopParallelism", () -> YamlIntegerType.getInstance(false));
+        features.put("parallelLoopParallelism", IntegerMetaType::getInstance);
     }
 
     public static ProfileConfigurationMetaType getInstance() {
@@ -49,7 +52,7 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Doc
     }
 
     @Override
-    protected Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
         return features;
     }
 

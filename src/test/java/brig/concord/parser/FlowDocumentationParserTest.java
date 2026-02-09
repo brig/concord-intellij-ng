@@ -1,17 +1,14 @@
 package brig.concord.parser;
 
-import brig.concord.ConcordYamlTestBase;
-import brig.concord.assertions.FlowDocAssertions;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import org.junit.jupiter.api.Test;
-
-import java.util.function.Consumer;
 
 import static brig.concord.assertions.FlowDocAssertions.assertFlowDocCount;
 
-public class FlowDocumentationParserTest extends ConcordYamlTestBase {
+class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testBasicFlowDocumentation() {
+    void testBasicFlowDocumentation() {
         var yaml = """
             flows:
               ##
@@ -27,7 +24,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasDescription("Process S3 files")
                 .hasInputCount(1)
@@ -37,7 +34,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testBasicFlowDocumentationWithArbitraryIndent() {
+    void testBasicFlowDocumentationWithArbitraryIndent() {
         // Arbitrary indentation is allowed, but sections must be at same or lesser indent level
         var yaml = """
             flows:
@@ -54,7 +51,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasDescription("Process S3 files")
                 .hasInputCount(1)
@@ -64,7 +61,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testBasicFlowDocumentationWithExtraComments() {
+    void testBasicFlowDocumentationWithExtraComments() {
         var yaml = """
             flows:
               ##
@@ -84,7 +81,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasDescription("Process S3 files\nand\nsomething")
                 .hasInputCount(1)
@@ -94,7 +91,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testArrayTypes() {
+    void testArrayTypes() {
         var yaml = """
             flows:
               ##
@@ -108,13 +105,13 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processFiles"), doc -> doc
+        assertFlowDoc(key("/flows/processFiles"), doc -> doc
                 .param("files").hasType("string[]").isArrayType().hasBaseType("string").and()
                 .param("results").hasType("boolean[]").isArrayType().hasBaseType("boolean"));
     }
 
     @Test
-    public void testNestedObjectParameters() {
+    void testNestedObjectParameters() {
         var yaml = """
             flows:
               ##
@@ -128,7 +125,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/connect"), doc -> doc
+        assertFlowDoc(key("/flows/connect"), doc -> doc
                 .hasInputCount(3)
                 .param("config").hasType("object").and()
                 .param("config.host").hasType("string").isMandatory().and()
@@ -136,7 +133,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testMultilineDescription() {
+    void testMultilineDescription() {
         var yaml = """
             flows:
               ##
@@ -152,14 +149,14 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/process"), doc -> doc
+        assertFlowDoc(key("/flows/process"), doc -> doc
                 .descriptionContains("Process S3 files")
                 .descriptionContains("multiline description")
                 .descriptionContains("spans multiple lines"));
     }
 
     @Test
-    public void testFlowWithoutDocumentation() {
+    void testFlowWithoutDocumentation() {
         var yaml = """
             flows:
               undocumentedFlow:
@@ -171,7 +168,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testMultipleFlows() {
+    void testMultipleFlows() {
         var yaml = """
             flows:
               ##
@@ -192,15 +189,15 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/flow1"), doc -> doc
+        assertFlowDoc(key("/flows/flow1"), doc -> doc
                 .hasDescription("First flow"));
 
-        flowDocFor(key("/flows/flow2"), doc -> doc
+        assertFlowDoc(key("/flows/flow2"), doc -> doc
                 .hasDescription("Second flow"));
     }
 
     @Test
-    public void testAllTypes() {
+    void testAllTypes() {
         var yaml = """
             flows:
               ##
@@ -222,7 +219,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/allTypes"), doc -> doc
+        assertFlowDoc(key("/flows/allTypes"), doc -> doc
                 .hasInputCount(11)
                 .hasFlowName("allTypes")
                 .noDescription()
@@ -240,7 +237,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testParameterDirection() {
+    void testParameterDirection() {
         var yaml = """
             flows:
               ##
@@ -254,13 +251,13 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
             """;
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/testFlow"), doc -> doc
+        assertFlowDoc(key("/flows/testFlow"), doc -> doc
                 .param("input1").isInput().and()
                 .param("output1").isOutput());
     }
 
     @Test
-    public void testCustomTagsInFlowDocumentation() {
+    void testCustomTagsInFlowDocumentation() {
         var yaml = """
             flows:
               ##
@@ -275,7 +272,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasDescription("Process S3 files")
                 .hasInputCount(1)
@@ -284,7 +281,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testArbitraryIndentationInSections() {
+    void testArbitraryIndentationInSections() {
         var yaml = """
             flows:
               ##
@@ -300,7 +297,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/processS3"), doc -> doc
+        assertFlowDoc(key("/flows/processS3"), doc -> doc
                 .hasFlowName("processS3")
                 .hasInputCount(2)
                 .hasOutputCount(1)
@@ -310,7 +307,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testUserTagWithSameIndentAsSection() {
+    void testUserTagWithSameIndentAsSection() {
         // tags: has same indent as in: so should NOT be a parameter
         var yaml = """
             flows:
@@ -326,14 +323,14 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(1)
                 .hasOutputCount(0)
                 .param("param1").hasType("string").isMandatory());
     }
 
     @Test
-    public void testUserTagWithSmallerIndentThanSection() {
+    void testUserTagWithSmallerIndentThanSection() {
         // tags: has smaller indent than in: so should NOT be a parameter
         var yaml = """
             flows:
@@ -348,14 +345,14 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(1)
                 .hasOutputCount(0)
                 .param("param1").hasType("string").isMandatory());
     }
 
     @Test
-    public void testNestedOutIsNotSection() {
+    void testNestedOutIsNotSection() {
         // out: with greater indent than in: is nested, so NOT a new section
         // Everything nested belongs to the parent section
         var yaml = """
@@ -373,7 +370,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
         configureFromText(yaml);
 
         // out: is nested in in:, so both out and output1 become input parameters
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(3)
                 .hasOutputCount(0)
                 .param("input1").hasType("string").isInput().and()
@@ -382,7 +379,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testSameIndentForInAndOut() {
+    void testSameIndentForInAndOut() {
         // in: and out: with same indent are both sections
         var yaml = """
             flows:
@@ -398,7 +395,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(1)
                 .hasOutputCount(1)
                 .param("input1").hasType("string").isInput().and()
@@ -406,7 +403,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testRequiredAsAliasForMandatory() {
+    void testRequiredAsAliasForMandatory() {
         var yaml = """
             flows:
               ##
@@ -420,13 +417,10 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBase {
 
         configureFromText(yaml);
 
-        flowDocFor(key("/flows/myFlow"), doc -> doc
+        assertFlowDoc(key("/flows/myFlow"), doc -> doc
                 .hasInputCount(2)
                 .param("param1").hasType("string").isMandatory().and()
                 .param("param2").hasType("string").isMandatory());
     }
 
-    private void flowDocFor(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
-        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
-    }
 }

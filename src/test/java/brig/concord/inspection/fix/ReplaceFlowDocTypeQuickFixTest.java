@@ -3,12 +3,13 @@ package brig.concord.inspection.fix;
 import brig.concord.inspection.FlowDocumentationInspection;
 import brig.concord.inspection.InspectionTestBase;
 import com.intellij.codeInspection.LocalInspectionTool;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
 
-public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
+class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -16,7 +17,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownType_String() {
+    void testFixUnknownType_String() {
         configureFromText("""
             flows:
               ##
@@ -28,7 +29,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Change type to 'string'");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -41,9 +42,9 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
                 - log: "test"
             """);
     }
-    
+
     @Test
-    public void testFixUnknownType_CaseInsensitive() {
+    void testFixUnknownType_CaseInsensitive() {
         configureFromText("""
             flows:
               ##
@@ -55,7 +56,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
             """);
 
         var intentions = myFixture.filterAvailableIntentions("Change type to 'string'");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -70,7 +71,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownType_Array() {
+    void testFixUnknownType_Array() {
         configureFromText("""
             flows:
               ##
@@ -80,10 +81,10 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
               myFlow:
                 - log: "test"
             """);
-            
+
         // "list" triggers array suggestions
         var intentions = myFixture.filterAvailableIntentions("Change type to 'string[]'");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""
@@ -98,7 +99,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownType_Fallback() {
+    void testFixUnknownType_Fallback() {
         configureFromText("""
             flows:
               ##
@@ -108,11 +109,11 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
               myFlow:
                 - log: "test"
             """);
-            
+
         // "unknown" triggers fallback suggestions, including 'string'
         var intentions = myFixture.filterAvailableIntentions("Change type to 'string'");
-        assertFalse("Quick fix should be available", intentions.isEmpty());
-        
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
+
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""

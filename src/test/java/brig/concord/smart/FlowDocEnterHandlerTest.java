@@ -1,19 +1,17 @@
 package brig.concord.smart;
 
-import brig.concord.ConcordYamlTestBase;
-import brig.concord.assertions.FlowDocAssertions;
+import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.assertions.InspectionAssertions;
 import brig.concord.inspection.MissingKeysInspection;
 import brig.concord.inspection.UnknownKeysInspection;
 import brig.concord.inspection.ValueInspection;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.actionSystem.IdeActions;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.function.Consumer;
-
-public class FlowDocEnterHandlerTest extends ConcordYamlTestBase {
+class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
 
     @Override
     @BeforeEach
@@ -27,7 +25,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testEnterInDescription() {
+    void testEnterInDescription() {
         configureFromText("""
             flows:
               ##
@@ -51,7 +49,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testEnterInDescriptionUnclosed() {
+    void testEnterInDescriptionUnclosed() {
         configureFromText("""
             flows:
               ##
@@ -68,8 +66,8 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBase {
         var errors = myFixture.doHighlighting().stream()
                 .filter(info -> info.getSeverity().compareTo(HighlightSeverity.ERROR) >= 0)
                 .toList();
-        assertEquals(1, errors.size());
-        assertEquals("Expected closing ## marker", errors.getFirst().getDescription());
+        Assertions.assertEquals(1, errors.size());
+        Assertions.assertEquals("Expected closing ## marker", errors.getFirst().getDescription());
 
         assertFlowDoc(key("/flows/default"), doc -> doc
                 .hasFlowName("default")
@@ -79,7 +77,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testEnterAfterSectionHeader() {
+    void testEnterAfterSectionHeader() {
         configureFromText("""
             flows:
               ##
@@ -102,7 +100,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testEnterAtStartMarker() {
+    void testEnterAtStartMarker() {
         configureFromText("""
             flows:
               ##<caret>
@@ -124,7 +122,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBase {
     }
 
     @Test
-    public void testMultilineDescriptionAfterEnter() {
+    void testMultilineDescriptionAfterEnter() {
         configureFromText("""
             flows:
               ##
@@ -150,7 +148,4 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBase {
         myFixture.performEditorAction(IdeActions.ACTION_EDITOR_ENTER);
     }
 
-    private void assertFlowDoc(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
-        FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);
-    }
 }
