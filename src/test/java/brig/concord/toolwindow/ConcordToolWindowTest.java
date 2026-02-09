@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ConcordToolWindowTest extends ConcordYamlTestBaseJunit5 {
+class ConcordToolWindowTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testTreeStructureWithSingleRoot() {
+    void testTreeStructureWithSingleRoot() {
         myFixture.addFileToProject("concord.yaml", "");
 
         var rootNode = new RootNode(getProject());
@@ -25,7 +25,7 @@ public class ConcordToolWindowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testTreeStructureWithNestedRoots() {
+    void testTreeStructureWithNestedRoots() {
         myFixture.addFileToProject("a/concord.yaml", "");
         myFixture.addFileToProject("b/concord.yaml", "");
 
@@ -43,7 +43,7 @@ public class ConcordToolWindowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testSorting() {
+    void testSorting() {
         myFixture.addFileToProject("z/concord.yaml", "");
         myFixture.addFileToProject("a/concord.yaml", "");
 
@@ -56,7 +56,7 @@ public class ConcordToolWindowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testScopeNodePresentation() {
+    void testScopeNodePresentation() {
         myFixture.addFileToProject("demo/concord.yaml", "");
 
         var rootNode = new RootNode(getProject());
@@ -70,7 +70,7 @@ public class ConcordToolWindowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testScopeNodeGetNavigatable() {
+    void testScopeNodeGetNavigatable() {
         myFixture.addFileToProject("nav/concord.yaml", "flows: {}");
 
         var rootNode = new RootNode(getProject());
@@ -88,7 +88,7 @@ public class ConcordToolWindowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testRootNodeGetNavigatableReturnsNull() {
+    void testRootNodeGetNavigatableReturnsNull() {
         var rootNode = new RootNode(getProject());
         Assertions.assertNull(rootNode.getNavigatable());
     }

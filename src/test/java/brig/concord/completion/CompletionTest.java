@@ -8,10 +8,10 @@ import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class CompletionTest extends ConcordYamlTestBaseJunit5 {
+class CompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testCompletion() {
+    void testCompletion() {
         configureFromResource("/completion/00.concord.yaml");
 
         myFixture.complete(CompletionType.BASIC);
@@ -22,7 +22,7 @@ public class CompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCompletionSteps() {
+    void testCompletionSteps() {
         configureFromResource("/completion/01.concord.yaml");
 
         myFixture.complete(CompletionType.BASIC);
@@ -33,7 +33,7 @@ public class CompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCompletionSimpleFlowNames() {
+    void testCompletionSimpleFlowNames() {
         configureFromResource("/completion/02.concord.yaml");
 
         myFixture.complete(CompletionType.BASIC);
@@ -44,7 +44,7 @@ public class CompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCompletionMultiScope() {
+    void testCompletionMultiScope() {
         var fa = createFile("project-a/concord.yaml",
                 """
                         flows:
@@ -84,7 +84,7 @@ public class CompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCompletionTriggerEntryPoint() {
+    void testCompletionTriggerEntryPoint() {
         configureFromText(
                 """
                         flows:
@@ -104,7 +104,7 @@ public class CompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCompletionMultiScopeAfterEdit() {
+    void testCompletionMultiScopeAfterEdit() {
         var fa = createFile("project-a/concord.yaml",
                 """
                         flows:

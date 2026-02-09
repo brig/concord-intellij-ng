@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import static brig.concord.assertions.FlowDocAssertions.assertFlowDocCount;
 
-public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
+class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testBasicFlowDocumentation() {
+    void testBasicFlowDocumentation() {
         var yaml = """
             flows:
               ##
@@ -34,7 +34,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testBasicFlowDocumentationWithArbitraryIndent() {
+    void testBasicFlowDocumentationWithArbitraryIndent() {
         // Arbitrary indentation is allowed, but sections must be at same or lesser indent level
         var yaml = """
             flows:
@@ -61,7 +61,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testBasicFlowDocumentationWithExtraComments() {
+    void testBasicFlowDocumentationWithExtraComments() {
         var yaml = """
             flows:
               ##
@@ -91,7 +91,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testArrayTypes() {
+    void testArrayTypes() {
         var yaml = """
             flows:
               ##
@@ -111,7 +111,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testNestedObjectParameters() {
+    void testNestedObjectParameters() {
         var yaml = """
             flows:
               ##
@@ -133,7 +133,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testMultilineDescription() {
+    void testMultilineDescription() {
         var yaml = """
             flows:
               ##
@@ -156,7 +156,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFlowWithoutDocumentation() {
+    void testFlowWithoutDocumentation() {
         var yaml = """
             flows:
               undocumentedFlow:
@@ -168,7 +168,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testMultipleFlows() {
+    void testMultipleFlows() {
         var yaml = """
             flows:
               ##
@@ -197,7 +197,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testAllTypes() {
+    void testAllTypes() {
         var yaml = """
             flows:
               ##
@@ -237,7 +237,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testParameterDirection() {
+    void testParameterDirection() {
         var yaml = """
             flows:
               ##
@@ -257,7 +257,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCustomTagsInFlowDocumentation() {
+    void testCustomTagsInFlowDocumentation() {
         var yaml = """
             flows:
               ##
@@ -281,7 +281,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testArbitraryIndentationInSections() {
+    void testArbitraryIndentationInSections() {
         var yaml = """
             flows:
               ##
@@ -307,7 +307,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testUserTagWithSameIndentAsSection() {
+    void testUserTagWithSameIndentAsSection() {
         // tags: has same indent as in: so should NOT be a parameter
         var yaml = """
             flows:
@@ -330,7 +330,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testUserTagWithSmallerIndentThanSection() {
+    void testUserTagWithSmallerIndentThanSection() {
         // tags: has smaller indent than in: so should NOT be a parameter
         var yaml = """
             flows:
@@ -352,7 +352,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testNestedOutIsNotSection() {
+    void testNestedOutIsNotSection() {
         // out: with greater indent than in: is nested, so NOT a new section
         // Everything nested belongs to the parent section
         var yaml = """
@@ -379,7 +379,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testSameIndentForInAndOut() {
+    void testSameIndentForInAndOut() {
         // in: and out: with same indent are both sections
         var yaml = """
             flows:
@@ -403,7 +403,7 @@ public class FlowDocumentationParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testRequiredAsAliasForMandatory() {
+    void testRequiredAsAliasForMandatory() {
         var yaml = """
             flows:
               ##

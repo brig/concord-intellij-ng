@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
+class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -17,7 +17,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownKeyword_Mandatory() {
+    void testFixUnknownKeyword_Mandatory() {
         configureFromText("""
             flows:
               ##
@@ -44,7 +44,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownKeyword_Optional() {
+    void testFixUnknownKeyword_Optional() {
         configureFromText("""
             flows:
               ##
@@ -71,7 +71,7 @@ public class ReplaceFlowDocKeywordQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownKeyword_Fallback() {
+    void testFixUnknownKeyword_Fallback() {
         configureFromText("""
             flows:
               ##

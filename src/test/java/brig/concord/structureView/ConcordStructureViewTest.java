@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-public class ConcordStructureViewTest extends ConcordYamlTestBaseJunit5 {
+class ConcordStructureViewTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testStructureViewFull() {
+    void testStructureViewFull() {
         configureFromResource("/structureView/structure-view.concord.yaml");
 
         EdtTestUtil.runInEdtAndWait(() -> {
@@ -53,7 +53,7 @@ public class ConcordStructureViewTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureViewEmpty() {
+    void testStructureViewEmpty() {
         configureFromResource("/structureView/structure-view-empty.concord.yaml");
 
         EdtTestUtil.runInEdtAndWait(() -> {

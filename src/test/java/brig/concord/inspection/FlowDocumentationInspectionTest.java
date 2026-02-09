@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-public class FlowDocumentationInspectionTest extends InspectionTestBase {
+class FlowDocumentationInspectionTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -14,7 +14,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testValidFlowDocumentation() {
+    void testValidFlowDocumentation() {
         configureFromText("""
             flows:
               ##
@@ -33,7 +33,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDuplicateParameterInInSection() {
+    void testDuplicateParameterInInSection() {
         configureFromText("""
             flows:
               ##
@@ -50,7 +50,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDuplicateParameterInOutSection() {
+    void testDuplicateParameterInOutSection() {
         configureFromText("""
             flows:
               ##
@@ -67,7 +67,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testUnknownType() {
+    void testUnknownType() {
         configureFromText("""
             flows:
               ##
@@ -83,7 +83,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testUnknownArrayType() {
+    void testUnknownArrayType() {
         configureFromText("""
             flows:
               ##
@@ -99,7 +99,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAllValidTypes() {
+    void testAllValidTypes() {
         configureFromText("""
             flows:
               ##
@@ -127,7 +127,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testOrphanedDocumentation() {
+    void testOrphanedDocumentation() {
         configureFromText("""
             flows:
               ##
@@ -141,7 +141,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testMultipleDuplicateParameters() {
+    void testMultipleDuplicateParameters() {
         configureFromText("""
             flows:
               ##
@@ -164,7 +164,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testSameParameterInDifferentSections_isOk() {
+    void testSameParameterInDifferentSections_isOk() {
         configureFromText("""
             flows:
               ##
@@ -182,7 +182,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDocumentationWithOnlyDescription_isOk() {
+    void testDocumentationWithOnlyDescription_isOk() {
         configureFromText("""
             flows:
               ##
@@ -197,7 +197,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testUnknownKeyword_typoInMandatory() {
+    void testUnknownKeyword_typoInMandatory() {
         configureFromText("""
             flows:
               ##
@@ -213,7 +213,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testUnknownKeyword_typoInOptional() {
+    void testUnknownKeyword_typoInOptional() {
         configureFromText("""
             flows:
               ##
@@ -229,7 +229,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testUnknownKeyword_wrongWord() {
+    void testUnknownKeyword_wrongWord() {
         configureFromText("""
             flows:
               ##
@@ -245,7 +245,7 @@ public class FlowDocumentationInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testSameParamInOut() {
+    void testSameParamInOut() {
         configureFromText("""
             flows:
               ##

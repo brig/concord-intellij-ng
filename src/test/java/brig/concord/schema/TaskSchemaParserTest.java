@@ -8,7 +8,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TaskSchemaParserTest {
+class TaskSchemaParserTest {
 
     private TaskSchema schema;
     private TaskSchema multiKeySchema;
@@ -36,7 +36,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testBasicParsing() {
+    void testBasicParsing() {
         assertEquals("concord", schema.getTaskName());
         assertNotNull(schema.getBaseInSection());
         assertNotNull(schema.getOutSection());
@@ -44,7 +44,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testBaseInProperties() {
+    void testBaseInProperties() {
         var base = schema.getBaseInSection();
         assertTrue(base.properties().containsKey("action"));
         assertTrue(base.requiredFields().contains("action"));
@@ -59,13 +59,13 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testDiscriminatorKeys() {
+    void testDiscriminatorKeys() {
         var keys = schema.getDiscriminatorKeys();
         assertTrue(keys.contains("action"));
     }
 
     @Test
-    public void testStartConditional() {
+    void testStartConditional() {
         // Resolve with action=start
         var section = schema.resolveInSection(Map.of("action", "start"));
         // Should have base properties + startParams properties
@@ -78,7 +78,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testStartExternalConditional() {
+    void testStartExternalConditional() {
         var section = schema.resolveInSection(Map.of("action", "startExternal"));
         assertTrue(section.properties().containsKey("project"));
         assertTrue(section.properties().containsKey("baseUrl"));
@@ -89,7 +89,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testForkConditional() {
+    void testForkConditional() {
         var section = schema.resolveInSection(Map.of("action", "fork"));
         assertTrue(section.properties().containsKey("forks"));
         assertTrue(section.properties().containsKey("entryPoint"));
@@ -97,7 +97,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testKillConditional() {
+    void testKillConditional() {
         var section = schema.resolveInSection(Map.of("action", "kill"));
         assertTrue(section.properties().containsKey("instanceId"));
         assertTrue(section.properties().containsKey("sync"));
@@ -105,7 +105,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testCreateApiKeyConditional() {
+    void testCreateApiKeyConditional() {
         var section = schema.resolveInSection(Map.of("action", "createApiKey"));
         assertTrue(section.properties().containsKey("userId"));
         assertTrue(section.properties().containsKey("username"));
@@ -120,7 +120,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testCreateOrUpdateApiKeyConditional() {
+    void testCreateOrUpdateApiKeyConditional() {
         // Uses enum: ["createApiKey", "createOrUpdateApiKey"] so both should match
         var section = schema.resolveInSection(Map.of("action", "createOrUpdateApiKey"));
         assertTrue(section.properties().containsKey("userId"));
@@ -128,7 +128,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testNoMatchingConditional() {
+    void testNoMatchingConditional() {
         // Unknown action: only base properties
         var section = schema.resolveInSection(Map.of("action", "unknown"));
         assertTrue(section.properties().containsKey("action"));
@@ -137,14 +137,14 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testEmptyValues() {
+    void testEmptyValues() {
         var section = schema.resolveInSection(Map.of());
         // Only base properties
         assertEquals(schema.getBaseInSection().properties().size(), section.properties().size());
     }
 
     @Test
-    public void testOutSection() {
+    void testOutSection() {
         var out = schema.getOutSection();
         assertFalse(out.properties().isEmpty());
         assertTrue(out.properties().containsKey("ok"));
@@ -163,7 +163,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testPropertyTypes() {
+    void testPropertyTypes() {
         var section = schema.resolveInSection(Map.of("action", "start"));
 
         var syncProp = section.properties().get("sync");
@@ -180,7 +180,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testOneOfPolymorphicType() {
+    void testOneOfPolymorphicType() {
         // instanceId in kill conditional is oneOf: [string, array<string>]
         var section = schema.resolveInSection(Map.of("action", "kill"));
         var instanceIdProp = section.properties().get("instanceId");
@@ -195,41 +195,41 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testAdditionalProperties() {
+    void testAdditionalProperties() {
         assertTrue(schema.getBaseInSection().additionalProperties());
         assertTrue(schema.getOutSection().additionalProperties());
     }
 
     @Test
-    public void testMultiKeyDiscriminatorKeys() {
+    void testMultiKeyDiscriminatorKeys() {
         var keys = multiKeySchema.getDiscriminatorKeys();
         assertTrue(keys.contains("action"));
         assertTrue(keys.contains("mode"));
     }
 
     @Test
-    public void testMultiKeyConditional_allKeysMatch() {
+    void testMultiKeyConditional_allKeysMatch() {
         // Both action=process AND mode=sync → timeout should be present
         var section = multiKeySchema.resolveInSection(Map.of("action", "process", "mode", "sync"));
         assertTrue(section.properties().containsKey("timeout"));
     }
 
     @Test
-    public void testMultiKeyConditional_partialMatch() {
+    void testMultiKeyConditional_partialMatch() {
         // Only action=process without mode → timeout should NOT be present (AND semantics)
         var section = multiKeySchema.resolveInSection(Map.of("action", "process"));
         assertFalse(section.properties().containsKey("timeout"));
     }
 
     @Test
-    public void testMultiKeyConditional_singleKeyConditional() {
+    void testMultiKeyConditional_singleKeyConditional() {
         // action=upload → destination should be present (single-key conditional still works)
         var section = multiKeySchema.resolveInSection(Map.of("action", "upload"));
         assertTrue(section.properties().containsKey("destination"));
     }
 
     @Test
-    public void testOneOfWithRefAlternatives() {
+    void testOneOfWithRefAlternatives() {
         var section = refCompositeSchema.getBaseInSection();
         var prop = section.properties().get("oneOfWithRef");
         assertNotNull(prop);
@@ -243,7 +243,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testAnyOfWithRefAlternatives() {
+    void testAnyOfWithRefAlternatives() {
         var section = refCompositeSchema.getBaseInSection();
         var prop = section.properties().get("anyOfWithRef");
         assertNotNull(prop);
@@ -257,7 +257,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testArrayItemsWithRef() {
+    void testArrayItemsWithRef() {
         var section = refCompositeSchema.getBaseInSection();
         var prop = section.properties().get("arrayWithRefItems");
         assertNotNull(prop);
@@ -265,7 +265,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testOneOfMixedRefAndInline() {
+    void testOneOfMixedRefAndInline() {
         var section = refCompositeSchema.getBaseInSection();
         var prop = section.properties().get("oneOfMixed");
         assertNotNull(prop);
@@ -279,7 +279,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testOneOfWithChainedRef() {
+    void testOneOfWithChainedRef() {
         // nestedRef → $ref → stringType, should resolve through the chain
         var section = refCompositeSchema.getBaseInSection();
         var prop = section.properties().get("oneOfNestedRef");
@@ -294,7 +294,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testOutSectionOneOfWithRef() {
+    void testOutSectionOneOfWithRef() {
         var out = refCompositeSchema.getOutSection();
         var prop = out.properties().get("result");
         assertNotNull(prop);
@@ -308,7 +308,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testPropertyDescription() {
+    void testPropertyDescription() {
         var base = schema.getBaseInSection();
         var actionProp = base.properties().get("action");
         assertNotNull(actionProp);
@@ -316,7 +316,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testPropertyWithoutType() {
+    void testPropertyWithoutType() {
         // "meta" in concord.schema.json has description but no type → SchemaType.Any
         var section = schema.resolveInSection(Map.of("action", "start"));
         var metaProp = section.properties().get("meta");
@@ -326,13 +326,13 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testStrictAdditionalProperties() {
+    void testStrictAdditionalProperties() {
         assertFalse(strictSchema.getBaseInSection().additionalProperties());
         assertFalse(strictSchema.getOutSection().additionalProperties());
     }
 
     @Test
-    public void testStrictRequiredProperties() {
+    void testStrictRequiredProperties() {
         var base = strictSchema.getBaseInSection();
         assertTrue(base.requiredFields().contains("url"));
         assertFalse(base.requiredFields().contains("method"));
@@ -340,7 +340,7 @@ public class TaskSchemaParserTest {
     }
 
     @Test
-    public void testPropertyRequiredFlag() {
+    void testPropertyRequiredFlag() {
         var base = strictSchema.getBaseInSection();
         var urlProp = base.properties().get("url");
         assertNotNull(urlProp);

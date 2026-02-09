@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
+class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -17,7 +17,7 @@ public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAddParamToExistingDoc() {
+    void testAddParamToExistingDoc() {
         configureFromText("""
             flows:
               ##
@@ -57,7 +57,7 @@ public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAddParamToNewDoc() {
+    void testAddParamToNewDoc() {
         configureFromText("""
             flows:
               ##
@@ -79,7 +79,7 @@ public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAddParamToMissingDoc() {
+    void testAddParamToMissingDoc() {
         configureFromText("""
             flows:
               myFlow:
@@ -96,7 +96,7 @@ public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAddParamWithBooleanType() {
+    void testAddParamWithBooleanType() {
         configureFromText("""
             flows:
               ##
@@ -136,7 +136,7 @@ public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAddParamWithIntType() {
+    void testAddParamWithIntType() {
         configureFromText("""
             flows:
               ##
@@ -176,7 +176,7 @@ public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAddParamWithObjectType() {
+    void testAddParamWithObjectType() {
         configureFromText("""
             flows:
               ##
@@ -218,7 +218,7 @@ public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAddParamWithArrayType() {
+    void testAddParamWithArrayType() {
         configureFromText("""
             flows:
               ##
@@ -262,7 +262,7 @@ public class AddParameterToFlowDocQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAddParamWithExpressionType() {
+    void testAddParamWithExpressionType() {
         configureFromText("""
             flows:
               ##

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
+class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     private static final List<String> ALL_TYPES = List.of(
             "string", "boolean", "int", "integer", "number", "object", "any",
@@ -17,7 +17,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
     private static final List<String> KEYWORDS = List.of("mandatory", "optional");
 
     @Test
-    public void testTypeCompletionAfterColon() {
+    void testTypeCompletionAfterColon() {
         configureFromText("""
             flows:
               ##
@@ -36,7 +36,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testTypeCompletionWithPrefix() {
+    void testTypeCompletionWithPrefix() {
         configureFromText("""
             flows:
               ##
@@ -55,7 +55,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testKeywordCompletionAfterType() {
+    void testKeywordCompletionAfterType() {
         configureFromText("""
             flows:
               ##
@@ -74,7 +74,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testKeywordCompletionWithPrefix() {
+    void testKeywordCompletionWithPrefix() {
         configureFromText("""
             flows:
               ##
@@ -95,7 +95,7 @@ public class FlowDocCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testNoCompletionOutsideFlowDoc() {
+    void testNoCompletionOutsideFlowDoc() {
         configureFromText("""
             flows:
               myFlow:

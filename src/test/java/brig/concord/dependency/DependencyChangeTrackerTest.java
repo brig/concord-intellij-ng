@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-public class DependencyChangeTrackerTest extends ConcordYamlTestBaseJunit5 {
+class DependencyChangeTrackerTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     void needsReloadReturnsFalseWhenNeverLoaded() {

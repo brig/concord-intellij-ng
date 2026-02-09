@@ -5,10 +5,10 @@ import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class FindUsageTest extends ConcordYamlTestBaseJunit5 {
+class FindUsageTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void findUsageTest() {
+    void findUsageTest() {
         configureFromResource("/findUsage/concord.yaml");
 
 

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
+class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -17,7 +17,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownType_String() {
+    void testFixUnknownType_String() {
         configureFromText("""
             flows:
               ##
@@ -44,7 +44,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownType_CaseInsensitive() {
+    void testFixUnknownType_CaseInsensitive() {
         configureFromText("""
             flows:
               ##
@@ -71,7 +71,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownType_Array() {
+    void testFixUnknownType_Array() {
         configureFromText("""
             flows:
               ##
@@ -99,7 +99,7 @@ public class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFixUnknownType_Fallback() {
+    void testFixUnknownType_Fallback() {
         configureFromText("""
             flows:
               ##

@@ -6,10 +6,10 @@ import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ShowAllDuplicateFlowsFixTest extends ConcordYamlTestBaseJunit5 {
+class ShowAllDuplicateFlowsFixTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void showAllDuplicates() {
+    void showAllDuplicates() {
         myFixture.enableInspections(new DuplicateFlowNameInspection());
 
         var root = createFile("project-a/concord.yaml", """

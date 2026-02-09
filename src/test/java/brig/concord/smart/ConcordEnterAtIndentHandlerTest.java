@@ -4,10 +4,10 @@ import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.actionSystem.IdeActions;
 import org.junit.jupiter.api.Test;
 
-public class ConcordEnterAtIndentHandlerTest extends ConcordYamlTestBaseJunit5 {
+class ConcordEnterAtIndentHandlerTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testMapping() {
+    void testMapping() {
         configureFromText("""
                 flows:<caret>
                 """);
@@ -21,7 +21,7 @@ public class ConcordEnterAtIndentHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testSequenceContinuation() {
+    void testSequenceContinuation() {
         configureFromText("""
                 flows:
                   default:
@@ -39,7 +39,7 @@ public class ConcordEnterAtIndentHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testNestedSequenceContinuation() {
+    void testNestedSequenceContinuation() {
         configureFromText("""
                 flows:
                   default:
@@ -61,7 +61,7 @@ public class ConcordEnterAtIndentHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFlowDocumentation() {
+    void testFlowDocumentation() {
         configureFromText("""
             flows:
               ##
@@ -89,7 +89,7 @@ public class ConcordEnterAtIndentHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFlowDocumentationParam() {
+    void testFlowDocumentationParam() {
         configureFromText("""
             flows:
               ##

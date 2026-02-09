@@ -7,10 +7,10 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class FlowDocumentationRenameTest extends ConcordYamlTestBaseJunit5 {
+class FlowDocumentationRenameTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testRenameParameter() {
+    void testRenameParameter() {
         var yaml = """
             flows:
               ##

@@ -11,10 +11,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-public class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
+class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testTaskCompletion() {
+    void testTaskCompletion() {
         var file = configureFromText("""
                 flows:
                   main:
@@ -32,7 +32,7 @@ public class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testTaskCompletionWithPrefix() {
+    void testTaskCompletionWithPrefix() {
         var file = configureFromText("""
                 flows:
                   main:
@@ -50,7 +50,7 @@ public class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testTaskCompletionEmpty() {
+    void testTaskCompletionEmpty() {
         var file = configureFromText("""
                 flows:
                   main:
@@ -68,7 +68,7 @@ public class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testTaskCompletionInLoop() {
+    void testTaskCompletionInLoop() {
         var file = configureFromText("""
                 flows:
                   main:
@@ -91,7 +91,7 @@ public class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testTaskCompletionMultiScope() {
+    void testTaskCompletionMultiScope() {
         // Scope A with its tasks
         var fileA = createFile("project-a/concord.yaml", """
                 flows:

@@ -5,10 +5,10 @@ import com.intellij.codeInsight.completion.CompletionType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
+class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testInParamsCompletion() {
+    void testInParamsCompletion() {
         configureFromText("""
                 flows:
                   main:
@@ -26,7 +26,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testActionEnumCompletion() {
+    void testActionEnumCompletion() {
         configureFromText("""
                 flows:
                   main:
@@ -43,7 +43,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStartActionParams() {
+    void testStartActionParams() {
         configureFromText("""
                 flows:
                   main:
@@ -61,7 +61,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testKillActionParams() {
+    void testKillActionParams() {
         configureFromText("""
                 flows:
                   main:
@@ -81,7 +81,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCreateApiKeyParams() {
+    void testCreateApiKeyParams() {
         configureFromText("""
                 flows:
                   main:
@@ -99,7 +99,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testOutParamsCompletion() {
+    void testOutParamsCompletion() {
         configureFromText("""
                 flows:
                   main:
@@ -119,7 +119,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testUnknownTaskFallsBackToAnyMap() {
+    void testUnknownTaskFallsBackToAnyMap() {
         configureFromText("""
                 flows:
                   main:
@@ -137,7 +137,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDiscriminatorKeyFirst() {
+    void testDiscriminatorKeyFirst() {
         configureFromText("""
                 flows:
                   main:
@@ -156,7 +156,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testForkActionParams() {
+    void testForkActionParams() {
         configureFromText("""
                 flows:
                   main:
@@ -176,7 +176,7 @@ public class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStartExternalParams() {
+    void testStartExternalParams() {
         configureFromText("""
                 flows:
                   main:

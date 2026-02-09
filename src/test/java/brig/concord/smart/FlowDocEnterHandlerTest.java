@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
+class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
 
     @Override
     @BeforeEach
@@ -25,7 +25,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testEnterInDescription() {
+    void testEnterInDescription() {
         configureFromText("""
             flows:
               ##
@@ -49,7 +49,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testEnterInDescriptionUnclosed() {
+    void testEnterInDescriptionUnclosed() {
         configureFromText("""
             flows:
               ##
@@ -77,7 +77,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testEnterAfterSectionHeader() {
+    void testEnterAfterSectionHeader() {
         configureFromText("""
             flows:
               ##
@@ -100,7 +100,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testEnterAtStartMarker() {
+    void testEnterAtStartMarker() {
         configureFromText("""
             flows:
               ##<caret>
@@ -122,7 +122,7 @@ public class FlowDocEnterHandlerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testMultilineDescriptionAfterEnter() {
+    void testMultilineDescriptionAfterEnter() {
         configureFromText("""
             flows:
               ##

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
 
-public class CronExpressionFoldingTest extends ConcordYamlTestBaseJunit5 {
+class CronExpressionFoldingTest extends ConcordYamlTestBaseJunit5 {
 
     private Locale previousLocale;
 
@@ -32,7 +32,7 @@ public class CronExpressionFoldingTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCronSpecFoldingDescriptor() {
+    void testCronSpecFoldingDescriptor() {
         configureFromText("""
                 triggers:
                   - cron:
@@ -48,7 +48,7 @@ public class CronExpressionFoldingTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testInvalidCronPlaceholder() {
+    void testInvalidCronPlaceholder() {
         configureFromText("""
                 triggers:
                   - cron:

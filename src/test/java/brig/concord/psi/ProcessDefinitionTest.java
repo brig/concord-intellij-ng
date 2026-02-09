@@ -5,10 +5,10 @@ import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
+class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testFindEnclosingFlowDefinition_insideStep() {
+    void testFindEnclosingFlowDefinition_insideStep() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -25,7 +25,7 @@ public class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_onFlowKey() {
+    void testFindEnclosingFlowDefinition_onFlowKey() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -42,7 +42,7 @@ public class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_outsideFlows() {
+    void testFindEnclosingFlowDefinition_outsideFlows() {
         configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -60,7 +60,7 @@ public class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_deeplyNested() {
+    void testFindEnclosingFlowDefinition_deeplyNested() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -81,7 +81,7 @@ public class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_nullElement() {
+    void testFindEnclosingFlowDefinition_nullElement() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -95,7 +95,7 @@ public class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_onFlowsKey() {
+    void testFindEnclosingFlowDefinition_onFlowsKey() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -111,7 +111,7 @@ public class ProcessDefinitionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testFindEnclosingFlowDefinition_multipleFlows() {
+    void testFindEnclosingFlowDefinition_multipleFlows() {
         configureFromText("""
                 flows:
                   firstFlow:

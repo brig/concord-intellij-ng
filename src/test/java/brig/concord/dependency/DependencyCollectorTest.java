@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DependencyCollectorTest extends ConcordYamlTestBaseJunit5 {
+class DependencyCollectorTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
     void collectFromConfiguration() {

@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.LongSupplier;
 
-public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
+class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
 
     @Override
     @BeforeEach
@@ -27,7 +27,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureIncrementsOnConcordFileCreation() {
+    void testStructureIncrementsOnConcordFileCreation() {
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
         long initialStructure = tracker.structure().getModificationCount();
@@ -39,7 +39,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureIncrementsOnConcordFileDeletion() {
+    void testStructureIncrementsOnConcordFileDeletion() {
         var file = myFixture.addFileToProject("delete-me.concord.yaml", "flows: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
@@ -58,7 +58,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureIncrementsOnConcordFileRename() {
+    void testStructureIncrementsOnConcordFileRename() {
         var file = myFixture.addFileToProject("rename-me.concord.yaml", "flows: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
@@ -77,7 +77,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureIncrementsOnGitignoreCreation() {
+    void testStructureIncrementsOnGitignoreCreation() {
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
         long initialStructure = tracker.structure().getModificationCount();
@@ -89,7 +89,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureIncrementsOnDirectoryRename() {
+    void testStructureIncrementsOnDirectoryRename() {
         var file = myFixture.addFileToProject("my-dir/dummy.txt", "");
         VirtualFile dir = ReadAction.compute(() -> file.getParent().getVirtualFile());
 
@@ -110,7 +110,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureIncrementsOnDirectoryMove() {
+    void testStructureIncrementsOnDirectoryMove() {
         var file1 = myFixture.addFileToProject("move-me/dummy.txt", "");
         var file2 = myFixture.addFileToProject("target-dir/dummy.txt", "");
         VirtualFile dir = ReadAction.compute(() -> file1.getParent().getVirtualFile());
@@ -133,7 +133,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testNoChangeOnIrrelevantFileContentChange() {
+    void testNoChangeOnIrrelevantFileContentChange() {
         var file = myFixture.addFileToProject("irrelevant.txt", "content");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
@@ -153,7 +153,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testModificationCountDoesNotIncrementOnConcordFileContentChange() {
+    void testModificationCountDoesNotIncrementOnConcordFileContentChange() {
         // ConcordModificationTracker explicitly ignores content changes as they are handled by PSI
         var file = myFixture.addFileToProject("test.concord.yaml", "flows: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
@@ -174,7 +174,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testModificationCountIncrementsOnGranularResourcesChange() {
+    void testModificationCountIncrementsOnGranularResourcesChange() {
         var file = myFixture.addFileToProject("concord.yaml", """
                 resources:
                   concord:
@@ -212,7 +212,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testScopeIncrementsOnRootFileContentChange() {
+    void testScopeIncrementsOnRootFileContentChange() {
         // Root file (concord.yaml, concord.yml) content changes affect scope (patterns may change)
         var file = myFixture.addFileToProject("concord.yaml", "configuration: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
@@ -242,7 +242,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureIncrementsOnRenameFromIrrelevantToRelevant() {
+    void testStructureIncrementsOnRenameFromIrrelevantToRelevant() {
         var file = myFixture.addFileToProject("temp.txt", "flows: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
@@ -261,7 +261,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureIncrementsOnRenameFromRelevantToIrrelevant() {
+    void testStructureIncrementsOnRenameFromRelevantToIrrelevant() {
         var file = myFixture.addFileToProject("old.concord.yaml", "flows: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
@@ -280,7 +280,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesIncrementOnNewRootWithDependencies() throws Exception {
+    void testDependenciesIncrementOnNewRootWithDependencies() throws Exception {
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
         long initialDeps = tracker.dependencies().getModificationCount();
@@ -300,7 +300,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesIncrementOnRootProfileDependenciesChange() throws Exception {
+    void testDependenciesIncrementOnRootProfileDependenciesChange() throws Exception {
         var file = myFixture.addFileToProject("concord.yaml", """
                 profiles:
                   dev:
@@ -331,7 +331,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesIncrementOnNonRootDependenciesChange() throws Exception {
+    void testDependenciesIncrementOnNonRootDependenciesChange() throws Exception {
         var file = myFixture.addFileToProject("other.concord.yaml", """
                 configuration:
                   dependencies:
@@ -359,7 +359,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesIncrementOnNonRootExtraDependenciesChange() throws Exception {
+    void testDependenciesIncrementOnNonRootExtraDependenciesChange() throws Exception {
         var file = myFixture.addFileToProject("other.concord.yaml", """
                 configuration:
                   extraDependencies:
@@ -387,7 +387,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesIncrementOnNonRootProfileDependenciesChange() throws Exception {
+    void testDependenciesIncrementOnNonRootProfileDependenciesChange() throws Exception {
         var file = myFixture.addFileToProject("other.concord.yaml", """
                 profiles:
                   dev:
@@ -418,7 +418,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesIncrementOnNonRootProfileExtraDependenciesChange() throws Exception {
+    void testDependenciesIncrementOnNonRootProfileExtraDependenciesChange() throws Exception {
         var file = myFixture.addFileToProject("other.concord.yaml", """
                 profiles:
                   dev:
@@ -449,7 +449,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesDoNotIncrementWhenFileIsInitiallyInvalid() {
+    void testDependenciesDoNotIncrementWhenFileIsInitiallyInvalid() {
         var file = myFixture.addFileToProject("bad.concord.yaml", """
             configuration:
               dependencies:
@@ -481,7 +481,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesIncrementOnNonRootFileDeletion() {
+    void testDependenciesIncrementOnNonRootFileDeletion() {
         var file = myFixture.addFileToProject("delete-deps.concord.yaml", """
                 configuration:
                   dependencies:
@@ -505,7 +505,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testDependenciesIncrementOnNonRootRenameToIrrelevant() {
+    void testDependenciesIncrementOnNonRootRenameToIrrelevant() {
         var file = myFixture.addFileToProject("rename-deps.concord.yaml", """
                 configuration:
                   dependencies:
@@ -529,7 +529,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testForceRefreshIncrementsStructureAndNotifiesListener() {
+    void testForceRefreshIncrementsStructureAndNotifiesListener() {
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();
         long initialStructure = tracker.structure().getModificationCount();
@@ -549,7 +549,7 @@ public class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStructureDoesNotIncrementOnNonRootResourcesChange() {
+    void testStructureDoesNotIncrementOnNonRootResourcesChange() {
         var file = myFixture.addFileToProject("non-root.concord.yaml", "flows: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
         awaitProcessing();

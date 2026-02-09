@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConcordYamlPathTest extends ConcordYamlTestBaseJunit5 {
+class ConcordYamlPathTest extends ConcordYamlTestBaseJunit5 {
 
     @Override
     @BeforeEach
@@ -26,7 +26,7 @@ public class ConcordYamlPathTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testResolveKeyText() {
+    void testResolveKeyText() {
         assertEquals("flows", yamlPath.keyText("flows"));
         assertEquals("main", yamlPath.keyText("flows/main"));
         assertEquals("task", yamlPath.keyText("flows/main[0]/task"));
@@ -35,7 +35,7 @@ public class ConcordYamlPathTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testResolveKeyOffsets() {
+    void testResolveKeyOffsets() {
         var a = yamlPath.keyStartOffset("flows/main[0]/in");
         var b = yamlPath.keyStartOffset("/flows/main[0]/in/");
         assertEquals(a, b);
@@ -46,7 +46,7 @@ public class ConcordYamlPathTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testValueRangesAndScalarValues() {
+    void testValueRangesAndScalarValues() {
         // url value
         var urlRange = yamlPath.valueRange("flows/main[0]/in/url");
         var urlText = myFixture.getEditor().getDocument().getText(urlRange);

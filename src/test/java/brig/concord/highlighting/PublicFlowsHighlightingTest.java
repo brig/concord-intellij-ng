@@ -2,10 +2,10 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
-public class PublicFlowsHighlightingTest extends HighlightingTestBase {
+class PublicFlowsHighlightingTest extends HighlightingTestBase {
 
     @Test
-    public void testPublicFlowsSection() {
+    void testPublicFlowsSection() {
         configureFromText("""
             publicFlows:
               - main

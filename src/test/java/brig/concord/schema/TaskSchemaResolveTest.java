@@ -6,10 +6,10 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TaskSchemaResolveTest {
+class TaskSchemaResolveTest {
 
     @Test
-    public void testNoConditionals() {
+    void testNoConditionals() {
         var base = section(
                 Map.of("url", prop("url", "string")),
                 Set.of("url"),
@@ -23,7 +23,7 @@ public class TaskSchemaResolveTest {
     }
 
     @Test
-    public void testSingleConditionalMatch() {
+    void testSingleConditionalMatch() {
         var base = section(
                 Map.of("action", prop("action", "string")),
                 Set.of("action"),
@@ -47,7 +47,7 @@ public class TaskSchemaResolveTest {
     }
 
     @Test
-    public void testSingleConditionalNoMatch() {
+    void testSingleConditionalNoMatch() {
         var base = section(
                 Map.of("action", prop("action", "string")),
                 Set.of("action"),
@@ -70,7 +70,7 @@ public class TaskSchemaResolveTest {
     }
 
     @Test
-    public void testMultipleConditionalsOneMatches() {
+    void testMultipleConditionalsOneMatches() {
         var base = section(
                 Map.of("action", prop("action", "string")),
                 Set.of(),
@@ -99,7 +99,7 @@ public class TaskSchemaResolveTest {
     }
 
     @Test
-    public void testMultipleConditionalsBothMatch() {
+    void testMultipleConditionalsBothMatch() {
         var base = section(
                 Map.of("action", prop("action", "string")),
                 Set.of(),
@@ -128,7 +128,7 @@ public class TaskSchemaResolveTest {
     }
 
     @Test
-    public void testMultiKeyDiscriminatorAllMatch() {
+    void testMultiKeyDiscriminatorAllMatch() {
         var base = section(
                 Map.of(
                         "action", prop("action", "string"),
@@ -153,7 +153,7 @@ public class TaskSchemaResolveTest {
     }
 
     @Test
-    public void testMultiKeyDiscriminatorPartialMatch() {
+    void testMultiKeyDiscriminatorPartialMatch() {
         var base = section(
                 Map.of(
                         "action", prop("action", "string"),
@@ -179,7 +179,7 @@ public class TaskSchemaResolveTest {
     }
 
     @Test
-    public void testEnumStyleDiscriminator() {
+    void testEnumStyleDiscriminator() {
         var base = section(
                 Map.of("action", prop("action", "string")),
                 Set.of(),
@@ -204,7 +204,7 @@ public class TaskSchemaResolveTest {
     }
 
     @Test
-    public void testGetDiscriminatorKeysDeduped() {
+    void testGetDiscriminatorKeysDeduped() {
         var base = TaskSchemaSection.empty();
         var schema = new TaskSchema("test", base, List.of(
                 new TaskSchemaConditional(Map.of("action", List.of("a"), "mode", List.of("x")), TaskSchemaSection.empty()),

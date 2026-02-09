@@ -6,10 +6,10 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
+class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testDefaultPatterns() {
+    void testDefaultPatterns() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -25,7 +25,7 @@ public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCustomResourcesPatterns() {
+    void testCustomResourcesPatterns() {
         var yaml = configureFromText("""
                 resources:
                   concord:
@@ -42,7 +42,7 @@ public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testContainsRootFile() {
+    void testContainsRootFile() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -56,7 +56,7 @@ public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testScopeName() {
+    void testScopeName() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -71,7 +71,7 @@ public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testEquality() {
+    void testEquality() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -87,7 +87,7 @@ public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testNullDocument() {
+    void testNullDocument() {
         var yaml = configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -103,7 +103,7 @@ public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testEmptyResourcesConcord() {
+    void testEmptyResourcesConcord() {
         var yaml = configureFromText("""
                 resources:
                   concord: []
@@ -119,7 +119,7 @@ public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testRegexPattern() {
+    void testRegexPattern() {
         var yaml = configureFromText("""
                 resources:
                   concord:
@@ -135,7 +135,7 @@ public class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testPlainFilePattern() {
+    void testPlainFilePattern() {
         var yaml = configureFromText("""
                 resources:
                   concord:

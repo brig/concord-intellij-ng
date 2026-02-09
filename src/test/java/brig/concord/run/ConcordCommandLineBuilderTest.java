@@ -7,10 +7,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConcordCommandLineBuilderTest {
+class ConcordCommandLineBuilderTest {
 
     @Test
-    public void testDirectMode_usesConfigEntryPoint() {
+    void testDirectMode_usesConfigEntryPoint() {
         var result = ConcordCommandLineBuilder.buildParameters(
                 "myFlow",                           // configuredEntryPoint
                 Map.of("key1", "value1"),           // configurationParams
@@ -27,7 +27,7 @@ public class ConcordCommandLineBuilderTest {
     }
 
     @Test
-    public void testDelegatingMode_usesMainEntryPointAndFlowParam() {
+    void testDelegatingMode_usesMainEntryPointAndFlowParam() {
         var result = ConcordCommandLineBuilder.buildParameters(
                 "myFlow",                           // configuredEntryPoint
                 Map.of("key1", "value1"),           // configurationParams
@@ -48,7 +48,7 @@ public class ConcordCommandLineBuilderTest {
     }
 
     @Test
-    public void testDelegatingMode_userParamsOverrideFlowParam() {
+    void testDelegatingMode_userParamsOverrideFlowParam() {
         var result = ConcordCommandLineBuilder.buildParameters(
                 "myFlow",                           // configuredEntryPoint
                 Map.of("flow", "overridden"),       // configurationParams - overrides flow
@@ -65,7 +65,7 @@ public class ConcordCommandLineBuilderTest {
     }
 
     @Test
-    public void testDelegatingMode_userParamsOverrideDefaultParams() {
+    void testDelegatingMode_userParamsOverrideDefaultParams() {
         var result = ConcordCommandLineBuilder.buildParameters(
                 "myFlow",                           // configuredEntryPoint
                 Map.of("debug", "false"),           // configurationParams - overrides default
@@ -84,7 +84,7 @@ public class ConcordCommandLineBuilderTest {
     }
 
     @Test
-    public void testDirectMode_emptyEntryPoint() {
+    void testDirectMode_emptyEntryPoint() {
         var result = ConcordCommandLineBuilder.buildParameters(
                 "",                                  // configuredEntryPoint - empty
                 Map.of(),                            // configurationParams
@@ -100,7 +100,7 @@ public class ConcordCommandLineBuilderTest {
     }
 
     @Test
-    public void testDelegatingMode_emptyMainEntryPoint() {
+    void testDelegatingMode_emptyMainEntryPoint() {
         var result = ConcordCommandLineBuilder.buildParameters(
                 "myFlow",                           // configuredEntryPoint
                 Map.of(),                            // configurationParams

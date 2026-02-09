@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
 
-public class ConcordIconProviderTest extends ConcordYamlTestBaseJunit5 {
+class ConcordIconProviderTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testSectionIcons() {
+    void testSectionIcons() {
         configureFromText("""
                 configuration:
                   runtime: concord-v2
@@ -34,7 +34,7 @@ public class ConcordIconProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testElementIcons() {
+    void testElementIcons() {
         configureFromText("""
                 flows:
                   myFlow:

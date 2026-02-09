@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-public class TaskSchemaInspectionTest extends InspectionTestBase {
+class TaskSchemaInspectionTest extends InspectionTestBase {
 
     @Override
     @BeforeEach
@@ -35,7 +35,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     // --- positive tests: valid YAML, no errors ---
 
     @Test
-    public void testValidConcordTask_noErrors() {
+    void testValidConcordTask_noErrors() {
         configureFromText("""
                 flows:
                   main:
@@ -51,7 +51,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testAdditionalPropertiesAllowed_noErrors() {
+    void testAdditionalPropertiesAllowed_noErrors() {
         configureFromText("""
                 flows:
                   main:
@@ -66,7 +66,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testValidStrictTask_noErrors() {
+    void testValidStrictTask_noErrors() {
         configureFromText("""
                 flows:
                   main:
@@ -80,7 +80,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testUnknownTask_noErrors() {
+    void testUnknownTask_noErrors() {
         configureFromText("""
                 flows:
                   main:
@@ -95,7 +95,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     // --- negative tests: unknown keys ---
 
     @Test
-    public void testUnknownKeyWithStrictSchema() {
+    void testUnknownKeyWithStrictSchema() {
         configureFromText("""
                 flows:
                   main:
@@ -111,7 +111,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testMultipleUnknownKeysWithStrictSchema() {
+    void testMultipleUnknownKeysWithStrictSchema() {
         configureFromText("""
                 flows:
                   main:
@@ -131,7 +131,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testUnknownKeyInOutWithStrictSchema() {
+    void testUnknownKeyInOutWithStrictSchema() {
         configureFromText("""
                 flows:
                   main:
@@ -151,7 +151,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     // --- negative tests: missing required keys ---
 
     @Test
-    public void testMissingRequiredKey() {
+    void testMissingRequiredKey() {
         configureFromText("""
                 flows:
                   main:
@@ -168,7 +168,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     // --- negative tests: invalid enum values ---
 
     @Test
-    public void testInvalidEnumValue() {
+    void testInvalidEnumValue() {
         configureFromText("""
                 flows:
                   main:
@@ -184,7 +184,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testInvalidConcordActionEnum() {
+    void testInvalidConcordActionEnum() {
         configureFromText("""
                 flows:
                   main:
@@ -201,7 +201,7 @@ public class TaskSchemaInspectionTest extends InspectionTestBase {
     // --- oneOf polymorphic types ---
 
     @Test
-    public void testOneOfPolymorphicType_arrayValueShouldBeValid() {
+    void testOneOfPolymorphicType_arrayValueShouldBeValid() {
         // concord schema defines instanceId as oneOf: [string, array<string>]
         // and the parser now reads oneOf into a composite schema type,
         // so both a single string and an array of strings should validate without errors

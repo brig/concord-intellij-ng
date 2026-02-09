@@ -9,10 +9,10 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TaskSchemaSectionTest {
+class TaskSchemaSectionTest {
 
     @Test
-    public void testEmptySection() {
+    void testEmptySection() {
         var empty = TaskSchemaSection.empty();
         assertTrue(empty.properties().isEmpty());
         assertTrue(empty.requiredFields().isEmpty());
@@ -20,7 +20,7 @@ public class TaskSchemaSectionTest {
     }
 
     @Test
-    public void testMergeUnionOfProperties() {
+    void testMergeUnionOfProperties() {
         var a = section(
                 Map.of("url", prop("url", "string")),
                 Set.of(),
@@ -39,7 +39,7 @@ public class TaskSchemaSectionTest {
     }
 
     @Test
-    public void testMergeUnionOfRequiredFields() {
+    void testMergeUnionOfRequiredFields() {
         var a = section(
                 Map.of("url", prop("url", "string")),
                 Set.of("url"),
@@ -57,7 +57,7 @@ public class TaskSchemaSectionTest {
     }
 
     @Test
-    public void testMergeAdditionalPropertiesAndSemantics() {
+    void testMergeAdditionalPropertiesAndSemantics() {
         var trueAndFalse = section(Map.of(), Set.of(), true)
                 .merge(section(Map.of(), Set.of(), false));
         assertFalse(trueAndFalse.additionalProperties());
@@ -76,7 +76,7 @@ public class TaskSchemaSectionTest {
     }
 
     @Test
-    public void testMergeOverlappingPropertySecondWins() {
+    void testMergeOverlappingPropertySecondWins() {
         var a = section(
                 Map.of("action", prop("action", "string")),
                 Set.of(),
@@ -94,7 +94,7 @@ public class TaskSchemaSectionTest {
     }
 
     @Test
-    public void testMergeRequiredFlagPropagatedToExistingProperty() {
+    void testMergeRequiredFlagPropagatedToExistingProperty() {
         // Property exists in first section as not-required.
         // Second section's requiredFields marks it required.
         var a = section(
@@ -114,7 +114,7 @@ public class TaskSchemaSectionTest {
     }
 
     @Test
-    public void testMergeWithEmptyIsIdentity() {
+    void testMergeWithEmptyIsIdentity() {
         var original = section(
                 Map.of("url", prop("url", "string"), "method", prop("method", "string")),
                 Set.of("url"),
@@ -134,7 +134,7 @@ public class TaskSchemaSectionTest {
     }
 
     @Test
-    public void testMergePropertyFromFirstBecomeRequiredViaSecondRequiredFields() {
+    void testMergePropertyFromFirstBecomeRequiredViaSecondRequiredFields() {
         var a = section(
                 Map.of("timeout", prop("timeout", "integer")),
                 Set.of(),

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-public class OutOfScopeInspectionTest extends InspectionTestBase {
+class OutOfScopeInspectionTest extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -15,7 +15,7 @@ public class OutOfScopeInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testRootFile_noWarning() {
+    void testRootFile_noWarning() {
         // Root files (concord.yaml) define their own scope, so they should never get this warning
         configureFromText("""
                 configuration:
@@ -29,7 +29,7 @@ public class OutOfScopeInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFileInScope_noWarning() {
+    void testFileInScope_noWarning() {
         // Create root that defines the scope
         createFile("project-a/concord.yaml", """
                 configuration:
@@ -49,7 +49,7 @@ public class OutOfScopeInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFileOutOfScope_warning() {
+    void testFileOutOfScope_warning() {
         // Create root with restricted scope
         createFile("project-a/concord.yaml", """
                 resources:
@@ -73,7 +73,7 @@ public class OutOfScopeInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFileMatchingCustomPattern_noWarning() {
+    void testFileMatchingCustomPattern_noWarning() {
         // Create root with custom scope pattern
         createFile("project-a/concord.yaml", """
                 resources:
@@ -96,7 +96,7 @@ public class OutOfScopeInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testFileInMultipleScopes_noWarning() {
+    void testFileInMultipleScopes_noWarning() {
         // Create two roots whose scopes overlap
         createFile("project-a/concord.yaml", """
                 resources:
@@ -127,7 +127,7 @@ public class OutOfScopeInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testDotConcordYamlRoot_noWarning() {
+    void testDotConcordYamlRoot_noWarning() {
         // Test with .concord.yaml root file name variant
         configureFromText(".concord.yaml", """
                 configuration:
@@ -141,7 +141,7 @@ public class OutOfScopeInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    public void testEmptyFileOutOfScope_noException() {
+    void testEmptyFileOutOfScope_noException() {
         // Create root with restricted scope
         createFile("project-a/concord.yaml", """
                 resources:

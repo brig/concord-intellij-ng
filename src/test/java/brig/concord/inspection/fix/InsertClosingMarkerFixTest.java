@@ -7,10 +7,10 @@ import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class InsertClosingMarkerFixTest extends ConcordYamlTestBaseJunit5 {
+class InsertClosingMarkerFixTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testQuickFixForUnclosedFlowDoc() {
+    void testQuickFixForUnclosedFlowDoc() {
         configureFromText("""
             flows:
               ##
@@ -60,7 +60,7 @@ public class InsertClosingMarkerFixTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testQuickFixPreview() {
+    void testQuickFixPreview() {
         configureFromText("""
             flows:
               ##

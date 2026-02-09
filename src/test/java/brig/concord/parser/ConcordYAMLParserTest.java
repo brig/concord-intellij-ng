@@ -16,75 +16,75 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
+class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testBlockMapping() {
+    void testBlockMapping() {
         doTest("/parser/blockMapping.concord.yaml");
     }
 
     @Test
-    public void testIndentMapping() {
+    void testIndentMapping() {
         doTest("/parser/indentMapping.concord.yaml");
     }
 
     @Test
-    public void testInlineMapWithBlockScalarValue() {
+    void testInlineMapWithBlockScalarValue() {
         doTest("/parser/InlineMapWithBlockScalarValue.concord.yaml");
     }
 
     @Test
-    public void testErrorInBlockScalarHeader() {
+    void testErrorInBlockScalarHeader() {
         doTest("/parser/errorInBlockScalarHeader.concord.yaml", false);
     }
 
     @Test
-    public void testCommentInBlockScalarHeader() {
+    void testCommentInBlockScalarHeader() {
         doTest("/parser/commentInBlockScalarHeader.concord.yaml");
     }
 
     @Test
-    public void testScalarsWithNewlines() {
+    void testScalarsWithNewlines() {
         doTest("/parser/scalarsWithNewlines.concord.yaml");
     }
 
     @Test
-    public void testMultipleDocsWithMappings() {
+    void testMultipleDocsWithMappings() {
         doTest("/parser/multipleDocsWithMappings.concord.yaml");
     }
 
     @Test
-    public void testKeyValueWithEmptyLineAhead() {
+    void testKeyValueWithEmptyLineAhead() {
         doTest("/parser/keyValueWithEmptyLineAhead.concord.yaml");
     }
 
     @Test
-    public void testIncompleteKeyInHierarchy() {
+    void testIncompleteKeyInHierarchy() {
         doTest("/parser/incompleteKeyInHierarchy.concord.yaml");
     }
 
     @Test
-    public void testAnsibleRoleElkMain() {
+    void testAnsibleRoleElkMain() {
         doTest("/parser/ansibleRoleElkMain.concord.yaml");
     }
 
     @Test
-    public void testAnsibleRoleElkInit() {
+    void testAnsibleRoleElkInit() {
         doTest("/parser/ansibleRoleElkInit.concord.yaml");
     }
 
     @Test
-    public void testSpec2_27() {
+    void testSpec2_27() {
         doTest("/parser/spec2_27.concord.yaml");
     }
 
     @Test
-    public void testExplicitMaps() {
+    void testExplicitMaps() {
         doTest("/parser/explicitMaps.concord.yaml");
     }
 
     @Test
-    public void testShiftedList() {
+    void testShiftedList() {
         doCodeTest("/parser/shiftedList.txt",
                 "    - item1\n" +
                 "    - item2"
@@ -92,7 +92,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testIncompleteKeyWithWhitespace() {
+    void testIncompleteKeyWithWhitespace() {
         doCodeTest("/parser/incompleteKeyWithWhitespace.txt", """
                  logging:
                    config:
@@ -104,14 +104,14 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testShiftedMap() {
+    void testShiftedMap() {
         doCodeTest("/parser/shiftedMap.txt",
                 "    key: ttt\n" +
                 "    ahahah: ppp");
     }
 
     @Test
-    public void testIncompleteKey() {
+    void testIncompleteKey() {
         doCodeTest("/parser/incompleteKey.txt", """
                  logging:
                    config: bla
@@ -119,7 +119,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void test2docs() {
+    void test2docs() {
         doCodeTest("/parser/2doc.txt", """
                  # Ranking of 1998 home runs
                  ---
@@ -134,7 +134,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testIndentation() {
+    void testIndentation() {
         doCodeTest("/parser/indentation.txt", """
                  name: Mark McGwire
                  accomplishment: >
@@ -146,7 +146,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testMap_between_seq() throws Throwable {
+    void testMap_between_seq() throws Throwable {
         doCodeTest("/parser/map_between_seq.txt", """
                  ?
                    - Detroit Tigers
@@ -161,7 +161,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testMap_map() {
+    void testMap_map() {
         doCodeTest("/parser/map_map.txt", """
                  Mark McGwire: {hr: 65, avg: 0.278}
                  Sammy Sosa: {
@@ -171,7 +171,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testSample_log() {
+    void testSample_log() {
         doCodeTest("/parser/sample_log.txt", """
                  Stack:
                    - file: TopClass.py
@@ -185,7 +185,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testSeq_seq() {
+    void testSeq_seq() {
         doCodeTest("/parser/seq_seq.txt", """
                  - [name        , hr, avg  ]
                  - [Mark McGwire, 65, 0.278]
@@ -193,7 +193,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testSequence_mappings() {
+    void testSequence_mappings() {
         doCodeTest("/parser/sequence_mappings.txt", """
                  -
                    name: Mark McGwire
@@ -206,7 +206,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testBalance() {
+    void testBalance() {
         doCodeTest("/parser/balance.txt", """
                  runningTime: 150000
                  scenarios:
@@ -219,12 +219,12 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testInterpolation() {
+    void testInterpolation() {
         doCodeTest("/parser/interpolation.txt", "en:\n  foo: bar %{baz}");
     }
 
     @Test
-    public void testValue_injection() {
+    void testValue_injection() {
         doCodeTest("/parser/value_injection.txt", """
                  key:
                      one: 1 text
@@ -232,7 +232,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testSequence_idea76804() {
+    void testSequence_idea76804() {
         doCodeTest("/parser/sequence_idea76804.txt", """
                  server:
                  - a
@@ -244,7 +244,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testMultiline_ruby16796() throws Throwable {
+    void testMultiline_ruby16796() throws Throwable {
         doCodeTest("/parser/multiline_ruby16796.txt", """
                  code:
                    src="keys/{{item}}"
@@ -255,7 +255,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testRuby17389() throws Throwable {
+    void testRuby17389() throws Throwable {
         doCodeTest("/parser/ruby17389.txt", """
                  ---
                  foo: {}
@@ -263,7 +263,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testRuby19105() {
+    void testRuby19105() {
         doCodeTest("/parser/ruby19105.txt", """
                  'Fn::Join':
                    - ''
@@ -272,7 +272,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testRuby15345() {
+    void testRuby15345() {
         doCodeTest("/parser/ruby15345.txt", """
                  - !qualified.class.name
                      propertyOne: bla bla
@@ -283,7 +283,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testHonestMultiline() {
+    void testHonestMultiline() {
         doCodeTest("/parser/honestMultiline.txt", """
                  ---
                  foo: >
@@ -298,7 +298,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testEmptyMultiline() {
+    void testEmptyMultiline() {
         doCodeTest("/parser/emptyMultiline.txt", """
                  ---
                  foo: >
@@ -310,7 +310,7 @@ public class ConcordYAMLParserTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void test001() {
+    void test001() {
         doTest("/parser/001.concord.yaml");
     }
 

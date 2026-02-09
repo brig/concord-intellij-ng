@@ -4,10 +4,10 @@ import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.openapi.command.WriteCommandAction;
 import org.junit.jupiter.api.Test;
 
-public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5 {
+class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testAddInputParameterToExistingSection() {
+    void testAddInputParameterToExistingSection() {
         var yaml = """
             flows:
               ##
@@ -36,7 +36,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
             """);
     }
     @Test
-    public void testAddInputParameterToNewSection() {
+    void testAddInputParameterToNewSection() {
         var yaml = """
             flows:
               ##
@@ -65,7 +65,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddInputParameterToEmptyDoc() {
+    void testAddInputParameterToEmptyDoc() {
         var yaml = """
             flows:
               ##
@@ -92,7 +92,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddMultipleParametersSequentially() {
+    void testAddMultipleParametersSequentially() {
         var yaml = """
             flows:
               ##
@@ -124,7 +124,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWithArrayType() {
+    void testAddParameterWithArrayType() {
         var yaml = """
             flows:
               ##
@@ -154,7 +154,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWhenOutSectionExists() {
+    void testAddParameterWhenOutSectionExists() {
         var yaml = """
             flows:
               ##
@@ -185,7 +185,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWithExistingInAndOutSections() {
+    void testAddParameterWithExistingInAndOutSections() {
         var yaml = """
             flows:
               ##
@@ -219,7 +219,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterToSectionWithMultipleExistingParams() {
+    void testAddParameterToSectionWithMultipleExistingParams() {
         var yaml = """
             flows:
               ##
@@ -253,7 +253,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWithDescriptionAndOutSection() {
+    void testAddParameterWithDescriptionAndOutSection() {
         var yaml = """
             flows:
               ##
@@ -286,7 +286,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWithDifferentIndentation() {
+    void testAddParameterWithDifferentIndentation() {
         // Test with 4-space indentation
         var yaml = """
             flows:
@@ -317,7 +317,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterIntoEmptyInSection() {
+    void testAddParameterIntoEmptyInSection() {
         var yaml = """
             flows:
                 ##
@@ -345,7 +345,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterIntoIndentedInSection() {
+    void testAddParameterIntoIndentedInSection() {
         var yaml = """
             flows:
               ##
@@ -373,7 +373,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterIntoIndentedInSectionWithParam() {
+    void testAddParameterIntoIndentedInSectionWithParam() {
         var yaml = """
             flows:
               ##
@@ -403,7 +403,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWithMultilineDescription() {
+    void testAddParameterWithMultilineDescription() {
         var yaml = """
             flows:
               ##
@@ -436,7 +436,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWithHyphenInName() {
+    void testAddParameterWithHyphenInName() {
         var yaml = """
             flows:
               ##
@@ -466,7 +466,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWithUnderscoreInName() {
+    void testAddParameterWithUnderscoreInName() {
         var yaml = """
             flows:
               ##
@@ -496,7 +496,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWhenOutSectionExistsWithDescription() {
+    void testAddParameterWhenOutSectionExistsWithDescription() {
         // Both description and out: exist, but no in: - should insert in: between them
         var yaml = """
             flows:
@@ -530,7 +530,7 @@ public class FlowDocumentationModificationTest extends ConcordYamlTestBaseJunit5
     }
 
     @Test
-    public void testAddParameterWhenOutBeforeIn() {
+    void testAddParameterWhenOutBeforeIn() {
         // Unusual order: out: section comes before in: section
         var yaml = """
             flows:

@@ -125,7 +125,7 @@ class MavenCoordinateTest {
     }
 
     @Test
-    public void parseGroovy() {
+    void parseGroovy() {
         var coord = MavenCoordinate.parse("mvn://org.codehaus.groovy:groovy-all:pom:2.5.21");
 
         assertNotNull(coord);

@@ -8,10 +8,10 @@ import com.intellij.testFramework.EdtTestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class RenameFlowTest extends ConcordYamlTestBaseJunit5 {
+class RenameFlowTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testRenameFlow() {
+    void testRenameFlow() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -28,7 +28,7 @@ public class RenameFlowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testRenameFlowMultipleCalls() {
+    void testRenameFlowMultipleCalls() {
         configureFromText("""
                 flows:
                   myFlow:
@@ -51,7 +51,7 @@ public class RenameFlowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void renameInMultiFiles() {
+    void renameInMultiFiles() {
         // Setup Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -92,7 +92,7 @@ public class RenameFlowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void renameInMultiScopes() {
+    void renameInMultiScopes() {
         // Setup Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
@@ -169,7 +169,7 @@ public class RenameFlowTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void renameInMultiFiles2() {
+    void renameInMultiFiles2() {
         // Setup Project A
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:

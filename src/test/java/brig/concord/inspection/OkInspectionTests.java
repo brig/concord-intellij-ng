@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.List;
 
-public class OkInspectionTests extends InspectionTestBase {
+class OkInspectionTests extends InspectionTestBase {
 
     @Override
     protected Collection<Class<? extends LocalInspectionTool>> enabledInspections() {
@@ -14,157 +14,157 @@ public class OkInspectionTests extends InspectionTestBase {
     }
 
     @Test
-    public void testCheckpoint_000() {
+    void testCheckpoint_000() {
         configureFromResource("/ok/checkpoint/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testExpression_000() {
+    void testExpression_000() {
         configureFromResource("/ok/expression/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testExpression_001() {
+    void testExpression_001() {
         configureFromResource("/ok/expression/001.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testConfiguration_000() {
+    void testConfiguration_000() {
         configureFromResource("/ok/configuration/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testFlowCall_000() {
+    void testFlowCall_000() {
         configureFromResource("/ok/flowCall/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testFlowCall_001() {
+    void testFlowCall_001() {
         configureFromResource("/ok/flowCall/001.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testFlowCall_002() {
+    void testFlowCall_002() {
         configureFromResource("/ok/flowCall/002.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testFlowCall_003() {
+    void testFlowCall_003() {
         configureFromResource("/ok/flowCall/003.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testFormCall_000() {
+    void testFormCall_000() {
         configureFromResource("/ok/formCall/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testForms_000() {
+    void testForms_000() {
         configureFromResource("/ok/forms/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testGroup_000() {
+    void testGroup_000() {
         configureFromResource("/ok/group/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testIf_000() {
+    void testIf_000() {
         configureFromResource("/ok/if/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testImports_000() {
+    void testImports_000() {
         configureFromResource("/ok/imports/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testParallel_000() {
+    void testParallel_000() {
         configureFromResource("/ok/imports/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testProfiles_000() {
+    void testProfiles_000() {
         configureFromResource("/ok/profiles/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testPublicFlows_000() {
+    void testPublicFlows_000() {
         configureFromResource("/ok/publicFlows/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testResources_000() {
+    void testResources_000() {
         configureFromResource("/ok/resources/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testScript_000() {
+    void testScript_000() {
         configureFromResource("/ok/script/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testSetVariables_000() {
+    void testSetVariables_000() {
         configureFromResource("/ok/setVariables/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testSwitch_000() {
+    void testSwitch_000() {
         configureFromResource("/ok/switch/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testTaskCall_000() {
+    void testTaskCall_000() {
         configureFromResource("/ok/taskCall/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testTriggers_000() {
+    void testTriggers_000() {
         configureFromResource("/ok/triggers/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testReturn_000() {
+    void testReturn_000() {
         configureFromResource("/ok/return/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testFlowCallInputParams_000() {
+    void testFlowCallInputParams_000() {
         configureFromResource("/ok/flowCallInputParams/000.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testFlowCallInputParams_001() {
+    void testFlowCallInputParams_001() {
         configureFromResource("/ok/flowCallInputParams/001.concord.yml");
         assertNoErrors();
     }
 
     @Test
-    public void testFlowCallMultiDefinition() {
+    void testFlowCallMultiDefinition() {
         var rootA = createFile("project-a/concord.yaml", """
                 configuration:
                   runtime: concord-v2

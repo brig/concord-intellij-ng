@@ -6,10 +6,10 @@ import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
+class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testIgnoredRootIsNotDiscovered() {
+    void testIgnoredRootIsNotDiscovered() {
         var ignoredRoot = createFile(
                 "ignored/concord.yaml",
                 """
@@ -41,7 +41,7 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testIgnoredFileIsNotOutOfScope() {
+    void testIgnoredFileIsNotOutOfScope() {
         var ignoredFile = createFile(
                 "ignored/concord.yaml",
                 """
@@ -61,7 +61,7 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testIgnoredFileInResources() {
+    void testIgnoredFileInResources() {
         // Root includes everything
         createFile(
                 "concord.yaml",
@@ -97,7 +97,7 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCompletionMultiScope() {
+    void testCompletionMultiScope() {
         var fa = createFile("concord.yaml",
                 """
                 flows:
@@ -140,7 +140,7 @@ public class IgnoredFilesScopeTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testInspectionsAreSkippedForIgnoredFiles() {
+    void testInspectionsAreSkippedForIgnoredFiles() {
         var ignoredFile = myFixture.addFileToProject(
                 "ignored/bad.concord.yaml",
                 """

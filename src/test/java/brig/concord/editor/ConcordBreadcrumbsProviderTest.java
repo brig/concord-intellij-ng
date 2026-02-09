@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBaseJunit5 {
+class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testFlowDefinition() {
+    void testFlowDefinition() {
         configureFromText("""
                 flows:
                   def<caret>ault:
@@ -22,7 +22,7 @@ public class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testStepWithName() {
+    void testStepWithName() {
         configureFromText("""
                 flows:
                   default:
@@ -34,7 +34,7 @@ public class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testTaskStep() {
+    void testTaskStep() {
         configureFromText("""
                 flows:
                   default:
@@ -45,7 +45,7 @@ public class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testCallStep() {
+    void testCallStep() {
         configureFromText("""
                 flows:
                   default:
@@ -56,7 +56,7 @@ public class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testReturnStep() {
+    void testReturnStep() {
         configureFromText("""
                 flows:
                   default:
@@ -67,7 +67,7 @@ public class ConcordBreadcrumbsProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
-    public void testLongTextTruncation() {
+    void testLongTextTruncation() {
         configureFromText("""
                 flows:
                   default:

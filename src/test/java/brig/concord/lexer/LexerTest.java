@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import static brig.concord.ConcordYamlTestBaseJunit5.loadResource;
 import static brig.concord.assertions.TokenAssertions.assertTokens;
 
-public class LexerTest {
+class LexerTest {
 
     @Test
-    public void lexerTest1() {
+    void lexerTest1() {
         var yaml = loadResource("/lexerTests/001.concord.yaml");
 
         assertTokens(yaml)

@@ -5,10 +5,10 @@ import com.intellij.openapi.application.ReadAction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class OutOfScopeEditorNotificationProviderTest extends ConcordYamlTestBaseJunit5 {
+class OutOfScopeEditorNotificationProviderTest extends ConcordYamlTestBaseJunit5 {
 
     @Test
-    public void testRootFile_noNotification() {
+    void testRootFile_noNotification() {
         var file = myFixture.addFileToProject("concord.yaml", """
                 configuration:
                   runtime: concord-v2
@@ -25,7 +25,7 @@ public class OutOfScopeEditorNotificationProviderTest extends ConcordYamlTestBas
     }
 
     @Test
-    public void testFileInScope_noNotification() {
+    void testFileInScope_noNotification() {
         // Create root that defines the scope
         myFixture.addFileToProject("project-a/concord.yaml", """
                 configuration:
@@ -47,7 +47,7 @@ public class OutOfScopeEditorNotificationProviderTest extends ConcordYamlTestBas
     }
 
     @Test
-    public void testFileOutOfScope_showsNotification() {
+    void testFileOutOfScope_showsNotification() {
         // Create root with restricted scope
         myFixture.addFileToProject("project-a/concord.yaml", """
                 resources:
@@ -72,7 +72,7 @@ public class OutOfScopeEditorNotificationProviderTest extends ConcordYamlTestBas
     }
 
     @Test
-    public void testDotConcordYamlRoot_noNotification() {
+    void testDotConcordYamlRoot_noNotification() {
         var file = myFixture.addFileToProject(".concord.yaml", """
                 configuration:
                   runtime: concord-v2
@@ -89,7 +89,7 @@ public class OutOfScopeEditorNotificationProviderTest extends ConcordYamlTestBas
     }
 
     @Test
-    public void testNonConcordFile_noNotification() {
+    void testNonConcordFile_noNotification() {
         var file = myFixture.addFileToProject("some-file.yaml", """
                 some:
                   key: value
