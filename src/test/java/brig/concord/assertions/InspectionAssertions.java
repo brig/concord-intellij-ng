@@ -183,12 +183,12 @@ public class InspectionAssertions {
     }
 
     public InspectionAssertions assertValueRequired() {
-        expectedErrors.add("Value is required");
+        expectedErrors.add(ConcordBundle.message("YamlUnknownValuesInspectionBase.error.value.is.required"));
         return this;
     }
 
     public InspectionAssertions assertArrayRequired() {
-        expectedErrors.add("Array is required");
+        expectedErrors.add(ConcordBundle.message("YamlUnknownValuesInspectionBase.error.array.is.required"));
         return this;
     }
 
@@ -203,22 +203,22 @@ public class InspectionAssertions {
     }
 
     public InspectionAssertions assertStringValueExpected() {
-        expectedErrors.add("String value expected");
+        expectedErrors.add(ConcordBundle.message("StringType.error.scalar.value"));
         return this;
     }
 
     public InspectionAssertions assertIntExpected() {
-        expectedErrors.add("Integer value expected");
+        expectedErrors.add(ConcordBundle.message("YamlIntegerType.error.integer.value"));
         return this;
     }
 
     public InspectionAssertions assertBooleanExpected() {
-        expectedErrors.add("Boolean value expected");
+        expectedErrors.add(ConcordBundle.message("YamlBooleanType.validation.error.quoted.value"));
         return this;
     }
 
     public InspectionAssertions assertSingleValueExpected() {
-        expectedErrors.add("Single value is expected");
+        expectedErrors.add(ConcordBundle.message("YamlUnknownValuesInspectionBase.error.array.not.allowed"));
         return this;
     }
 
@@ -243,7 +243,7 @@ public class InspectionAssertions {
     }
 
     public InspectionAssertions assertMissingKey(String key) {
-        expectedErrors.add("Missing required key(s): '" + key + "'");
+        expectedErrors.add(ConcordBundle.message("YamlMissingKeysInspectionBase.missing.keys", key));
         return this;
     }
 
