@@ -43,12 +43,9 @@ public class YamlAnything extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           Field.@NotNull Relation relation,
-                                           ForcedCompletionPath.@NotNull Iteration iteration) {
+                                           Field.@NotNull Relation relation) {
         markup.append(": ");
-        if (iteration.isEndOfPathReached()) {
-            markup.appendCaret();
-        }
+        markup.appendCaret();
     }
 
     public static YamlMetaType getInstance() {

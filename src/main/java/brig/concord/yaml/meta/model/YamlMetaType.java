@@ -179,16 +179,14 @@ public abstract class YamlMetaType {
      * fill insertion markup of "theAnswer: 42&lt;crlf&gt;"
      */
     public abstract void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                                    @NotNull Field.Relation relation,
-                                                    @NotNull ForcedCompletionPath.Iteration iteration);
+                                                    @NotNull Field.Relation relation);
 
     protected static void buildCompleteKeyMarkup(@NotNull YamlInsertionMarkup markup,
-                                                 @NotNull Field feature,
-                                                 @NotNull ForcedCompletionPath.Iteration iteration) {
+                                                 @NotNull Field feature) {
         markup.append(feature.getName());
         Field.Relation defaultRelation = feature.getDefaultRelation();
         YamlMetaType defaultType = feature.getType(defaultRelation);
-        defaultType.buildInsertionSuffixMarkup(markup, defaultRelation, iteration);
+        defaultType.buildInsertionSuffixMarkup(markup, defaultRelation);
     }
 
     @Override
@@ -312,127 +310,4 @@ public abstract class YamlMetaType {
         }
     }
 
-    public static final class ForcedCompletionPath {
-        private static final Iteration OFF_PATH_ITERATION = new OffPathIteration();
-        private static final Iteration NULL_ITERATION = new NullIteration();
-        private static final ForcedCompletionPath NULL_PATH = new ForcedCompletionPath(null);
-
-        private final @Nullable List<Field> myCompletionPath;
-
-        public static @NotNull ForcedCompletionPath forDeepCompletion(final @NotNull List<Field> completionPath) {
-            return new ForcedCompletionPath(completionPath);
-        }
-
-        public static @NotNull ForcedCompletionPath nullPath() {
-            return NULL_PATH;
-        }
-
-        private ForcedCompletionPath(final @Nullable List<Field> completionPath) {
-            myCompletionPath = completionPath;
-        }
-
-        public @NotNull String getName() {
-            if (myCompletionPath == null) {
-                return "<null>";
-            }
-
-            return myCompletionPath.stream().map(Field::getName).collect(Collectors.joining("."));
-        }
-
-        public @Nullable YamlMetaType getFinalizingType() {
-            if (myCompletionPath == null || myCompletionPath.size() < 2) {
-                return null;
-            }
-
-            return myCompletionPath.get(myCompletionPath.size() - 2).getDefaultType();
-        }
-
-        public @Nullable Field getFinalizingField() {
-            if (myCompletionPath == null || myCompletionPath.isEmpty()) {
-                return null;
-            }
-
-            return myCompletionPath.getLast();
-        }
-
-        public Iteration start() {
-            return myCompletionPath != null ? new OnPathIteration(1) : NULL_ITERATION;
-        }
-
-        @Override
-        public String toString() {
-            return getClass().getSimpleName() + "(" + getName() + ")";
-        }
-
-        public interface Iteration {
-            boolean isEndOfPathReached();
-
-            boolean isNextOnPath(@NotNull Field field);
-
-            @NotNull
-            Iteration nextIterationFor(@NotNull Field field);
-        }
-
-        private static class OffPathIteration implements Iteration {
-            @Override
-            public boolean isNextOnPath(@NotNull Field field) {
-                return false;
-            }
-
-            @Override
-            public boolean isEndOfPathReached() {
-                return false;
-            }
-
-            @Override
-            public @NotNull Iteration nextIterationFor(@NotNull Field field) {
-                return this;
-            }
-        }
-
-        private static class NullIteration implements Iteration {
-            @Override
-            public boolean isNextOnPath(@NotNull Field field) {
-                return false;
-            }
-
-            @Override
-            public boolean isEndOfPathReached() {
-                return true;
-            }
-
-            @Override
-            public @NotNull Iteration nextIterationFor(@NotNull Field field) {
-                return this;
-            }
-        }
-
-        private final class OnPathIteration implements Iteration {
-            private final int myPosition;
-
-            private OnPathIteration(int position) {
-                myPosition = position;
-            }
-
-            @Override
-            public boolean isNextOnPath(@NotNull Field field) {
-                assert myCompletionPath != null;
-                return !isEndOfPathReached() && field.equals(myCompletionPath.get(myPosition));
-            }
-
-            @Override
-            public boolean isEndOfPathReached() {
-                assert myCompletionPath != null;
-                return myPosition >= myCompletionPath.size();
-            }
-
-            @Override
-            public @NotNull Iteration nextIterationFor(@NotNull Field field) {
-                assert myCompletionPath != null;
-                return isEndOfPathReached() || field.equals(myCompletionPath.get(myPosition)) ?
-                        new OnPathIteration(myPosition + 1) :
-                        OFF_PATH_ITERATION;
-            }
-        }
-    }
 }

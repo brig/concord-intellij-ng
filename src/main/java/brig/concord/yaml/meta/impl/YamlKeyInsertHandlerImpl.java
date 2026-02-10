@@ -6,7 +6,6 @@ import com.intellij.codeInsight.completion.InsertionContext;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.meta.model.YamlMetaType.ForcedCompletionPath;
 import brig.concord.yaml.meta.model.YamlMetaType.YamlInsertionMarkup;
 
 public class YamlKeyInsertHandlerImpl extends YamlKeyInsertHandler {
@@ -18,18 +17,11 @@ public class YamlKeyInsertHandlerImpl extends YamlKeyInsertHandler {
     }
 
     @Override
-    protected @NotNull YamlInsertionMarkup computeInsertionMarkup(@NotNull InsertionContext context,
-                                                                  @NotNull ForcedCompletionPath forcedCompletionPath) {
+    protected @NotNull YamlInsertionMarkup computeInsertionMarkup(@NotNull InsertionContext context) {
         YamlInsertionMarkup markup = new YamlInsertionMarkup(context);
         Field.Relation relation = myToBeInserted.getDefaultRelation();
         YamlMetaType defaultType = myToBeInserted.getType(relation);
-        defaultType.buildInsertionSuffixMarkup(markup, relation, forcedCompletionPath.start());
+        defaultType.buildInsertionSuffixMarkup(markup, relation);
         return markup;
     }
-
-    @Override
-    protected @NotNull String getReplacement() {
-        return myToBeInserted.getName();
-    }
 }
-
