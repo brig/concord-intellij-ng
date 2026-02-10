@@ -69,22 +69,15 @@ public abstract class YamlScalarType extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           @NotNull Field.Relation relation,
-                                           @NotNull ForcedCompletionPath.Iteration iteration) {
+                                           @NotNull Field.Relation relation) {
         switch (relation) {
             case OBJECT_CONTENTS /* weird, but let's ignore and breakthrough to defaults */, SCALAR_VALUE -> {
                 markup.append(": ");
-                if (iteration.isEndOfPathReached()) {
-                    markup.appendCaret();
-                }
+                markup.appendCaret();
             }
             case SEQUENCE_ITEM -> {
                 markup.append(":");
-                markup.doTabbedBlockForSequenceItem(() -> {
-                    if (iteration.isEndOfPathReached()) {
-                        markup.appendCaret();
-                    }
-                });
+                markup.doTabbedBlockForSequenceItem(markup::appendCaret);
             }
             default -> throw new IllegalStateException("Unknown relation: " + relation); //NON-NLS
         }

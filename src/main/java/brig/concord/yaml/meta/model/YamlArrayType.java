@@ -50,8 +50,7 @@ public class YamlArrayType extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           Field.@NotNull Relation relation,
-                                           ForcedCompletionPath.@NotNull Iteration iteration) {
+                                           Field.@NotNull Relation relation) {
 
     }
 }

@@ -113,8 +113,7 @@ public abstract class YamlComposedTypeBase extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           @NotNull Field.Relation relation,
-                                           @NotNull ForcedCompletionPath.Iteration iteration) {
+                                           @NotNull Field.Relation relation) {
 
         if (relation == Field.Relation.SCALAR_VALUE ||
                 (relation == Field.Relation.OBJECT_CONTENTS && !listScalarSubTypes().isEmpty())) {

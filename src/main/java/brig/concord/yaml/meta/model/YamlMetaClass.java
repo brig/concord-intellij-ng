@@ -90,12 +90,11 @@ public class YamlMetaClass extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           @NotNull Field.Relation relation,
-                                           @NotNull ForcedCompletionPath.Iteration iteration) {
+                                           @NotNull Field.Relation relation) {
         switch (relation) {
             case SCALAR_VALUE -> throw new IllegalArgumentException("Default relation " + relation + " requested for complex type: " + this);
-            case OBJECT_CONTENTS -> doBuildInsertionSuffixMarkup(markup, false, iteration);
-            case SEQUENCE_ITEM -> doBuildInsertionSuffixMarkup(markup, true, iteration);
+            case OBJECT_CONTENTS -> doBuildInsertionSuffixMarkup(markup, false);
+            case SEQUENCE_ITEM -> doBuildInsertionSuffixMarkup(markup, true);
             default -> throw new IllegalArgumentException("Unknown relation: " + relation);
         }
     }
@@ -110,21 +109,19 @@ public class YamlMetaClass extends YamlMetaType {
     }
 
     private void doBuildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                              boolean manyNotOne,
-                                              @NotNull ForcedCompletionPath.Iteration iteration) {
+                                              boolean manyNotOne) {
         markup.append(":");
         markup.doTabbedBlock(manyNotOne ? 2 : 1, () -> {
             markup.newLineAndTabs(manyNotOne);
 
-            List<Field> allRequired =
-                    ContainerUtil.filter(myFeatures, field -> field.isRequired() || iteration.isNextOnPath(field));
-            if (allRequired.isEmpty() && iteration.isEndOfPathReached()) {
+            List<Field> allRequired = ContainerUtil.filter(myFeatures, Field::isRequired);
+            if (allRequired.isEmpty()) {
                 markup.appendCaret();
             }
             else {
                 for (Iterator<Field> iterator = allRequired.iterator(); iterator.hasNext(); ) {
                     Field field = iterator.next();
-                    buildCompleteKeyMarkup(markup, field, iteration.nextIterationFor(field));
+                    buildCompleteKeyMarkup(markup, field);
                     if (iterator.hasNext()) {
                         markup.newLineAndTabs();
                     }

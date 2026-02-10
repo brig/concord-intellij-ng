@@ -84,8 +84,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           Field.@NotNull Relation relation,
-                                           ForcedCompletionPath.@NotNull Iteration iteration) {
+                                           Field.@NotNull Relation relation) {
         markup.append(":");
         if (relation == Field.Relation.SEQUENCE_ITEM) {
             markup.doTabbedBlockForSequenceItem();

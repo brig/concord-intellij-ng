@@ -12,10 +12,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.meta.model.YamlMetaType.ForcedCompletionPath;
 import brig.concord.yaml.meta.model.YamlMetaType.YamlInsertionMarkup;
-
-import java.util.Optional;
 
 public abstract class YamlKeyInsertHandler implements InsertHandler<LookupElement> {
     private final boolean myNeedsSequenceItem;
@@ -34,32 +31,16 @@ public abstract class YamlKeyInsertHandler implements InsertHandler<LookupElemen
             return;
         }
 
-        final ForcedCompletionPath path = Optional.of(item.getObject())
-                .filter(ForcedCompletionPath.class::isInstance)
-                .map(ForcedCompletionPath.class::cast)
-                .orElse(null);
-
-        final String lookupString;
-        if (path != null) {  // deep completion
-            lookupString = getReplacement();
-            context.getDocument().replaceString(context.getStartOffset(), context.getTailOffset(), lookupString);
-        }
-        else {
-            lookupString = item.getLookupString();
-        }
-
+        String lookupString = item.getLookupString();
         String commonPadding = getIndentation(context, lookupString);
 
-        YamlInsertionMarkup insertionMarkup = computeInsertionMarkup(context, path != null ? path : ForcedCompletionPath.nullPath());
+        YamlInsertionMarkup insertionMarkup = computeInsertionMarkup(context);
 
         commonPadding = insertBeforeItem(context, lookupString, commonPadding, insertionMarkup);
         insertionMarkup.insertStringAndCaret(context.getEditor(), commonPadding);
     }
 
-    protected abstract @NotNull YamlInsertionMarkup computeInsertionMarkup(@NotNull InsertionContext context,
-                                                                           @NotNull ForcedCompletionPath forcedCompletionPath);
-
-    protected abstract @NotNull String getReplacement();
+    protected abstract @NotNull YamlInsertionMarkup computeInsertionMarkup(@NotNull InsertionContext context);
 
     private static boolean needsColon(@NotNull InsertionContext context) {
         String tail = getTailString(context);
