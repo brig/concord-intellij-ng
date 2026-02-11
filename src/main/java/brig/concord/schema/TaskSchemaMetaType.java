@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,27 +20,26 @@ public class TaskSchemaMetaType extends ConcordMetaType {
 
     private final TaskSchemaSection section;
     private final Set<String> discriminatorKeys;
-    private volatile Map<String, Supplier<YamlMetaType>> features;
+    private volatile Map<String, YamlMetaType> features;
 
     public TaskSchemaMetaType(@NotNull TaskSchemaSection section,
                               @NotNull Set<String> discriminatorKeys) {
-        super("task in params");
         this.section = section;
         this.discriminatorKeys = discriminatorKeys;
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         var f = this.features;
         if (f != null) {
             return f;
         }
 
-        var result = new HashMap<String, Supplier<YamlMetaType>>();
+        var result = new HashMap<String, YamlMetaType>();
         for (var entry : section.properties().entrySet()) {
             var prop = entry.getValue();
             var metaType = toMetaType(prop);
-            result.put(entry.getKey(), () -> metaType);
+            result.put(entry.getKey(), metaType);
         }
         this.features = Map.copyOf(result);
         return this.features;

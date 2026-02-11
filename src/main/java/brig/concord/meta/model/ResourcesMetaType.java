@@ -11,14 +11,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class ResourcesMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final ResourcesMetaType INSTANCE = new ResourcesMetaType();
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "concord", StringArrayMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "concord", StringArrayMetaType.getInstance()
     );
 
     public static ResourcesMetaType getInstance() {
@@ -26,11 +25,10 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     private ResourcesMetaType() {
-        super("Resources");
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

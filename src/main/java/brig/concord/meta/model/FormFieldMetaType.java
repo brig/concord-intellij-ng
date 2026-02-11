@@ -23,7 +23,6 @@ import brig.concord.yaml.psi.YAMLValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,38 +35,38 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     private static final Set<String> required = Set.of("type");
-    private static final Map<String, Supplier<YamlMetaType>> features = caseInsensitiveMap(Map.of(
-            "label", StringMetaType::getInstance,
-            "type", FieldType::getInstance,
-            "value", AnythingMetaType::getInstance,
-            "allow", AnythingMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = caseInsensitiveMap(Map.of(
+            "label", StringMetaType.getInstance(),
+            "type", FieldType.getInstance(),
+            "value", AnythingMetaType.getInstance(),
+            "allow", AnythingMetaType.getInstance()
     ));
 
-    private static final Map<String, Supplier<YamlMetaType>> stringFeatures = caseInsensitiveMap(Map.of(
-            "pattern", RegexpMetaType::getInstance,
-            "inputType", StringMetaType::getInstance,
-            "placeholder", StringMetaType::getInstance,
-            "search", BooleanMetaType::getInstance,
-            "readOnly", BooleanMetaType::getInstance
+    private static final Map<String, YamlMetaType> stringFeatures = caseInsensitiveMap(Map.of(
+            "pattern", RegexpMetaType.getInstance(),
+            "inputType", StringMetaType.getInstance(),
+            "placeholder", StringMetaType.getInstance(),
+            "search", BooleanMetaType.getInstance(),
+            "readOnly", BooleanMetaType.getInstance()
     ));
 
-    private static final Map<String, Supplier<YamlMetaType>> intFeatures = Map.of(
-            "min", IntegerMetaType::getInstance,
-            "max", IntegerMetaType::getInstance,
-            "placeholder", StringMetaType::getInstance,
-            "readOnly", BooleanMetaType::getInstance
+    private static final Map<String, YamlMetaType> intFeatures = Map.of(
+            "min", IntegerMetaType.getInstance(),
+            "max", IntegerMetaType.getInstance(),
+            "placeholder", StringMetaType.getInstance(),
+            "readOnly", BooleanMetaType.getInstance()
     );
 
-    private static final Map<String, Supplier<YamlMetaType>> booleanFeatures = Map.of(
-            "readOnly", BooleanMetaType::getInstance
+    private static final Map<String, YamlMetaType> booleanFeatures = Map.of(
+            "readOnly", BooleanMetaType.getInstance()
     );
 
-    private static final Map<String, Supplier<YamlMetaType>> dateFeatures = Map.of(
-            "popupPosition", StringMetaType::getInstance,
-            "readOnly", BooleanMetaType::getInstance
+    private static final Map<String, YamlMetaType> dateFeatures = Map.of(
+            "popupPosition", StringMetaType.getInstance(),
+            "readOnly", BooleanMetaType.getInstance()
     );
 
-    private static final Map<String, Map<String, Supplier<YamlMetaType>>> featuresByType = Map.of(
+    private static final Map<String, Map<String, YamlMetaType>> featuresByType = Map.of(
             "string", stringFeatures,
             "int", intFeatures,
             "decimal", intFeatures,
@@ -76,18 +75,17 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
             "datetime", dateFeatures
     );
 
-    private static final Map<String, Supplier<YamlMetaType>> allFeatures =
+    private static final Map<String, YamlMetaType> allFeatures =
             Stream.of(features, stringFeatures, intFeatures, booleanFeatures, dateFeatures)
                     .flatMap(m -> m.entrySet().stream())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (o1, o2) -> o1, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
 
 
     protected FormFieldMetaType() {
-        super("Form field");
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return allFeatures;
     }
 
@@ -103,8 +101,8 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
 
     @Override
     public @NotNull List<Field> computeKeyCompletions(YAMLMapping existingMapping) {
-        Map<String, Supplier<YamlMetaType>> typeFeatures = Map.of();
-        Map<String, Supplier<YamlMetaType>> features = FormFieldMetaType.features;
+        Map<String, YamlMetaType> typeFeatures = Map.of();
+        Map<String, YamlMetaType> features = FormFieldMetaType.features;
         if (existingMapping != null) {
             String type = getType(existingMapping);
             if (type != null) {
@@ -113,7 +111,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         }
 
         return Stream.concat(features.entrySet().stream(), typeFeatures.entrySet().stream())
-                .map(e -> new Field(e.getKey(), e.getValue().get()))
+                .map(e -> new Field(e.getKey(), e.getValue()))
                 .sorted(Comparator.comparing(Field::getName))
                 .collect(Collectors.toList());
     }
@@ -133,7 +131,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
             return;
         }
 
-        Map<String, Supplier<YamlMetaType>> typedFeatures = featuresByType.getOrDefault(type, Map.of());
+        Map<String, YamlMetaType> typedFeatures = featuresByType.getOrDefault(type, Map.of());
         m.getKeyValues().stream()
                 .map(YAMLKeyValue::getKeyText)
                 .filter(allFeatures::containsKey) // unknown key is not our business
@@ -165,8 +163,8 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         return typeWithCardinality;
     }
 
-    private static Map<String, Supplier<YamlMetaType>> caseInsensitiveMap(Map<String, Supplier<YamlMetaType>> m) {
-        Map<String, Supplier<YamlMetaType>> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private static Map<String, YamlMetaType> caseInsensitiveMap(Map<String, YamlMetaType> m) {
+        Map<String, YamlMetaType> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         result.putAll(m);
         return result;
     }

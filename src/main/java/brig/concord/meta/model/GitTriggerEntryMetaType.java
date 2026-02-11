@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class GitTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -32,24 +31,23 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
 
     private static final Set<String> required = Set.of("entryPoint", "conditions", "version");
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "entryPoint", CallMetaType::getInstance,
-            "useInitiator", BooleanMetaType::getInstance,
-            "activeProfiles", StringArrayMetaType::getInstance,
-            "useEventCommitId", BooleanMetaType::getInstance,
-            "ignoreEmptyPush", BooleanMetaType::getInstance,
-            "arguments", AnyMapMetaType::getInstance,
-            "exclusive", TriggerExclusiveMetaType::getInstance,
-            "conditions", ConditionsMetaType::getInstance,
-            "version", IntegerMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "entryPoint", CallMetaType.getInstance(),
+            "useInitiator", BooleanMetaType.getInstance(),
+            "activeProfiles", StringArrayMetaType.getInstance(),
+            "useEventCommitId", BooleanMetaType.getInstance(),
+            "ignoreEmptyPush", BooleanMetaType.getInstance(),
+            "arguments", AnyMapMetaType.getInstance(),
+            "exclusive", TriggerExclusiveMetaType.getInstance(),
+            "conditions", ConditionsMetaType.getInstance(),
+            "version", IntegerMetaType.getInstance()
     );
 
     protected GitTriggerEntryMetaType() {
-        super("git trigger entry");
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 
@@ -72,18 +70,17 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         public RepositoryInfoMetaType() {
-            super("Repository Info");
         }
 
-        private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "repositoryId", RegexpMetaType::getInstance,
-                "repository", RegexpMetaType::getInstance,
-                "projectId", RegexpMetaType::getInstance,
-                "branch", RegexpMetaType::getInstance,
-                "enabled", BooleanMetaType::getInstance);
+        private static final Map<String, YamlMetaType> features = Map.of(
+                "repositoryId", RegexpMetaType.getInstance(),
+                "repository", RegexpMetaType.getInstance(),
+                "projectId", RegexpMetaType.getInstance(),
+                "branch", RegexpMetaType.getInstance(),
+                "enabled", BooleanMetaType.getInstance());
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
         }
 
@@ -102,18 +99,17 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         public FilesMetaType() {
-            super("Files Info");
         }
 
-        private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "added", RegexpOrArrayMetaType::getInstance,
-                "removed", RegexpOrArrayMetaType::getInstance,
-                "modified", RegexpOrArrayMetaType::getInstance,
-                "any", RegexpOrArrayMetaType::getInstance
+        private static final Map<String, YamlMetaType> features = Map.of(
+                "added", RegexpOrArrayMetaType.getInstance(),
+                "removed", RegexpOrArrayMetaType.getInstance(),
+                "modified", RegexpOrArrayMetaType.getInstance(),
+                "any", RegexpOrArrayMetaType.getInstance()
         );
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
         }
 
@@ -132,26 +128,25 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         public ConditionsMetaType() {
-            super("Conditions");
         }
 
         private static final Set<String> required = Set.of("type");
 
-        private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "type", StringMetaType::getInstance,
-                "githubHost", RegexpMetaType::getInstance,
-                "githubOrg", RegexpMetaType::getInstance,
-                "githubRepo", RegexpMetaType::getInstance,
-                "branch", RegexpMetaType::getInstance,
-                "sender", RegexpMetaType::getInstance,
-                "status", RegexpMetaType::getInstance,
-                "repositoryInfo", () -> new YamlArrayType(RepositoryInfoMetaType.getInstance()),
-                "files", FilesMetaType::getInstance,
-                "payload", AnyMapMetaType::getInstance
+        private static final Map<String, YamlMetaType> features = Map.of(
+                "type", StringMetaType.getInstance(),
+                "githubHost", RegexpMetaType.getInstance(),
+                "githubOrg", RegexpMetaType.getInstance(),
+                "githubRepo", RegexpMetaType.getInstance(),
+                "branch", RegexpMetaType.getInstance(),
+                "sender", RegexpMetaType.getInstance(),
+                "status", RegexpMetaType.getInstance(),
+                "repositoryInfo", new YamlArrayType(RepositoryInfoMetaType.getInstance()),
+                "files", FilesMetaType.getInstance(),
+                "payload", AnyMapMetaType.getInstance()
         );
 
         @Override
-        public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        public @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
         }
 

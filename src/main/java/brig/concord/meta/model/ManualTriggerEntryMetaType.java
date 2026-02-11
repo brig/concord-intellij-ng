@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class ManualTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -27,19 +26,18 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType implements Highl
 
     private static final Set<String> required = Set.of("entryPoint");
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", StringMetaType::getInstance,
-            "entryPoint", CallMetaType::getInstance,
-            "activeProfiles", StringArrayMetaType::getInstance,
-            "arguments", AnyMapMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "name", StringMetaType.getInstance(),
+            "entryPoint", CallMetaType.getInstance(),
+            "activeProfiles", StringArrayMetaType.getInstance(),
+            "arguments", AnyMapMetaType.getInstance()
     );
 
     protected ManualTriggerEntryMetaType() {
-        super("manual trigger entry");
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class ParallelStepMetaType extends IdentityMetaType {
 
@@ -15,18 +14,21 @@ public class ParallelStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "parallel", StepsMetaType::getInstance,
-            "out", ParallelOutParamsMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance
-    );
+    // lazy init via holder to break circular static dependency through StepsMetaType
+    private static class FeaturesHolder {
+        static final Map<String, YamlMetaType> FEATURES = Map.of(
+                "parallel", StepsMetaType.getInstance(),
+                "out", ParallelOutParamsMetaType.getInstance(),
+                "meta", StepMetaMetaType.getInstance()
+        );
+    }
 
     protected ParallelStepMetaType() {
-        super("Parallel", "parallel", Set.of("parallel"));
+        super("parallel", Set.of("parallel"));
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return features;
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
+        return FeaturesHolder.FEATURES;
     }
 }

@@ -12,17 +12,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class TriggerElementMetaType extends IdentityElementMetaType implements HighlightProvider {
 
     private static final List<IdentityMetaType> entries = List.of(
-            new TriggerMetaType("github", GitTriggerEntryMetaType::getInstance),
-            new TriggerMetaType("cron", CronTriggerEntryMetaType::getInstance),
-            new TriggerMetaType("manual", ManualTriggerEntryMetaType::getInstance)
+            new TriggerMetaType("github", GitTriggerEntryMetaType.getInstance()),
+            new TriggerMetaType("cron", CronTriggerEntryMetaType.getInstance()),
+            new TriggerMetaType("manual", ManualTriggerEntryMetaType.getInstance())
     );
 
-    private static final IdentityMetaType GENERIC_TRIGGER = new IdentityMetaType("generic", "generic", Collections.emptySet()) {
+    private static final IdentityMetaType GENERIC_TRIGGER = new IdentityMetaType("generic", Collections.emptySet()) {
 
         @Override
         public @Nullable Field findFeatureByName(@NotNull String name) {
@@ -35,7 +34,7 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return Map.of();
         }
     };
@@ -71,16 +70,16 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
 
     private static class TriggerMetaType extends IdentityMetaType {
 
-        private final Map<String, Supplier<YamlMetaType>> features;
+        private final Map<String, YamlMetaType> features;
 
-        protected TriggerMetaType(String identity, Supplier<YamlMetaType> entry) {
-            super(identity, identity, Set.of(identity));
+        protected TriggerMetaType(String identity, YamlMetaType entry) {
+            super(identity, Set.of(identity));
 
             this.features = Map.of(identity, entry);
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
         }
     }

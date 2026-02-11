@@ -14,7 +14,6 @@ public class AnyMapMetaType extends MapMetaType {
     }
 
     protected AnyMapMetaType() {
-        super("Object");
     }
 
     @Override

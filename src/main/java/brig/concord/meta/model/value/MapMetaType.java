@@ -10,17 +10,14 @@ import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Any key to object
  */
 public abstract class MapMetaType extends ConcordMetaType {
 
-    protected MapMetaType(@NotNull String name) {
-        super(name);
+    protected MapMetaType() {
     }
 
     protected abstract YamlMetaType getMapEntryType(String name);
@@ -31,7 +28,7 @@ public abstract class MapMetaType extends ConcordMetaType {
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return Map.of();
     }
 

@@ -17,16 +17,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class RetryMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final RetryMetaType INSTANCE = new RetryMetaType();
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "in", AnyMapMetaType::getInstance,
-            "times", TimesType::getInstance,
-            "delay", DelayType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "in", AnyMapMetaType.getInstance(),
+            "times", TimesType.getInstance(),
+            "delay", DelayType.getInstance()
     );
 
     public static RetryMetaType getInstance() {
@@ -34,11 +33,10 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
     }
 
     protected RetryMetaType() {
-        super("retry");
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

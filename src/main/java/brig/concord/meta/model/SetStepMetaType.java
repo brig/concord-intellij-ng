@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class SetStepMetaType extends IdentityMetaType {
 
@@ -17,15 +16,15 @@ public class SetStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "set", AnyMapMetaType::getInstance);
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "set", AnyMapMetaType.getInstance());
 
     protected SetStepMetaType() {
-        super("Set", "set", Set.of("set"));
+        super("set", Set.of("set"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 }

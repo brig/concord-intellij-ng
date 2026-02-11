@@ -6,16 +6,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public abstract class IdentityMetaType extends ConcordMetaType {
 
     private final String identity;
     private final Set<String> requiredFeatures;
 
-    protected IdentityMetaType(String typeName, String identity, Set<String> requiredFeatures) {
-        super(typeName);
-
+    protected IdentityMetaType(String identity, Set<String> requiredFeatures) {
         this.identity = identity;
         this.requiredFeatures = requiredFeatures;
     }
@@ -30,5 +27,5 @@ public abstract class IdentityMetaType extends ConcordMetaType {
     }
 
     @Override
-    protected abstract @NotNull Map<String, Supplier<YamlMetaType>> getFeatures();
+    protected abstract @NotNull Map<String, YamlMetaType> getFeatures();
 }

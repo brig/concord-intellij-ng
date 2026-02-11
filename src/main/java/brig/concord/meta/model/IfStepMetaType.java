@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class IfStepMetaType extends IdentityMetaType {
 
@@ -20,18 +19,21 @@ public class IfStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "if", ExpressionMetaType::getInstance,
-            THEN, StepsMetaType::getInstance,
-            ELSE, StepsMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance);
+    // lazy init via holder to break circular static dependency through StepsMetaType
+    private static class FeaturesHolder {
+        static final Map<String, YamlMetaType> FEATURES = Map.of(
+                "if", ExpressionMetaType.getInstance(),
+                THEN, StepsMetaType.getInstance(),
+                ELSE, StepsMetaType.getInstance(),
+                "meta", StepMetaMetaType.getInstance());
+    }
 
     protected IfStepMetaType() {
-        super("If", "if", Set.of("if", THEN));
+        super("if", Set.of("if", THEN));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return features;
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
+        return FeaturesHolder.FEATURES;
     }
 }

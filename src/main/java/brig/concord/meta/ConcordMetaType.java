@@ -4,7 +4,6 @@ import brig.concord.ConcordBundle;
 import brig.concord.meta.model.value.AnyOfType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.*;
@@ -13,16 +12,15 @@ import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class ConcordMetaType extends YamlMetaType {
 
-    protected ConcordMetaType(@NonNls @NotNull String typeName) {
-        super(typeName);
+    protected ConcordMetaType() {
+        super("object");
     }
 
-    protected abstract @NotNull Map<String, Supplier<YamlMetaType>> getFeatures();
+    protected abstract @NotNull Map<String, YamlMetaType> getFeatures();
 
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
@@ -55,9 +53,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        var metaType = Optional.ofNullable(getFeatures().get(name))
-                .map(Supplier::get)
-                .orElse(null);
+        var metaType = getFeatures().get(name);
         return metaTypeToField(metaType, name);
     }
 

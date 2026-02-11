@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class LogStepMetaType extends IdentityMetaType {
 
@@ -17,17 +16,20 @@ public class LogStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
-            StepFeatures.NAME_AND_META,
-            Map.of("log", StringMetaType::getInstance)
-    );
+    // lazy init via holder to break circular static dependency through StepsMetaType
+    private static class FeaturesHolder {
+        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
+                StepFeatures.NAME_AND_META,
+                Map.of("log", StringMetaType.getInstance())
+        );
+    }
 
     protected LogStepMetaType() {
-        super("Log", "log", Set.of("log"));
+        super("log", Set.of("log"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return features;
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
+        return FeaturesHolder.FEATURES;
     }
 }

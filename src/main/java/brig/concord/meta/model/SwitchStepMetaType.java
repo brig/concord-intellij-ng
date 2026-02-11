@@ -16,7 +16,6 @@ import brig.concord.yaml.psi.YAMLValue;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class SwitchStepMetaType extends IdentityMetaType {
 
@@ -27,11 +26,11 @@ public class SwitchStepMetaType extends IdentityMetaType {
     }
 
     protected SwitchStepMetaType() {
-        super("Switch", "switch", Set.of("switch"));
+        super("switch", Set.of("switch"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return Collections.emptyMap();
     }
 

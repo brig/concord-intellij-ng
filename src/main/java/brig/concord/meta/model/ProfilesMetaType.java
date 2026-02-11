@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
 
@@ -22,7 +21,6 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
     }
 
     protected ProfilesMetaType() {
-        super("Profiles");
     }
 
     @Override
@@ -39,10 +37,10 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
 
         private static final ProfilesEntryMetaType INSTANCE = new ProfilesEntryMetaType();
 
-        private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "configuration", ProfileConfigurationMetaType::getInstance,
-                "flows", FlowsMetaType::getInstance,
-                "forms", FormsMetaType::getInstance
+        private static final Map<String, YamlMetaType> features = Map.of(
+                "configuration", ProfileConfigurationMetaType.getInstance(),
+                "flows", FlowsMetaType.getInstance(),
+                "forms", FormsMetaType.getInstance()
         );
 
         public static ProfilesEntryMetaType getInstance() {
@@ -50,11 +48,10 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
         }
 
         private ProfilesEntryMetaType() {
-            super("Profile entry");
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
         }
 
