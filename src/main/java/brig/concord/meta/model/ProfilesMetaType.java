@@ -20,9 +20,6 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
         return INSTANCE;
     }
 
-    protected ProfilesMetaType() {
-    }
-
     @Override
     protected YamlMetaType getMapEntryType(String name) {
         return ProfilesEntryMetaType.getInstance();
@@ -45,9 +42,6 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
 
         public static ProfilesEntryMetaType getInstance() {
             return INSTANCE;
-        }
-
-        private ProfilesEntryMetaType() {
         }
 
         @Override

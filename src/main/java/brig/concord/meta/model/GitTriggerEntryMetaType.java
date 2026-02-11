@@ -43,7 +43,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
             "version", IntegerMetaType.getInstance()
     );
 
-    protected GitTriggerEntryMetaType() {
+    private GitTriggerEntryMetaType() {
     }
 
     @Override
@@ -69,7 +69,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
             return INSTANCE;
         }
 
-        public RepositoryInfoMetaType() {
+        private RepositoryInfoMetaType() {
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
@@ -98,7 +98,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
             return INSTANCE;
         }
 
-        public FilesMetaType() {
+        private FilesMetaType() {
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
@@ -127,7 +127,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
             return INSTANCE;
         }
 
-        public ConditionsMetaType() {
+        private ConditionsMetaType() {
         }
 
         private static final Set<String> required = Set.of("type");

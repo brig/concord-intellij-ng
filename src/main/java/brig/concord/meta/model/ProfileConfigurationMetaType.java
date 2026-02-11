@@ -1,7 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.ConcordBundle;
-import brig.concord.documentation.Documented;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
@@ -9,7 +7,6 @@ import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.meta.model.value.*;
 
 import brig.concord.yaml.meta.model.YamlEnumType;
-import brig.concord.yaml.meta.model.YamlIntegerType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
@@ -18,28 +15,28 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProfileConfigurationMetaType extends ConcordMetaType implements Documented, HighlightProvider {
+public class ProfileConfigurationMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final ProfileConfigurationMetaType INSTANCE = new ProfileConfigurationMetaType();
 
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("runtime", new YamlEnumType("runtime").withLiterals("concord-v2"));
-        features.put("debug", BooleanMetaType.getInstance());
-        features.put("entryPoint", CallMetaType.getInstance());
-        features.put("dependencies", DependenciesMetaType.getInstance());
+        features.put("runtime", doc(new YamlEnumType("runtime").withLiterals("concord-v2"), "doc.configuration.runtime"));
+        features.put("debug", doc(new BooleanMetaType(), "doc.configuration.debug"));
+        features.put("entryPoint", doc(new CallMetaType(), "doc.configuration.entryPoint"));
+        features.put("dependencies", doc(new DependenciesMetaType(), "doc.configuration.dependencies"));
         features.put("extraDependencies", DependenciesMetaType.getInstance());
-        features.put("arguments", AnyMapMetaType.getInstance());
-        features.put("meta", AnyMapMetaType.getInstance());
+        features.put("arguments", doc(new AnyMapMetaType(), "doc.configuration.arguments"));
+        features.put("meta", doc(new AnyMapMetaType(), "doc.configuration.meta"));
         features.put("events", EventsMetaType.getInstance());
-        features.put("requirements", AnyMapMetaType.getInstance());
-        features.put("processTimeout", DurationMetaType.getInstance());
-        features.put("suspendTimeout", DurationMetaType.getInstance());
+        features.put("requirements", doc(new AnyMapMetaType(), "doc.configuration.requirements"));
+        features.put("processTimeout", doc(new DurationMetaType(), "doc.configuration.processTimeout"));
+        features.put("suspendTimeout", doc(new DurationMetaType(), "doc.configuration.suspendTimeout"));
         features.put("exclusive", ProcessExclusiveMetaType.getInstance());
-        features.put("out", StringArrayMetaType.getInstance());
-        features.put("template", StringMetaType.getInstance());
-        features.put("parallelLoopParallelism", IntegerMetaType.getInstance());
+        features.put("out", doc(new StringArrayMetaType(), "doc.configuration.out"));
+        features.put("template", doc(new StringMetaType(), "doc.configuration.template"));
+        features.put("parallelLoopParallelism", doc(new IntegerMetaType(), "doc.configuration.parallelLoopParallelism"));
     }
 
     public static ProfileConfigurationMetaType getInstance() {
@@ -47,6 +44,7 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Doc
     }
 
     private ProfileConfigurationMetaType() {
+        setDocBundlePrefix("doc.configuration");
     }
 
     @Override
@@ -55,12 +53,12 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Doc
     }
 
     @Override
-    public String getDescription() {
-        return ConcordBundle.message("Configuration.description");
-    }
-
-    @Override
     public @Nullable TextAttributesKey getKeyHighlight(String key) {
         return ConcordHighlightingColors.DSL_KEY;
+    }
+
+    private static <T extends YamlMetaType> T doc(T type, String prefix) {
+        type.setDocBundlePrefix(prefix);
+        return type;
     }
 }

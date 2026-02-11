@@ -20,9 +20,6 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
     private static final List<Field> defaultCompletions = List.of(new Field("myForm", FormFieldsMetaType.getInstance()));
 
-    protected FormsMetaType() {
-    }
-
     public static FormsMetaType getInstance() {
         return INSTANCE;
     }
@@ -50,9 +47,6 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
         public static FieldsWrapper getInstance() {
             return INSTANCE;
-        }
-
-        protected FieldsWrapper() {
         }
 
         @Override

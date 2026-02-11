@@ -17,7 +17,7 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     private static final ResourcesMetaType INSTANCE = new ResourcesMetaType();
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "concord", StringArrayMetaType.getInstance()
+            "concord", doc(new StringArrayMetaType(), "doc.resources.concord")
     );
 
     public static ResourcesMetaType getInstance() {
@@ -25,6 +25,7 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     private ResourcesMetaType() {
+        setDocBundlePrefix("doc.resources");
     }
 
     @Override
@@ -35,5 +36,10 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     @Override
     public @Nullable TextAttributesKey getKeyHighlight(String key) {
         return ConcordHighlightingColors.DSL_KIND;
+    }
+
+    private static <T extends YamlMetaType> T doc(T type, String prefix) {
+        type.setDocBundlePrefix(prefix);
+        return type;
     }
 }

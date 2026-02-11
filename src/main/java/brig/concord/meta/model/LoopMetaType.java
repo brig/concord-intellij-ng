@@ -32,9 +32,6 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
         return INSTANCE;
     }
 
-    protected LoopMetaType() {
-    }
-
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;

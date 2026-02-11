@@ -1,6 +1,8 @@
 package brig.concord.meta.model;
 
 import brig.concord.yaml.meta.model.YamlArrayType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import org.jetbrains.annotations.NotNull;
 
 public class StepsMetaType extends YamlArrayType {
 
@@ -11,6 +13,11 @@ public class StepsMetaType extends YamlArrayType {
     }
 
     public StepsMetaType() {
-        super(StepElementMetaType.getInstance());
+        super("step[]");
+    }
+
+    @Override
+    public @NotNull YamlMetaType getElementType() {
+        return StepElementMetaType.getInstance();
     }
 }

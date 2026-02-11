@@ -1,6 +1,7 @@
 package brig.concord.meta.model;
 
 import brig.concord.ConcordBundle;
+import brig.concord.documentation.Documented;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
@@ -15,6 +16,7 @@ import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLScalar;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,8 +27,8 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     private static final Set<String> requiredFeatures = Set.of("group");
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "group", GroupMetaType.getInstance(),
-            "mode", ModeType.getInstance()
+            "group", doc(new GroupMetaType(), "doc.configuration.exclusive.group"),
+            "mode", doc(new ModeType(), "doc.configuration.exclusive.mode")
     );
 
     public static ProcessExclusiveMetaType getInstance() {
@@ -34,6 +36,7 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     protected ProcessExclusiveMetaType() {
+        setDocBundlePrefix("doc.configuration.exclusive");
     }
 
     @Override
@@ -47,17 +50,51 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     @Override
+    public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
+        var prefix = getDocBundlePrefix();
+        var required = getRequiredFields();
+
+        var groupDesc = ConcordBundle.findMessage(prefix + ".group.description");
+        var modeDesc = ConcordBundle.findMessage(prefix + ".mode.description");
+
+        var modeChildren = List.of(
+                new Documented.DocumentedField("cancel", null, false,
+                        ConcordBundle.findMessage(prefix + ".mode.cancel"), List.of()),
+                new Documented.DocumentedField("cancelOld", null, false,
+                        ConcordBundle.findMessage(prefix + ".mode.cancelOld"), List.of()),
+                new Documented.DocumentedField("wait", null, false,
+                        ConcordBundle.findMessage(prefix + ".mode.wait"), List.of())
+        );
+
+        return List.of(
+                new Documented.DocumentedField("group",
+                        features.get("group").getDisplayName(),
+                        required.contains("group"),
+                        groupDesc),
+                new Documented.DocumentedField("mode",
+                        features.get("mode").getDisplayName(),
+                        required.contains("mode"),
+                        modeDesc,
+                        modeChildren)
+        );
+    }
+
+    @Override
+    public @Nullable String getDocumentationExample() {
+        return "configuration:\n  exclusive:\n    group: \"myGroup\"\n    mode: \"cancel\"\n";
+    }
+
+    @Override
     public @Nullable TextAttributesKey getKeyHighlight(String key) {
         return ConcordHighlightingColors.DSL_KEY;
     }
 
+    private static <T extends YamlMetaType> T doc(T type, String prefix) {
+        type.setDocBundlePrefix(prefix);
+        return type;
+    }
+
     private static class GroupMetaType extends StringMetaType {
-
-        private static final GroupMetaType INSTANCE = new GroupMetaType();
-
-        public static GroupMetaType getInstance() {
-            return INSTANCE;
-        }
 
         @Override
         protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
@@ -71,14 +108,8 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
 
     private static class ModeType extends YamlEnumType {
 
-        private static final ModeType INSTANCE = new ModeType();
-
-        public static ModeType getInstance() {
-            return INSTANCE;
-        }
-
         protected ModeType() {
-            super("Mode", "[cancel|cancelOld|wait]");
+            super("Mode");
             withLiterals("cancel", "cancelOld", "wait");
         }
     }

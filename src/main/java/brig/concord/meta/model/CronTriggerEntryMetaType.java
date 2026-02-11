@@ -37,9 +37,6 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
             "exclusive", TriggerExclusiveMetaType.getInstance()
     );
 
-    protected CronTriggerEntryMetaType() {
-    }
-
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
@@ -61,9 +58,6 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
 
         public static RunAsMetaType getInstance() {
             return INSTANCE;
-        }
-
-        public RunAsMetaType() {
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(

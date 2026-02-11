@@ -1,5 +1,6 @@
 package brig.concord.meta.model;
 
+import brig.concord.ConcordBundle;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
@@ -12,8 +13,8 @@ import brig.concord.meta.model.value.StringMetaType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.ConcordBundle;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
@@ -82,6 +83,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
 
 
     protected FormFieldMetaType() {
+        setDocBundlePrefix("doc.forms.formName.formField");
     }
 
     @Override
@@ -145,6 +147,115 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
                     String msg = ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", k.getText());
                     problemsHolder.registerProblem(k, msg, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
                 });
+    }
+
+    @Override
+    public @Nullable String getDocumentationBody(@NotNull PsiElement element) {
+        if (!(element instanceof YAMLKeyValue kv)) {
+            return null;
+        }
+
+        var fieldName = kv.getKeyText();
+        var formName = findFormName(kv);
+
+        var prefix = getDocBundlePrefix();
+        var sb = new StringBuilder();
+
+        sb.append("<p>Type: <code>object</code></p>");
+
+        sb.append("<p>Form field definition. Submitted value is stored in <code>");
+        if (formName != null) {
+            sb.append(formName).append(".").append(fieldName);
+        } else {
+            sb.append("formName.").append(fieldName);
+        }
+        sb.append("</code>.</p>");
+
+        // Common keys
+        sb.append("<p><b>Keys:</b></p>");
+        sb.append("<ul>");
+        appendKeyItem(sb, "type", "string", ConcordBundle.findMessage(prefix + ".type.description"));
+        appendKeyItem(sb, "label", "string", ConcordBundle.findMessage(prefix + ".label.description"));
+        appendKeyItem(sb, "value", "any", ConcordBundle.findMessage(prefix + ".value.description"));
+        appendKeyItem(sb, "allow", "any", ConcordBundle.findMessage(prefix + ".allow.description"));
+        sb.append("</ul>");
+
+        // Keys by type
+        sb.append("<p><b>Keys by type:</b></p>");
+
+        appendTypeSection(sb, "string", List.of(
+                entry("pattern", "string", "regular expression to validate the value"),
+                entry("inputType", "string", "HTML input type (for example: <code>text</code>, <code>password</code>, <code>email</code>)"),
+                entry("readonly", "boolean", "make the field read-only"),
+                entry("placeholder", "string", "short hint shown in the input"),
+                entry("search", "boolean", "allow searching in dropdown input")
+        ));
+
+        appendTypeSection(sb, "int", List.of(
+                entry("min", "integer", "minimum value"),
+                entry("max", "integer", "maximum value"),
+                entry("readonly", "boolean", "make the field read-only"),
+                entry("placeholder", "string", "short hint shown in the input")
+        ));
+
+        appendTypeSection(sb, "decimal", List.of(
+                entry("min", "integer", "minimum value"),
+                entry("max", "integer", "maximum value"),
+                entry("readonly", "boolean", "make the field read-only"),
+                entry("placeholder", "string", "short hint shown in the input")
+        ));
+
+        appendTypeSection(sb, "boolean", List.<String[]>of(
+                entry("readonly", "boolean", "make the field read-only")
+        ));
+
+        appendTypeSection(sb, "file", List.<String[]>of(
+                entry("type", "file", "file upload field; uploaded file is stored in the process workspace")
+        ));
+
+        sb.append("<p><b>Cardinality:</b> <code>string</code> single, <code>string?</code> optional, <code>string+</code> one or more, <code>string*</code> zero or more</p>");
+
+        return sb.toString();
+    }
+
+    private static void appendKeyItem(StringBuilder sb, String name, String type, @Nullable String description) {
+        sb.append("<li><code>").append(name).append("</code>");
+        sb.append(" <i>(").append(type).append(")</i>");
+        if (description != null) {
+            sb.append(" &mdash; ").append(com.intellij.openapi.util.text.StringUtil.decapitalize(description));
+        }
+        sb.append("</li>");
+    }
+
+    private static void appendTypeSection(StringBuilder sb, String typeName, List<String[]> entries) {
+        sb.append("<p><b>").append(typeName).append("</b></p>");
+        sb.append("<ul>");
+        for (var e : entries) {
+            sb.append("<li><code>").append(e[0]).append("</code>");
+            sb.append(" <i>(").append(e[1]).append(")</i>");
+            sb.append(" &mdash; ").append(e[2]);
+            sb.append("</li>");
+        }
+        sb.append("</ul>");
+    }
+
+    private static String[] entry(String name, String type, String description) {
+        return new String[]{name, type, description};
+    }
+
+    private static @Nullable String findFormName(@NotNull YAMLKeyValue kv) {
+        // Navigate: fieldKV -> YAMLMapping -> YAMLSequenceItem -> YAMLSequence -> YAMLKeyValue(formName)
+        var parent = kv.getParent();
+        if (parent != null) {
+            parent = parent.getParent();
+        }
+        if (parent != null) {
+            parent = parent.getParent();
+        }
+        if (parent != null && parent.getParent() instanceof YAMLKeyValue formKv) {
+            return formKv.getKeyText();
+        }
+        return null;
     }
 
     private static String getType(YAMLMapping m) {

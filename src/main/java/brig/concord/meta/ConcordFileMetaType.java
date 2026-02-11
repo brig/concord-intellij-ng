@@ -21,15 +21,12 @@ public class ConcordFileMetaType extends ConcordMetaType implements HighlightPro
         return INSTANCE;
     }
 
-    protected ConcordFileMetaType() {
-    }
-
     protected static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
         features.put("resources", ResourcesMetaType.getInstance());
         features.put("configuration", ConfigurationMetaType.getInstance());
-        features.put("publicFlows", StringArrayMetaType.getInstance());
+        features.put("publicFlows", doc(new StringArrayMetaType(), "doc.publicFlows"));
         features.put("forms", FormsMetaType.getInstance());
         features.put("imports", ImportsMetaType.getInstance());
         features.put("profiles", ProfilesMetaType.getInstance());
@@ -45,5 +42,10 @@ public class ConcordFileMetaType extends ConcordMetaType implements HighlightPro
     @Override
     public @Nullable TextAttributesKey getKeyHighlight(String key) {
         return ConcordHighlightingColors.DSL_SECTION;
+    }
+
+    private static <T extends YamlMetaType> T doc(T type, String prefix) {
+        type.setDocBundlePrefix(prefix);
+        return type;
     }
 }

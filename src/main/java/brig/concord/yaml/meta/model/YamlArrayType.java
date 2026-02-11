@@ -16,11 +16,16 @@ import java.util.Set;
 
 public class YamlArrayType extends YamlMetaType {
 
-    private final @NotNull YamlMetaType myElementType;
+    private final @Nullable YamlMetaType myElementType;
 
     public YamlArrayType(@NotNull YamlMetaType elementType) {
         super(elementType.getTypeName() + "[]");
         myElementType = elementType;
+    }
+
+    protected YamlArrayType(@NotNull String typeName) {
+        super(typeName);
+        myElementType = null;
     }
 
     @Override
@@ -30,6 +35,7 @@ public class YamlArrayType extends YamlMetaType {
     }
 
     public @NotNull YamlMetaType getElementType() {
+        assert myElementType != null : "Subclass must override getElementType()";
         return myElementType;
     }
 

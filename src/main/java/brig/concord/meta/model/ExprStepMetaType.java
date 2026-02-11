@@ -16,14 +16,11 @@ public class ExprStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    // lazy init via holder to break circular static dependency through StepsMetaType
-    private static class FeaturesHolder {
-        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
-                StepFeatures.NAME_AND_META, StepFeatures.ERROR,
-                Map.of("expr", ExpressionMetaType.getInstance(),
-                       "out", ExprOutParamsMetaType.getInstance())
-        );
-    }
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(), StepFeatures.error(),
+            Map.of("expr", ExpressionMetaType.getInstance(),
+                   "out", ExprOutParamsMetaType.getInstance())
+    );
 
     protected ExprStepMetaType() {
         super("expr", Set.of("expr"));
@@ -31,6 +28,6 @@ public class ExprStepMetaType extends IdentityMetaType {
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
-        return FeaturesHolder.FEATURES;
+        return features;
     }
 }

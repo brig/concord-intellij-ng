@@ -23,9 +23,6 @@ public class FlowsMetaType extends MapMetaType implements HighlightProvider {
 
     private static final List<Field> defaultCompletions = List.of(new Field("default", StepsMetaType.getInstance()));
 
-    protected FlowsMetaType() {
-    }
-
     @Override
     public @NotNull List<Field> computeKeyCompletions(@Nullable YAMLMapping existingMapping) {
         return defaultCompletions;

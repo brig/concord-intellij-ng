@@ -16,13 +16,10 @@ public class LogStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    // lazy init via holder to break circular static dependency through StepsMetaType
-    private static class FeaturesHolder {
-        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
-                StepFeatures.NAME_AND_META,
-                Map.of("log", StringMetaType.getInstance())
-        );
-    }
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(),
+            Map.of("log", StringMetaType.getInstance())
+    );
 
     protected LogStepMetaType() {
         super("log", Set.of("log"));
@@ -30,6 +27,6 @@ public class LogStepMetaType extends IdentityMetaType {
 
     @Override
     public @NotNull Map<String, YamlMetaType> getFeatures() {
-        return FeaturesHolder.FEATURES;
+        return features;
     }
 }

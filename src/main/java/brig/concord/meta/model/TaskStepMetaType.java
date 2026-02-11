@@ -29,16 +29,7 @@ public class TaskStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    // lazy init via holder to break circular static dependency through StepsMetaType
-    private static class FeaturesHolder {
-        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
-                StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
-                Map.of("task", TaskNameMetaType.getInstance(),
-                       "in", TaskInParamsMetaType.getInstance(),
-                       "out", TaskOutParamsMetaType.getInstance(),
-                       "ignoreErrors", BooleanMetaType.getInstance())
-        );
-    }
+    private volatile Map<String, YamlMetaType> features;
 
     protected TaskStepMetaType() {
         super("task", Set.of("task"));
@@ -46,7 +37,18 @@ public class TaskStepMetaType extends IdentityMetaType {
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
-        return FeaturesHolder.FEATURES;
+        var f = features;
+        if (f == null) {
+            f = StepFeatures.combine(
+                    StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
+                    Map.of("task", TaskNameMetaType.getInstance(),
+                           "in", TaskInParamsMetaType.getInstance(),
+                           "out", TaskOutParamsMetaType.getInstance(),
+                           "ignoreErrors", BooleanMetaType.getInstance())
+            );
+            features = f;
+        }
+        return f;
     }
 
     static class TaskNameMetaType extends StringMetaType implements HighlightProvider {

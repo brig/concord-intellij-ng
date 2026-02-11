@@ -55,9 +55,6 @@ public class FormStepMetaType extends IdentityMetaType {
             return INSTANCE;
         }
 
-        protected FieldWrapper() {
-        }
-
         @Override
         protected YamlMetaType getMapEntryType(String name) {
             return FormFieldMetaType.getInstance();
