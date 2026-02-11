@@ -4,7 +4,6 @@ package brig.concord.yaml.meta.model;
 
 /**
  * Class for values of any scalar types (string, number, boolean), i.e. no type-specific validation is performed
- * @see YamlUnstructuredClass
  */
 public class YamlAnyScalarType extends YamlScalarType {
     private static final YamlAnyScalarType SHARED_INSTANCE = new YamlAnyScalarType();

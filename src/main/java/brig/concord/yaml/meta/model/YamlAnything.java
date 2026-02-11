@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Like {@link YamlUnstructuredClass} but allows scalar values
+ * Allows any value: scalar, sequence, or mapping with arbitrary nesting.
  */
 public class YamlAnything extends YamlMetaType {
     private static final YamlAnything ourInstance = new YamlAnything();
