@@ -16,7 +16,7 @@ class IdentityElementMetaTypeTest {
         private final Map<String, YamlMetaType> features;
 
         TestEntry(String identity, String... featureNames) {
-            super("test:" + identity, identity, Set.of());
+            super(identity, Set.of());
 
             var map = new LinkedHashMap<String, YamlMetaType>();
             map.put(identity, YamlStringType.getInstance());

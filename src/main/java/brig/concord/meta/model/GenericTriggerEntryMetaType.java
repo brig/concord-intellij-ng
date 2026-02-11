@@ -32,7 +32,6 @@ public class GenericTriggerEntryMetaType extends ConcordMetaType {
     );
 
     protected GenericTriggerEntryMetaType() {
-        super("generic trigger entry");
     }
 
     @Override

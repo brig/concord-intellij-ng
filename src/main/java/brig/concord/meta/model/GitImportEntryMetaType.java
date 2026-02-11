@@ -33,7 +33,6 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
     );
 
     protected GitImportEntryMetaType() {
-        super("git import entry");
     }
 
     @Override
@@ -63,7 +62,6 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
         );
 
         protected SecretMetaType() {
-            super("Secret");
         }
 
         @Override

@@ -22,7 +22,6 @@ public class ConcordFileMetaType extends ConcordMetaType implements HighlightPro
     }
 
     protected ConcordFileMetaType() {
-        super("Concord File");
     }
 
     protected static final Map<String, YamlMetaType> features = new HashMap<>();

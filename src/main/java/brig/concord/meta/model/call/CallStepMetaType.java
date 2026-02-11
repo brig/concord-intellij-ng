@@ -26,7 +26,7 @@ public class CallStepMetaType extends IdentityMetaType {
     }
 
     protected CallStepMetaType() {
-        super("Call", "call", Set.of("call"));
+        super("call", Set.of("call"));
     }
 
     @Override

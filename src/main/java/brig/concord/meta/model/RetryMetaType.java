@@ -33,7 +33,6 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
     }
 
     protected RetryMetaType() {
-        super("retry");
     }
 
     @Override

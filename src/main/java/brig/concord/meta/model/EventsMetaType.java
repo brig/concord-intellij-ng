@@ -42,7 +42,6 @@ public class EventsMetaType extends ConcordMetaType implements HighlightProvider
     }
 
     protected EventsMetaType() {
-        super("Events");
     }
 
     @Override

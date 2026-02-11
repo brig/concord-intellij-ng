@@ -50,7 +50,6 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
     );
 
     protected TriggerExclusiveMetaType() {
-        super("Trigger Exclusive");
     }
 
     @Override

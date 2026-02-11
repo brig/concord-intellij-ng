@@ -44,7 +44,7 @@ public class ImportElementMetaType extends IdentityElementMetaType implements Hi
         private final Map<String, YamlMetaType> features;
 
         protected ImportMetaType(String identity, YamlMetaType entry) {
-            super(identity, identity, Set.of(identity));
+            super(identity, Set.of(identity));
 
             this.features = Map.of(identity, entry);
         }

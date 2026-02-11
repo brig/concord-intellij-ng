@@ -24,7 +24,6 @@ public class TaskSchemaMetaType extends ConcordMetaType {
 
     public TaskSchemaMetaType(@NotNull TaskSchemaSection section,
                               @NotNull Set<String> discriminatorKeys) {
-        super("task in params");
         this.section = section;
         this.discriminatorKeys = discriminatorKeys;
     }

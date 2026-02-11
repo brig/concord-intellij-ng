@@ -25,7 +25,7 @@ public class LogYamlStepMetaType extends IdentityMetaType {
     }
 
     protected LogYamlStepMetaType() {
-        super("LogYaml", "logYaml", Set.of("logYaml"));
+        super("logYaml", Set.of("logYaml"));
     }
 
     @Override

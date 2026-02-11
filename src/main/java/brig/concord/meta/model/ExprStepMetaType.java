@@ -26,7 +26,7 @@ public class ExprStepMetaType extends IdentityMetaType {
     }
 
     protected ExprStepMetaType() {
-        super("Expr", "expr", Set.of("expr"));
+        super("expr", Set.of("expr"));
     }
 
     @Override

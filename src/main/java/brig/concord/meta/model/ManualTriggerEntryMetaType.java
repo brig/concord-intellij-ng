@@ -34,7 +34,6 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType implements Highl
     );
 
     protected ManualTriggerEntryMetaType() {
-        super("manual trigger entry");
     }
 
     @Override

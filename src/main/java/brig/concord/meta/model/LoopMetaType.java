@@ -33,7 +33,6 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
     }
 
     protected LoopMetaType() {
-        super("loop");
     }
 
     @Override

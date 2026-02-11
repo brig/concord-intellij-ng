@@ -82,7 +82,6 @@ public class FlowCallParamsProvider {
         private volatile Map<String, YamlMetaType> features;
 
         public FlowDocMetaType(FlowDocumentation documentation) {
-            super("call in params");
             this.documentation = documentation;
         }
 

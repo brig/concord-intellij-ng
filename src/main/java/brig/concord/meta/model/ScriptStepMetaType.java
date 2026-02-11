@@ -31,7 +31,7 @@ public class ScriptStepMetaType extends IdentityMetaType {
     }
 
     protected ScriptStepMetaType() {
-        super("Script", "script", Set.of("script"));
+        super("script", Set.of("script"));
     }
 
     @Override

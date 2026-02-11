@@ -34,7 +34,7 @@ public class FormStepMetaType extends IdentityMetaType {
     );
 
     protected FormStepMetaType() {
-        super("Form", "form", Set.of("form"));
+        super("form", Set.of("form"));
     }
 
     @Override
@@ -56,7 +56,6 @@ public class FormStepMetaType extends IdentityMetaType {
         }
 
         protected FieldWrapper() {
-            super("Form call field");
         }
 
         @Override

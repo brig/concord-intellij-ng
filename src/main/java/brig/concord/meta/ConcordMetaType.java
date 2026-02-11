@@ -4,7 +4,6 @@ import brig.concord.ConcordBundle;
 import brig.concord.meta.model.value.AnyOfType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.*;
@@ -17,8 +16,8 @@ import java.util.stream.Collectors;
 
 public abstract class ConcordMetaType extends YamlMetaType {
 
-    protected ConcordMetaType(@NonNls @NotNull String typeName) {
-        super(typeName);
+    protected ConcordMetaType() {
+        super("object");
     }
 
     protected abstract @NotNull Map<String, YamlMetaType> getFeatures();

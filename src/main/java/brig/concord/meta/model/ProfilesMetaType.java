@@ -21,7 +21,6 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
     }
 
     protected ProfilesMetaType() {
-        super("Profiles");
     }
 
     @Override
@@ -49,7 +48,6 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
         }
 
         private ProfilesEntryMetaType() {
-            super("Profile entry");
         }
 
         @Override

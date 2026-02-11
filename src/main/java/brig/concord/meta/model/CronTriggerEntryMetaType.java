@@ -38,7 +38,6 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
     );
 
     protected CronTriggerEntryMetaType() {
-        super("cron trigger entry");
     }
 
     @Override
@@ -65,7 +64,6 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
         }
 
         public RunAsMetaType() {
-            super("Run As");
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(

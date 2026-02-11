@@ -34,7 +34,6 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     protected ProcessExclusiveMetaType() {
-        super("Exclusive");
     }
 
     @Override

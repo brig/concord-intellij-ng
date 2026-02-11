@@ -20,7 +20,7 @@ public class SetStepMetaType extends IdentityMetaType {
             "set", AnyMapMetaType.getInstance());
 
     protected SetStepMetaType() {
-        super("Set", "set", Set.of("set"));
+        super("set", Set.of("set"));
     }
 
     @Override

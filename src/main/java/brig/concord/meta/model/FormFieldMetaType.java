@@ -82,7 +82,6 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
 
 
     protected FormFieldMetaType() {
-        super("Form field");
     }
 
     @Override

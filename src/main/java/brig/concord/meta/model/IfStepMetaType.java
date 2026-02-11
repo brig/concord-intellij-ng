@@ -29,7 +29,7 @@ public class IfStepMetaType extends IdentityMetaType {
     }
 
     protected IfStepMetaType() {
-        super("If", "if", Set.of("if", THEN));
+        super("if", Set.of("if", THEN));
     }
 
     @Override

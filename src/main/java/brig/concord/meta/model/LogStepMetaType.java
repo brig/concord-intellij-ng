@@ -25,7 +25,7 @@ public class LogStepMetaType extends IdentityMetaType {
     }
 
     protected LogStepMetaType() {
-        super("Log", "log", Set.of("log"));
+        super("log", Set.of("log"));
     }
 
     @Override

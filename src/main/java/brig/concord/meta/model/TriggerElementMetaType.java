@@ -21,7 +21,7 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
             new TriggerMetaType("manual", ManualTriggerEntryMetaType.getInstance())
     );
 
-    private static final IdentityMetaType GENERIC_TRIGGER = new IdentityMetaType("generic", "generic", Collections.emptySet()) {
+    private static final IdentityMetaType GENERIC_TRIGGER = new IdentityMetaType("generic", Collections.emptySet()) {
 
         @Override
         public @Nullable Field findFeatureByName(@NotNull String name) {
@@ -73,7 +73,7 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         private final Map<String, YamlMetaType> features;
 
         protected TriggerMetaType(String identity, YamlMetaType entry) {
-            super(identity, identity, Set.of(identity));
+            super(identity, Set.of(identity));
 
             this.features = Map.of(identity, entry);
         }

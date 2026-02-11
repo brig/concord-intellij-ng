@@ -41,7 +41,7 @@ public class TaskStepMetaType extends IdentityMetaType {
     }
 
     protected TaskStepMetaType() {
-        super("Task", "task", Set.of("task"));
+        super("task", Set.of("task"));
     }
 
     @Override

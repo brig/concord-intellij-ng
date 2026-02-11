@@ -72,7 +72,6 @@ public class ConcordBreadcrumbsProvider implements BreadcrumbsProvider {
         var metaType = metaProvider.getResolvedMetaType(mapping);
 
         if (metaType instanceof IdentityMetaType identityMeta) {
-            var displayName = identityMeta.getDisplayName().toLowerCase();
             var identityKey = identityMeta.getIdentity();
 
             // Try to get the value of the identity key (e.g., call: myFlow -> myFlow)
@@ -80,10 +79,10 @@ public class ConcordBreadcrumbsProvider implements BreadcrumbsProvider {
             if (identityKv != null) {
                 var value = getValueText(identityKv);
                 if (value != null) {
-                    return displayName + ": " + value;
+                    return identityKey + ": " + value;
                 }
             }
-            return displayName;
+            return identityKey;
         }
 
         return null;

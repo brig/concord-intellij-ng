@@ -29,7 +29,6 @@ public class DirImportEntryMetaType extends ConcordMetaType implements Highlight
     );
 
     protected DirImportEntryMetaType() {
-        super("dir import entry");
     }
 
     @Override

@@ -47,7 +47,6 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Doc
     }
 
     private ProfileConfigurationMetaType() {
-        super("ProfileConfiguration");
     }
 
     @Override

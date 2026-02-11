@@ -25,7 +25,6 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     private ResourcesMetaType() {
-        super("Resources");
     }
 
     @Override

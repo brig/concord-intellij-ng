@@ -24,7 +24,7 @@ public class ParallelStepMetaType extends IdentityMetaType {
     }
 
     protected ParallelStepMetaType() {
-        super("Parallel", "parallel", Set.of("parallel"));
+        super("parallel", Set.of("parallel"));
     }
 
     @Override

@@ -17,8 +17,7 @@ import java.util.Map;
  */
 public abstract class MapMetaType extends ConcordMetaType {
 
-    protected MapMetaType(@NotNull String name) {
-        super(name);
+    protected MapMetaType() {
     }
 
     protected abstract YamlMetaType getMapEntryType(String name);

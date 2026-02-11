@@ -29,7 +29,6 @@ public class MvnImportEntryMetaType extends ConcordMetaType implements Highlight
     );
 
     protected MvnImportEntryMetaType() {
-        super("mvn import entry");
     }
 
     @Override

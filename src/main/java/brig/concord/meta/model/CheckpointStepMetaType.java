@@ -21,7 +21,7 @@ public class CheckpointStepMetaType extends IdentityMetaType {
             "meta", StepMetaMetaType.getInstance());
 
     protected CheckpointStepMetaType() {
-        super("Checkpoint", "checkpoint", Set.of("checkpoint"));
+        super("checkpoint", Set.of("checkpoint"));
     }
 
     @Override

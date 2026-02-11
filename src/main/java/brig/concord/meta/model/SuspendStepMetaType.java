@@ -20,7 +20,7 @@ public class SuspendStepMetaType extends IdentityMetaType {
             "suspend", StringMetaType.getInstance());
 
     protected SuspendStepMetaType() {
-        super("Suspend", "suspend", Set.of("suspend"));
+        super("suspend", Set.of("suspend"));
     }
 
     @Override

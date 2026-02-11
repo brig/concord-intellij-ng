@@ -20,7 +20,7 @@ public class ThrowStepMetaType extends IdentityMetaType {
             "name", StepNameMetaType.getInstance());
 
     protected ThrowStepMetaType() {
-        super("Throw", "throw", Set.of("throw"));
+        super("throw", Set.of("throw"));
     }
 
     @Override

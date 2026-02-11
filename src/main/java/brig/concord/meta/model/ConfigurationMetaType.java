@@ -50,7 +50,6 @@ public class ConfigurationMetaType extends ConcordMetaType implements Documented
     }
 
     private ConfigurationMetaType() {
-        super("Configuration");
     }
 
     @Override

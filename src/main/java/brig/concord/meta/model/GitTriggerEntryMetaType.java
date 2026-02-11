@@ -44,7 +44,6 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
     );
 
     protected GitTriggerEntryMetaType() {
-        super("git trigger entry");
     }
 
     @Override
@@ -71,7 +70,6 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         public RepositoryInfoMetaType() {
-            super("Repository Info");
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
@@ -101,7 +99,6 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         public FilesMetaType() {
-            super("Files Info");
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
@@ -131,7 +128,6 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         public ConditionsMetaType() {
-            super("Conditions");
         }
 
         private static final Set<String> required = Set.of("type");
