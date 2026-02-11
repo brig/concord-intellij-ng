@@ -23,7 +23,6 @@ import brig.concord.yaml.psi.YAMLMapping;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class FlowCallParamsProvider {
 
@@ -80,7 +79,7 @@ public class FlowCallParamsProvider {
     static class FlowDocMetaType extends ConcordMetaType implements CallInParamMetaType {
 
         private final FlowDocumentation documentation;
-        private volatile Map<String, Supplier<YamlMetaType>> features;
+        private volatile Map<String, YamlMetaType> features;
 
         public FlowDocMetaType(FlowDocumentation documentation) {
             super("call in params");
@@ -88,16 +87,16 @@ public class FlowCallParamsProvider {
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             var f = this.features;
             if (f != null) {
                 return f;
             }
 
-            var result = new HashMap<String, Supplier<YamlMetaType>>();
+            var result = new HashMap<String, YamlMetaType>();
             for (var param : documentation.getInputParameters()) {
                 var metaType = toMetaType(param);
-                result.put(param.getName(), () -> metaType);
+                result.put(param.getName(), metaType);
             }
             this.features = Map.copyOf(result);
             return this.features;

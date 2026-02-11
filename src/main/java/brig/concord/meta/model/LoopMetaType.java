@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class LoopMetaType extends ConcordMetaType implements HighlightProvider  {
 
@@ -23,10 +22,10 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
 
     private static final Set<String> requiredFeatures = Set.of("items");
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "items", LoopItemsMetaType::getInstance,
-            "parallelism", () -> AnyOfType.anyOf(IntegerMetaType.getInstance(), ExpressionMetaType.getInstance()),
-            "mode", ModeType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "items", LoopItemsMetaType.getInstance(),
+            "parallelism", AnyOfType.anyOf(IntegerMetaType.getInstance(), ExpressionMetaType.getInstance()),
+            "mode", ModeType.getInstance()
     );
 
     public static LoopMetaType getInstance() {
@@ -38,7 +37,7 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

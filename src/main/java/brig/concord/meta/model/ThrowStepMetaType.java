@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class ThrowStepMetaType extends IdentityMetaType {
 
@@ -16,16 +15,16 @@ public class ThrowStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "throw", YamlStringType::getInstance,
-            "name", StepNameMetaType::getInstance);
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "throw", YamlStringType.getInstance(),
+            "name", StepNameMetaType.getInstance());
 
     protected ThrowStepMetaType() {
         super("Throw", "throw", Set.of("throw"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 }

@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class GenericTriggerEntryMetaType extends ConcordMetaType {
 
@@ -23,13 +22,13 @@ public class GenericTriggerEntryMetaType extends ConcordMetaType {
 
     private static final Set<String> required = Set.of("entryPoint", "conditions", "version");
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "entryPoint", CallMetaType::getInstance,
-            "activeProfiles", StringArrayMetaType::getInstance,
-            "arguments", AnyMapMetaType::getInstance,
-            "exclusive", TriggerExclusiveMetaType::getInstance,
-            "conditions", AnyMapMetaType::getInstance,
-            "version", IntegerMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "entryPoint", CallMetaType.getInstance(),
+            "activeProfiles", StringArrayMetaType.getInstance(),
+            "arguments", AnyMapMetaType.getInstance(),
+            "exclusive", TriggerExclusiveMetaType.getInstance(),
+            "conditions", AnyMapMetaType.getInstance(),
+            "version", IntegerMetaType.getInstance()
     );
 
     protected GenericTriggerEntryMetaType() {
@@ -37,7 +36,7 @@ public class GenericTriggerEntryMetaType extends ConcordMetaType {
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

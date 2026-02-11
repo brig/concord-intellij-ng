@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class TriggerExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
@@ -44,10 +43,10 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "group", StringMetaType::getInstance,
-            "groupBy", StringMetaType::getInstance,
-            "mode", ModeType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "group", StringMetaType.getInstance(),
+            "groupBy", StringMetaType.getInstance(),
+            "mode", ModeType.getInstance()
     );
 
     protected TriggerExclusiveMetaType() {
@@ -55,7 +54,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

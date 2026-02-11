@@ -20,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class TaskStepMetaType extends IdentityMetaType {
 
@@ -30,21 +29,24 @@ public class TaskStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
-            StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
-            Map.of("task", TaskNameMetaType::getInstance,
-                   "in", TaskInParamsMetaType::getInstance,
-                   "out", TaskOutParamsMetaType::getInstance,
-                   "ignoreErrors", BooleanMetaType::getInstance)
-    );
+    // lazy init via holder to break circular static dependency through StepsMetaType
+    private static class FeaturesHolder {
+        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
+                StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
+                Map.of("task", TaskNameMetaType.getInstance(),
+                       "in", TaskInParamsMetaType.getInstance(),
+                       "out", TaskOutParamsMetaType.getInstance(),
+                       "ignoreErrors", BooleanMetaType.getInstance())
+        );
+    }
 
     protected TaskStepMetaType() {
         super("Task", "task", Set.of("task"));
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return features;
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
+        return FeaturesHolder.FEATURES;
     }
 
     static class TaskNameMetaType extends StringMetaType implements HighlightProvider {

@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public abstract class IdentityMetaType extends ConcordMetaType {
 
@@ -30,5 +29,5 @@ public abstract class IdentityMetaType extends ConcordMetaType {
     }
 
     @Override
-    protected abstract @NotNull Map<String, Supplier<YamlMetaType>> getFeatures();
+    protected abstract @NotNull Map<String, YamlMetaType> getFeatures();
 }

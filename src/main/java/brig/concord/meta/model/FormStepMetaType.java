@@ -15,7 +15,6 @@ import brig.concord.yaml.psi.YAMLScalar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class FormStepMetaType extends IdentityMetaType {
 
@@ -25,13 +24,13 @@ public class FormStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "form", StringMetaType::getInstance, // TODO: type for search
-            "yield", BooleanMetaType::getInstance,
-            "saveSubmittedBy", BooleanMetaType::getInstance,
-            "runAs", AnyMapMetaType::getInstance,
-            "values", AnyMapMetaType::getInstance,
-            "fields", FieldsType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "form", StringMetaType.getInstance(), // TODO: type for search
+            "yield", BooleanMetaType.getInstance(),
+            "saveSubmittedBy", BooleanMetaType.getInstance(),
+            "runAs", AnyMapMetaType.getInstance(),
+            "values", AnyMapMetaType.getInstance(),
+            "fields", FieldsType.getInstance()
     );
 
     protected FormStepMetaType() {
@@ -39,7 +38,7 @@ public class FormStepMetaType extends IdentityMetaType {
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

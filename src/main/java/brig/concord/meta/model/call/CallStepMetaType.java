@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class CallStepMetaType extends IdentityMetaType {
 
@@ -16,19 +15,22 @@ public class CallStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
-            StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
-            Map.of("call", CallMetaType::getInstance,
-                   "in", CallInParamsMetaType::getInstance,
-                   "out", CallOutParamsMetaType::getInstance)
-    );
+    // lazy init via holder to break circular static dependency through StepsMetaType
+    private static class FeaturesHolder {
+        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
+                StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
+                Map.of("call", CallMetaType.getInstance(),
+                       "in", CallInParamsMetaType.getInstance(),
+                       "out", CallOutParamsMetaType.getInstance())
+        );
+    }
 
     protected CallStepMetaType() {
         super("Call", "call", Set.of("call"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return features;
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
+        return FeaturesHolder.FEATURES;
     }
 }

@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class CheckpointStepMetaType extends IdentityMetaType {
 
@@ -17,16 +16,16 @@ public class CheckpointStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "checkpoint", StringMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance);
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "checkpoint", StringMetaType.getInstance(),
+            "meta", StepMetaMetaType.getInstance());
 
     protected CheckpointStepMetaType() {
         super("Checkpoint", "checkpoint", Set.of("checkpoint"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 }

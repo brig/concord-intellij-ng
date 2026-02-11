@@ -13,7 +13,6 @@ import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public abstract class ConcordMetaType extends YamlMetaType {
@@ -22,7 +21,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
         super(typeName);
     }
 
-    protected abstract @NotNull Map<String, Supplier<YamlMetaType>> getFeatures();
+    protected abstract @NotNull Map<String, YamlMetaType> getFeatures();
 
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
@@ -55,9 +54,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        var metaType = Optional.ofNullable(getFeatures().get(name))
-                .map(Supplier::get)
-                .orElse(null);
+        var metaType = getFeatures().get(name);
         return metaTypeToField(metaType, name);
     }
 

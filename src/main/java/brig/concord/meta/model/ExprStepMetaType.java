@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class ExprStepMetaType extends IdentityMetaType {
 
@@ -17,18 +16,21 @@ public class ExprStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
-            StepFeatures.NAME_AND_META, StepFeatures.ERROR,
-            Map.of("expr", ExpressionMetaType::getInstance,
-                   "out", ExprOutParamsMetaType::getInstance)
-    );
+    // lazy init via holder to break circular static dependency through StepsMetaType
+    private static class FeaturesHolder {
+        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
+                StepFeatures.NAME_AND_META, StepFeatures.ERROR,
+                Map.of("expr", ExpressionMetaType.getInstance(),
+                       "out", ExprOutParamsMetaType.getInstance())
+        );
+    }
 
     protected ExprStepMetaType() {
         super("Expr", "expr", Set.of("expr"));
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return features;
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
+        return FeaturesHolder.FEATURES;
     }
 }

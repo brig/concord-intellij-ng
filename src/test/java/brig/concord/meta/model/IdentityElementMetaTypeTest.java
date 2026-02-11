@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,21 +13,21 @@ class IdentityElementMetaTypeTest {
 
     private static class TestEntry extends IdentityMetaType {
 
-        private final Map<String, Supplier<YamlMetaType>> features;
+        private final Map<String, YamlMetaType> features;
 
         TestEntry(String identity, String... featureNames) {
             super("test:" + identity, identity, Set.of());
 
-            var map = new LinkedHashMap<String, Supplier<YamlMetaType>>();
-            map.put(identity, YamlStringType::getInstance);
+            var map = new LinkedHashMap<String, YamlMetaType>();
+            map.put(identity, YamlStringType.getInstance());
             for (var f : featureNames) {
-                map.put(f, YamlStringType::getInstance);
+                map.put(f, YamlStringType.getInstance());
             }
             this.features = Collections.unmodifiableMap(map);
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
         }
     }

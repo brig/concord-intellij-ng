@@ -21,29 +21,28 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class ConfigurationMetaType extends ConcordMetaType implements Documented, HighlightProvider {
 
     private static final ConfigurationMetaType INSTANCE = new ConfigurationMetaType();
 
-    private static final Map<String, Supplier<YamlMetaType>> features = new HashMap<>();
+    private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("runtime", () -> new YamlEnumType("runtime").withLiterals("concord-v2"));
-        features.put("debug", BooleanMetaType::getInstance);
-        features.put("entryPoint", CallMetaType::getInstance);
-        features.put("dependencies", DependenciesMetaType::getInstance);
-        features.put("arguments", AnyMapMetaType::getInstance);
-        features.put("meta", AnyMapMetaType::getInstance);
-        features.put("events", EventsMetaType::getInstance);
-        features.put("requirements", AnyMapMetaType::getInstance);
-        features.put("processTimeout", DurationMetaType::getInstance);
-        features.put("suspendTimeout", DurationMetaType::getInstance);
-        features.put("exclusive", ProcessExclusiveMetaType::getInstance);
-        features.put("out", StringArrayMetaType::getInstance);
-        features.put("template", StringMetaType::getInstance);
-        features.put("parallelLoopParallelism", () -> YamlIntegerType.getInstance(false));
+        features.put("runtime", new YamlEnumType("runtime").withLiterals("concord-v2"));
+        features.put("debug", BooleanMetaType.getInstance());
+        features.put("entryPoint", CallMetaType.getInstance());
+        features.put("dependencies", DependenciesMetaType.getInstance());
+        features.put("arguments", AnyMapMetaType.getInstance());
+        features.put("meta", AnyMapMetaType.getInstance());
+        features.put("events", EventsMetaType.getInstance());
+        features.put("requirements", AnyMapMetaType.getInstance());
+        features.put("processTimeout", DurationMetaType.getInstance());
+        features.put("suspendTimeout", DurationMetaType.getInstance());
+        features.put("exclusive", ProcessExclusiveMetaType.getInstance());
+        features.put("out", StringArrayMetaType.getInstance());
+        features.put("template", StringMetaType.getInstance());
+        features.put("parallelLoopParallelism", YamlIntegerType.getInstance(false));
     }
 
     public static ConfigurationMetaType getInstance() {
@@ -55,7 +54,7 @@ public class ConfigurationMetaType extends ConcordMetaType implements Documented
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

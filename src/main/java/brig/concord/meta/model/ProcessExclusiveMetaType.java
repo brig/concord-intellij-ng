@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class ProcessExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -25,9 +24,9 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
 
     private static final Set<String> requiredFeatures = Set.of("group");
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "group", GroupMetaType::getInstance,
-            "mode", ModeType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "group", GroupMetaType.getInstance(),
+            "mode", ModeType.getInstance()
     );
 
     public static ProcessExclusiveMetaType getInstance() {
@@ -39,7 +38,7 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

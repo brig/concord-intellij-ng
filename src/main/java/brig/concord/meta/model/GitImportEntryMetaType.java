@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class GitImportEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -23,14 +22,14 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", StringMetaType::getInstance,
-            "url", StringMetaType::getInstance,
-            "version", StringMetaType::getInstance,
-            "path", StringMetaType::getInstance,
-            "dest", StringMetaType::getInstance,
-            "exclude", RegexpArrayMetaType::getInstance,
-            "secret", SecretMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "name", StringMetaType.getInstance(),
+            "url", StringMetaType.getInstance(),
+            "version", StringMetaType.getInstance(),
+            "path", StringMetaType.getInstance(),
+            "dest", StringMetaType.getInstance(),
+            "exclude", RegexpArrayMetaType.getInstance(),
+            "secret", SecretMetaType.getInstance()
     );
 
     protected GitImportEntryMetaType() {
@@ -38,7 +37,7 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 
@@ -57,10 +56,10 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
 
         private static final Set<String> required = Set.of("name");
 
-        private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "org", StringMetaType::getInstance,
-                "name", StringMetaType::getInstance,
-                "password", StringMetaType::getInstance
+        private static final Map<String, YamlMetaType> features = Map.of(
+                "org", StringMetaType.getInstance(),
+                "name", StringMetaType.getInstance(),
+                "password", StringMetaType.getInstance()
         );
 
         protected SecretMetaType() {
@@ -68,7 +67,7 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
         }
 

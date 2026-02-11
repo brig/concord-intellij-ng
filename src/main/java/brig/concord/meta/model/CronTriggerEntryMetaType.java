@@ -16,7 +16,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class CronTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -28,14 +27,14 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
 
     private static final Set<String> required = Set.of("spec", "entryPoint");
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "spec", StringMetaType::getInstance,
-            "entryPoint", CallMetaType::getInstance,
-            "runAs", RunAsMetaType::getInstance,
-            "activeProfiles", StringArrayMetaType::getInstance,
-            "timezone", TimezoneMetaType::getInstance,
-            "arguments", AnyMapMetaType::getInstance,
-            "exclusive", TriggerExclusiveMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "spec", StringMetaType.getInstance(),
+            "entryPoint", CallMetaType.getInstance(),
+            "runAs", RunAsMetaType.getInstance(),
+            "activeProfiles", StringArrayMetaType.getInstance(),
+            "timezone", TimezoneMetaType.getInstance(),
+            "arguments", AnyMapMetaType.getInstance(),
+            "exclusive", TriggerExclusiveMetaType.getInstance()
     );
 
     protected CronTriggerEntryMetaType() {
@@ -43,7 +42,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 
@@ -69,12 +68,12 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
             super("Run As");
         }
 
-        private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-                "withSecret", StringMetaType::getInstance
+        private static final Map<String, YamlMetaType> features = Map.of(
+                "withSecret", StringMetaType.getInstance()
         );
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
         }
     }
