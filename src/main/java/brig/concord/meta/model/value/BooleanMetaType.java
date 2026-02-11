@@ -18,7 +18,7 @@ public class BooleanMetaType extends YamlEnumType {
     }
 
     public BooleanMetaType() {
-        super("yaml:boolean", "boolean");
+        super("boolean");
         withLiterals("true", "false", "TRUE", "FALSE", "True",  "False");
     }
 

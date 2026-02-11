@@ -53,7 +53,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
                             : null;
                     return new Documented.DocumentedField(
                             e.getKey(),
-                            e.getValue().getDisplayName(),
+                            e.getValue().getTypeName(),
                             required.contains(e.getKey()),
                             desc);
                 })

@@ -37,7 +37,7 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
         if (element instanceof YAMLKeyValue kv) {
             var metaType = resolveDocumentationType(metaTypeProvider, kv);
             if (metaType != null && metaType.getDescription() != null) {
-                return List.of(new ConcordDocumentationTarget(kv, metaType, metaType.getDisplayName()));
+                return List.of(new ConcordDocumentationTarget(kv, metaType, metaType.getTypeName()));
             }
         }
         return List.of();

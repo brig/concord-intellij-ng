@@ -56,7 +56,7 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
         }
 
         protected ModeType() {
-            super("Mode", "[serial|parallel]");
+            super("Mode");
             withLiterals("serial", "parallel");
         }
     }

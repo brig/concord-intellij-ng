@@ -32,7 +32,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
         }
 
         protected ModeType() {
-            super("Mode", "[cancel|cancelOld|wait]");
+            super("Mode");
             withLiterals("cancel", "cancelOld", "wait");
         }
     }

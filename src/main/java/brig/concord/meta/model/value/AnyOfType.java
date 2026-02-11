@@ -25,7 +25,7 @@ public class AnyOfType extends YamlAnyOfType {
 
         // Make it readable in logs/debugging/UI
         var display = Stream.of(types)
-                .map(YamlMetaType::getDisplayName)
+                .map(YamlMetaType::getTypeName)
                 .collect(Collectors.joining("|"));
 
         var name = "AnyOf[" + display + "]";
@@ -106,7 +106,7 @@ public class AnyOfType extends YamlAnyOfType {
 
     public String expectedString() {
         return streamSubTypes()
-                .map(YamlMetaType::getDisplayName)
+                .map(YamlMetaType::getTypeName)
                 .collect(Collectors.joining("|"));
     }
 }

@@ -68,11 +68,11 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
 
         return List.of(
                 new Documented.DocumentedField("group",
-                        features.get("group").getDisplayName(),
+                        features.get("group").getTypeName(),
                         required.contains("group"),
                         groupDesc),
                 new Documented.DocumentedField("mode",
-                        features.get("mode").getDisplayName(),
+                        features.get("mode").getTypeName(),
                         required.contains("mode"),
                         modeDesc,
                         modeChildren)

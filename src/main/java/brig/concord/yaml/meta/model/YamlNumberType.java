@@ -21,7 +21,7 @@ public class YamlNumberType extends YamlScalarType {
     }
 
     public YamlNumberType(boolean quotedValuesAllowed) {
-        super("yaml:number", "number");
+        super("number");
         myQuotedValuesAllowed = quotedValuesAllowed;
     }
 

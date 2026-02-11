@@ -27,17 +27,10 @@ import java.util.stream.Collectors;
 
 public abstract class YamlMetaType implements Documented {
     private final @NotNull String myTypeName;
-    private final @Nullable String myDisplayName;
     private @Nullable String docBundlePrefix;
-
-    protected YamlMetaType(@NonNls @NotNull String typeName, @NonNls @NotNull String displayName) {
-        myTypeName = typeName;
-        myDisplayName = displayName;
-    }
 
     protected YamlMetaType(@NonNls @NotNull String typeName) {
         myTypeName = typeName;
-        myDisplayName = null;
     }
 
     @Override
@@ -56,7 +49,7 @@ public abstract class YamlMetaType implements Documented {
 
     @Contract(pure = true)
     public @NotNull String getDisplayName() {
-        return myDisplayName == null ? myTypeName : myDisplayName;
+        return myTypeName;
     }
 
     @Contract(pure = true)

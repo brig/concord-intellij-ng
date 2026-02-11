@@ -248,7 +248,7 @@ public class Field {
 
         LookupElementBuilder lookup = LookupElementBuilder
                 .create(new TypeFieldPair(ownerClass, this), getName())
-                .withTypeText(getMainType().getDisplayName(), true)
+                .withTypeText(getMainType().getTypeName(), true)
                 .withIcon(getLookupIcon())
                 .withStrikeoutness(isDeprecated());
 
