@@ -69,6 +69,19 @@ public final class ConcordYamlPath {
         });
     }
 
+    /**
+     * Returns the YAML value that the full path navigates to, including sequence indices.
+     * Unlike {@link #valueElement(String)} which returns the last key's value,
+     * this method follows index segments like [0] and returns the actual element at that position.
+     *
+     * <p>Example: for path "/flows/myFlow/[0]", {@code valueElement} returns the YAMLSequence
+     * (value of "myFlow" key), while {@code resolvedValue} returns the YAMLMapping of the first step.
+     */
+    @NotNull
+    public YAMLValue resolvedValue(@NotNull String path) {
+        return ReadAction.compute(() -> resolve(path).value());
+    }
+
     private Resolution resolve(String rawPath) {
         var path = normalize(rawPath);
 

@@ -162,6 +162,18 @@ public abstract class ConcordYamlTestBaseJunit5 {
         return new ValueTarget(path);
     }
 
+    /**
+     * Returns the YAML value the full path navigates to, including sequence indices.
+     * Unlike {@link #value(String)} which returns the last key's value,
+     * this follows index segments like [0] to the actual element.
+     *
+     * <p>Example: {@code element("/flows/myFlow/[0]")} returns the step YAMLMapping,
+     * while {@code value("/flows/myFlow/[0]").element()} returns the YAMLSequence (value of "myFlow" key).
+     */
+    protected @NotNull PsiElement element(@NotNull String path) {
+        Assertions.assertNotNull(yamlPath, "yamlPath is null. Did you call configureFromText(...) ?");
+        return yamlPath.resolvedValue(path);
+    }
 
     protected void assertFlowDoc(KeyTarget flowKey, Consumer<FlowDocAssertions> assertions) {
         FlowDocAssertions.assertFlowDoc(yamlPath, flowKey, assertions);

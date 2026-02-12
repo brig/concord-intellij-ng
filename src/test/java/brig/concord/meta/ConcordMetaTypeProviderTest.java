@@ -7,8 +7,6 @@ import brig.concord.meta.model.call.CallStepMetaType;
 import brig.concord.meta.model.value.BooleanMetaType;
 import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.psi.ConcordFile;
-import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.psi.YAMLMapping;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,17 +15,6 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
 
     private ConcordMetaTypeProvider provider() {
         return ConcordMetaTypeProvider.getInstance(getProject());
-    }
-
-    /**
-     * Resolves the meta type for a step mapping by navigating through a key inside the step.
-     * value() returns the last key's value (YAMLSequence), not the step mapping itself,
-     * so we get the mapping via the key's parent.
-     */
-    private YamlMetaType resolveStepType(String keyInsideStep) {
-        var stepMapping = key(keyInsideStep).asKeyValue().getParentMapping();
-        assertInstanceOf(YAMLMapping.class, stepMapping);
-        return provider().getResolvedMetaType(stepMapping);
     }
 
     // --- Group 1: Root-level key resolution ---
@@ -109,7 +96,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                   myFlow:
                     - task: myTask
                 """);
-        assertSame(TaskStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/task"));
+        assertSame(TaskStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]")));
     }
 
     @Test
@@ -119,7 +106,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                   myFlow:
                     - call: otherFlow
                 """);
-        assertSame(CallStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/call"));
+        assertSame(CallStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]")));
     }
 
     @Test
@@ -131,7 +118,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                       then:
                         - log: "yes"
                 """);
-        assertSame(IfStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/if"));
+        assertSame(IfStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]")));
     }
 
     @Test
@@ -141,7 +128,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                   myFlow:
                     - expr: "${myExpression}"
                 """);
-        assertSame(ExprStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/expr"));
+        assertSame(ExprStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]")));
     }
 
     @Test
@@ -151,7 +138,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                   myFlow:
                     - log: "message"
                 """);
-        assertSame(LogStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/log"));
+        assertSame(LogStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]")));
     }
 
     @Test
@@ -162,7 +149,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                     - set:
                         myVar: "value"
                 """);
-        assertSame(SetStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/set"));
+        assertSame(SetStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]")));
     }
 
     @Test
@@ -174,7 +161,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                         - log: "a"
                         - log: "b"
                 """);
-        assertSame(ParallelStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/parallel"));
+        assertSame(ParallelStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]")));
     }
 
     // --- Group 3: Nested/deeper resolution ---
@@ -208,7 +195,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                       then:
                         - task: innerTask
                 """);
-        assertSame(TaskStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/then/[0]/task"));
+        assertSame(TaskStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]/then/[0]")));
     }
 
     @Test
@@ -219,7 +206,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                     - try:
                         - log: "in try"
                 """);
-        assertSame(LogStepMetaType.getInstance(), resolveStepType("/flows/myFlow/[0]/try/[0]/log"));
+        assertSame(LogStepMetaType.getInstance(), provider().getResolvedMetaType(element("/flows/myFlow/[0]/try/[0]")));
     }
 
     // --- Group 4: Edge cases ---
@@ -244,6 +231,24 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
         var element = file.findElementAt(0);
         assertNotNull(element);
         assertNull(provider().getResolvedMetaType(element));
+    }
+
+    @Test
+    void resolveFromKeyElement() {
+        var yaml = configureFromText("""
+                flows:
+                  myFlow:
+                    - task: myTask
+                """);
+        // findElementAt returns the leaf PsiElement of the key text.
+        // DynamicMetaType.resolve() only works with YAMLMapping, not leaf elements,
+        // so the step type is not resolved — StepElementMetaType is returned instead.
+        var offset = yaml.getText().indexOf("task:");
+        var psi = yaml.findElementAt(offset);
+        assertNotNull(psi);
+        assertEquals("task", psi.getText());
+        var type = provider().getResolvedMetaType(psi);
+        assertSame(StepElementMetaType.getInstance(), type);
     }
 
     @Test
