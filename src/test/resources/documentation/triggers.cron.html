@@ -1,0 +1,21 @@
+<div class='definition'>
+    <pre>cron</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Cron trigger definition. Starts a process on a schedule</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>activeProfiles</code> <i>(string[])</i> &mdash; list of profiles that Concord applies for the process
+        </li>
+        <li><code>arguments</code> <i>(object)</i> &mdash; additional parameters that are passed to the flow</li>
+        <li><code>entryPoint</code> <i>(string, required)</i> &mdash; name of the flow that Concord starts when the
+            trigger fires
+        </li>
+        <li><code>exclusive</code> <i>(object)</i> &mdash; exclusive execution configuration for the process. Available
+            only for processes running in projects
+        </li>
+        <li><code>runAs</code> <i>(object)</i> &mdash; username to run the process as when the cron trigger fires</li>
+        <li><code>spec</code> <i>(string, required)</i> &mdash; cron expression that defines when the trigger fires</li>
+        <li><code>timezone</code> <i>(string)</i></li>
+    </ul>
+</div>

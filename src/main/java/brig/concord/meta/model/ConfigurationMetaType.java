@@ -22,24 +22,24 @@ public class ConfigurationMetaType extends ConcordMetaType implements HighlightP
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("runtime", doc(new YamlEnumType("string").withLiterals("concord-v2"), "doc.configuration.runtime"));
-        features.put("debug", doc(new BooleanMetaType(), "doc.configuration.debug"));
-        features.put("entryPoint", doc(new CallMetaType(), "doc.configuration.entryPoint"));
-        features.put("dependencies", doc(new DependenciesMetaType(), "doc.configuration.dependencies"));
-        features.put("arguments", doc(new AnyMapMetaType(), "doc.configuration.arguments"));
-        features.put("meta", doc(new AnyMapMetaType(), "doc.configuration.meta"));
+        features.put("runtime", new YamlEnumType("string").withLiterals("concord-v2").withDescriptionKey("doc.configuration.runtime.description"));
+        features.put("debug", new BooleanMetaType().withDescriptionKey("doc.configuration.debug.description"));
+        features.put("entryPoint", new CallMetaType().withDescriptionKey("doc.configuration.entryPoint.description"));
+        features.put("dependencies", new DependenciesMetaType().withDescriptionKey("doc.configuration.dependencies.description"));
+        features.put("arguments", new AnyMapMetaType().withDescriptionKey("doc.configuration.arguments.description"));
+        features.put("meta", new AnyMapMetaType().withDescriptionKey("doc.configuration.meta.description"));
         features.put("events", EventsMetaType.getInstance());
-        features.put("requirements", doc(new AnyMapMetaType(), "doc.configuration.requirements"));
-        features.put("processTimeout", doc(new DurationMetaType(), "doc.configuration.processTimeout"));
-        features.put("suspendTimeout", doc(new DurationMetaType(), "doc.configuration.suspendTimeout"));
+        features.put("requirements", new AnyMapMetaType().withDescriptionKey("doc.configuration.requirements.description"));
+        features.put("processTimeout", new DurationMetaType().withDescriptionKey("doc.configuration.processTimeout.description"));
+        features.put("suspendTimeout", new DurationMetaType().withDescriptionKey("doc.configuration.suspendTimeout.description"));
         features.put("exclusive", ProcessExclusiveMetaType.getInstance());
-        features.put("out", doc(new StringArrayMetaType(), "doc.configuration.out"));
-        features.put("template", doc(new StringMetaType(), "doc.configuration.template"));
-        features.put("parallelLoopParallelism", doc(new IntegerMetaType(), "doc.configuration.parallelLoopParallelism"));
+        features.put("out", new StringArrayMetaType().withDescriptionKey("doc.configuration.out.description"));
+        features.put("template", new StringMetaType().withDescriptionKey("doc.configuration.template.description"));
+        features.put("parallelLoopParallelism", new IntegerMetaType().withDescriptionKey("doc.configuration.parallelLoopParallelism.description"));
     }
 
     private ConfigurationMetaType() {
-        setDocBundlePrefix("doc.configuration");
+        setDescriptionKey("doc.configuration.description");
     }
 
     public static ConfigurationMetaType getInstance() {
@@ -54,10 +54,5 @@ public class ConfigurationMetaType extends ConcordMetaType implements HighlightP
     @Override
     public @Nullable TextAttributesKey getKeyHighlight(String key) {
         return ConcordHighlightingColors.DSL_KEY;
-    }
-
-    private static <T extends YamlMetaType> T doc(T type, String prefix) {
-        type.setDocBundlePrefix(prefix);
-        return type;
     }
 }

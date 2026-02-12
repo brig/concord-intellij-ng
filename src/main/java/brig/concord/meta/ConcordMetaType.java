@@ -2,9 +2,9 @@ package brig.concord.meta;
 
 import brig.concord.ConcordBundle;
 import brig.concord.meta.model.value.AnyOfType;
+import brig.concord.meta.model.value.BooleanMetaType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.*;
@@ -23,19 +23,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
         super("object");
     }
 
-    protected ConcordMetaType(@NonNls @NotNull String typeName) {
-        super(typeName);
-    }
-
     protected abstract @NotNull Map<String, YamlMetaType> getFeatures();
-
-    /**
-     * Returns the raw meta type for a feature by name, without the array-unwrapping
-     * that happens in {@link Field} construction.
-     */
-    public @Nullable YamlMetaType getFeatureMetaType(@NotNull String name) {
-        return getFeatures().get(name);
-    }
 
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
@@ -44,18 +32,28 @@ public abstract class ConcordMetaType extends YamlMetaType {
     @Override
     public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
         var required = getRequiredFields();
-        var prefix = getDocBundlePrefix();
         return getFeatures().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .map(e -> {
-                    String desc = prefix != null
-                            ? ConcordBundle.findMessage(prefix + "." + e.getKey() + ".description")
-                            : null;
+                    List<DocumentedField> children = List.of();
+                    if (e.getValue() instanceof YamlEnumType enumType) {
+                        var descriptions = enumType.getLiteralDescriptions();
+                        if (descriptions.length > 0) {
+                            children = new ArrayList<>(enumType.getLiterals().length);
+                            String[] literals = enumType.getLiterals();
+                            for (int i = 0; i < literals.length; i++) {
+                                children.add(new DocumentedField(literals[i], enumType.getTypeName(), false, descriptions[i], List.of()));
+                            }
+                        }
+                    }
+
+                    var desc = e.getValue().getDescription();
                     return new Documented.DocumentedField(
                             e.getKey(),
                             e.getValue().getTypeName(),
                             required.contains(e.getKey()),
-                            desc);
+                            desc,
+                            children);
                 })
                 .toList();
     }

@@ -24,6 +24,10 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
         return INSTANCE;
     }
 
+    private FormsMetaType() {
+        setDescriptionKey("doc.forms.description");
+    }
+
     @Override
     protected YamlMetaType getMapEntryType(String name) {
         return FormFieldsMetaType.getInstance();
@@ -39,6 +43,19 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
         return ConcordHighlightingColors.DSL_KIND;
     }
 
+    @Override
+    public @Nullable String getDocumentationExample() {
+        return """
+                forms:
+                  myForm:
+                    - myValue: { type: "string", label: "Value" }
+                
+                flows:
+                  default:
+                    - form: myForm
+                """;
+    }
+
     private static class FieldsWrapper extends MapMetaType implements HighlightProvider {
 
         private static final FieldsWrapper INSTANCE = new FieldsWrapper();
@@ -47,6 +64,9 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
         public static FieldsWrapper getInstance() {
             return INSTANCE;
+        }
+
+        private FieldsWrapper() {
         }
 
         @Override
@@ -75,6 +95,7 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
         public FormFieldsMetaType() {
             super(FieldsWrapper.getInstance());
+            setDescriptionKey("doc.forms.formName.description");
         }
     }
 }

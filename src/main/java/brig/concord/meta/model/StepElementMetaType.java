@@ -48,7 +48,7 @@ public class StepElementMetaType extends IdentityElementMetaType implements High
     }
 
     protected StepElementMetaType() {
-        super("Steps", List.copyOf(steps));
+        super(List.copyOf(steps));
     }
 
     @Override

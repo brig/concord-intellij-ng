@@ -2,44 +2,55 @@ package brig.concord.yaml.meta.model;
 
 // Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 
+import brig.concord.ConcordBundle;
 import com.intellij.application.options.CodeStyle;
 import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.*;
-import brig.concord.ConcordBundle;
 import brig.concord.documentation.Documented;
 import brig.concord.yaml.formatter.YAMLCodeStyleSettings;
 import brig.concord.yaml.psi.*;
 
 import javax.swing.*;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static brig.concord.ConcordBundle.BUNDLE;
 
 public abstract class YamlMetaType implements Documented {
     private final @NotNull String myTypeName;
-    private @Nullable String docBundlePrefix;
+    private @Nullable String descriptionKey;
 
     protected YamlMetaType(@NonNls @NotNull String typeName) {
         myTypeName = typeName;
     }
 
-    @Override
-    public @Nullable String getDocBundlePrefix() {
-        return docBundlePrefix;
+    public YamlMetaType withDescriptionKey(@NotNull @PropertyKey(resourceBundle = BUNDLE) String descriptionKey) {
+        this.descriptionKey = descriptionKey;
+        return this;
     }
 
-    public void setDocBundlePrefix(@Nullable String docBundlePrefix) {
-        this.docBundlePrefix = docBundlePrefix;
+    public void setDescriptionKey(@NotNull @PropertyKey(resourceBundle = BUNDLE) String descriptionKey) {
+        this.descriptionKey = descriptionKey;
+    }
+
+    @Deprecated
+    public YamlMetaType withDocBundlePrefix(@Nullable String docBundlePrefix) {
+        return this;
+    }
+
+    @Override
+    public @Nullable String getDescription() {
+        if (descriptionKey != null) {
+            return ConcordBundle.message(descriptionKey);
+        }
+        return null;
     }
 
     @Contract(pure = true)

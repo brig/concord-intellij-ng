@@ -23,7 +23,7 @@ public class YamlAnything extends YamlMetaType {
             .withEmptyValueAllowed(true);
 
     public YamlAnything() {
-        super("yaml:anything");
+        super("any");
     }
 
     @Override

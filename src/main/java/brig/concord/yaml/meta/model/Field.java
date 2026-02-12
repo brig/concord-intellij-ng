@@ -53,10 +53,13 @@ public class Field {
         }
     }
 
+    private YamlMetaType myOriginalType;
+
     public Field(@NonNls @NotNull String name, @NotNull YamlMetaType mainType) {
         myName = name;
         myMainType = mainType;
         if(myMainType instanceof YamlArrayType) {
+            myOriginalType = myMainType;
             myMainType = ((YamlArrayType)myMainType).getElementType();
             myIsMany = !(myMainType instanceof YamlArrayType);
         }
@@ -298,12 +301,17 @@ public class Field {
         result.myIsMany = myIsMany;
         result.myOverriddenDefaultRelation = myOverriddenDefaultRelation;
         result.myPerRelationTypes.putAll(myPerRelationTypes);
+        result.myOriginalType = myOriginalType;
 
         return result;
     }
 
     protected @NotNull Field newField(@NotNull YamlMetaType type) {
         return new Field(this.myName, type);
+    }
+
+    public @NotNull YamlMetaType getOriginalType() {
+        return myOriginalType != null ? myOriginalType : getMainType();
     }
 
     private @NotNull YamlMetaType getMainType() {

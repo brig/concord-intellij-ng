@@ -1,6 +1,5 @@
 package brig.concord.documentation;
 
-import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.psi.ConcordFile;
 import brig.concord.yaml.YAMLTokenTypes;
@@ -45,19 +44,10 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
 
     private static @Nullable YamlMetaType resolveDocumentationType(
             ConcordMetaTypeProvider provider, YAMLKeyValue kv) {
-        // Try parent feature lookup first — this preserves array types with doc prefixes
-        // that would be lost via Field unwrapping in the normal resolution path
-        var parentMapping = kv.getParentMapping();
-        if (parentMapping != null) {
-            var parentMetaType = provider.getResolvedMetaType(parentMapping);
-            if (parentMetaType instanceof ConcordMetaType concordParent) {
-                var featureType = concordParent.getFeatureMetaType(kv.getKeyText().trim());
-                if (featureType != null && featureType.getDescription() != null) {
-                    return featureType;
-                }
-            }
+        var proxy = provider.getKeyValueMetaType(kv);
+        if (proxy == null) {
+            return null;
         }
-        // Fallback: standard value-type resolution (works for non-array leaf types)
-        return provider.getResolvedKeyValueMetaTypeMeta(kv);
+        return proxy.getField().getOriginalType();
     }
 }

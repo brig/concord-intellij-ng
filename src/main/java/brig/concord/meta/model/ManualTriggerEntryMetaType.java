@@ -27,13 +27,15 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType implements Highl
     private static final Set<String> required = Set.of("entryPoint");
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "name", StringMetaType.getInstance(),
-            "entryPoint", CallMetaType.getInstance(),
-            "activeProfiles", StringArrayMetaType.getInstance(),
-            "arguments", AnyMapMetaType.getInstance()
+            "name", new StringMetaType().withDescriptionKey("doc.triggers.manual.name.description"),
+            "entryPoint", new CallMetaType().withDescriptionKey("doc.triggers.manual.entryPoint.description"),
+            "activeProfiles", new StringArrayMetaType().withDescriptionKey("doc.triggers.manual.activeProfiles.description"),
+            "arguments", new AnyMapMetaType().withDescriptionKey("doc.triggers.manual.arguments.description"),
+            "exclusive", TriggerExclusiveMetaType.getInstance()
     );
 
     protected ManualTriggerEntryMetaType() {
+        setDescriptionKey("doc.triggers.manual.description");
     }
 
     @Override

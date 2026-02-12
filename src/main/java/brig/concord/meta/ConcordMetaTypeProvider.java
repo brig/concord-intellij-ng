@@ -14,7 +14,6 @@ import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.ModelAccess;
 import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Optional;
@@ -36,12 +35,6 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
 
     public static ConcordMetaTypeProvider getInstance(@NotNull Project project) {
         return project.getService(ConcordMetaTypeProvider.class);
-    }
-
-    public @Nullable YamlMetaType getResolvedKeyValueMetaTypeMeta(@NotNull YAMLKeyValue keyValue) {
-        return Optional.ofNullable(getKeyValueMetaType(keyValue))
-                .map(YamlMetaTypeProvider.MetaTypeProxy::getMetaType)
-                .orElse(null);
     }
 
     public @Nullable YamlMetaType getResolvedMetaType(@NotNull PsiElement element) {

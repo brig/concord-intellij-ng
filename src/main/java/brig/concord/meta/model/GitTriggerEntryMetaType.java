@@ -32,18 +32,19 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
     private static final Set<String> required = Set.of("entryPoint", "conditions", "version");
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "entryPoint", CallMetaType.getInstance(),
-            "useInitiator", BooleanMetaType.getInstance(),
-            "activeProfiles", StringArrayMetaType.getInstance(),
-            "useEventCommitId", BooleanMetaType.getInstance(),
-            "ignoreEmptyPush", BooleanMetaType.getInstance(),
-            "arguments", AnyMapMetaType.getInstance(),
+            "entryPoint", new CallMetaType().withDescriptionKey("doc.triggers.github.entryPoint.description"),
+            "useInitiator", new BooleanMetaType().withDescriptionKey("doc.triggers.github.useInitiator.description"),
+            "activeProfiles", new StringArrayMetaType().withDescriptionKey("doc.triggers.github.activeProfiles.description"),
+            "useEventCommitId", new BooleanMetaType().withDescriptionKey("doc.triggers.github.useEventCommitId.description"),
+            "ignoreEmptyPush", new BooleanMetaType().withDescriptionKey("doc.triggers.github.ignoreEmptyPush.description"),
+            "arguments", new AnyMapMetaType().withDescriptionKey("doc.triggers.github.arguments.description"),
             "exclusive", TriggerExclusiveMetaType.getInstance(),
             "conditions", ConditionsMetaType.getInstance(),
-            "version", IntegerMetaType.getInstance()
+            "version", new IntegerMetaType().withDescriptionKey("doc.triggers.github.version.description")
     );
 
     private GitTriggerEntryMetaType() {
+        setDescriptionKey("doc.triggers.github.description");
     }
 
     @Override
@@ -70,14 +71,15 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         private RepositoryInfoMetaType() {
+            setDescriptionKey("doc.triggers.github.conditions.repositoryInfo.description");
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
-                "repositoryId", RegexpMetaType.getInstance(),
-                "repository", RegexpMetaType.getInstance(),
-                "projectId", RegexpMetaType.getInstance(),
-                "branch", RegexpMetaType.getInstance(),
-                "enabled", BooleanMetaType.getInstance());
+                "repositoryId", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.repositoryId.description"),
+                "repository", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.repository.description"),
+                "projectId", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.projectId.description"),
+                "branch", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.branch.description"),
+                "enabled", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.enabled.description"));
 
         @Override
         protected @NotNull Map<String, YamlMetaType> getFeatures() {
@@ -99,13 +101,14 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         private FilesMetaType() {
+            setDescriptionKey("doc.triggers.github.conditions.files.description");
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
-                "added", RegexpOrArrayMetaType.getInstance(),
-                "removed", RegexpOrArrayMetaType.getInstance(),
-                "modified", RegexpOrArrayMetaType.getInstance(),
-                "any", RegexpOrArrayMetaType.getInstance()
+                "added", new RegexpOrArrayMetaType().withDescriptionKey("doc.triggers.github.conditions.files.added.description"),
+                "removed", new RegexpOrArrayMetaType().withDescriptionKey("doc.triggers.github.conditions.files.removed.description"),
+                "modified", new RegexpOrArrayMetaType().withDescriptionKey("doc.triggers.github.conditions.files.modified.description"),
+                "any", new RegexpOrArrayMetaType().withDescriptionKey("doc.triggers.github.conditions.files.any.description")
         );
 
         @Override
@@ -128,21 +131,22 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         private ConditionsMetaType() {
+            setDescriptionKey("doc.triggers.github.conditions.description");
         }
 
         private static final Set<String> required = Set.of("type");
 
         private static final Map<String, YamlMetaType> features = Map.of(
-                "type", StringMetaType.getInstance(),
-                "githubHost", RegexpMetaType.getInstance(),
-                "githubOrg", RegexpMetaType.getInstance(),
-                "githubRepo", RegexpMetaType.getInstance(),
-                "branch", RegexpMetaType.getInstance(),
-                "sender", RegexpMetaType.getInstance(),
-                "status", RegexpMetaType.getInstance(),
-                "repositoryInfo", new YamlArrayType(RepositoryInfoMetaType.getInstance()),
+                "type", new StringMetaType().withDescriptionKey("doc.triggers.github.conditions.type.description"),
+                "githubHost", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.githubHost.description"),
+                "githubOrg", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.githubOrg.description"),
+                "githubRepo", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.githubRepo.description"),
+                "branch", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.branch.description"),
+                "sender", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.sender.description"),
+                "status", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.status.description"),
+                "repositoryInfo", new YamlArrayType(RepositoryInfoMetaType.getInstance()).withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.description"),
                 "files", FilesMetaType.getInstance(),
-                "payload", AnyMapMetaType.getInstance()
+                "payload", new AnyMapMetaType().withDescriptionKey("doc.triggers.github.conditions.payload.description")
         );
 
         @Override

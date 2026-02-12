@@ -19,9 +19,9 @@ import java.util.Set;
 public class ImportElementMetaType extends IdentityElementMetaType implements HighlightProvider {
 
     private static final List<IdentityMetaType> entries = List.of(
-            new ImportMetaType("dir", DirImportEntryMetaType.getInstance()),
-            new ImportMetaType("git", GitImportEntryMetaType.getInstance()),
-            new ImportMetaType("mvn", MvnImportEntryMetaType.getInstance())
+            new ImportMetaType("dir", new DirImportEntryMetaType().withDescriptionKey("doc.imports.dir.description")),
+            new ImportMetaType("git", new GitImportEntryMetaType().withDescriptionKey("doc.imports.git.description")),
+            new ImportMetaType("mvn", new MvnImportEntryMetaType().withDescriptionKey("doc.imports.mvn.description"))
     );
 
     private static final ImportElementMetaType INSTANCE = new ImportElementMetaType();
@@ -31,7 +31,7 @@ public class ImportElementMetaType extends IdentityElementMetaType implements Hi
     }
 
     protected ImportElementMetaType() {
-        super("Imports", entries);
+        super(entries);
     }
 
     @Override

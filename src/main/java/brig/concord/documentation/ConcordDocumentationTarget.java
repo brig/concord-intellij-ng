@@ -78,6 +78,11 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
                 sb.append(keysList);
             }
 
+            var valuesList = buildValuesList(documented.getValues());
+            if (valuesList != null) {
+                sb.append(valuesList);
+            }
+
             var example = documented.getDocumentationExample();
             if (example != null) {
                 sb.append("<p><b>Example:</b></p>")
@@ -130,6 +135,34 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
                     sb.append("</li>");
                 }
                 sb.append("</ul>");
+            }
+            sb.append("</li>");
+        }
+        sb.append("</ul>");
+
+        return sb.toString();
+    }
+
+    private static @Nullable String buildValuesList(List<Documented.DocumentedField> fields) {
+        if (fields.isEmpty()) {
+            return null;
+        }
+
+        var sb = new StringBuilder();
+
+        sb.append("<p><b>Values:</b></p>");
+        sb.append("<ul>");
+        for (var f : fields) {
+            sb.append("<li><code>").append(f.name()).append("</code>");
+            if (f.typeDisplayName() != null) {
+                sb.append(" <i>(").append(f.typeDisplayName());
+                if (f.required()) {
+                    sb.append(", required");
+                }
+                sb.append(")</i>");
+            }
+            if (f.description() != null) {
+                sb.append(" &mdash; ").append(normalizeDescription(f.description()));
             }
             sb.append("</li>");
         }

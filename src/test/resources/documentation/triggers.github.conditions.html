@@ -1,0 +1,31 @@
+<div class='definition'>
+    <pre>conditions</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Conditions for GitHub event matching</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>branch</code> <i>(string)</i> &mdash; branch name or regex. Default: is the current repository branch
+        </li>
+        <li><code>files</code> <i>(object)</i> &mdash; list of file path patterns to match changed files in the event
+        </li>
+        <li><code>githubHost</code> <i>(string)</i> &mdash; gitHub host name or regex</li>
+        <li><code>githubOrg</code> <i>(string)</i> &mdash; gitHub organization name or regex. Default: is the current
+            repository organization
+        </li>
+        <li><code>githubRepo</code> <i>(string)</i> &mdash; gitHub repository name or regex. Default: is the current
+            repository name
+        </li>
+        <li><code>payload</code> <i>(object)</i> &mdash; key value conditions that must match fields in the GitHub event
+            payload
+        </li>
+        <li><code>repositoryInfo</code> <i>(object[])</i> &mdash; list of repositoryInfo entries for matching events
+            that have registered Concord repositories
+        </li>
+        <li><code>sender</code> <i>(string)</i> &mdash; event sender name or regex</li>
+        <li><code>status</code> <i>(string)</i> &mdash; pull request status name or regex. For pull_request events
+            typical values are opened or closed
+        </li>
+        <li><code>type</code> <i>(string, required)</i> &mdash; gitHub event name</li>
+    </ul>
+</div>

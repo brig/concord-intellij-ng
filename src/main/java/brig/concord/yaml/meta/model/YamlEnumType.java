@@ -11,55 +11,66 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.ConcordBundle;
 import brig.concord.yaml.psi.YAMLScalar;
+import org.jetbrains.annotations.PropertyKey;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static brig.concord.ConcordBundle.BUNDLE;
+
 public class YamlEnumType extends YamlScalarType {
     private String[] myLiterals = ArrayUtilRt.EMPTY_STRING_ARRAY;
-    private String[] myHiddenLiterals = ArrayUtilRt.EMPTY_STRING_ARRAY;
-    private String[] myDeprecatedLiterals = ArrayUtilRt.EMPTY_STRING_ARRAY;
-
+    private String[] myDescriptions = ArrayUtilRt.EMPTY_STRING_ARRAY;
 
     public YamlEnumType(@NotNull String typeName) {
         super(typeName);
     }
 
-    public @NotNull YamlEnumType withLiterals(String... literals) {
+    public String[] getLiterals() {
+        return myLiterals;
+    }
+
+    public void setLiterals(String... literals) {
         myLiterals = cloneArray(literals);
+    }
+
+    public YamlEnumType withLiterals(String... literals) {
+        setLiterals(literals);
         return this;
     }
 
-    /**
-     * Specifies subset of the valid values which will be accepted by validation but will NOT be offered in
-     * completion lists. These values must not overlap with the visible (see {@link #withLiterals(String...)}),
-     * but may overlap with the deprecated (see {@link #withDeprecatedLiterals(String...)})
-     */
-    public @NotNull YamlEnumType withHiddenLiterals(String... hiddenLiterals) {
-        myHiddenLiterals = hiddenLiterals.clone();
-        return this;
+    public void setDescriptionKeys(@NotNull @PropertyKey(resourceBundle = BUNDLE) String... keys) {
+        this.myDescriptions = new String[keys.length];
+        for (int i = 0; i < keys.length; i++) {
+            var key = keys[i];
+            this.myDescriptions[i] = ConcordBundle.message(key);
+        }
     }
 
-    /**
-     * Specifies subset of the valid values which will be considered deprecated.
-     * They will be available in completion list (struck out) and highlighted after validation.
-     * These values must not overlap with the visible (see {@link #withLiterals(String...)}),
-     * but may overlap with the hidden (see {@link #withHiddenLiterals(String...)})
-     */
-    public @NotNull YamlEnumType withDeprecatedLiterals(String... deprecatedLiterals) {
-        myDeprecatedLiterals = deprecatedLiterals.clone();
-        return this;
+    public String[] getLiteralDescriptions() {
+        return myDescriptions;
     }
 
-    public boolean isLiteralDeprecated(@NotNull String literal) {
-        return Arrays.asList(myDeprecatedLiterals).contains(literal);
+    @Override
+    public @NotNull List<DocumentedField> getValues() {
+        var descriptions = getLiteralDescriptions();
+        if (descriptions.length > 0) {
+            var children = new ArrayList<DocumentedField>(getLiterals().length);
+            String[] literals = getLiterals();
+            for (int i = 0; i < literals.length; i++) {
+                children.add(new DocumentedField(literals[i], getTypeName(), false, descriptions[i], List.of()));
+            }
+            return children;
+        }
+        return  List.of();
     }
 
     protected final @NotNull Stream<String> getLiteralsStream() {
-        return Stream.concat(Arrays.stream(myLiterals), Arrays.stream(myDeprecatedLiterals));
+        return Arrays.stream(myLiterals);
     }
 
     @Override
@@ -72,7 +83,7 @@ public class YamlEnumType extends YamlScalarType {
             return;
         }
 
-        if (Stream.concat(Arrays.stream(myHiddenLiterals), getLiteralsStream()).noneMatch(text::equals)) {
+        if (getLiteralsStream().noneMatch(text::equals)) {
             //TODO quickfix makes sense here if !text.equals(text.toLowerCase)
             holder.registerProblem(scalarValue,
                     ConcordBundle.message("YamlEnumType.validation.error.value.unknown", text),
@@ -82,10 +93,7 @@ public class YamlEnumType extends YamlScalarType {
 
     @Override
     public @NotNull List<LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
-        return Stream.concat(
-                        Arrays.stream(myLiterals).map((String literal) -> createValueLookup(literal, false)),
-                        Arrays.stream(myDeprecatedLiterals).map((String literal) -> createValueLookup(literal, true))
-                )
+        return Arrays.stream(myLiterals).map((String literal) -> createValueLookup(literal, false))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }

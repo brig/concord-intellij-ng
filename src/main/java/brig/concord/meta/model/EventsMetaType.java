@@ -22,23 +22,23 @@ public class EventsMetaType extends ConcordMetaType implements HighlightProvider
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("recordEvents", doc(new BooleanMetaType(), "doc.configuration.events.recordEvents"));
-        features.put("recordTaskInVars", doc(new BooleanMetaType(), "doc.configuration.events.recordTaskInVars"));
-        features.put("truncateMaxStringLength", doc(new IntegerMetaType(), "doc.configuration.events.truncateMaxStringLength"));
-        features.put("truncateMaxArrayLength", doc(new IntegerMetaType(), "doc.configuration.events.truncateMaxArrayLength"));
-        features.put("truncateMaxDepth", doc(new IntegerMetaType(), "doc.configuration.events.truncateMaxDepth"));
-        features.put("recordTaskOutVars", doc(new BooleanMetaType(), "doc.configuration.events.recordTaskOutVars"));
-        features.put("truncateInVars", doc(new BooleanMetaType(), "doc.configuration.events.truncateInVars"));
-        features.put("truncateOutVars", doc(new BooleanMetaType(), "doc.configuration.events.truncateOutVars"));
-        features.put("inVarsBlacklist", doc(new StringArrayMetaType(), "doc.configuration.events.inVarsBlacklist"));
-        features.put("outVarsBlacklist", doc(new StringArrayMetaType(), "doc.configuration.events.outVarsBlacklist"));
-        features.put("recordTaskMeta", doc(new BooleanMetaType(), "doc.configuration.events.recordTaskMeta"));
-        features.put("truncateMeta", doc(new BooleanMetaType(), "doc.configuration.events.truncateMeta"));
-        features.put("metaBlacklist", doc(new StringArrayMetaType(), "doc.configuration.events.metaBlacklist"));
+        features.put("recordEvents", new BooleanMetaType().withDescriptionKey("doc.configuration.events.recordEvents.description"));
+        features.put("recordTaskInVars", new BooleanMetaType().withDescriptionKey("doc.configuration.events.recordTaskInVars.description"));
+        features.put("truncateMaxStringLength", new IntegerMetaType().withDescriptionKey("doc.configuration.events.truncateMaxStringLength.description"));
+        features.put("truncateMaxArrayLength", new IntegerMetaType().withDescriptionKey("doc.configuration.events.truncateMaxArrayLength.description"));
+        features.put("truncateMaxDepth", new IntegerMetaType().withDescriptionKey("doc.configuration.events.truncateMaxDepth.description"));
+        features.put("recordTaskOutVars", new BooleanMetaType().withDescriptionKey("doc.configuration.events.recordTaskOutVars.description"));
+        features.put("truncateInVars", new BooleanMetaType().withDescriptionKey("doc.configuration.events.truncateInVars.description"));
+        features.put("truncateOutVars", new BooleanMetaType().withDescriptionKey("doc.configuration.events.truncateOutVars.description"));
+        features.put("inVarsBlacklist", new StringArrayMetaType().withDescriptionKey("doc.configuration.events.inVarsBlacklist.description"));
+        features.put("outVarsBlacklist", new StringArrayMetaType().withDescriptionKey("doc.configuration.events.outVarsBlacklist.description"));
+        features.put("recordTaskMeta", new BooleanMetaType().withDescriptionKey("doc.configuration.events.recordTaskMeta.description"));
+        features.put("truncateMeta", new BooleanMetaType().withDescriptionKey("doc.configuration.events.truncateMeta.description"));
+        features.put("metaBlacklist", new StringArrayMetaType().withDescriptionKey("doc.configuration.events.metaBlacklist.description"));
     }
 
     private EventsMetaType() {
-        setDocBundlePrefix("doc.configuration.events");
+        setDescriptionKey("doc.configuration.events.description");
     }
 
     public static EventsMetaType getInstance() {
@@ -53,10 +53,5 @@ public class EventsMetaType extends ConcordMetaType implements HighlightProvider
     @Override
     public @Nullable TextAttributesKey getKeyHighlight(String key) {
         return ConcordHighlightingColors.DSL_KEY;
-    }
-
-    private static <T extends YamlMetaType> T doc(T type, String prefix) {
-        type.setDocBundlePrefix(prefix);
-        return type;
     }
 }

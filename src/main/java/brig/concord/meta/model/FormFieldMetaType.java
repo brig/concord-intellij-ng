@@ -13,6 +13,7 @@ import brig.concord.meta.model.value.StringMetaType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.meta.model.Field;
@@ -36,35 +37,36 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     private static final Set<String> required = Set.of("type");
+    private static final List<String> featureKeys = List.of("type", "label", "value", "allow");
     private static final Map<String, YamlMetaType> features = caseInsensitiveMap(Map.of(
-            "label", StringMetaType.getInstance(),
             "type", FieldType.getInstance(),
-            "value", AnythingMetaType.getInstance(),
-            "allow", AnythingMetaType.getInstance()
+            "label", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.label.description"),
+            "value", new AnythingMetaType().withDescriptionKey("doc.forms.formName.formField.value.description"),
+            "allow", new AnythingMetaType().withDescriptionKey("doc.forms.formName.formField.allow.description")
     ));
 
     private static final Map<String, YamlMetaType> stringFeatures = caseInsensitiveMap(Map.of(
-            "pattern", RegexpMetaType.getInstance(),
-            "inputType", StringMetaType.getInstance(),
-            "placeholder", StringMetaType.getInstance(),
-            "search", BooleanMetaType.getInstance(),
-            "readOnly", BooleanMetaType.getInstance()
+            "pattern", new RegexpMetaType().withDescriptionKey("doc.forms.formName.formField.pattern.description"),
+            "inputType", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.inputType.description"),
+            "placeholder", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.placeholder.description"),
+            "search", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.search.description"),
+            "readOnly", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.readonly.description")
     ));
 
     private static final Map<String, YamlMetaType> intFeatures = Map.of(
-            "min", IntegerMetaType.getInstance(),
-            "max", IntegerMetaType.getInstance(),
-            "placeholder", StringMetaType.getInstance(),
-            "readOnly", BooleanMetaType.getInstance()
+            "min", new IntegerMetaType().withDescriptionKey("doc.forms.formName.formField.min.description"),
+            "max", new IntegerMetaType().withDescriptionKey("doc.forms.formName.formField.max.description"),
+            "placeholder", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.placeholder.description"),
+            "readOnly", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.readonly.description")
     );
 
     private static final Map<String, YamlMetaType> booleanFeatures = Map.of(
-            "readOnly", BooleanMetaType.getInstance()
+            "readOnly", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.readonly.description")
     );
 
     private static final Map<String, YamlMetaType> dateFeatures = Map.of(
-            "popupPosition", StringMetaType.getInstance(),
-            "readOnly", BooleanMetaType.getInstance()
+            "popupPosition", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.popupPosition.description"),
+            "readOnly", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.readonly.description")
     );
 
     private static final Map<String, Map<String, YamlMetaType>> featuresByType = Map.of(
@@ -83,7 +85,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
 
 
     protected FormFieldMetaType() {
-        setDocBundlePrefix("doc.forms.formName.formField");
+        setDescriptionKey("doc.forms.formName.formField.description");
     }
 
     @Override
@@ -104,9 +106,9 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
     @Override
     public @NotNull List<Field> computeKeyCompletions(YAMLMapping existingMapping) {
         Map<String, YamlMetaType> typeFeatures = Map.of();
-        Map<String, YamlMetaType> features = FormFieldMetaType.features;
+        var features = FormFieldMetaType.features;
         if (existingMapping != null) {
-            String type = getType(existingMapping);
+            var type = getType(existingMapping);
             if (type != null) {
                 typeFeatures = featuresByType.getOrDefault(type, Map.of());
             }
@@ -124,7 +126,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
             return;
         }
 
-        String type = getType(m);
+        var type = getType(m);
         if (type == null) {
             return;
         }
@@ -133,7 +135,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
             return;
         }
 
-        Map<String, YamlMetaType> typedFeatures = featuresByType.getOrDefault(type, Map.of());
+        var typedFeatures = featuresByType.getOrDefault(type, Map.of());
         m.getKeyValues().stream()
                 .map(YAMLKeyValue::getKeyText)
                 .filter(allFeatures::containsKey) // unknown key is not our business
@@ -144,7 +146,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
                 .map(YAMLKeyValue::getKey)
                 .filter(Objects::nonNull)
                 .forEach(k -> {
-                    String msg = ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", k.getText());
+                    var msg = ConcordBundle.message("YamlUnknownKeysInspectionBase.unknown.key", k.getText());
                     problemsHolder.registerProblem(k, msg, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL);
                 });
     }
@@ -158,7 +160,6 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         var fieldName = kv.getKeyText();
         var formName = findFormName(kv);
 
-        var prefix = getDocBundlePrefix();
         var sb = new StringBuilder();
 
         sb.append("<p>Type: <code>object</code></p>");
@@ -174,10 +175,10 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         // Common keys
         sb.append("<p><b>Keys:</b></p>");
         sb.append("<ul>");
-        appendKeyItem(sb, "type", "string", ConcordBundle.findMessage(prefix + ".type.description"));
-        appendKeyItem(sb, "label", "string", ConcordBundle.findMessage(prefix + ".label.description"));
-        appendKeyItem(sb, "value", "any", ConcordBundle.findMessage(prefix + ".value.description"));
-        appendKeyItem(sb, "allow", "any", ConcordBundle.findMessage(prefix + ".allow.description"));
+        for (var key : featureKeys) {
+            var mt = features.get(key);
+            appendKeyItem(sb, key, mt.getTypeName(), mt.getDescription());
+        }
         sb.append("</ul>");
 
         // Keys by type
@@ -222,7 +223,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         sb.append("<li><code>").append(name).append("</code>");
         sb.append(" <i>(").append(type).append(")</i>");
         if (description != null) {
-            sb.append(" &mdash; ").append(com.intellij.openapi.util.text.StringUtil.decapitalize(description));
+            sb.append(" &mdash; ").append(StringUtil.decapitalize(description));
         }
         sb.append("</li>");
     }
@@ -292,16 +293,17 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         }
 
         public FieldType() {
-            super("form field type");
+            super("string");
 
             List<String> literals = new ArrayList<>();
-            for (String t : types) {
+            for (var t : types) {
                 literals.add(t);
-                for (String c : cardinality) {
+                for (var c : cardinality) {
                     literals.add(t + c);
                 }
             }
-            withLiterals(literals.toArray(new String[0]));
+            setLiterals(literals.toArray(new String[0]));
+            setDescriptionKey("doc.forms.formName.formField.type.description");
         }
 
         public static boolean isValidType(String type) {

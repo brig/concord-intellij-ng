@@ -13,7 +13,7 @@ public class RegexpOrArrayMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected RegexpOrArrayMetaType() {
-        super("regexp|array", List.of(RegexpMetaType.getInstance(), new YamlArrayType(RegexpMetaType.getInstance())));
+    public RegexpOrArrayMetaType() {
+        super("regexp|string[]", List.of(RegexpMetaType.getInstance(), new YamlArrayType(RegexpMetaType.getInstance())));
     }
 }

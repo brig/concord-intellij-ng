@@ -12,5 +12,7 @@ public class ImportsMetaType extends YamlArrayType {
 
     public ImportsMetaType() {
         super(ImportElementMetaType.getInstance());
+
+        setDescriptionKey("doc.imports.description");
     }
 }
