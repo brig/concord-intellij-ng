@@ -13,7 +13,9 @@ public class StepsMetaType extends YamlArrayType {
     }
 
     public StepsMetaType() {
-        super("step[]");
+        super("object[]|string[]");
+
+        setDescriptionKey("doc.flows.flowName.description");
     }
 
     @Override

@@ -1,0 +1,72 @@
+flows:
+  main:
+    - suspend: "event"
+
+    - return
+    - exit
+    - checkpoint: test
+
+    - expr: ${qweqweqwe}
+      meta:
+        k: "v"
+      error:
+        - log: "log"
+      out:
+        k: "v"
+
+    - form: "formName"
+
+    - throw: ${error}
+
+    - name: call step name
+      call: "default2"
+      in:
+        k: "v"
+      out:
+        k: "one"
+      meta:
+        k: "v"
+      retry:
+        times: 1
+        delay: "${delayExpr}"
+    - parallel:
+      - log: "test1"
+      - log: "test2"
+
+    - try:
+        - log: "ME"
+
+        - if: "${test}"
+          then:
+            - log: "test"
+          else:
+            - log: "test"
+      meta:
+        k: "v"
+      out:
+        - o
+
+    - script: groovy
+      body: "test"
+      loop:
+        items: "${test}"
+
+    - set:
+        k: "v"
+
+    - switch: "${test}"
+      one:
+        - "return"
+        - return
+      default:
+        - suspend: "now"
+    - name: "Test task"
+      task: "test"
+      in:
+        k: v
+      out: "test"
+      loop:
+        items:
+          - "one"
+          - "two"
+      ignoreErrors: true

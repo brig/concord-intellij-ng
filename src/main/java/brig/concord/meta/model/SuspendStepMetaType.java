@@ -21,6 +21,8 @@ public class SuspendStepMetaType extends IdentityMetaType {
 
     protected SuspendStepMetaType() {
         super("suspend", Set.of("suspend"));
+
+        setDescriptionKey("doc.flows.flowName.suspend.description");
     }
 
     @Override
