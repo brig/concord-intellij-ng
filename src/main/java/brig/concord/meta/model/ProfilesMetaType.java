@@ -20,6 +20,10 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
         return INSTANCE;
     }
 
+    private ProfilesMetaType() {
+        setDescriptionKey("doc.profiles.description");
+    }
+
     @Override
     protected YamlMetaType getMapEntryType(String name) {
         return ProfilesEntryMetaType.getInstance();
@@ -42,6 +46,10 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
 
         public static ProfilesEntryMetaType getInstance() {
             return INSTANCE;
+        }
+
+        private ProfilesEntryMetaType() {
+            setDescriptionKey("doc.profiles.profileName.description");
         }
 
         @Override

@@ -22,21 +22,21 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Hig
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("runtime", new YamlEnumType("runtime").withLiterals("concord-v2").withDocBundlePrefix("doc.configuration.runtime"));
-        features.put("debug", new BooleanMetaType().withDocBundlePrefix("doc.configuration.debug"));
-        features.put("entryPoint", new CallMetaType().withDocBundlePrefix("doc.configuration.entryPoint"));
-        features.put("dependencies", new DependenciesMetaType().withDocBundlePrefix("doc.configuration.dependencies"));
-        features.put("extraDependencies", DependenciesMetaType.getInstance());
-        features.put("arguments", new AnyMapMetaType().withDocBundlePrefix("doc.configuration.arguments"));
-        features.put("meta", new AnyMapMetaType().withDocBundlePrefix("doc.configuration.meta"));
+        features.put("runtime", new YamlEnumType("runtime").withLiterals("concord-v2").withDescriptionKey("doc.configuration.runtime.description"));
+        features.put("debug", new BooleanMetaType().withDescriptionKey("doc.configuration.debug.description"));
+        features.put("entryPoint", new CallMetaType().withDescriptionKey("doc.configuration.entryPoint.description"));
+        features.put("dependencies", new DependenciesMetaType().withDescriptionKey("doc.configuration.dependencies.description"));
+        features.put("extraDependencies", new DependenciesMetaType().withDescriptionKey("doc.configuration.extraDependencies.description"));
+        features.put("arguments", new AnyMapMetaType().withDescriptionKey("doc.configuration.arguments.description"));
+        features.put("meta", new AnyMapMetaType().withDescriptionKey("doc.configuration.meta.description"));
         features.put("events", EventsMetaType.getInstance());
-        features.put("requirements", new AnyMapMetaType().withDocBundlePrefix("doc.configuration.requirements"));
-        features.put("processTimeout", new DurationMetaType().withDocBundlePrefix("doc.configuration.processTimeout"));
-        features.put("suspendTimeout", new DurationMetaType().withDocBundlePrefix("doc.configuration.suspendTimeout"));
+        features.put("requirements", new AnyMapMetaType().withDescriptionKey("doc.configuration.requirements.description"));
+        features.put("processTimeout", new DurationMetaType().withDescriptionKey("doc.configuration.processTimeout.description"));
+        features.put("suspendTimeout", new DurationMetaType().withDescriptionKey("doc.configuration.suspendTimeout.description"));
         features.put("exclusive", ProcessExclusiveMetaType.getInstance());
-        features.put("out", new StringArrayMetaType().withDocBundlePrefix("doc.configuration.out"));
-        features.put("template", new StringMetaType().withDocBundlePrefix("doc.configuration.template"));
-        features.put("parallelLoopParallelism", new IntegerMetaType().withDocBundlePrefix("doc.configuration.parallelLoopParallelism"));
+        features.put("out", new StringArrayMetaType().withDescriptionKey("doc.configuration.out.description"));
+        features.put("template", new StringMetaType().withDescriptionKey("doc.configuration.template.description"));
+        features.put("parallelLoopParallelism", new IntegerMetaType().withDescriptionKey("doc.configuration.parallelLoopParallelism.description"));
     }
 
     public static ProfileConfigurationMetaType getInstance() {
