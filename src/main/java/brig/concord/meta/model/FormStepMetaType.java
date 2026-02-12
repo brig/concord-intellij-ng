@@ -6,6 +6,7 @@ import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.meta.model.value.MapMetaType;
 import brig.concord.meta.model.value.StringMetaType;
 
+import brig.concord.documentation.Documented;
 import com.intellij.codeInsight.lookup.LookupElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,6 +76,11 @@ public class FormStepMetaType extends IdentityMetaType {
             super(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance()));
 
             setDescriptionKey("doc.step.feature.fields.description");
+        }
+
+        @Override
+        public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
+            return FormFieldMetaType.getInstance().getDocumentationFields();
         }
     }
 }

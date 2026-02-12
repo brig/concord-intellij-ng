@@ -6,8 +6,11 @@ flows:
     - return
     - exit
     - checkpoint: test
+      meta:
+        k: "v"
 
-    - expr: ${qweqweqwe}
+    - name: "Expr step"
+      expr: ${qweqweqwe}
       meta:
         k: "v"
       error:
@@ -16,8 +19,18 @@ flows:
         k: "v"
 
     - form: "formName"
+      yield: true
+      saveSubmittedBy: true
+      runAs:
+        ldap:
+          group: "myGroup"
+      values:
+        name: "default"
+      fields:
+        - fullName: { label: "Name", type: "string" }
 
-    - throw: ${error}
+    - name: "Throw step"
+      throw: ${error}
 
     - name: call step name
       call: "default2"
@@ -39,6 +52,10 @@ flows:
     - parallel:
       - log: "test1"
       - log: "test2"
+      out:
+        k: "v"
+      meta:
+        k: "v"
 
     - try:
         - log: "ME"
@@ -53,10 +70,22 @@ flows:
       out:
         - o
 
-    - script: groovy
+    - name: "Script step"
+      script: groovy
       body: "test"
+      in:
+        k: "v"
+      out:
+        k: "v"
+      meta:
+        k: "v"
+      error:
+        - log: "error"
       loop:
         items: "${test}"
+      retry:
+        times: 2
+        delay: 3
 
     - set:
         k: "v"
@@ -85,13 +114,21 @@ flows:
         delay: 5
       ignoreErrors: true
 
-    - log: "test message"
-    - logYaml: ${someVar}
+    - name: "Log step"
+      log: "test message"
+      meta:
+        k: "v"
+    - name: "LogYaml step"
+      logYaml: ${someVar}
+      meta:
+        k: "v"
     - if: ${condition}
       then:
         - log: "yes"
       else:
         - log: "no"
+      meta:
+        k: "v"
     - block:
         - log: "step1"
         - log: "step2"
