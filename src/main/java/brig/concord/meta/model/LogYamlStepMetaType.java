@@ -18,11 +18,13 @@ public class LogYamlStepMetaType extends IdentityMetaType {
 
     private static final Map<String, YamlMetaType> features = StepFeatures.combine(
             StepFeatures.nameAndMeta(),
-            Map.of("logYaml", StringMetaType.getInstance())
+            Map.of("logYaml", new StringMetaType().withDescriptionKey("doc.step.logYaml.key.description"))
     );
 
     protected LogYamlStepMetaType() {
         super("logYaml", Set.of("logYaml"));
+
+        setDescriptionKey("doc.step.logYaml.description");
     }
 
     @Override

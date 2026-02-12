@@ -1,0 +1,6 @@
+flows:
+  default:
+    - try:
+        - log: "Risky operation"
+      error:
+        - log: "Error occurred"

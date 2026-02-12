@@ -1,0 +1,13 @@
+<div class='definition'>
+    <pre>switch</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Switch step. Evaluates an expression and executes the matching case branch.</p>
+    <p><b>Example:</b></p>
+    <pre><code>- switch: ${action}
+  start:
+    - log: "Starting"
+  stop:
+    - log: "Stopping"
+  default:
+    - log: "Unknown action"</code></pre></div>

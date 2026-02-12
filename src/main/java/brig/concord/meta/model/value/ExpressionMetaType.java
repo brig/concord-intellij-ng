@@ -17,6 +17,7 @@ public class ExpressionMetaType extends YamlScalarType {
 
     protected ExpressionMetaType() {
         super("expression");
+        setDescriptionKey("doc.type.expression.description");
     }
 
     public static ExpressionMetaType getInstance() {

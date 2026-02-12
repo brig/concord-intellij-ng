@@ -1,10 +1,12 @@
 package brig.concord.documentation;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
+import brig.concord.meta.model.IdentityMetaType;
 import brig.concord.psi.ConcordFile;
 import brig.concord.yaml.YAMLTokenTypes;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLMapping;
 import com.intellij.platform.backend.documentation.DocumentationTargetProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilCore;
@@ -44,6 +46,21 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
 
     private static @Nullable YamlMetaType resolveDocumentationType(
             ConcordMetaTypeProvider provider, YAMLKeyValue kv) {
+        // Check if this key is the identity key of a step (or similar identity-based type)
+        // Only use the identity type if it has a description; otherwise fall through
+        // to the value meta type resolution for backwards compatibility
+        var parent = kv.getParent();
+        if (parent instanceof YAMLMapping mapping) {
+            var mappingProxy = provider.getMetaTypeProxy(mapping);
+            if (mappingProxy != null
+                    && mappingProxy.getMetaType() instanceof IdentityMetaType identityType
+                    && identityType.getIdentity().equals(kv.getKeyText())
+                    && identityType.getDescription() != null) {
+                return identityType;
+            }
+        }
+
+        // Fallback to value meta type
         var proxy = provider.getKeyValueMetaType(kv);
         if (proxy == null) {
             return null;

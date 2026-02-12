@@ -1,0 +1,5 @@
+flows:
+  default:
+    - parallel:
+        - log: "Task A"
+        - log: "Task B"

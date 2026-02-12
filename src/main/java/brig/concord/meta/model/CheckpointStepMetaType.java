@@ -17,11 +17,13 @@ public class CheckpointStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "checkpoint", StringMetaType.getInstance(),
+            "checkpoint", new StringMetaType().withDescriptionKey("doc.step.checkpoint.key.description"),
             "meta", StepMetaMetaType.getInstance());
 
     protected CheckpointStepMetaType() {
         super("checkpoint", Set.of("checkpoint"));
+
+        setDescriptionKey("doc.step.checkpoint.description");
     }
 
     @Override

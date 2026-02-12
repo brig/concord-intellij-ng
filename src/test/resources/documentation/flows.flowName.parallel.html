@@ -1,0 +1,16 @@
+<div class='definition'>
+    <pre>parallel</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Parallel step. Executes a group of steps in parallel threads.</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>meta</code> <i>(object)</i> &mdash; step metadata</li>
+        <li><code>out</code> <i>(string|object|string[])</i> &mdash; output variable mappings</li>
+        <li><code>parallel</code> <i>(object[]|string[], required)</i> &mdash; steps to run in parallel</li>
+    </ul>
+    <p><b>Example:</b></p>
+    <pre><code>- parallel:
+    - log: "Task A"
+    - log: "Task B"</code></pre>
+</div>

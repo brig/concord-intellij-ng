@@ -79,7 +79,7 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
                 "repository", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.repository.description"),
                 "projectId", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.projectId.description"),
                 "branch", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.branch.description"),
-                "enabled", new RegexpMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.enabled.description"));
+                "enabled", new BooleanMetaType().withDescriptionKey("doc.triggers.github.conditions.repositoryInfo.enabled.description"));
 
         @Override
         protected @NotNull Map<String, YamlMetaType> getFeatures() {

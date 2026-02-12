@@ -17,6 +17,14 @@ public class StringMetaType extends YamlStringType {
         return INSTANCE;
     }
 
+    public StringMetaType() {
+        this("string");
+    }
+
+    public StringMetaType(String typeName) {
+        super(typeName);
+    }
+
     @Override
     protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
         String text = value.getText();

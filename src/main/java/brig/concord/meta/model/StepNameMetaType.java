@@ -15,6 +15,10 @@ public class StepNameMetaType extends StringMetaType implements HighlightProvide
         return INSTANCE;
     }
 
+    private StepNameMetaType() {
+        setDescriptionKey("doc.step.feature.name.description");
+    }
+
     @Override
     public @Nullable TextAttributesKey getValueHighlight(String value) {
         return ConcordHighlightingColors.DSL_LABEL;

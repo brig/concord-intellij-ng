@@ -28,7 +28,7 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
     private static final Set<String> required = Set.of("spec", "entryPoint");
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "spec", new StringMetaType().withDescriptionKey("doc.triggers.cron.spec.description"),
+            "spec", new StringMetaType("cron").withDescriptionKey("doc.triggers.cron.spec.description"),
             "entryPoint", new CallMetaType().withDescriptionKey("doc.triggers.cron.entryPoint.description"),
             "runAs", new RunAsMetaType().withDescriptionKey("doc.triggers.cron.runAs.description"),
             "activeProfiles", new StringArrayMetaType().withDescriptionKey("doc.triggers.cron.activeProfiles.description"),

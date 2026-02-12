@@ -14,6 +14,6 @@ public class RegexpOrArrayMetaType extends YamlAnyOfType {
     }
 
     public RegexpOrArrayMetaType() {
-        super("regexp|string[]", List.of(RegexpMetaType.getInstance(), new YamlArrayType(RegexpMetaType.getInstance())));
+        super(RegexpMetaType.getInstance(), new YamlArrayType(RegexpMetaType.getInstance()));
     }
 }

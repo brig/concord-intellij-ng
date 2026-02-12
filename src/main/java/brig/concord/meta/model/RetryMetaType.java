@@ -23,7 +23,7 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
     private static final RetryMetaType INSTANCE = new RetryMetaType();
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "in", AnyMapMetaType.getInstance(),
+            "in", new AnyMapMetaType().withDescriptionKey("doc.step.feature.retry.in.description"),
             "times", TimesType.getInstance(),
             "delay", DelayType.getInstance()
     );
@@ -33,6 +33,7 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
     }
 
     protected RetryMetaType() {
+        setDescriptionKey("doc.step.feature.retry.description");
     }
 
     @Override
@@ -54,7 +55,9 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
         }
 
         protected TimesType() {
-            super("times", List.of(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false)));
+            super(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false));
+
+            setDescriptionKey("doc.step.feature.retry.times.description");
         }
 
         @Override
@@ -72,7 +75,9 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
         }
 
         protected DelayType() {
-            super("delay", List.of(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false)));
+            super(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false));
+
+            setDescriptionKey("doc.step.feature.retry.delay.description");
         }
     }
 }

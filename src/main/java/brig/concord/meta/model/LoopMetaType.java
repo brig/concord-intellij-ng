@@ -24,12 +24,17 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
 
     private static final Map<String, YamlMetaType> features = Map.of(
             "items", LoopItemsMetaType.getInstance(),
-            "parallelism", AnyOfType.anyOf(IntegerMetaType.getInstance(), ExpressionMetaType.getInstance()),
+            "parallelism", AnyOfType.anyOf(IntegerMetaType.getInstance(), ExpressionMetaType.getInstance())
+                    .withDescriptionKey("doc.step.feature.loop.parallelism.description"),
             "mode", ModeType.getInstance()
     );
 
     public static LoopMetaType getInstance() {
         return INSTANCE;
+    }
+
+    private LoopMetaType() {
+        setDescriptionKey("doc.step.feature.loop.description");
     }
 
     @Override
@@ -56,8 +61,12 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
         }
 
         protected ModeType() {
-            super("Mode");
+            super("string");
             setLiterals("serial", "parallel");
+            setDescriptionKeys(
+                    "doc.step.feature.loop.mode.serial.description",
+                    "doc.step.feature.loop.mode.parallel.description");
+            setDescriptionKey("doc.step.feature.loop.mode.description");
         }
     }
 }

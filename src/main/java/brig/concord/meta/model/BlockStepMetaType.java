@@ -10,5 +10,7 @@ public class BlockStepMetaType extends GroupOfStepsMetaType {
 
     protected BlockStepMetaType() {
         super("block");
+
+        setDescriptionKey("doc.step.block.description");
     }
 }

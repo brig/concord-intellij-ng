@@ -23,17 +23,11 @@ public class AnyOfType extends YamlAnyOfType {
             throw new IllegalArgumentException("AnyOfType.anyOf() requires at least one subtype");
         }
 
-        // Make it readable in logs/debugging/UI
-        var display = Stream.of(types)
-                .map(YamlMetaType::getTypeName)
-                .collect(Collectors.joining("|"));
-
-        var name = "AnyOf[" + display + "]";
-        return new AnyOfType(name, flattenTypes(types));
+        return new AnyOfType(flattenTypes(types));
     }
 
-    protected AnyOfType(@NotNull String typeName, List<YamlMetaType> types) {
-        super(typeName, types);
+    protected AnyOfType(List<YamlMetaType> types) {
+        super(types);
     }
 
     @Override

@@ -27,7 +27,8 @@ public class TaskInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
     }
 
     protected TaskInParamsMetaType(@NotNull YamlMetaType objectType) {
-        super("in params [object|expression]", List.of(ExpressionMetaType.getInstance(), objectType));
+        super(ExpressionMetaType.getInstance(), objectType);
+        setDescriptionKey("doc.step.feature.in.description");
     }
 
     @Override

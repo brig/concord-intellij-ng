@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
-import java.util.List;
 
 public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaType {
 
@@ -24,12 +23,14 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
     }
 
     protected TaskOutParamsMetaType() {
-        super("out params [object|string]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()));
+        super(StringMetaType.getInstance(), AnyMapMetaType.getInstance());
         this.hasSchema = false;
+
+        setDescriptionKey("doc.step.feature.out.description");
     }
 
     private TaskOutParamsMetaType(@NotNull YamlMetaType objectType, boolean hasSchema) {
-        super("out params [object|string]", List.of(StringMetaType.getInstance(), objectType));
+        super(StringMetaType.getInstance(), objectType);
         this.hasSchema = hasSchema;
     }
 

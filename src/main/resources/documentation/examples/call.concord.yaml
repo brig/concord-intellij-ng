@@ -1,0 +1,5 @@
+flows:
+  default:
+    - call: "myFlow"
+      in:
+        name: "value"

@@ -24,6 +24,8 @@ public class CallStepMetaType extends IdentityMetaType {
 
     protected CallStepMetaType() {
         super("call", Set.of("call"));
+
+        setDescriptionKey("doc.step.call.description");
     }
 
     @Override

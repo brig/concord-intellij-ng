@@ -24,6 +24,8 @@ public class ExprStepMetaType extends IdentityMetaType {
 
     protected ExprStepMetaType() {
         super("expr", Set.of("expr"));
+
+        setDescriptionKey("doc.step.expr.description");
     }
 
     @Override

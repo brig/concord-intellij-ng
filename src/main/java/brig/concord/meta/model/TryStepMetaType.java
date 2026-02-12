@@ -10,5 +10,7 @@ public class TryStepMetaType extends GroupOfStepsMetaType {
 
     protected TryStepMetaType() {
         super("try");
+
+        setDescriptionKey("doc.step.try.description");
     }
 }

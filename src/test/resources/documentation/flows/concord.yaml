@@ -1,6 +1,7 @@
 flows:
   main:
     - suspend: "event"
+    - name: only name
 
     - return
     - exit
@@ -26,6 +27,12 @@ flows:
         k: "one"
       meta:
         k: "v"
+      error:
+        - log: "call error"
+      loop:
+        items:
+          - "a"
+          - "b"
       retry:
         times: 1
         delay: "${delayExpr}"
@@ -65,8 +72,26 @@ flows:
       in:
         k: v
       out: "test"
+      meta:
+        k: "v"
+      error:
+        - log: "error"
       loop:
         items:
           - "one"
           - "two"
+      retry:
+        times: 3
+        delay: 5
       ignoreErrors: true
+
+    - log: "test message"
+    - logYaml: ${someVar}
+    - if: ${condition}
+      then:
+        - log: "yes"
+      else:
+        - log: "no"
+    - block:
+        - log: "step1"
+        - log: "step2"

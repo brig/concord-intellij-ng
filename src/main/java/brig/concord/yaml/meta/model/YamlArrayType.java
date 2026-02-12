@@ -19,7 +19,7 @@ public class YamlArrayType extends YamlMetaType {
     private final @Nullable YamlMetaType myElementType;
 
     public YamlArrayType(@NotNull YamlMetaType elementType) {
-        super(elementType.getTypeName() + "[]");
+        super(elementType.getTypeName("[]"));
         myElementType = elementType;
     }
 

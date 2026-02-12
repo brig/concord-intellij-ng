@@ -1,0 +1,17 @@
+<div class='definition'>
+    <pre>loop</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Loop configuration</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>items</code> <i>(expression|any[]|object, required)</i> &mdash; collection to iterate over</li>
+        <li><code>mode</code> <i>(string)</i> &mdash; execution mode
+            <ul>
+                <li><code>serial</code> &mdash; Execute items sequentially, one at a time</li>
+                <li><code>parallel</code> &mdash; Execute items in parallel threads</li>
+            </ul>
+        </li>
+        <li><code>parallelism</code> <i>(integer|expression)</i> &mdash; maximum number of parallel threads</li>
+    </ul>
+</div>

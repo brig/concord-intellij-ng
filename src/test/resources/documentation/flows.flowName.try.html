@@ -1,0 +1,20 @@
+<div class='definition'>
+    <pre>try</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Try step. Executes steps with error handling support.</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>error</code> <i>(object[]|string[])</i> &mdash; error handling steps</li>
+        <li><code>loop</code> <i>(object)</i> &mdash; loop configuration</li>
+        <li><code>meta</code> <i>(object)</i> &mdash; step metadata</li>
+        <li><code>name</code> <i>(string)</i> &mdash; step display name</li>
+        <li><code>out</code> <i>(string|string[])</i> &mdash; output variable mappings</li>
+        <li><code>try</code> <i>(object[]|string[], required)</i> &mdash; steps to try</li>
+    </ul>
+    <p><b>Example:</b></p>
+    <pre><code>- try:
+    - log: "Risky operation"
+  error:
+    - log: "Error occurred"</code></pre>
+</div>

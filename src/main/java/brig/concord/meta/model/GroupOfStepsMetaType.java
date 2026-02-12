@@ -21,9 +21,11 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
     }
 
     private static Map<String, YamlMetaType> createFeatures(String name) {
+        var identitySteps = new StepsMetaType();
+        identitySteps.setDescriptionKey("doc.step." + name + ".key.description");
         return StepFeatures.combine(
                 StepFeatures.nameAndMeta(), StepFeatures.error(),
-                Map.of(name, StepsMetaType.getInstance(),
+                Map.of(name, identitySteps,
                        "out", GroupOfStepsOutParamsMetaType.getInstance(),
                        "loop", LoopMetaType.getInstance())
         );

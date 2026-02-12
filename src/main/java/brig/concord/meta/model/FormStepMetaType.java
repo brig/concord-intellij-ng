@@ -25,16 +25,18 @@ public class FormStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "form", StringMetaType.getInstance(), // TODO: type for search
-            "yield", BooleanMetaType.getInstance(),
-            "saveSubmittedBy", BooleanMetaType.getInstance(),
-            "runAs", AnyMapMetaType.getInstance(),
-            "values", AnyMapMetaType.getInstance(),
+            "form", new StringMetaType().withDescriptionKey("doc.step.form.key.description"),
+            "yield", new BooleanMetaType().withDescriptionKey("doc.step.feature.yield.description"),
+            "saveSubmittedBy", new BooleanMetaType().withDescriptionKey("doc.step.feature.saveSubmittedBy.description"),
+            "runAs", new AnyMapMetaType().withDescriptionKey("doc.step.feature.runAs.description"),
+            "values", new AnyMapMetaType().withDescriptionKey("doc.step.feature.values.description"),
             "fields", FieldsType.getInstance()
     );
 
     protected FormStepMetaType() {
         super("form", Set.of("form"));
+
+        setDescriptionKey("doc.step.form.description");
     }
 
     @Override
@@ -70,7 +72,9 @@ public class FormStepMetaType extends IdentityMetaType {
         }
 
         protected FieldsType() {
-            super("Form call fields", List.of(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance())));
+            super(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance()));
+
+            setDescriptionKey("doc.step.feature.fields.description");
         }
     }
 }

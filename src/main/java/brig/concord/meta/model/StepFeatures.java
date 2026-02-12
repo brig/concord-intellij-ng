@@ -15,8 +15,10 @@ public final class StepFeatures {
     }
 
     public static Map<String, YamlMetaType> error() {
+        var errorSteps = new StepsMetaType();
+        errorSteps.setDescriptionKey("doc.step.feature.error.description");
         return Map.of(
-                "error", StepsMetaType.getInstance()
+                "error", errorSteps
         );
     }
 

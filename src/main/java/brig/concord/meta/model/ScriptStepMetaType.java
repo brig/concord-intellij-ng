@@ -19,25 +19,22 @@ public class ScriptStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private volatile Map<String, YamlMetaType> features;
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
+            Map.of(SCRIPT_KEY, new StringMetaType().withDescriptionKey("doc.step.script.key.description"),
+                   BODY_KEY, new StringMetaType().withDescriptionKey("doc.step.feature.body.description"),
+                   "in", InParamsMetaType.getInstance(),
+                   "out", ScriptOutParamsMetaType.getInstance())
+    );
 
     protected ScriptStepMetaType() {
         super("script", Set.of("script"));
+
+        setDescriptionKey("doc.step.script.description");
     }
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
-        var f = features;
-        if (f == null) {
-            f = StepFeatures.combine(
-                    StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
-                    Map.of(SCRIPT_KEY, StringMetaType.getInstance(),
-                           BODY_KEY, StringMetaType.getInstance(),
-                           "in", InParamsMetaType.getInstance(),
-                           "out", ScriptOutParamsMetaType.getInstance())
-            );
-            features = f;
-        }
-        return f;
+        return features;
     }
 }

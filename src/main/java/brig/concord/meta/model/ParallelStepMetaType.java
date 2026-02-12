@@ -14,14 +14,22 @@ public class ParallelStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, YamlMetaType> features = Map.of(
-            "parallel", StepsMetaType.getInstance(),
-            "out", ParallelOutParamsMetaType.getInstance(),
-            "meta", StepMetaMetaType.getInstance()
-    );
+    private static final Map<String, YamlMetaType> features;
+
+    static {
+        var parallelSteps = new StepsMetaType();
+        parallelSteps.setDescriptionKey("doc.step.parallel.key.description");
+        features = Map.of(
+                "parallel", parallelSteps,
+                "out", ParallelOutParamsMetaType.getInstance(),
+                "meta", StepMetaMetaType.getInstance()
+        );
+    }
 
     protected ParallelStepMetaType() {
         super("parallel", Set.of("parallel"));
+
+        setDescriptionKey("doc.step.parallel.description");
     }
 
     @Override

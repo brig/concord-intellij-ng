@@ -1,0 +1,18 @@
+<div class='definition'>
+    <pre>form</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Form step. Displays a form to collect user input and suspends the process.</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>fields</code> <i>(expression|object[])</i> &mdash; form field definitions</li>
+        <li><code>form</code> <i>(string, required)</i> &mdash; form name</li>
+        <li><code>runAs</code> <i>(object)</i> &mdash; user to run the form as</li>
+        <li><code>saveSubmittedBy</code> <i>(boolean)</i> &mdash; save the user who submitted the form</li>
+        <li><code>values</code> <i>(object)</i> &mdash; preset form field values</li>
+        <li><code>yield</code> <i>(boolean)</i> &mdash; whether to yield the form</li>
+    </ul>
+    <p><b>Example:</b></p>
+    <pre><code>- form: "myForm"
+  yield: true</code></pre>
+</div>

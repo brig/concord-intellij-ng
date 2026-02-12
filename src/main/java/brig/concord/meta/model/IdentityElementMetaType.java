@@ -20,7 +20,7 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType implements D
     private final List<IdentityMetaType> entries;
 
     protected IdentityElementMetaType(List<IdentityMetaType> entries) {
-        super("object", List.copyOf(entries));
+        super(List.copyOf(entries));
 
         this.entries = entries;
     }

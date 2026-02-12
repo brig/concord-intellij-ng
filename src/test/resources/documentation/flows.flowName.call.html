@@ -1,0 +1,21 @@
+<div class='definition'>
+    <pre>call</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Call step. Invokes another flow by name, optionally passing input/output parameters.</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>call</code> <i>(string, required)</i> &mdash; flow name to call</li>
+        <li><code>error</code> <i>(object[]|string[])</i> &mdash; error handling steps</li>
+        <li><code>in</code> <i>(expression|object)</i> &mdash; input parameters</li>
+        <li><code>loop</code> <i>(object)</i> &mdash; loop configuration</li>
+        <li><code>meta</code> <i>(object)</i> &mdash; step metadata</li>
+        <li><code>name</code> <i>(string)</i> &mdash; step display name</li>
+        <li><code>out</code> <i>(string|object|string[])</i> &mdash; output variable mappings</li>
+        <li><code>retry</code> <i>(object)</i> &mdash; retry configuration</li>
+    </ul>
+    <p><b>Example:</b></p>
+    <pre><code>- call: "myFlow"
+  in:
+    name: "value"</code></pre>
+</div>

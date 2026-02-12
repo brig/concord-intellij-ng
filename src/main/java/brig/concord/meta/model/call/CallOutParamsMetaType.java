@@ -21,7 +21,9 @@ public class CallOutParamsMetaType extends YamlAnyOfType {
     }
 
     protected CallOutParamsMetaType() {
-        super("out params [object|array|string]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance()));
+        super(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance());
+
+        setDescriptionKey("doc.step.feature.out.description");
     }
 
     @Override

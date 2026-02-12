@@ -19,14 +19,24 @@ public class IfStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, YamlMetaType> features = Map.of(
-            "if", ExpressionMetaType.getInstance(),
-            THEN, StepsMetaType.getInstance(),
-            ELSE, StepsMetaType.getInstance(),
-            "meta", StepMetaMetaType.getInstance());
+    private static final Map<String, YamlMetaType> features;
+
+    static {
+        var thenSteps = new StepsMetaType();
+        thenSteps.setDescriptionKey("doc.step.feature.then.description");
+        var elseSteps = new StepsMetaType();
+        elseSteps.setDescriptionKey("doc.step.feature.else.description");
+        features = Map.of(
+                "if", ExpressionMetaType.getInstance(),
+                THEN, thenSteps,
+                ELSE, elseSteps,
+                "meta", StepMetaMetaType.getInstance());
+    }
 
     protected IfStepMetaType() {
         super("if", Set.of("if", THEN));
+
+        setDescriptionKey("doc.step.if.description");
     }
 
     @Override

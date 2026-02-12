@@ -58,6 +58,10 @@ public abstract class YamlMetaType implements Documented {
         return myTypeName;
     }
 
+    public @NotNull String getTypeName(@NotNull String suffix) {
+        return myTypeName + suffix;
+    }
+
     @Contract(pure = true)
     public @NotNull String getDisplayName() {
         return myTypeName;

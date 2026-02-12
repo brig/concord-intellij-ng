@@ -17,6 +17,10 @@ public class RegexpMetaType extends StringMetaType {
         return INSTANCE;
     }
 
+    public RegexpMetaType() {
+        super("regexp");
+    }
+
     @Override
     protected void validateScalarValue(@NotNull YAMLScalar scalarValue, @NotNull ProblemsHolder holder) {
         super.validateScalarValue(scalarValue, holder);
