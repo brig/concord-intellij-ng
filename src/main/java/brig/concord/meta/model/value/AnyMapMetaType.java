@@ -13,7 +13,7 @@ public class AnyMapMetaType extends MapMetaType {
         return INSTANCE;
     }
 
-    protected AnyMapMetaType() {
+    public AnyMapMetaType() {
     }
 
     @Override

@@ -6,6 +6,7 @@ import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.meta.model.value.MapMetaType;
 import brig.concord.meta.model.value.StringMetaType;
 
+import brig.concord.documentation.Documented;
 import com.intellij.codeInsight.lookup.LookupElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,16 +26,18 @@ public class FormStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "form", StringMetaType.getInstance(), // TODO: type for search
-            "yield", BooleanMetaType.getInstance(),
-            "saveSubmittedBy", BooleanMetaType.getInstance(),
-            "runAs", AnyMapMetaType.getInstance(),
-            "values", AnyMapMetaType.getInstance(),
+            "form", new StringMetaType().withDescriptionKey("doc.step.form.key.description"),
+            "yield", new BooleanMetaType().withDescriptionKey("doc.step.feature.yield.description"),
+            "saveSubmittedBy", new BooleanMetaType().withDescriptionKey("doc.step.feature.saveSubmittedBy.description"),
+            "runAs", new AnyMapMetaType().withDescriptionKey("doc.step.feature.runAs.description"),
+            "values", new AnyMapMetaType().withDescriptionKey("doc.step.feature.values.description"),
             "fields", FieldsType.getInstance()
     );
 
-    protected FormStepMetaType() {
+    private FormStepMetaType() {
         super("form", Set.of("form"));
+
+        setDescriptionKey("doc.step.form.description");
     }
 
     @Override
@@ -55,9 +58,6 @@ public class FormStepMetaType extends IdentityMetaType {
             return INSTANCE;
         }
 
-        protected FieldWrapper() {
-        }
-
         @Override
         protected YamlMetaType getMapEntryType(String name) {
             return FormFieldMetaType.getInstance();
@@ -72,8 +72,15 @@ public class FormStepMetaType extends IdentityMetaType {
             return INSTANCE;
         }
 
-        protected FieldsType() {
-            super("Form call fields", List.of(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance())));
+        private FieldsType() {
+            super(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance()));
+
+            setDescriptionKey("doc.step.feature.fields.description");
+        }
+
+        @Override
+        public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
+            return FormFieldMetaType.getInstance().getAllDocumentationFields();
         }
     }
 }

@@ -1,0 +1,7 @@
+flows:
+  default:
+    - if: ${condition}
+      then:
+        - log: "true branch"
+      else:
+        - log: "false branch"

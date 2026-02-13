@@ -1,0 +1,24 @@
+<div class='definition'>
+    <pre>task</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Task step. Executes a registered task plugin (e.g. http, smtp, docker)</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>error</code> <i>(object[]|string[])</i> &mdash; error handling steps</li>
+        <li><code>ignoreErrors</code> <i>(boolean)</i> &mdash; continue execution on error</li>
+        <li><code>in</code> <i>(expression|object)</i> &mdash; input parameters</li>
+        <li><code>loop</code> <i>(object)</i> &mdash; loop configuration</li>
+        <li><code>meta</code> <i>(object)</i> &mdash; step metadata</li>
+        <li><code>name</code> <i>(string)</i> &mdash; step display name</li>
+        <li><code>out</code> <i>(string|object)</i> &mdash; output variable mappings</li>
+        <li><code>retry</code> <i>(object)</i> &mdash; retry configuration</li>
+        <li><code>task</code> <i>(string, required)</i> &mdash; task plugin name</li>
+    </ul>
+    <p><b>Example:</b></p>
+    <pre><code>- name: "Download artifact"
+  task: "http"
+  in:
+    url: "https://example.com"
+  out: response</code></pre>
+</div>

@@ -17,10 +17,12 @@ public class SuspendStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "suspend", StringMetaType.getInstance());
+            "suspend", new StringMetaType().withDescriptionKey("doc.step.suspend.key.description"));
 
-    protected SuspendStepMetaType() {
+    private SuspendStepMetaType() {
         super("suspend", Set.of("suspend"));
+
+        setDescriptionKey("doc.step.suspend.description");
     }
 
     @Override

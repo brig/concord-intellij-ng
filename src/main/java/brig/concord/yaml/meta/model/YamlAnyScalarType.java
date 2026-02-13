@@ -13,10 +13,6 @@ public class YamlAnyScalarType extends YamlScalarType {
     }
 
     public YamlAnyScalarType() {
-        this("any scalar");
-    }
-
-    public YamlAnyScalarType(String displayName) {
-        super("yaml:any-scalar", displayName);
+        super("any scalar");
     }
 }

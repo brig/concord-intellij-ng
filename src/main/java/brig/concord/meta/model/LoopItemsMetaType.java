@@ -19,8 +19,10 @@ public class LoopItemsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected LoopItemsMetaType() {
-        super("expression|array|object", List.of(ExpressionMetaType.getInstance(), new YamlArrayType(LoopArrayItemMetaType.getInstance()), AnyMapMetaType.getInstance()));
+    private LoopItemsMetaType() {
+        super(ExpressionMetaType.getInstance(), new YamlArrayType(LoopArrayItemMetaType.getInstance()), AnyMapMetaType.getInstance());
+
+        setDescriptionKey("doc.step.feature.loop.items.description");
     }
 
     @Override

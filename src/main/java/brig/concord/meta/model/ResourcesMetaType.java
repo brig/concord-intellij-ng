@@ -17,7 +17,7 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     private static final ResourcesMetaType INSTANCE = new ResourcesMetaType();
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "concord", StringArrayMetaType.getInstance()
+            "concord", new StringArrayMetaType().withDescriptionKey("doc.resources.concord.description")
     );
 
     public static ResourcesMetaType getInstance() {
@@ -25,6 +25,7 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     private ResourcesMetaType() {
+        setDescriptionKey("doc.resources.description");
     }
 
     @Override

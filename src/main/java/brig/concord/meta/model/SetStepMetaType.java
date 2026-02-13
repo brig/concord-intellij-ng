@@ -17,10 +17,12 @@ public class SetStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "set", AnyMapMetaType.getInstance());
+            "set", new AnyMapMetaType().withDescriptionKey("doc.step.set.key.description"));
 
-    protected SetStepMetaType() {
+    private SetStepMetaType() {
         super("set", Set.of("set"));
+
+        setDescriptionKey("doc.step.set.description");
     }
 
     @Override

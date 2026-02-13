@@ -104,6 +104,10 @@
         <callHierarchyProvider language="Concord"
                                implementationClass="brig.concord.hierarchy.FlowCallHierarchyProvider"/>
 
+        <!-- Documentation -->
+        <platform.backend.documentation.targetProvider
+                implementation="brig.concord.documentation.ConcordDocumentationTargetProvider"/>
+
         <!-- Validation -->
         <annotator language="Concord"
                    implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>

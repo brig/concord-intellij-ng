@@ -22,12 +22,13 @@ public class TaskInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
         return INSTANCE;
     }
 
-    protected TaskInParamsMetaType() {
+    private TaskInParamsMetaType() {
         this(AnyMapMetaType.getInstance());
     }
 
-    protected TaskInParamsMetaType(@NotNull YamlMetaType objectType) {
-        super("in params [object|expression]", List.of(ExpressionMetaType.getInstance(), objectType));
+    private TaskInParamsMetaType(@NotNull YamlMetaType objectType) {
+        super(ExpressionMetaType.getInstance(), objectType);
+        setDescriptionKey("doc.step.feature.in.description");
     }
 
     @Override

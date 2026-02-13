@@ -30,6 +30,10 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
         return INSTANCE;
     }
 
+    public CallMetaType() {
+        setDescriptionKey("doc.step.call.key.description");
+    }
+
     @Override
     public @Nullable TextAttributesKey getValueHighlight(String value) {
         return ConcordHighlightingColors.TARGET_IDENTIFIER;

@@ -12,25 +12,32 @@ import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class YamlArrayType extends YamlMetaType {
 
-    private final @NotNull YamlMetaType myElementType;
+    private final @Nullable YamlMetaType myElementType;
 
     public YamlArrayType(@NotNull YamlMetaType elementType) {
-        super(elementType.getTypeName() + "[]");
+        super(elementType.getTypeName("[]"));
         myElementType = elementType;
+    }
+
+    protected YamlArrayType(@NotNull String typeName) {
+        super(typeName);
+        myElementType = null;
     }
 
     @Override
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        if(!(value instanceof YAMLSequence))
+        if(!(value instanceof YAMLSequence)) {
             problemsHolder.registerProblem(value, ConcordBundle.message("YamlUnknownValuesInspectionBase.error.array.is.required"));
+        }
     }
 
     public @NotNull YamlMetaType getElementType() {
-        return myElementType;
+        return Objects.requireNonNull(myElementType, "Subclass must override getElementType()");
     }
 
     @Override

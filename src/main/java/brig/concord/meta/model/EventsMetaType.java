@@ -22,26 +22,27 @@ public class EventsMetaType extends ConcordMetaType implements HighlightProvider
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("recordEvents", BooleanMetaType.getInstance());
-        features.put("recordTaskInVars", BooleanMetaType.getInstance());
-        features.put("truncateMaxStringLength", IntegerMetaType.getInstance());
-        features.put("truncateMaxArrayLength", IntegerMetaType.getInstance());
-        features.put("truncateMaxDepth", IntegerMetaType.getInstance());
-        features.put("recordTaskOutVars", BooleanMetaType.getInstance());
-        features.put("truncateInVars", BooleanMetaType.getInstance());
-        features.put("truncateOutVars", BooleanMetaType.getInstance());
-        features.put("inVarsBlacklist", StringArrayMetaType.getInstance());
-        features.put("outVarsBlacklist", StringArrayMetaType.getInstance());
-        features.put("recordTaskMeta", BooleanMetaType.getInstance());
-        features.put("truncateMeta", BooleanMetaType.getInstance());
-        features.put("metaBlacklist", StringArrayMetaType.getInstance());
+        features.put("recordEvents", new BooleanMetaType().withDescriptionKey("doc.configuration.events.recordEvents.description"));
+        features.put("recordTaskInVars", new BooleanMetaType().withDescriptionKey("doc.configuration.events.recordTaskInVars.description"));
+        features.put("truncateMaxStringLength", new IntegerMetaType().withDescriptionKey("doc.configuration.events.truncateMaxStringLength.description"));
+        features.put("truncateMaxArrayLength", new IntegerMetaType().withDescriptionKey("doc.configuration.events.truncateMaxArrayLength.description"));
+        features.put("truncateMaxDepth", new IntegerMetaType().withDescriptionKey("doc.configuration.events.truncateMaxDepth.description"));
+        features.put("recordTaskOutVars", new BooleanMetaType().withDescriptionKey("doc.configuration.events.recordTaskOutVars.description"));
+        features.put("truncateInVars", new BooleanMetaType().withDescriptionKey("doc.configuration.events.truncateInVars.description"));
+        features.put("truncateOutVars", new BooleanMetaType().withDescriptionKey("doc.configuration.events.truncateOutVars.description"));
+        features.put("inVarsBlacklist", new StringArrayMetaType().withDescriptionKey("doc.configuration.events.inVarsBlacklist.description"));
+        features.put("outVarsBlacklist", new StringArrayMetaType().withDescriptionKey("doc.configuration.events.outVarsBlacklist.description"));
+        features.put("recordTaskMeta", new BooleanMetaType().withDescriptionKey("doc.configuration.events.recordTaskMeta.description"));
+        features.put("truncateMeta", new BooleanMetaType().withDescriptionKey("doc.configuration.events.truncateMeta.description"));
+        features.put("metaBlacklist", new StringArrayMetaType().withDescriptionKey("doc.configuration.events.metaBlacklist.description"));
+    }
+
+    private EventsMetaType() {
+        setDescriptionKey("doc.configuration.events.description");
     }
 
     public static EventsMetaType getInstance() {
         return INSTANCE;
-    }
-
-    protected EventsMetaType() {
     }
 
     @Override

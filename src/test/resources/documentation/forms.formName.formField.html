@@ -1,0 +1,51 @@
+<div class='definition'>
+    <pre>fullName</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Form field definition. Submitted value is stored in <code>myForm.fullName</code></p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>type</code> <i>(string)</i> &mdash; field type: <code>string</code>, <code>int</code>,
+            <code>decimal</code>, <code>boolean</code>, <code>file</code> (cardinality: <code>?</code>, <code>+</code>,
+            <code>*</code>)
+        </li>
+        <li><code>label</code> <i>(string)</i> &mdash; human-readable label</li>
+        <li><code>value</code> <i>(any)</i> &mdash; default value expression, evaluated when the form is called</li>
+        <li><code>allow</code> <i>(any)</i> &mdash; allowed values (literal/array/object or expression)</li>
+    </ul>
+    <p><b>Keys by type:</b></p>
+    <p><b>string</b></p>
+    <ul>
+        <li><code>inputType</code> <i>(string)</i> &mdash; input type (for example: <code>text</code>,
+            <code>password</code>, <code>email</code>)
+        </li>
+        <li><code>pattern</code> <i>(regexp)</i> &mdash; regular expression to validate the value</li>
+        <li><code>placeholder</code> <i>(string)</i> &mdash; short hint shown in the input</li>
+        <li><code>readOnly</code> <i>(boolean)</i> &mdash; make the field read-only</li>
+        <li><code>search</code> <i>(boolean)</i> &mdash; allow searching in dropdown input</li>
+    </ul>
+    <p><b>int</b></p>
+    <ul>
+        <li><code>max</code> <i>(integer)</i> &mdash; maximum value</li>
+        <li><code>min</code> <i>(integer)</i> &mdash; minimum value</li>
+        <li><code>placeholder</code> <i>(string)</i> &mdash; short hint shown in the input</li>
+        <li><code>readOnly</code> <i>(boolean)</i> &mdash; make the field read-only</li>
+    </ul>
+    <p><b>decimal</b></p>
+    <ul>
+        <li><code>max</code> <i>(integer)</i> &mdash; maximum value</li>
+        <li><code>min</code> <i>(integer)</i> &mdash; minimum value</li>
+        <li><code>placeholder</code> <i>(string)</i> &mdash; short hint shown in the input</li>
+        <li><code>readOnly</code> <i>(boolean)</i> &mdash; make the field read-only</li>
+    </ul>
+    <p><b>boolean</b></p>
+    <ul>
+        <li><code>readOnly</code> <i>(boolean)</i> &mdash; make the field read-only</li>
+    </ul>
+    <p><b>file</b></p>
+    <ul>
+        <li><code>type</code> <i>(file)</i> &mdash; file upload field; uploaded file is stored in the process workspace
+        </li>
+    </ul>
+    <p><b>Cardinality:</b> <code>string</code> single, <code>string?</code> optional, <code>string+</code> one or more,
+        <code>string*</code> zero or more</p></div>

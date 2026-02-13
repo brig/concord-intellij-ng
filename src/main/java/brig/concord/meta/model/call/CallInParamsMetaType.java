@@ -17,12 +17,13 @@ public class CallInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
         return INSTANCE;
     }
 
-    protected CallInParamsMetaType() {
+    private CallInParamsMetaType() {
         this(objectMetaType(null));
     }
 
-    protected CallInParamsMetaType(YamlMetaType objectType) {
-        super("in params [object|expression]", List.of(ExpressionMetaType.getInstance(), objectType));
+    private CallInParamsMetaType(YamlMetaType objectType) {
+        super(ExpressionMetaType.getInstance(), objectType);
+        setDescriptionKey("doc.step.feature.in.description");
     }
 
     @Override

@@ -19,21 +19,28 @@ public class IfStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    // lazy init via holder to break circular static dependency through StepsMetaType
-    private static class FeaturesHolder {
-        static final Map<String, YamlMetaType> FEATURES = Map.of(
+    private static final Map<String, YamlMetaType> features;
+
+    static {
+        var thenSteps = new StepsMetaType();
+        thenSteps.setDescriptionKey("doc.step.feature.then.description");
+        var elseSteps = new StepsMetaType();
+        elseSteps.setDescriptionKey("doc.step.feature.else.description");
+        features = Map.of(
                 "if", ExpressionMetaType.getInstance(),
-                THEN, StepsMetaType.getInstance(),
-                ELSE, StepsMetaType.getInstance(),
+                THEN, thenSteps,
+                ELSE, elseSteps,
                 "meta", StepMetaMetaType.getInstance());
     }
 
-    protected IfStepMetaType() {
+    private IfStepMetaType() {
         super("if", Set.of("if", THEN));
+
+        setDescriptionKey("doc.step.if.description");
     }
 
     @Override
     public @NotNull Map<String, YamlMetaType> getFeatures() {
-        return FeaturesHolder.FEATURES;
+        return features;
     }
 }

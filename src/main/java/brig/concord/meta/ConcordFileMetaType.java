@@ -21,15 +21,12 @@ public class ConcordFileMetaType extends ConcordMetaType implements HighlightPro
         return INSTANCE;
     }
 
-    protected ConcordFileMetaType() {
-    }
-
     protected static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
         features.put("resources", ResourcesMetaType.getInstance());
         features.put("configuration", ConfigurationMetaType.getInstance());
-        features.put("publicFlows", StringArrayMetaType.getInstance());
+        features.put("publicFlows", new StringArrayMetaType().withDescriptionKey("doc.publicFlows.description"));
         features.put("forms", FormsMetaType.getInstance());
         features.put("imports", ImportsMetaType.getInstance());
         features.put("profiles", ProfilesMetaType.getInstance());

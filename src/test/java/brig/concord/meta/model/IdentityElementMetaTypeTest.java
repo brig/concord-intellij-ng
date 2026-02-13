@@ -35,7 +35,7 @@ class IdentityElementMetaTypeTest {
     private static class TestContainer extends IdentityElementMetaType {
 
         TestContainer(IdentityMetaType... entries) {
-            super("test-container", List.of(entries));
+            super(List.of(entries));
         }
 
         @Override

@@ -9,4 +9,8 @@ public class StepMetaMetaType extends AnyMapMetaType {
     public static StepMetaMetaType getInstance() {
         return INSTANCE;
     }
+
+    private StepMetaMetaType() {
+        setDescriptionKey("doc.step.feature.meta.description");
+    }
 }

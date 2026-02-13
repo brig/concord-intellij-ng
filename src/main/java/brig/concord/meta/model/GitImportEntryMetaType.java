@@ -23,16 +23,17 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "name", StringMetaType.getInstance(),
-            "url", StringMetaType.getInstance(),
-            "version", StringMetaType.getInstance(),
-            "path", StringMetaType.getInstance(),
-            "dest", StringMetaType.getInstance(),
-            "exclude", RegexpArrayMetaType.getInstance(),
+            "name", new StringMetaType().withDescriptionKey("doc.imports.git.name.description"),
+            "url", new StringMetaType().withDescriptionKey("doc.imports.git.url.description"),
+            "version", new StringMetaType().withDescriptionKey("doc.imports.git.version.description"),
+            "path", new StringMetaType().withDescriptionKey("doc.imports.git.path.description"),
+            "dest", new StringMetaType().withDescriptionKey("doc.imports.git.dest.description"),
+            "exclude", new RegexpArrayMetaType().withDescriptionKey("doc.imports.git.exclude.description"),
             "secret", SecretMetaType.getInstance()
     );
 
-    protected GitImportEntryMetaType() {
+    private GitImportEntryMetaType() {
+        setDescriptionKey("doc.imports.git.description");
     }
 
     @Override
@@ -56,12 +57,13 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
         private static final Set<String> required = Set.of("name");
 
         private static final Map<String, YamlMetaType> features = Map.of(
-                "org", StringMetaType.getInstance(),
-                "name", StringMetaType.getInstance(),
-                "password", StringMetaType.getInstance()
+                "org", new StringMetaType().withDescriptionKey("doc.imports.git.secret.org.description"),
+                "name", new StringMetaType().withDescriptionKey("doc.imports.git.secret.name.description"),
+                "password", new StringMetaType().withDescriptionKey("doc.imports.git.secret.password.description")
         );
 
-        protected SecretMetaType() {
+        private SecretMetaType() {
+            setDescriptionKey("doc.imports.git.secret.description");
         }
 
         @Override

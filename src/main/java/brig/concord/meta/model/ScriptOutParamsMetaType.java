@@ -18,8 +18,10 @@ public class ScriptOutParamsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected ScriptOutParamsMetaType() {
-        super("out params [object|string]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()));
+    private ScriptOutParamsMetaType() {
+        super(StringMetaType.getInstance(), AnyMapMetaType.getInstance());
+
+        setDescriptionKey("doc.step.feature.out.description");
     }
 
     @Override

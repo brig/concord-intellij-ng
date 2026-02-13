@@ -1,0 +1,19 @@
+<div class='definition'>
+    <pre>block</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Block step. Groups a sequence of steps into a named block</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>block</code> <i>(object[]|string[], required)</i> &mdash; steps to execute as a block</li>
+        <li><code>error</code> <i>(object[]|string[])</i> &mdash; error handling steps</li>
+        <li><code>loop</code> <i>(object)</i> &mdash; loop configuration</li>
+        <li><code>meta</code> <i>(object)</i> &mdash; step metadata</li>
+        <li><code>name</code> <i>(string)</i> &mdash; step display name</li>
+        <li><code>out</code> <i>(string|string[])</i> &mdash; output variable mappings</li>
+    </ul>
+    <p><b>Example:</b></p>
+    <pre><code>- block:
+    - log: "Step 1"
+    - log: "Step 2"</code></pre>
+</div>

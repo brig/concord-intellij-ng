@@ -1,0 +1,28 @@
+<div class='definition'>
+    <pre>exclusive</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Exclusive execution configuration for the process. Available only for processes running in projects</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>group</code> <i>(string)</i> &mdash; exclusive group name used to scope mutual exclusion between
+            processes
+        </li>
+        <li><code>groupBy</code> <i>(string)</i> &mdash; grouping key for exclusive execution. Allowed values: branch
+            name
+        </li>
+        <li><code>mode</code> <i>(string)</i> &mdash; conflict resolution mode (default: cancel)
+            <ul>
+                <li><code>cancel</code> &mdash; Cancel all new processes if there is already a running process in the
+                    same group
+                </li>
+                <li><code>cancelOld</code> &mdash; Cancel older running processes in the same group when a new process
+                    starts
+                </li>
+                <li><code>wait</code> &mdash; Allow only one process in the same group to run; new processes wait until
+                    the current one finishes
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>

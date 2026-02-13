@@ -15,22 +15,21 @@ public class CallStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    // lazy init via holder to break circular static dependency through StepsMetaType
-    private static class FeaturesHolder {
-        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
-                StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
-                Map.of("call", CallMetaType.getInstance(),
-                       "in", CallInParamsMetaType.getInstance(),
-                       "out", CallOutParamsMetaType.getInstance())
-        );
-    }
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
+            Map.of("call", CallMetaType.getInstance(),
+                   "in", CallInParamsMetaType.getInstance(),
+                   "out", CallOutParamsMetaType.getInstance())
+    );
 
-    protected CallStepMetaType() {
+    private CallStepMetaType() {
         super("call", Set.of("call"));
+
+        setDescriptionKey("doc.step.call.description");
     }
 
     @Override
     public @NotNull Map<String, YamlMetaType> getFeatures() {
-        return FeaturesHolder.FEATURES;
+        return features;
     }
 }

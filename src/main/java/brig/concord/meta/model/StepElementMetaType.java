@@ -47,8 +47,8 @@ public class StepElementMetaType extends IdentityElementMetaType implements High
         return INSTANCE;
     }
 
-    protected StepElementMetaType() {
-        super("Steps", List.copyOf(steps));
+    private StepElementMetaType() {
+        super(List.copyOf(steps));
     }
 
     @Override

@@ -1,0 +1,27 @@
+<div class='definition'>
+    <pre>github</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>GitHub trigger definition. Starts a process when a matching GitHub event is received</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>activeProfiles</code> <i>(string[])</i> &mdash; list of profiles that Concord applies for the process
+        </li>
+        <li><code>arguments</code> <i>(object)</i> &mdash; additional parameters that are passed to the flow</li>
+        <li><code>conditions</code> <i>(object, required)</i> &mdash; conditions for GitHub event matching</li>
+        <li><code>entryPoint</code> <i>(string, required)</i> &mdash; name of the flow that Concord starts when GitHub
+            event matches conditions
+        </li>
+        <li><code>exclusive</code> <i>(object)</i> &mdash; exclusive execution configuration for the process. Available
+            only for processes running in projects
+        </li>
+        <li><code>ignoreEmptyPush</code> <i>(boolean)</i> &mdash; if true, skip empty push notifications where after and
+            before commit IDs are the same (default: true)
+        </li>
+        <li><code>useEventCommitId</code> <i>(boolean)</i> &mdash; if true, use the event commit ID to start the process
+        </li>
+        <li><code>useInitiator</code> <i>(boolean)</i> &mdash; if true, set the process initiator to the event sender
+        </li>
+        <li><code>version</code> <i>(integer, required)</i> &mdash; gitHub trigger version</li>
+    </ul>
+</div>

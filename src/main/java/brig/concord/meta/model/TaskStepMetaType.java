@@ -29,24 +29,23 @@ public class TaskStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    // lazy init via holder to break circular static dependency through StepsMetaType
-    private static class FeaturesHolder {
-        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
-                StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
-                Map.of("task", TaskNameMetaType.getInstance(),
-                       "in", TaskInParamsMetaType.getInstance(),
-                       "out", TaskOutParamsMetaType.getInstance(),
-                       "ignoreErrors", BooleanMetaType.getInstance())
-        );
-    }
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
+            Map.of("task", TaskNameMetaType.getInstance(),
+                   "in", TaskInParamsMetaType.getInstance(),
+                   "out", TaskOutParamsMetaType.getInstance(),
+                   "ignoreErrors", new BooleanMetaType().withDescriptionKey("doc.step.feature.ignoreErrors.description"))
+    );
 
-    protected TaskStepMetaType() {
+    private TaskStepMetaType() {
         super("task", Set.of("task"));
+
+        setDescriptionKey("doc.step.task.description");
     }
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
-        return FeaturesHolder.FEATURES;
+        return features;
     }
 
     static class TaskNameMetaType extends StringMetaType implements HighlightProvider {
@@ -60,6 +59,10 @@ public class TaskStepMetaType extends IdentityMetaType {
         @Override
         public @Nullable TextAttributesKey getValueHighlight(String value) {
             return ConcordHighlightingColors.TARGET_IDENTIFIER;
+        }
+
+        private TaskNameMetaType() {
+            setDescriptionKey("doc.step.task.key.description");
         }
 
         @Override

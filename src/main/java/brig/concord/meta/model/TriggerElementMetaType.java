@@ -45,8 +45,8 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         return INSTANCE;
     }
 
-    protected TriggerElementMetaType() {
-        super("Triggers", entries);
+    private TriggerElementMetaType() {
+        super(entries);
     }
 
     @Override

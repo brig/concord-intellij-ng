@@ -14,21 +14,26 @@ public class ParallelStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    // lazy init via holder to break circular static dependency through StepsMetaType
-    private static class FeaturesHolder {
-        static final Map<String, YamlMetaType> FEATURES = Map.of(
-                "parallel", StepsMetaType.getInstance(),
+    private static final Map<String, YamlMetaType> features;
+
+    static {
+        var parallelSteps = new StepsMetaType();
+        parallelSteps.setDescriptionKey("doc.step.parallel.key.description");
+        features = Map.of(
+                "parallel", parallelSteps,
                 "out", ParallelOutParamsMetaType.getInstance(),
                 "meta", StepMetaMetaType.getInstance()
         );
     }
 
-    protected ParallelStepMetaType() {
+    private ParallelStepMetaType() {
         super("parallel", Set.of("parallel"));
+
+        setDescriptionKey("doc.step.parallel.description");
     }
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
-        return FeaturesHolder.FEATURES;
+        return features;
     }
 }

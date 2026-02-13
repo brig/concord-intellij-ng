@@ -24,11 +24,12 @@ public class DirImportEntryMetaType extends ConcordMetaType implements Highlight
     private static final Set<String> required = Set.of("src");
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "src", StringMetaType.getInstance(),
-            "dest", StringMetaType.getInstance()
+            "src", new StringMetaType().withDescriptionKey("doc.imports.dir.src.description"),
+            "dest", new StringMetaType().withDescriptionKey("doc.imports.dir.dest.description")
     );
 
-    protected DirImportEntryMetaType() {
+    private DirImportEntryMetaType() {
+        setDescriptionKey("doc.imports.dir.description");
     }
 
     @Override

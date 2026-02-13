@@ -20,7 +20,8 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
         return INSTANCE;
     }
 
-    protected ProfilesMetaType() {
+    private ProfilesMetaType() {
+        setDescriptionKey("doc.profiles.description");
     }
 
     @Override
@@ -48,6 +49,7 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
         }
 
         private ProfilesEntryMetaType() {
+            setDescriptionKey("doc.profiles.profileName.description");
         }
 
         @Override

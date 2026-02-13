@@ -24,11 +24,12 @@ public class MvnImportEntryMetaType extends ConcordMetaType implements Highlight
     private static final Set<String> required = Set.of("url");
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "url", StringMetaType.getInstance(),
-            "dest", StringMetaType.getInstance()
+            "url", new StringMetaType().withDescriptionKey("doc.imports.mvn.url.description"),
+            "dest", new StringMetaType().withDescriptionKey("doc.imports.mvn.dest.description")
     );
 
-    protected MvnImportEntryMetaType() {
+    private MvnImportEntryMetaType() {
+        setDescriptionKey("doc.imports.mvn.description");
     }
 
     @Override

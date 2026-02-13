@@ -15,7 +15,9 @@ public class GroupOfStepsOutParamsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected GroupOfStepsOutParamsMetaType() {
-        super("out params [array|string]", List.of(StringMetaType.getInstance(), StringArrayMetaType.getInstance()));
+    private GroupOfStepsOutParamsMetaType() {
+        super(StringMetaType.getInstance(), StringArrayMetaType.getInstance());
+
+        setDescriptionKey("doc.step.feature.out.description");
     }
 }

@@ -30,8 +30,8 @@ public class ImportElementMetaType extends IdentityElementMetaType implements Hi
         return INSTANCE;
     }
 
-    protected ImportElementMetaType() {
-        super("Imports", entries);
+    private ImportElementMetaType() {
+        super(entries);
     }
 
     @Override

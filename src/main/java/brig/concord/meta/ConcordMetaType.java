@@ -11,6 +11,8 @@ import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
 
+import brig.concord.documentation.Documented;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,35 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     protected Set<String> getRequiredFields() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
+        var required = getRequiredFields();
+        return getFeatures().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> {
+                    List<DocumentedField> children = List.of();
+                    if (e.getValue() instanceof YamlEnumType enumType) {
+                        var descriptions = enumType.getLiteralDescriptions();
+                        if (descriptions.length > 0) {
+                            children = new ArrayList<>(enumType.getLiterals().length);
+                            String[] literals = enumType.getLiterals();
+                            for (int i = 0; i < literals.length; i++) {
+                                children.add(new DocumentedField(literals[i], enumType.getTypeName(), false, descriptions[i], List.of()));
+                            }
+                        }
+                    }
+
+                    var desc = e.getValue().getDescription();
+                    return new Documented.DocumentedField(
+                            e.getKey(),
+                            e.getValue().getTypeName(),
+                            required.contains(e.getKey()),
+                            desc,
+                            children);
+                })
+                .toList();
     }
 
     @Override

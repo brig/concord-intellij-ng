@@ -1,0 +1,21 @@
+<div class='definition'>
+    <pre>staging</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Profile entry. Overrides or extends the root configuration, flows, and forms for this profile</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>configuration</code> <i>(object)</i> &mdash; profile-specific configuration. Overrides root
+            configuration values when this profile is active
+        </li>
+        <li><code>flows</code> <i>(object)</i> &mdash; flow definitions. Each key is a flow name mapping to a list of
+            steps
+        </li>
+        <li><code>forms</code> <i>(object)</i> &mdash; declares web-based forms used by flows to collect user input.
+            Each form is defined under a name; the name is used to reference the form from flows and as the object that
+            stores submitted field values.<p>Form definitions can be reused within the same process, and fields can also
+                be defined dynamically at runtime.</p>
+            <p><b>Note:</b> form names may contain only alphanumerics, whitespaces, underscores (<code>_</code>) signs
+        </li>
+    </ul>
+</div>

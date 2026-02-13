@@ -19,8 +19,10 @@ public class ParallelOutParamsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected ParallelOutParamsMetaType() {
-        super("out params [object|array|string]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance()));
+    private ParallelOutParamsMetaType() {
+        super(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance());
+
+        setDescriptionKey("doc.step.feature.out.description");
     }
 
     @Override

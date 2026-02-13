@@ -11,6 +11,7 @@ import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -20,18 +21,23 @@ import java.util.stream.Stream;
 public class YamlAnyOfType extends YamlComposedTypeBase {
 
     public static YamlMetaType anyOf(YamlMetaType... types) {
-        return anyOf(null, types);
-    }
-
-    public static YamlMetaType anyOf(@Nullable String complexTypeDisplayNameHint, YamlMetaType... types) {
         if (types.length == 0) {
             throw new IllegalArgumentException();
         }
         if (types.length == 1) {
             return types[0];
         }
-        String name = "AnyOf[" + Stream.of(types).map(YamlMetaType::getDisplayName).collect(Collectors.joining()) + "]";
-        return new YamlAnyOfType(name, complexTypeDisplayNameHint != null ? complexTypeDisplayNameHint : name, flattenTypes(types));
+        return new YamlAnyOfType(flattenTypes(types));
+    }
+
+    private static String asTypeName(List<YamlMetaType> types) {
+        if (types.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        if (types.size() == 1) {
+            return types.getFirst().getTypeName();
+        }
+        return types.stream().map(YamlMetaType::getTypeName).distinct().collect(Collectors.joining("|"));
     }
 
     @Override
@@ -39,12 +45,20 @@ public class YamlAnyOfType extends YamlComposedTypeBase {
         return anyOf(types);
     }
 
-    protected YamlAnyOfType(@NotNull String typeName, List<YamlMetaType> types) {
-        this(typeName, typeName, types);
+    protected YamlAnyOfType(List<YamlMetaType> types) {
+        super(asTypeName(types), types);
     }
 
-    protected YamlAnyOfType(@NotNull String typeName, @NotNull String displayName, List<YamlMetaType> types) {
-        super(typeName, displayName, types);
+    protected YamlAnyOfType(YamlMetaType... types) {
+        this(Arrays.asList(types));
+    }
+
+    @Override
+    public @NotNull String getTypeName(@NotNull String suffix) {
+        return streamSubTypes()
+                .map(t -> t.getTypeName(suffix))
+                .distinct()
+                .collect(Collectors.joining("|"));
     }
 
     @Override

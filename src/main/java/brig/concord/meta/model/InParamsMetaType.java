@@ -18,8 +18,10 @@ public class InParamsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected InParamsMetaType() {
-        super("in params [object|expression]", List.of(ExpressionMetaType.getInstance(), AnyMapMetaType.getInstance()));
+    private InParamsMetaType() {
+        super(ExpressionMetaType.getInstance(), AnyMapMetaType.getInstance());
+
+        setDescriptionKey("doc.step.feature.in.description");
     }
 
     @Override

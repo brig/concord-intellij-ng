@@ -25,15 +25,16 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     private static final Set<String> requiredFeatures = Set.of("group");
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "group", GroupMetaType.getInstance(),
-            "mode", ModeType.getInstance()
+            "group", new GroupMetaType().withDescriptionKey("doc.configuration.exclusive.group.description"),
+            "mode", new ModeType().withDescriptionKey("doc.configuration.exclusive.mode.description")
     );
 
     public static ProcessExclusiveMetaType getInstance() {
         return INSTANCE;
     }
 
-    protected ProcessExclusiveMetaType() {
+    private ProcessExclusiveMetaType() {
+        setDescriptionKey("doc.configuration.exclusive.description");
     }
 
     @Override
@@ -47,17 +48,21 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     @Override
+    public @Nullable String getDocumentationExample() {
+        return """
+                configuration:
+                  exclusive:
+                    group: "myGroup"
+                    mode: "cancel"
+                """;
+    }
+
+    @Override
     public @Nullable TextAttributesKey getKeyHighlight(String key) {
         return ConcordHighlightingColors.DSL_KEY;
     }
 
     private static class GroupMetaType extends StringMetaType {
-
-        private static final GroupMetaType INSTANCE = new GroupMetaType();
-
-        public static GroupMetaType getInstance() {
-            return INSTANCE;
-        }
 
         @Override
         protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
@@ -71,15 +76,15 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
 
     private static class ModeType extends YamlEnumType {
 
-        private static final ModeType INSTANCE = new ModeType();
+        private ModeType() {
+            super("string");
 
-        public static ModeType getInstance() {
-            return INSTANCE;
-        }
-
-        protected ModeType() {
-            super("Mode", "[cancel|cancelOld|wait]");
-            withLiterals("cancel", "cancelOld", "wait");
+            setLiterals("cancel", "cancelOld", "wait");
+            setDescriptionKeys(
+                    "doc.configuration.exclusive.mode.cancel.description",
+                    "doc.configuration.exclusive.mode.cancelOld.description",
+                    "doc.configuration.exclusive.mode.wait.description"
+                    );
         }
     }
 }

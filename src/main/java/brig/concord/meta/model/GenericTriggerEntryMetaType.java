@@ -31,7 +31,7 @@ public class GenericTriggerEntryMetaType extends ConcordMetaType {
             "version", IntegerMetaType.getInstance()
     );
 
-    protected GenericTriggerEntryMetaType() {
+    private GenericTriggerEntryMetaType() {
     }
 
     @Override

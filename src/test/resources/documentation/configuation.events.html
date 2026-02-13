@@ -1,0 +1,31 @@
+<div class='definition'>
+    <pre>events</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Configures process event recording and truncation to prevent large or sensitive values from being stored in
+        events</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>inVarsBlacklist</code> <i>(string[])</i> &mdash; list of input variable names to exclude from
+            recording
+        </li>
+        <li><code>metaBlacklist</code> <i>(string[])</i> &mdash; list of metadata keys to exclude from recording</li>
+        <li><code>outVarsBlacklist</code> <i>(string[])</i> &mdash; list of output variable names to exclude from
+            recording
+        </li>
+        <li><code>recordEvents</code> <i>(boolean)</i> &mdash; enable or disable recording of process events</li>
+        <li><code>recordTaskInVars</code> <i>(boolean)</i> &mdash; enable or disable recording of input variables in
+            task calls
+        </li>
+        <li><code>recordTaskMeta</code> <i>(boolean)</i> &mdash; record task metadata in events</li>
+        <li><code>recordTaskOutVars</code> <i>(boolean)</i> &mdash; enable or disable recording of output variables in
+            task calls
+        </li>
+        <li><code>truncateInVars</code> <i>(boolean)</i> &mdash; truncate recorded input variables</li>
+        <li><code>truncateMaxArrayLength</code> <i>(integer)</i> &mdash; maximum array length before truncation</li>
+        <li><code>truncateMaxDepth</code> <i>(integer)</i> &mdash; maximum object nesting depth before truncation</li>
+        <li><code>truncateMaxStringLength</code> <i>(integer)</i> &mdash; maximum string length before truncation</li>
+        <li><code>truncateMeta</code> <i>(boolean)</i> &mdash; truncate recorded metadata</li>
+        <li><code>truncateOutVars</code> <i>(boolean)</i> &mdash; truncate recorded output variables</li>
+    </ul>
+</div>

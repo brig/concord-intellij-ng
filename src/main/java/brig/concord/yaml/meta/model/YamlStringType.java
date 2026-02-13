@@ -12,6 +12,10 @@ public class YamlStringType extends YamlScalarType {
     }
 
     public YamlStringType() {
-        super("yaml:string", "string");
+        this("string");
+    }
+
+    public YamlStringType(String typeName) {
+        super(typeName);
     }
 }

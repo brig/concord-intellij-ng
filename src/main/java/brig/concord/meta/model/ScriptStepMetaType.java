@@ -19,23 +19,22 @@ public class ScriptStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    // lazy init via holder to break circular static dependency through StepsMetaType
-    private static class FeaturesHolder {
-        static final Map<String, YamlMetaType> FEATURES = StepFeatures.combine(
-                StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
-                Map.of(SCRIPT_KEY, StringMetaType.getInstance(),
-                       BODY_KEY, StringMetaType.getInstance(),
-                       "in", InParamsMetaType.getInstance(),
-                       "out", ScriptOutParamsMetaType.getInstance())
-        );
-    }
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
+            Map.of(SCRIPT_KEY, new StringMetaType().withDescriptionKey("doc.step.script.key.description"),
+                   BODY_KEY, new StringMetaType().withDescriptionKey("doc.step.feature.body.description"),
+                   "in", InParamsMetaType.getInstance(),
+                   "out", ScriptOutParamsMetaType.getInstance())
+    );
 
-    protected ScriptStepMetaType() {
+    private ScriptStepMetaType() {
         super("script", Set.of("script"));
+
+        setDescriptionKey("doc.step.script.description");
     }
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
-        return FeaturesHolder.FEATURES;
+        return features;
     }
 }

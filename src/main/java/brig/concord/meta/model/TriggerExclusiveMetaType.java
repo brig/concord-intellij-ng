@@ -31,9 +31,13 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
             return INSTANCE;
         }
 
-        protected ModeType() {
-            super("Mode", "[cancel|cancelOld|wait]");
-            withLiterals("cancel", "cancelOld", "wait");
+        private ModeType() {
+            super("string");
+            setDescriptionKey("doc.triggers.exclusive.mode.description");
+            setLiterals("cancel", "cancelOld", "wait");
+            setDescriptionKeys("doc.triggers.exclusive.mode.cancel.description",
+                    "doc.triggers.exclusive.mode.cancelOld.description",
+                    "doc.triggers.exclusive.mode.wait.description");
         }
     }
 
@@ -44,12 +48,13 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "group", StringMetaType.getInstance(),
-            "groupBy", StringMetaType.getInstance(),
+            "group", new StringMetaType().withDescriptionKey("doc.triggers.exclusive.group.description"),
+            "groupBy", new StringMetaType().withDescriptionKey("doc.triggers.exclusive.groupBy.description"),
             "mode", ModeType.getInstance()
     );
 
-    protected TriggerExclusiveMetaType() {
+    private TriggerExclusiveMetaType() {
+        setDescriptionKey("doc.triggers.exclusive.description");
     }
 
     @Override

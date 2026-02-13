@@ -12,5 +12,6 @@ public class TriggersMetaType extends YamlArrayType {
 
     public TriggersMetaType() {
         super(TriggerElementMetaType.getInstance());
+        setDescriptionKey("doc.triggers.description");
     }
 }
