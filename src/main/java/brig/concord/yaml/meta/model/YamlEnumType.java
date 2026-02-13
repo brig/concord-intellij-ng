@@ -30,6 +30,10 @@ public class YamlEnumType extends YamlScalarType {
         super(typeName);
     }
 
+    public YamlEnumType(@NotNull String typeName, @NotNull TypeProps props) {
+        super(typeName, props);
+    }
+
     public String[] getLiterals() {
         return myLiterals;
     }

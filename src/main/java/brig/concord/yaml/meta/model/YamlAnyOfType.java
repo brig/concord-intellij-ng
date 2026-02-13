@@ -49,6 +49,10 @@ public class YamlAnyOfType extends YamlComposedTypeBase {
         super(asTypeName(types), types);
     }
 
+    protected YamlAnyOfType(List<YamlMetaType> types, @NotNull TypeProps props) {
+        super(asTypeName(types), types, props);
+    }
+
     protected YamlAnyOfType(YamlMetaType... types) {
         this(Arrays.asList(types));
     }

@@ -1,12 +1,13 @@
 package brig.concord.meta.model.value;
 
 import brig.concord.ConcordBundle;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.meta.model.YamlScalarType;
+import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
-import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class AnyOfType extends YamlAnyOfType {
 
@@ -26,8 +26,20 @@ public class AnyOfType extends YamlAnyOfType {
         return new AnyOfType(flattenTypes(types));
     }
 
+    public static AnyOfType anyOf(@NotNull TypeProps props, YamlMetaType... types) {
+        if (types == null || types.length == 0) {
+            throw new IllegalArgumentException("AnyOfType.anyOf() requires at least one subtype");
+        }
+
+        return new AnyOfType(flattenTypes(types), props);
+    }
+
     protected AnyOfType(List<YamlMetaType> types) {
         super(types);
+    }
+
+    protected AnyOfType(List<YamlMetaType> types, @NotNull TypeProps props) {
+        super(types, props);
     }
 
     @Override

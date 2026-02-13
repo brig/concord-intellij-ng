@@ -1,13 +1,14 @@
 package brig.concord.meta.model.value;
 
 import brig.concord.ConcordBundle;
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlStringType;
 import brig.concord.yaml.psi.YAMLCompoundValue;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
 
 public class StringMetaType extends YamlStringType {
 
@@ -21,8 +22,16 @@ public class StringMetaType extends YamlStringType {
         this("string");
     }
 
+    public StringMetaType(@NotNull TypeProps props) {
+        this("string", props);
+    }
+
     public StringMetaType(String typeName) {
         super(typeName);
+    }
+
+    public StringMetaType(String typeName, @NotNull TypeProps props) {
+        super(typeName, props);
     }
 
     @Override

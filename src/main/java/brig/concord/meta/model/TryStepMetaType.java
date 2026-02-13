@@ -1,5 +1,7 @@
 package brig.concord.meta.model;
 
+import static brig.concord.yaml.meta.model.TypeProps.desc;
+
 public class TryStepMetaType extends GroupOfStepsMetaType {
 
     private static final TryStepMetaType INSTANCE = new TryStepMetaType();
@@ -9,8 +11,6 @@ public class TryStepMetaType extends GroupOfStepsMetaType {
     }
 
     private TryStepMetaType() {
-        super("try", "doc.step.try.key.description");
-
-        setDescriptionKey("doc.step.try.description");
+        super("try", "doc.step.try.key.description", desc("doc.step.try.description"));
     }
 }

@@ -5,7 +5,6 @@ import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.meta.model.value.*;
-
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
@@ -15,6 +14,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static brig.concord.yaml.meta.model.TypeProps.desc;
+
 public class ProfileConfigurationMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final ProfileConfigurationMetaType INSTANCE = new ProfileConfigurationMetaType();
@@ -22,21 +23,21 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Hig
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("runtime", new YamlEnumType("runtime").withLiterals("concord-v2").withDescriptionKey("doc.configuration.runtime.description"));
-        features.put("debug", new BooleanMetaType().withDescriptionKey("doc.configuration.debug.description"));
-        features.put("entryPoint", new CallMetaType().withDescriptionKey("doc.configuration.entryPoint.description"));
-        features.put("dependencies", new DependenciesMetaType().withDescriptionKey("doc.configuration.dependencies.description"));
-        features.put("extraDependencies", new DependenciesMetaType().withDescriptionKey("doc.configuration.extraDependencies.description"));
-        features.put("arguments", new AnyMapMetaType().withDescriptionKey("doc.configuration.arguments.description"));
-        features.put("meta", new AnyMapMetaType().withDescriptionKey("doc.configuration.meta.description"));
+        features.put("runtime", new YamlEnumType("runtime", desc("doc.configuration.runtime.description")).withLiterals("concord-v2"));
+        features.put("debug", new BooleanMetaType(desc("doc.configuration.debug.description")));
+        features.put("entryPoint", new CallMetaType(desc("doc.configuration.entryPoint.description")));
+        features.put("dependencies", new DependenciesMetaType(desc("doc.configuration.dependencies.description")));
+        features.put("extraDependencies", new DependenciesMetaType(desc("doc.configuration.extraDependencies.description")));
+        features.put("arguments", new AnyMapMetaType(desc("doc.configuration.arguments.description")));
+        features.put("meta", new AnyMapMetaType(desc("doc.configuration.meta.description")));
         features.put("events", EventsMetaType.getInstance());
-        features.put("requirements", new AnyMapMetaType().withDescriptionKey("doc.configuration.requirements.description"));
-        features.put("processTimeout", new DurationMetaType().withDescriptionKey("doc.configuration.processTimeout.description"));
-        features.put("suspendTimeout", new DurationMetaType().withDescriptionKey("doc.configuration.suspendTimeout.description"));
+        features.put("requirements", new AnyMapMetaType(desc("doc.configuration.requirements.description")));
+        features.put("processTimeout", new DurationMetaType(desc("doc.configuration.processTimeout.description")));
+        features.put("suspendTimeout", new DurationMetaType(desc("doc.configuration.suspendTimeout.description")));
         features.put("exclusive", ProcessExclusiveMetaType.getInstance());
-        features.put("out", new StringArrayMetaType().withDescriptionKey("doc.configuration.out.description"));
-        features.put("template", new StringMetaType().withDescriptionKey("doc.configuration.template.description"));
-        features.put("parallelLoopParallelism", new IntegerMetaType().withDescriptionKey("doc.configuration.parallelLoopParallelism.description"));
+        features.put("out", new StringArrayMetaType(desc("doc.configuration.out.description")));
+        features.put("template", new StringMetaType(desc("doc.configuration.template.description")));
+        features.put("parallelLoopParallelism", new IntegerMetaType(desc("doc.configuration.parallelLoopParallelism.description")));
     }
 
     public static ProfileConfigurationMetaType getInstance() {
@@ -44,7 +45,7 @@ public class ProfileConfigurationMetaType extends ConcordMetaType implements Hig
     }
 
     private ProfileConfigurationMetaType() {
-        setDescriptionKey("doc.profile.configuration.description");
+        super(desc("doc.profile.configuration.description"));
     }
 
     @Override

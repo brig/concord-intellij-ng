@@ -2,7 +2,7 @@ package brig.concord.meta;
 
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.model.*;
-import brig.concord.meta.model.value.*;
+import brig.concord.meta.model.value.StringArrayMetaType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +10,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class ConcordFileMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -26,7 +28,7 @@ public class ConcordFileMetaType extends ConcordMetaType implements HighlightPro
     static {
         features.put("resources", ResourcesMetaType.getInstance());
         features.put("configuration", ConfigurationMetaType.getInstance());
-        features.put("publicFlows", new StringArrayMetaType().withDescriptionKey("doc.publicFlows.description"));
+        features.put("publicFlows", new StringArrayMetaType(desc("doc.publicFlows.description")));
         features.put("forms", FormsMetaType.getInstance());
         features.put("imports", ImportsMetaType.getInstance());
         features.put("profiles", ProfilesMetaType.getInstance());

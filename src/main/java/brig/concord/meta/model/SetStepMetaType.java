@@ -1,12 +1,12 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.AnyMapMetaType;
-
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Set;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class SetStepMetaType extends IdentityMetaType {
 
@@ -17,12 +17,10 @@ public class SetStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "set", new AnyMapMetaType().withDescriptionKey("doc.step.set.key.description"));
+            "set", new AnyMapMetaType(desc("doc.step.set.key.description").andRequired()));
 
     private SetStepMetaType() {
-        super("set", Set.of("set"));
-
-        setDescriptionKey("doc.step.set.description");
+        super("set", desc("doc.step.set.description"));
     }
 
     @Override

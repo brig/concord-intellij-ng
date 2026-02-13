@@ -7,7 +7,6 @@ import brig.concord.meta.model.value.BooleanMetaType;
 import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.schema.TaskInParamsMetaType;
 import brig.concord.schema.TaskOutParamsMetaType;
-
 import brig.concord.yaml.meta.model.CompletionContext;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLScalar;
@@ -19,7 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class TaskStepMetaType extends IdentityMetaType {
 
@@ -34,13 +34,11 @@ public class TaskStepMetaType extends IdentityMetaType {
             Map.of("task", TaskNameMetaType.getInstance(),
                    "in", TaskInParamsMetaType.getInstance(),
                    "out", TaskOutParamsMetaType.getInstance(),
-                   "ignoreErrors", new BooleanMetaType().withDescriptionKey("doc.step.feature.ignoreErrors.description"))
+                   "ignoreErrors", new BooleanMetaType(desc("doc.step.feature.ignoreErrors.description")))
     );
 
     private TaskStepMetaType() {
-        super("task", Set.of("task"));
-
-        setDescriptionKey("doc.step.task.description");
+        super("task", desc("doc.step.task.description"));
     }
 
     @Override
@@ -62,7 +60,7 @@ public class TaskStepMetaType extends IdentityMetaType {
         }
 
         private TaskNameMetaType() {
-            setDescriptionKey("doc.step.task.key.description");
+            super(desc("doc.step.task.key.description").andRequired());
         }
 
         @Override

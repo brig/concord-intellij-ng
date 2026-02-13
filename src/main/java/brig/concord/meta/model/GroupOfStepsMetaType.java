@@ -1,13 +1,12 @@
 package brig.concord.meta.model;
 
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.PropertyKey;
 
 import java.util.Map;
-import java.util.Set;
 
-import static brig.concord.ConcordBundle.BUNDLE;
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
@@ -15,15 +14,20 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
     private final Map<String, YamlMetaType> features;
 
-    protected GroupOfStepsMetaType(String name, @NotNull @PropertyKey(resourceBundle = BUNDLE) String identityKeyDescriptionKey) {
-        super(name, Set.of(name));
+    protected GroupOfStepsMetaType(String name, @NotNull String identityKeyDescriptionKey) {
+        super(name);
+
+        this.features = createFeatures(name, identityKeyDescriptionKey);
+    }
+
+    protected GroupOfStepsMetaType(String name, @NotNull String identityKeyDescriptionKey, @NotNull TypeProps props) {
+        super(name, props);
 
         this.features = createFeatures(name, identityKeyDescriptionKey);
     }
 
     private static Map<String, YamlMetaType> createFeatures(String name, String identityKeyDescriptionKey) {
-        var identitySteps = new StepsMetaType();
-        identitySteps.setDescriptionKey(identityKeyDescriptionKey);
+        var identitySteps = new StepsMetaType(desc(identityKeyDescriptionKey).andRequired());
         return StepFeatures.combine(
                 StepFeatures.nameAndMeta(), StepFeatures.error(),
                 Map.of(name, identitySteps,

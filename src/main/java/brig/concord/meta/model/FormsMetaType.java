@@ -3,16 +3,17 @@ package brig.concord.meta.model;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.MapMetaType;
-
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlArrayType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLMapping;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
@@ -25,7 +26,7 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
     }
 
     private FormsMetaType() {
-        setDescriptionKey("doc.forms.description");
+        super(desc("doc.forms.description"));
     }
 
     @Override
@@ -94,8 +95,7 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
         }
 
         public FormFieldsMetaType() {
-            super(FieldsWrapper.getInstance());
-            setDescriptionKey("doc.forms.formName.description");
+            super(FieldsWrapper.getInstance(), desc("doc.forms.formName.description"));
         }
     }
 }

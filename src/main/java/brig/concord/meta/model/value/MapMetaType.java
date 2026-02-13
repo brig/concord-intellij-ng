@@ -2,13 +2,14 @@ package brig.concord.meta.model.value;
 
 import brig.concord.ConcordBundle;
 import brig.concord.meta.ConcordMetaType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -16,6 +17,13 @@ import java.util.Map;
  * Any key to object
  */
 public abstract class MapMetaType extends ConcordMetaType {
+
+    protected MapMetaType() {
+    }
+
+    protected MapMetaType(@NotNull TypeProps props) {
+        super(props);
+    }
 
     protected abstract YamlMetaType getMapEntryType(String name);
 

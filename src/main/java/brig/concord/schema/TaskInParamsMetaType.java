@@ -14,6 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+import static brig.concord.yaml.meta.model.TypeProps.desc;
+
 public class TaskInParamsMetaType extends YamlAnyOfType implements DynamicMetaType {
 
     private static final TaskInParamsMetaType INSTANCE = new TaskInParamsMetaType();
@@ -27,8 +29,8 @@ public class TaskInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
     }
 
     private TaskInParamsMetaType(@NotNull YamlMetaType objectType) {
-        super(ExpressionMetaType.getInstance(), objectType);
-        setDescriptionKey("doc.step.feature.in.description");
+        super(List.of(ExpressionMetaType.getInstance(), objectType),
+                desc("doc.step.feature.in.description"));
     }
 
     @Override

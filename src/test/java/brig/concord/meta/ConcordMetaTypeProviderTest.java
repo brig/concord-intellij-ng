@@ -26,7 +26,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                   default:
                     - log: "hello"
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/flows").asKeyValue());
+        var type = provider().getKeyValueMetaType(key("/flows").asKeyValue()).getMetaType();
         assertSame(FlowsMetaType.getInstance(), type);
     }
 
@@ -36,7 +36,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                 configuration:
                   entryPoint: default
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/configuration").asKeyValue());
+        var type = provider().getKeyValueMetaType(key("/configuration").asKeyValue()).getMetaType();
         assertSame(ConfigurationMetaType.getInstance(), type);
     }
 
@@ -48,7 +48,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                     configuration:
                       entryPoint: default
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/profiles").asKeyValue());
+        var type = provider().getKeyValueMetaType(key("/profiles").asKeyValue()).getMetaType();
         assertSame(ProfilesMetaType.getInstance(), type);
     }
 
@@ -59,7 +59,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                   - github:
                       entryPoint: onPush
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/triggers").asKeyValue());
+        var type = provider().getKeyValueMetaType(key("/triggers").asKeyValue()).getMetaType();
         // array unwrap: TriggersMetaType -> TriggerElementMetaType
         assertSame(TriggerElementMetaType.getInstance(), type);
     }
@@ -71,7 +71,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                   - git:
                       url: "https://example.com"
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/imports").asKeyValue());
+        var type = provider().getKeyValueMetaType(key("/imports").asKeyValue()).getMetaType();
         // array unwrap: ImportsMetaType -> ImportElementMetaType
         assertSame(ImportElementMetaType.getInstance(), type);
     }
@@ -82,7 +82,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                 publicFlows:
                   - default
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/publicFlows").asKeyValue());
+        var type = provider().getKeyValueMetaType(key("/publicFlows").asKeyValue()).getMetaType();
         // array unwrap: StringArrayMetaType -> StringMetaType
         assertSame(StringMetaType.getInstance(), type);
     }
@@ -172,8 +172,8 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                 configuration:
                   entryPoint: default
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/configuration/entryPoint").asKeyValue());
-        assertSame(CallMetaType.getInstance(), type);
+        var type = provider().getKeyValueMetaType(key("/configuration/entryPoint").asKeyValue()).getMetaType();
+        assertInstanceOf(CallMetaType.class, type);
     }
 
     @Test
@@ -182,8 +182,8 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                 configuration:
                   debug: true
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/configuration/debug").asKeyValue());
-        assertSame(BooleanMetaType.getInstance(), type);
+        var type = provider().getKeyValueMetaType(key("/configuration/debug").asKeyValue()).getMetaType();
+        assertInstanceOf(BooleanMetaType.class, type);
     }
 
     @Test
@@ -257,7 +257,7 @@ class ConcordMetaTypeProviderTest extends ConcordYamlTestBaseJunit5 {
                 unknownKey:
                   value: 123
                 """);
-        var type = provider().getResolvedKeyValueMetaTypeMeta(key("/unknownKey").asKeyValue());
+        var type = provider().getKeyValueMetaType(key("/unknownKey").asKeyValue());
         assertNull(type);
     }
 }

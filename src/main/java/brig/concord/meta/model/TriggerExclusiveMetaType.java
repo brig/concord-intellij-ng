@@ -1,25 +1,26 @@
 package brig.concord.meta.model;
 
+import brig.concord.ConcordBundle;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.StringMetaType;
-
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import org.jetbrains.annotations.NotNull;
-import brig.concord.ConcordBundle;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class TriggerExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -32,8 +33,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
         }
 
         private ModeType() {
-            super("string");
-            setDescriptionKey("doc.triggers.exclusive.mode.description");
+            super("string", desc("doc.triggers.exclusive.mode.description"));
             setLiterals("cancel", "cancelOld", "wait");
             setDescriptionKeys("doc.triggers.exclusive.mode.cancel.description",
                     "doc.triggers.exclusive.mode.cancelOld.description",
@@ -48,13 +48,13 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "group", new StringMetaType().withDescriptionKey("doc.triggers.exclusive.group.description"),
-            "groupBy", new StringMetaType().withDescriptionKey("doc.triggers.exclusive.groupBy.description"),
+            "group", new StringMetaType(desc("doc.triggers.exclusive.group.description")),
+            "groupBy", new StringMetaType(desc("doc.triggers.exclusive.groupBy.description")),
             "mode", ModeType.getInstance()
     );
 
     private TriggerExclusiveMetaType() {
-        setDescriptionKey("doc.triggers.exclusive.description");
+        super(desc("doc.triggers.exclusive.description"));
     }
 
     @Override

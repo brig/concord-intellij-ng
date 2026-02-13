@@ -1,6 +1,11 @@
 package brig.concord.meta;
 
 import brig.concord.psi.ConcordFile;
+import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.ModelAccess;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -10,11 +15,6 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;
-import brig.concord.yaml.meta.model.Field;
-import brig.concord.yaml.meta.model.ModelAccess;
-import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Optional;
 
