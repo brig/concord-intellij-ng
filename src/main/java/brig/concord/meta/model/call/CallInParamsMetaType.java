@@ -7,6 +7,9 @@ import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.psi.PsiElement;
 
+import brig.concord.documentation.Documented;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import static brig.concord.yaml.meta.model.TypeProps.descKey;
@@ -26,6 +29,13 @@ public class CallInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
     private CallInParamsMetaType(YamlMetaType objectType) {
         super(List.of(ExpressionMetaType.getInstance(), objectType),
                 descKey("doc.step.feature.in.description"));
+    }
+
+    @Override
+    public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
+        return streamSubTypes()
+                .flatMap(t -> t.getDocumentationFields().stream())
+                .toList();
     }
 
     @Override

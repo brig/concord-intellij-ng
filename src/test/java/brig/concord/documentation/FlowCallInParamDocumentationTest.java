@@ -8,8 +8,8 @@ public class FlowCallInParamDocumentationTest extends BaseDocumentationTargetTes
     public void testInParamsAll() {
         configureFromResource("/documentation/flowcall-inparam/concord.yaml");
 
-        assertDocTargetRaw(key("/flows/caller[0]/in"),
-                "S3 bucket name (required)",
+        assertDocTarget(key("/flows/caller[0]/in"),
+                "doc.step.feature.in.description",
                 "/documentation/flowcall-inparam.all.html");
     }
 
