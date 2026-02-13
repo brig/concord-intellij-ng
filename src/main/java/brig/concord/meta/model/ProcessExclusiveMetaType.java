@@ -49,7 +49,12 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
 
     @Override
     public @Nullable String getDocumentationExample() {
-        return "configuration:\n  exclusive:\n    group: \"myGroup\"\n    mode: \"cancel\"\n";
+        return """
+                configuration:
+                  exclusive:
+                    group: "myGroup"
+                    mode: "cancel"
+                """;
     }
 
     @Override
