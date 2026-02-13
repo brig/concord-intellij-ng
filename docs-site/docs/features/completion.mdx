@@ -16,6 +16,7 @@ As you type in a `.concord.yaml` file, the plugin suggests valid keys based on y
 *   **Top-level sections:** <span className="tokenBadge" data-kind="section">flows</span>, <span className="tokenBadge" data-kind="section">configuration</span>, <span className="tokenBadge" data-kind="section">triggers</span>, <span className="tokenBadge" data-kind="section">forms</span>, etc.
 *   **Step types:** Inside a flow, it suggests <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">log</span>, <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">checkpoint</span>, <span className="tokenBadge" data-kind="step">if</span>, and others.
 *   **Call parameters:** When using a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests input parameters defined in the target flow's [Documentation Block](./flow-docs).
+*   **Task parameters:** When using a <span className="tokenBadge" data-kind="step">task</span> step, the plugin suggests input parameters and their values from built-in task schemas. See [Task Parameter Completion](#task-parameter-completion) below.
 
 ## Task Name Completion
 
@@ -41,6 +42,28 @@ flows:
 If you add a new dependency and don't see its tasks in completion, use the floating **Refresh** toolbar
 that appears in the editor, or click **Refresh** in the [Concord tool window](./tool-window).
 See [Dependency Change Tracking](./dependencies#dependency-change-tracking) for details.
+:::
+
+## Task Parameter Completion
+
+When writing the <span className="tokenBadge" data-kind="step">in</span> block of a <span className="tokenBadge" data-kind="step">task</span> step, the plugin suggests parameter names and values from built-in task schemas:
+
+*   **Parameter keys:** Suggests valid input parameter names for the given task.
+*   **Enum values:** For parameters that accept a fixed set of values (e.g. `action`, `method`), suggests the allowed options.
+*   **Conditional parameters:** Suggestions adapt based on already specified values. For example, after setting `action: start`, only parameters relevant to the `start` action are suggested.
+
+```concord
+flows:
+  main:
+    - task: concord
+      in:
+        action: start
+        # Ctrl+Space here suggests parameters for the "start" action:
+        # repo, org, project, payload, ...
+```
+
+:::tip
+Hover over a suggested parameter in the completion list to see its [documentation](./hover-docs) with type and description.
 :::
 
 ## Flow Documentation Completion
