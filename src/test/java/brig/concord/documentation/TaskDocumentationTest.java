@@ -23,6 +23,15 @@ public class TaskDocumentationTest extends BaseDocumentationTargetTest {
     }
 
     @Test
+    public void testConditionalParamsBelowThreshold() {
+        configureFromResource("/documentation/task/concord.yaml");
+
+        assertDocTargetRaw(value("/flows/main[3]/task"),
+                "A task with multiple discriminator keys",
+                "/documentation/task/multiKeyTask.html");
+    }
+
+    @Test
     public void testUnknownTaskNoDocumentation() {
         configureFromResource("/documentation/task/concord.yaml");
 

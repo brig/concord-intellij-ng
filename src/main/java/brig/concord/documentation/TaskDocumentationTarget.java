@@ -13,6 +13,8 @@ import com.intellij.platform.backend.presentation.TargetPresentation;
 import com.intellij.psi.SmartPointerManager;
 import com.intellij.psi.SmartPsiElementPointer;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.Collectors;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -29,6 +31,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
     private final List<ParamInfo> inputParams;
     private final List<ParamInfo> outputParams;
     private final @Nullable String inputFooter;
+    private final List<ConditionalGroup> inputGroups;
 
     public TaskDocumentationTarget(@NotNull YAMLKeyValue taskKv, @NotNull TaskSchema schema) {
         this.taskPointer = SmartPointerManager.createPointer(taskKv);
@@ -38,6 +41,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
         var inputResult = buildInputParams(schema);
         this.inputParams = inputResult.params;
         this.inputFooter = inputResult.footer;
+        this.inputGroups = inputResult.groups;
 
         this.outputParams = toParamInfos(schema.getOutSection());
     }
@@ -47,12 +51,14 @@ public class TaskDocumentationTarget implements DocumentationTarget {
                                     @Nullable String description,
                                     @NotNull List<ParamInfo> inputParams,
                                     @Nullable String inputFooter,
+                                    @NotNull List<ConditionalGroup> inputGroups,
                                     @NotNull List<ParamInfo> outputParams) {
         this.taskPointer = SmartPointerManager.createPointer(taskKv);
         this.taskName = taskName;
         this.description = description;
         this.inputParams = inputParams;
         this.inputFooter = inputFooter;
+        this.inputGroups = inputGroups;
         this.outputParams = outputParams;
     }
 
@@ -63,10 +69,11 @@ public class TaskDocumentationTarget implements DocumentationTarget {
         var desc = this.description;
         var inParams = this.inputParams;
         var footer = this.inputFooter;
+        var groups = this.inputGroups;
         var outParams = this.outputParams;
         return () -> {
             var element = ptr.getElement();
-            return element == null ? null : new TaskDocumentationTarget(element, name, desc, inParams, footer, outParams);
+            return element == null ? null : new TaskDocumentationTarget(element, name, desc, inParams, footer, groups, outParams);
         };
     }
 
@@ -96,11 +103,11 @@ public class TaskDocumentationTarget implements DocumentationTarget {
         sb.append(CONTENT_START);
 
         if (description != null) {
-            sb.append("<p>").append(StringUtil.escapeXmlEntities(description)).append("</p>");
+            sb.append("<p>").append(StringUtil.decapitalize(description)).append("</p>");
         }
 
-        appendParamSection(sb, "Input Parameters:", inputParams, inputFooter);
-        appendParamSection(sb, "Output Parameters:", outputParams, null);
+        appendParamSection(sb, "Input Parameters:", inputParams, inputFooter, inputGroups);
+        appendParamSection(sb, "Output Parameters:", outputParams, null, List.of());
 
         sb.append(CONTENT_END);
 
@@ -108,50 +115,59 @@ public class TaskDocumentationTarget implements DocumentationTarget {
     }
 
     private static void appendParamSection(StringBuilder sb, String title, List<ParamInfo> params,
-                                           @Nullable String footer) {
-        if (params.isEmpty() && footer == null) {
+                                           @Nullable String footer,
+                                           @NotNull List<ConditionalGroup> groups) {
+        if (params.isEmpty() && footer == null && groups.isEmpty()) {
             return;
         }
 
         sb.append("<p><b>").append(title).append("</b></p>");
         if (!params.isEmpty()) {
-            sb.append("<ul>");
-            for (var param : params) {
-                sb.append("<li><code>").append(StringUtil.escapeXmlEntities(param.name)).append("</code>");
-                if (param.type != null) {
-                    sb.append(" <i>(").append(StringUtil.escapeXmlEntities(param.type));
-                    if (param.required) {
-                        sb.append(", required");
-                    }
-                    sb.append(")</i>");
-                }
-                if (param.description != null) {
-                    sb.append(" &mdash; ").append(StringUtil.escapeXmlEntities(param.description));
-                }
-                if (!param.enumValues.isEmpty()) {
-                    sb.append("<ul>");
-                    for (var ev : param.enumValues) {
-                        sb.append("<li><code>").append(StringUtil.escapeXmlEntities(ev.name)).append("</code>");
-                        if (ev.description != null) {
-                            sb.append(" &mdash; ").append(StringUtil.escapeXmlEntities(ev.description));
-                        }
-                        sb.append("</li>");
-                    }
-                    sb.append("</ul>");
-                }
-                sb.append("</li>");
-            }
-            sb.append("</ul>");
+            appendParamList(sb, params);
+        }
+        for (var group : groups) {
+            sb.append("<p><i>").append(group.header).append("</i></p>");
+            appendParamList(sb, group.params);
         }
         if (footer != null) {
             sb.append("<p><i>").append(footer).append("</i></p>");
         }
     }
 
+    private static void appendParamList(StringBuilder sb, List<ParamInfo> params) {
+        sb.append("<ul>");
+        for (var param : params) {
+            sb.append("<li><code>").append(StringUtil.escapeXmlEntities(param.name)).append("</code>");
+            if (param.type != null) {
+                sb.append(" <i>(").append(StringUtil.escapeXmlEntities(param.type));
+                if (param.required) {
+                    sb.append(", required");
+                }
+                sb.append(")</i>");
+            }
+            if (param.description != null) {
+                sb.append(" &mdash; ").append(StringUtil.decapitalize(param.description));
+            }
+            if (!param.enumValues.isEmpty()) {
+                sb.append("<ul>");
+                for (var ev : param.enumValues) {
+                    sb.append("<li><code>").append(StringUtil.escapeXmlEntities(ev.name)).append("</code>");
+                    if (ev.description != null) {
+                        sb.append(" &mdash; ").append(StringUtil.decapitalize(ev.description));
+                    }
+                    sb.append("</li>");
+                }
+                sb.append("</ul>");
+            }
+            sb.append("</li>");
+        }
+        sb.append("</ul>");
+    }
+
     private static InputResult buildInputParams(@NotNull TaskSchema schema) {
         var conditionals = schema.getInConditionals();
         if (conditionals.isEmpty()) {
-            return new InputResult(toParamInfos(schema.getBaseInSection()), null);
+            return new InputResult(toParamInfos(schema.getBaseInSection()), null, List.of());
         }
 
         // Count total unique input params across base + all conditionals
@@ -174,24 +190,38 @@ public class TaskDocumentationTarget implements DocumentationTarget {
 
             var footer = "Additional parameters depend on the value of "
                     + formatDiscriminatorKeys(discriminatorKeys);
-            return new InputResult(discriminatorParams, footer);
+            return new InputResult(discriminatorParams, footer, List.of());
         }
 
-        return new InputResult(toParamInfos(schema.getBaseInSection()), null);
+        // Under threshold: show base params, then group conditional params
+        var baseParams = toParamInfos(schema.getBaseInSection());
+        var baseParamNames = schema.getBaseInSection().properties().keySet();
+
+        var groups = new ArrayList<ConditionalGroup>();
+        for (var conditional : conditionals) {
+            var condParams = new ArrayList<ParamInfo>();
+            for (var prop : conditional.thenSection().properties().values()) {
+                if (!baseParamNames.contains(prop.name())) {
+                    condParams.add(toParamInfo(prop));
+                }
+            }
+            if (!condParams.isEmpty()) {
+                groups.add(new ConditionalGroup(formatConditionHeader(conditional.discriminators()), condParams));
+            }
+        }
+        return new InputResult(baseParams, null, groups);
+    }
+
+    private static String formatConditionHeader(@NotNull Map<String, List<String>> discriminators) {
+        return "When " + discriminators.entrySet().stream()
+                .map(e -> e.getKey() + " = " + String.join("|", e.getValue()))
+                .collect(Collectors.joining(", ")) + ":";
     }
 
     private static String formatDiscriminatorKeys(Set<String> keys) {
-        var sb = new StringBuilder();
-        var iter = keys.iterator();
-        var first = true;
-        while (iter.hasNext()) {
-            if (!first) {
-                sb.append(", ");
-            }
-            sb.append("<code>").append(StringUtil.escapeXmlEntities(iter.next())).append("</code>");
-            first = false;
-        }
-        return sb.toString();
+        return keys.stream()
+                .map(k -> "<code>" + StringUtil.escapeXmlEntities(k) + "</code>")
+                .collect(Collectors.joining(", "));
     }
 
     private static List<ParamInfo> toParamInfos(@NotNull TaskSchemaSection section) {
@@ -224,7 +254,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
         return List.copyOf(result);
     }
 
-    static @NotNull String schemaTypeDisplayName(@NotNull SchemaType schemaType) {
+    private static @NotNull String schemaTypeDisplayName(@NotNull SchemaType schemaType) {
         return switch (schemaType) {
             case SchemaType.Scalar s -> s.typeName();
             case SchemaType.Array a -> {
@@ -246,12 +276,15 @@ public class TaskDocumentationTarget implements DocumentationTarget {
         };
     }
 
-    private record InputResult(List<ParamInfo> params, @Nullable String footer) {}
+    record ConditionalGroup(@NotNull String header, @NotNull List<ParamInfo> params) {}
 
-    record ParamInfo(@NotNull String name, @Nullable String type, boolean required,
+    private record InputResult(List<ParamInfo> params, @Nullable String footer,
+                                @NotNull List<ConditionalGroup> groups) {}
+
+    private record ParamInfo(@NotNull String name, @Nullable String type, boolean required,
                      @Nullable String description, @NotNull List<EnumValueInfo> enumValues) {
     }
 
-    record EnumValueInfo(@NotNull String name, @Nullable String description) {
+    private record EnumValueInfo(@NotNull String name, @Nullable String description) {
     }
 }

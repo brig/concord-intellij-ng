@@ -8,3 +8,7 @@ flows:
         url: "http://example.com"
         method: GET
     - task: unknownTask
+    - task: multiKeyTask
+      in:
+        action: process
+        mode: sync

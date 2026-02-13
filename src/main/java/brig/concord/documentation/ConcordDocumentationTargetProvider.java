@@ -97,6 +97,8 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
         return new FlowDocumentationTarget(callKv, flowDoc);
     }
 
+    // No DumbService check needed: unlike resolveFlowCallDocumentation (which uses FlowNamesIndex),
+    // this method only uses PSI tree traversal and classpath-based TaskSchemaRegistry.
     private static @Nullable TaskDocumentationTarget resolveTaskDocumentation(
             @NotNull PsiFile file, @Nullable PsiElement parent) {
         if (!(parent instanceof YAMLScalar scalar)) {
