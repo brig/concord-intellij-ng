@@ -46,11 +46,6 @@ public class TaskSchemaMetaType extends ConcordMetaType {
         return this.features;
     }
 
-    public @Nullable String getPropertyDescription(@NotNull String name) {
-        var prop = section.properties().get(name);
-        return prop != null ? prop.description() : null;
-    }
-
     @Override
     public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
         return section.requiredFields().stream()

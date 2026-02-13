@@ -5,8 +5,6 @@ import brig.concord.psi.ConcordFile;
 import brig.concord.schema.TaskSchemaMetaType;
 import brig.concord.schema.TaskSchemaRegistry;
 import brig.concord.yaml.meta.model.TypeFieldPair;
-import brig.concord.yaml.meta.model.YamlComposedTypeBase;
-import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.project.Project;
 import com.intellij.platform.backend.documentation.DocumentationTarget;
@@ -42,19 +40,8 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
         var field = pair.getField();
         var metaType = field.getOriginalType();
 
-        // Meta type has its own description
         if (metaType.getDescription() != null) {
             return new ConcordDocumentationTarget(field.getName(), metaType, metaType.getTypeName());
-        }
-
-        // Check if owner (or its sub-type) is a TaskSchemaMetaType with a property description
-        var taskSchema = findTaskSchemaMetaType(pair.getMetaType());
-        if (taskSchema != null) {
-            var desc = taskSchema.getPropertyDescription(field.getName());
-            if (desc != null) {
-                Documented documented = Documented.ofDescription(desc);
-                return new ConcordDocumentationTarget(field.getName(), documented, metaType.getTypeName());
-            }
         }
 
         return null;
@@ -76,18 +63,4 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
         return new ConcordDocumentationTarget(lookup.name(), metaType, "task");
     }
 
-    private static @Nullable TaskSchemaMetaType findTaskSchemaMetaType(@NotNull YamlMetaType type) {
-        if (type instanceof TaskSchemaMetaType tsm) {
-            return tsm;
-        }
-        if (type instanceof YamlComposedTypeBase composed) {
-            for (var sub : composed.getSubTypes()) {
-                var result = findTaskSchemaMetaType(sub);
-                if (result != null) {
-                    return result;
-                }
-            }
-        }
-        return null;
-    }
 }

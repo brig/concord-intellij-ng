@@ -219,6 +219,7 @@ class LookupDocumentationTest extends ConcordYamlTestBaseJunit5 {
         var lookups = myFixture.getLookupElements();
         assertNotNull(lookups);
 
+        var verified = 0;
         for (var lookup : lookups) {
             if (!(lookup.getObject() instanceof TypeFieldPair)) {
                 continue;
@@ -229,13 +230,47 @@ class LookupDocumentationTest extends ConcordYamlTestBaseJunit5 {
                 continue;
             }
 
-            // Verify pointer round-trip
             var pointer = target.createPointer();
             var restored = pointer.dereference();
             assertNotNull(restored, "Pointer should dereference for key: " + lookup.getLookupString());
             assertEquals(target.computeDocumentationHint(), restored.computeDocumentationHint());
-            break;
+            verified++;
         }
+        assertTrue(verified > 0, "Should verify at least one pointer round-trip");
+    }
+
+    @Test
+    void testTaskNameDocumentationPointerRoundTrip() {
+        var file = configureFromText("""
+                flows:
+                  main:
+                    - task: <caret>
+                """);
+
+        TaskRegistry.getInstance(getProject()).setTaskNames(file.getVirtualFile(), Set.of("strictTask"));
+
+        myFixture.complete(CompletionType.BASIC);
+        var lookups = myFixture.getLookupElements();
+        assertNotNull(lookups);
+
+        var verified = false;
+        for (var lookup : lookups) {
+            if (!(lookup.getObject() instanceof TaskNameLookup)) {
+                continue;
+            }
+
+            var target = provider.documentationTarget(myFixture.getFile(), lookup, 0);
+            if (target == null) {
+                continue;
+            }
+
+            var pointer = target.createPointer();
+            var restored = pointer.dereference();
+            assertNotNull(restored, "Pointer should dereference for task name: " + lookup.getLookupString());
+            assertEquals(target.computeDocumentationHint(), restored.computeDocumentationHint());
+            verified = true;
+        }
+        assertTrue(verified, "Should verify pointer round-trip for TaskNameLookup");
     }
 
     @Test
