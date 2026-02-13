@@ -48,13 +48,9 @@ public class FlowDocumentationTarget implements DocumentationTarget {
     @Override
     public @NotNull Pointer<? extends DocumentationTarget> createPointer() {
         var ptr = this.callPointer;
-        var name = this.flowName;
-        var desc = this.description;
-        var inParams = this.inputParams;
-        var outParams = this.outputParams;
         return () -> {
             var element = ptr.getElement();
-            return element == null ? null : new FlowDocumentationTarget(element, name, desc, inParams, outParams);
+            return element == null ? null : new FlowDocumentationTarget(element, flowName, description, inputParams, outputParams);
         };
     }
 

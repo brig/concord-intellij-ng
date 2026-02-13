@@ -46,6 +46,9 @@ public class TaskStepMetaType extends IdentityMetaType {
         return features;
     }
 
+    public record TaskNameLookup(@NotNull String name) {
+    }
+
     public static class TaskNameMetaType extends StringMetaType implements HighlightProvider {
 
         private static final TaskNameMetaType INSTANCE = new TaskNameMetaType();
@@ -71,7 +74,7 @@ public class TaskStepMetaType extends IdentityMetaType {
 
             return taskNames.stream()
                     .sorted()
-                    .map(name -> LookupElementBuilder.create(name)
+                    .map(name -> LookupElementBuilder.create(new TaskNameLookup(name), name)
                             .withPresentableText(name)
                             .withTypeText("task"))
                     .toList();

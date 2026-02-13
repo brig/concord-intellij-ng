@@ -65,15 +65,9 @@ public class TaskDocumentationTarget implements DocumentationTarget {
     @Override
     public @NotNull Pointer<? extends DocumentationTarget> createPointer() {
         var ptr = this.taskPointer;
-        var name = this.taskName;
-        var desc = this.description;
-        var inParams = this.inputParams;
-        var footer = this.inputFooter;
-        var groups = this.inputGroups;
-        var outParams = this.outputParams;
         return () -> {
             var element = ptr.getElement();
-            return element == null ? null : new TaskDocumentationTarget(element, name, desc, inParams, footer, groups, outParams);
+            return element == null ? null : new TaskDocumentationTarget(element, taskName, description, inputParams, inputFooter, inputGroups, outputParams);
         };
     }
 

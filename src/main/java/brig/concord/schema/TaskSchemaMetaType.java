@@ -1,5 +1,6 @@
 package brig.concord.schema;
 
+import brig.concord.documentation.Documented;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.value.AnyOfType;
 import brig.concord.meta.model.value.ExpressionMetaType;
@@ -44,6 +45,30 @@ public class TaskSchemaMetaType extends ConcordMetaType {
         }
         this.features = Map.copyOf(result);
         return this.features;
+    }
+
+    @Override
+    public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
+        var features = getFeatures();
+        return section.properties().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> {
+                    var prop = e.getValue();
+                    var metaType = features.get(e.getKey());
+                    return new Documented.DocumentedField(
+                            e.getKey(),
+                            metaType != null ? metaType.getTypeName() : null,
+                            prop.required(),
+                            prop.description(),
+                            List.of()
+                    );
+                })
+                .toList();
+    }
+
+    public @Nullable String getPropertyDescription(@NotNull String name) {
+        var prop = section.properties().get(name);
+        return prop != null ? prop.description() : null;
     }
 
     @Override

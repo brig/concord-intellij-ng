@@ -107,6 +107,8 @@
         <!-- Documentation -->
         <platform.backend.documentation.targetProvider
                 implementation="brig.concord.documentation.ConcordDocumentationTargetProvider"/>
+        <platform.backend.documentation.lookupElementTargetProvider
+                implementation="brig.concord.documentation.ConcordLookupDocumentationProvider"/>
 
         <!-- Validation -->
         <annotator language="Concord"

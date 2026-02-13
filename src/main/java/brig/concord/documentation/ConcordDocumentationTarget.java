@@ -17,25 +17,35 @@ import static com.intellij.lang.documentation.DocumentationMarkup.*;
 
 public class ConcordDocumentationTarget implements DocumentationTarget {
 
-    private final SmartPsiElementPointer<YAMLKeyValue> elementPointer;
+    private final @Nullable SmartPsiElementPointer<YAMLKeyValue> elementPointer;
+    private final @Nullable String keyName;
     private final Documented documented;
     private final String typeName;
 
     public ConcordDocumentationTarget(YAMLKeyValue element, Documented documented, String typeName) {
         this.elementPointer = SmartPointerManager.createPointer(element);
+        this.keyName = null;
+        this.documented = documented;
+        this.typeName = typeName;
+    }
+
+    public ConcordDocumentationTarget(String keyName, Documented documented, String typeName) {
+        this.elementPointer = null;
+        this.keyName = keyName;
         this.documented = documented;
         this.typeName = typeName;
     }
 
     @Override
     public @NotNull Pointer<? extends DocumentationTarget> createPointer() {
-        var ptr = this.elementPointer;
-        var doc = this.documented;
-        var type = this.typeName;
-        return () -> {
-            var element = ptr.getElement();
-            return element == null ? null : new ConcordDocumentationTarget(element, doc, type);
-        };
+        if (elementPointer != null) {
+            var ptr = this.elementPointer;
+            return () -> {
+                var element = ptr.getElement();
+                return element == null ? null : new ConcordDocumentationTarget(element, documented, typeName);
+            };
+        }
+        return () -> new ConcordDocumentationTarget(keyName, documented, typeName);
     }
 
     @Override
@@ -50,20 +60,35 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
 
     @Override
     public @Nullable DocumentationResult computeDocumentation() {
-        var element = elementPointer.getElement();
-        if (element == null) {
+        String displayName;
+        YAMLKeyValue element = elementPointer != null ? elementPointer.getElement() : null;
+        if (elementPointer != null) {
+            if (element == null) {
+                return null;
+            }
+            displayName = element.getKeyText();
+        } else {
+            displayName = keyName;
+        }
+
+        if (displayName == null) {
             return null;
         }
 
         var sb = new StringBuilder();
 
-        sb.append(DEFINITION_START).append(StringUtil.escapeXmlEntities(element.getKeyText())).append(DEFINITION_END);
+        sb.append(DEFINITION_START).append(StringUtil.escapeXmlEntities(displayName)).append(DEFINITION_END);
 
         sb.append(CONTENT_START);
 
         sb.append("<p>Type: <code>").append(StringUtil.escapeXmlEntities(typeName)).append("</code></p>");
 
-        var description = documented.getDocumentationDescription(element);
+        String description;
+        if (element != null) {
+            description = documented.getDocumentationDescription(element);
+        } else {
+            description = documented.getDescription();
+        }
         if (description != null) {
             sb.append("<p>").append(description).append("</p>");
         }
