@@ -3,6 +3,7 @@ package brig.concord.documentation;
 import brig.concord.ConcordBundle;
 import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.platform.backend.documentation.DocumentationData;
+import com.intellij.platform.backend.documentation.DocumentationTarget;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
@@ -18,15 +19,15 @@ public abstract class BaseDocumentationTargetTest extends ConcordYamlTestBaseJun
         assertEquals(0, targets.size());
     }
 
-    protected ConcordDocumentationTarget assertDocTarget(AbstractTarget path,
+    protected DocumentationTarget assertDocTarget(AbstractTarget path,
                                                          @NotNull @PropertyKey(resourceBundle = BUNDLE) String key,
                                                          String htmlResource) {
         return assertDocTargetRaw(path, ConcordBundle.message(key), htmlResource);
     }
 
-    protected ConcordDocumentationTarget assertDocTargetRaw(AbstractTarget path,
-                                                             @NotNull String expectedHint,
-                                                             String htmlResource) {
+    protected DocumentationTarget assertDocTargetRaw(AbstractTarget path,
+                                                     @NotNull String expectedHint,
+                                                     String htmlResource) {
         var targets = provider.documentationTargets(myFixture.getFile(), path.range().getStartOffset());
         assertEquals(1, targets.size());
 
