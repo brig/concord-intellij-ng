@@ -19,7 +19,7 @@ public class ThrowStepMetaType extends IdentityMetaType {
             "throw", new YamlStringType().withDescriptionKey("doc.step.throw.key.description"),
             "name", StepNameMetaType.getInstance());
 
-    protected ThrowStepMetaType() {
+    private ThrowStepMetaType() {
         super("throw", Set.of("throw"));
 
         setDescriptionKey("doc.step.throw.description");

@@ -82,7 +82,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (o1, o2) -> o1, () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER)));
 
 
-    protected FormFieldMetaType() {
+    private FormFieldMetaType() {
         setDescriptionKey("doc.forms.formName.formField.description");
     }
 

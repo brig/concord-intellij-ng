@@ -16,8 +16,7 @@
             large or sensitive values from being stored in events
         </li>
         <li><code>exclusive</code> <i>(object)</i> &mdash; ensures only one process runs per <b>project + group</b>.
-            Conflict behaviour is controlled by <code>mode</code>.
-        </li>
+            Conflict behavior is controlled by <code>mode</code></li>
         <li><code>meta</code> <i>(object)</i> &mdash; process metadata map exposed by flows; values are updated after
             each step and can be retrieved via the API or shown in the Concord Console process list. Supports nested
             keys (e.g. <code>nested.value</code>) and form fields (e.g. <code>myForm.myValue</code>)
@@ -26,7 +25,7 @@
         <li><code>parallelLoopParallelism</code> <i>(integer)</i> &mdash; maximum number of parallel threads for
             parallel loops
         </li>
-        <li><code>processTimeout</code> <i>(string)</i> &mdash; maximum process execution time (Format: ISO 8601
+        <li><code>processTimeout</code> <i>(string)</i> &mdash; maximum process execution time (format: ISO 8601
             duration, e.g. PT1H)
         </li>
         <li><code>requirements</code> <i>(object)</i> &mdash; execution requirements for agent selection and resource
@@ -34,7 +33,7 @@
         </li>
         <li><code>runtime</code> <i>(string)</i> &mdash; runtime version for the process (e.g. concord-v2)</li>
         <li><code>suspendTimeout</code> <i>(string)</i> &mdash; maximum time a process can stay in SUSPENDED state
-            (Format: ISO 8601 duration)
+            (format: ISO 8601 duration)
         </li>
         <li><code>template</code> <i>(string)</i> &mdash; name of the template to apply to this process</li>
     </ul>

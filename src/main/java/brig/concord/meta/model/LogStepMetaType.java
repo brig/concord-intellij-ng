@@ -21,7 +21,7 @@ public class LogStepMetaType extends IdentityMetaType {
             Map.of("log", new StringMetaType().withDescriptionKey("doc.step.log.key.description"))
     );
 
-    protected LogStepMetaType() {
+    private LogStepMetaType() {
         super("log", Set.of("log"));
 
         setDescriptionKey("doc.step.log.description");

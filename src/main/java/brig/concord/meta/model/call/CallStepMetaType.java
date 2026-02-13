@@ -22,7 +22,7 @@ public class CallStepMetaType extends IdentityMetaType {
                    "out", CallOutParamsMetaType.getInstance())
     );
 
-    protected CallStepMetaType() {
+    private CallStepMetaType() {
         super("call", Set.of("call"));
 
         setDescriptionKey("doc.step.call.description");

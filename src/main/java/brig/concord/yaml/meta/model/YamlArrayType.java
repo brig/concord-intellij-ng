@@ -12,6 +12,7 @@ import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class YamlArrayType extends YamlMetaType {
@@ -30,13 +31,13 @@ public class YamlArrayType extends YamlMetaType {
 
     @Override
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        if(!(value instanceof YAMLSequence))
+        if(!(value instanceof YAMLSequence)) {
             problemsHolder.registerProblem(value, ConcordBundle.message("YamlUnknownValuesInspectionBase.error.array.is.required"));
+        }
     }
 
     public @NotNull YamlMetaType getElementType() {
-        assert myElementType != null : "Subclass must override getElementType()";
-        return myElementType;
+        return Objects.requireNonNull(myElementType, "Subclass must override getElementType()");
     }
 
     @Override

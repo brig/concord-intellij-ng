@@ -22,7 +22,7 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
         return INSTANCE;
     }
 
-    protected TaskOutParamsMetaType() {
+    private TaskOutParamsMetaType() {
         super(StringMetaType.getInstance(), AnyMapMetaType.getInstance());
         this.hasSchema = false;
 

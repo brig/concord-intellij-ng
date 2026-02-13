@@ -20,7 +20,7 @@ public class CallOutParamsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected CallOutParamsMetaType() {
+    private CallOutParamsMetaType() {
         super(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance());
 
         setDescriptionKey("doc.step.feature.out.description");

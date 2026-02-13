@@ -37,7 +37,7 @@ public class TaskStepMetaType extends IdentityMetaType {
                    "ignoreErrors", new BooleanMetaType().withDescriptionKey("doc.step.feature.ignoreErrors.description"))
     );
 
-    protected TaskStepMetaType() {
+    private TaskStepMetaType() {
         super("task", Set.of("task"));
 
         setDescriptionKey("doc.step.task.description");

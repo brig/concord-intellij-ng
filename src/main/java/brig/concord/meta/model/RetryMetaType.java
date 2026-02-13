@@ -32,7 +32,7 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
         return INSTANCE;
     }
 
-    protected RetryMetaType() {
+    private RetryMetaType() {
         setDescriptionKey("doc.step.feature.retry.description");
     }
 
@@ -54,7 +54,7 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
             return INSTANCE;
         }
 
-        protected TimesType() {
+        private TimesType() {
             super(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false));
 
             setDescriptionKey("doc.step.feature.retry.times.description");
@@ -74,7 +74,7 @@ public class RetryMetaType extends ConcordMetaType implements HighlightProvider 
             return INSTANCE;
         }
 
-        protected DelayType() {
+        private DelayType() {
             super(ExpressionMetaType.getInstance(), YamlIntegerType.getInstance(false));
 
             setDescriptionKey("doc.step.feature.retry.delay.description");

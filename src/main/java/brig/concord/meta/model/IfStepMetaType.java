@@ -33,7 +33,7 @@ public class IfStepMetaType extends IdentityMetaType {
                 "meta", StepMetaMetaType.getInstance());
     }
 
-    protected IfStepMetaType() {
+    private IfStepMetaType() {
         super("if", Set.of("if", THEN));
 
         setDescriptionKey("doc.step.if.description");

@@ -25,7 +25,7 @@ public class SwitchStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    protected SwitchStepMetaType() {
+    private SwitchStepMetaType() {
         super("switch", Set.of("switch"));
 
         setDescriptionKey("doc.step.switch.description");

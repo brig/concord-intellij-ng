@@ -45,7 +45,7 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         return INSTANCE;
     }
 
-    protected TriggerElementMetaType() {
+    private TriggerElementMetaType() {
         super(entries);
     }
 

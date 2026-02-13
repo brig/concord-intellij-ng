@@ -20,7 +20,7 @@ public class CheckpointStepMetaType extends IdentityMetaType {
             "checkpoint", new StringMetaType().withDescriptionKey("doc.step.checkpoint.key.description"),
             "meta", StepMetaMetaType.getInstance());
 
-    protected CheckpointStepMetaType() {
+    private CheckpointStepMetaType() {
         super("checkpoint", Set.of("checkpoint"));
 
         setDescriptionKey("doc.step.checkpoint.description");

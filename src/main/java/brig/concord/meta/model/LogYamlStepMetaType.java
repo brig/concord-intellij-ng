@@ -21,7 +21,7 @@ public class LogYamlStepMetaType extends IdentityMetaType {
             Map.of("logYaml", new StringMetaType().withDescriptionKey("doc.step.logYaml.key.description"))
     );
 
-    protected LogYamlStepMetaType() {
+    private LogYamlStepMetaType() {
         super("logYaml", Set.of("logYaml"));
 
         setDescriptionKey("doc.step.logYaml.description");

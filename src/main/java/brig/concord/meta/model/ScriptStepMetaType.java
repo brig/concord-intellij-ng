@@ -27,7 +27,7 @@ public class ScriptStepMetaType extends IdentityMetaType {
                    "out", ScriptOutParamsMetaType.getInstance())
     );
 
-    protected ScriptStepMetaType() {
+    private ScriptStepMetaType() {
         super("script", Set.of("script"));
 
         setDescriptionKey("doc.step.script.description");

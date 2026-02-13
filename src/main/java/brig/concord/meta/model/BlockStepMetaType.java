@@ -8,8 +8,8 @@ public class BlockStepMetaType extends GroupOfStepsMetaType {
         return INSTANCE;
     }
 
-    protected BlockStepMetaType() {
-        super("block",  "doc.step.block.key.description");
+    private BlockStepMetaType() {
+        super("block", "doc.step.block.key.description");
 
         setDescriptionKey("doc.step.block.description");
     }

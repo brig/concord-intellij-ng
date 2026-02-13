@@ -31,7 +31,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
             return INSTANCE;
         }
 
-        protected ModeType() {
+        private ModeType() {
             super("string");
             setDescriptionKey("doc.triggers.exclusive.mode.description");
             setLiterals("cancel", "cancelOld", "wait");
@@ -53,7 +53,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
             "mode", ModeType.getInstance()
     );
 
-    protected TriggerExclusiveMetaType() {
+    private TriggerExclusiveMetaType() {
         setDescriptionKey("doc.triggers.exclusive.description");
     }
 

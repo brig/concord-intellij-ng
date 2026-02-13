@@ -26,7 +26,7 @@ public class ParallelStepMetaType extends IdentityMetaType {
         );
     }
 
-    protected ParallelStepMetaType() {
+    private ParallelStepMetaType() {
         super("parallel", Set.of("parallel"));
 
         setDescriptionKey("doc.step.parallel.description");

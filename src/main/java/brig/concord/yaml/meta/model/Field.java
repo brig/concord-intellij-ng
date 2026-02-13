@@ -53,6 +53,13 @@ public class Field {
         }
     }
 
+    /**
+     * Stores the original type before array unwrapping.
+     * When the field type is {@link YamlArrayType}, the constructor unwraps it:
+     * {@code myMainType} is replaced with the element type (for schema validation),
+     * while this field preserves the original array type (e.g. {@code string[]})
+     * for display in documentation via {@link #getOriginalType()}.
+     */
     private YamlMetaType myOriginalType;
 
     public Field(@NonNls @NotNull String name, @NotNull YamlMetaType mainType) {

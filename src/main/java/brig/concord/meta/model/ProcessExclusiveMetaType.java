@@ -33,7 +33,7 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
         return INSTANCE;
     }
 
-    protected ProcessExclusiveMetaType() {
+    private ProcessExclusiveMetaType() {
         setDescriptionKey("doc.configuration.exclusive.description");
     }
 
@@ -71,7 +71,7 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
 
     private static class ModeType extends YamlEnumType {
 
-        protected ModeType() {
+        private ModeType() {
             super("string");
 
             setLiterals("cancel", "cancelOld", "wait");

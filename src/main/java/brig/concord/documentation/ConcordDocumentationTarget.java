@@ -57,11 +57,11 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
 
         var sb = new StringBuilder();
 
-        sb.append(DEFINITION_START).append(element.getKeyText()).append(DEFINITION_END);
+        sb.append(DEFINITION_START).append(StringUtil.escapeXmlEntities(element.getKeyText())).append(DEFINITION_END);
 
         sb.append(CONTENT_START);
 
-        sb.append("<p>Type: <code>").append(typeName).append("</code></p>");
+        sb.append("<p>Type: <code>").append(StringUtil.escapeXmlEntities(typeName)).append("</code></p>");
 
         var description = documented.getDocumentationDescription(element);
         if (description != null) {
@@ -128,9 +128,9 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
         sb.append("<p><b>Values:</b></p>");
         sb.append("<ul>");
         for (var f : fields) {
-            sb.append("<li><code>").append(f.name()).append("</code>");
+            sb.append("<li><code>").append(StringUtil.escapeXmlEntities(f.name())).append("</code>");
             if (f.typeDisplayName() != null) {
-                sb.append(" <i>(").append(f.typeDisplayName());
+                sb.append(" <i>(").append(StringUtil.escapeXmlEntities(f.typeDisplayName()));
                 if (f.required()) {
                     sb.append(", required");
                 }
@@ -153,7 +153,7 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
 
         var sb = new StringBuilder();
         for (var section : sections) {
-            sb.append("<p><b>").append(section.title()).append("</b></p>");
+            sb.append("<p><b>").append(StringUtil.escapeXmlEntities(section.title())).append("</b></p>");
             if (!section.fields().isEmpty()) {
                 sb.append("<ul>");
                 for (var f : section.fields()) {
@@ -166,9 +166,9 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
     }
 
     private static void appendField(StringBuilder sb, Documented.DocumentedField f) {
-        sb.append("<li><code>").append(f.name()).append("</code>");
+        sb.append("<li><code>").append(StringUtil.escapeXmlEntities(f.name())).append("</code>");
         if (f.typeDisplayName() != null) {
-            sb.append(" <i>(").append(f.typeDisplayName());
+            sb.append(" <i>(").append(StringUtil.escapeXmlEntities(f.typeDisplayName()));
             if (f.required()) {
                 sb.append(", required");
             }
@@ -180,7 +180,7 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
         if (!f.children().isEmpty()) {
             sb.append("<ul>");
             for (var child : f.children()) {
-                sb.append("<li><code>").append(child.name()).append("</code>");
+                sb.append("<li><code>").append(StringUtil.escapeXmlEntities(child.name())).append("</code>");
                 if (child.description() != null) {
                     sb.append(" &mdash; ").append(child.description());
                 }

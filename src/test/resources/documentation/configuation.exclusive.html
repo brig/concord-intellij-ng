@@ -2,20 +2,20 @@
     <pre>exclusive</pre>
 </div>
 <div class='content'><p>Type: <code>object</code></p>
-    <p>Ensures only one process runs per <b>project + group</b>. Conflict behaviour is controlled by <code>mode</code>.
+    <p>Ensures only one process runs per <b>project + group</b>. Conflict behavior is controlled by <code>mode</code>
     </p>
     <p><b>Keys:</b></p>
     <ul>
         <li><code>group</code> <i>(string, required)</i> &mdash; name of the exclusivity group</li>
         <li><code>mode</code> <i>(string)</i> &mdash; conflict resolution mode (default: cancel)
             <ul>
-                <li><code>cancel</code> &mdash; new submission is immediately cancelled if another run in the same
+                <li><code>cancel</code> &mdash; New submission is immediately cancelled if another run in the same
                     project+group is running
                 </li>
-                <li><code>cancelOld</code> &mdash; running process in the same project+group is cancelled in favor of
+                <li><code>cancelOld</code> &mdash; Running process in the same project+group is cancelled in favor of
                     the new submission
                 </li>
-                <li><code>wait</code> &mdash; enqueue: only one run per group; others wait</li>
+                <li><code>wait</code> &mdash; Enqueue: only one run per group; others wait</li>
             </ul>
         </li>
     </ul>

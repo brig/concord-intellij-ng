@@ -22,7 +22,7 @@ public class ExprStepMetaType extends IdentityMetaType {
                    "out", ExprOutParamsMetaType.getInstance())
     );
 
-    protected ExprStepMetaType() {
+    private ExprStepMetaType() {
         super("expr", Set.of("expr"));
 
         setDescriptionKey("doc.step.expr.description");

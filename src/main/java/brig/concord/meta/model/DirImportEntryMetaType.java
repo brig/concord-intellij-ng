@@ -28,7 +28,8 @@ public class DirImportEntryMetaType extends ConcordMetaType implements Highlight
             "dest", new StringMetaType().withDescriptionKey("doc.imports.dir.dest.description")
     );
 
-    protected DirImportEntryMetaType() {
+    private DirImportEntryMetaType() {
+        setDescriptionKey("doc.imports.dir.description");
     }
 
     @Override

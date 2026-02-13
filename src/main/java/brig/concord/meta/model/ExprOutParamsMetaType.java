@@ -18,7 +18,7 @@ public class ExprOutParamsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected ExprOutParamsMetaType() {
+    private ExprOutParamsMetaType() {
         super(StringMetaType.getInstance(), AnyMapMetaType.getInstance());
 
         setDescriptionKey("doc.step.feature.out.description");

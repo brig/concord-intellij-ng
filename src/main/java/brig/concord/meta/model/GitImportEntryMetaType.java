@@ -29,10 +29,11 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
             "path", new StringMetaType().withDescriptionKey("doc.imports.git.path.description"),
             "dest", new StringMetaType().withDescriptionKey("doc.imports.git.dest.description"),
             "exclude", new RegexpArrayMetaType().withDescriptionKey("doc.imports.git.exclude.description"),
-            "secret", new SecretMetaType().withDescriptionKey("doc.imports.git.secret.description")
+            "secret", SecretMetaType.getInstance()
     );
 
-    protected GitImportEntryMetaType() {
+    private GitImportEntryMetaType() {
+        setDescriptionKey("doc.imports.git.description");
     }
 
     @Override
@@ -61,7 +62,8 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
                 "password", new StringMetaType().withDescriptionKey("doc.imports.git.secret.password.description")
         );
 
-        protected SecretMetaType() {
+        private SecretMetaType() {
+            setDescriptionKey("doc.imports.git.secret.description");
         }
 
         @Override

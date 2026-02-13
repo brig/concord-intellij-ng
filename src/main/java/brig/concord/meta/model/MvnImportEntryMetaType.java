@@ -28,7 +28,8 @@ public class MvnImportEntryMetaType extends ConcordMetaType implements Highlight
             "dest", new StringMetaType().withDescriptionKey("doc.imports.mvn.dest.description")
     );
 
-    protected MvnImportEntryMetaType() {
+    private MvnImportEntryMetaType() {
+        setDescriptionKey("doc.imports.mvn.description");
     }
 
     @Override

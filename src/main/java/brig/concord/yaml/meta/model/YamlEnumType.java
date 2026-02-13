@@ -68,7 +68,7 @@ public class YamlEnumType extends YamlScalarType {
             }
             return children;
         }
-        return  List.of();
+        return List.of();
     }
 
     protected final @NotNull Stream<String> getLiteralsStream() {

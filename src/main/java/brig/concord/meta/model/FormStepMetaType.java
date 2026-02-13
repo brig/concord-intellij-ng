@@ -34,7 +34,7 @@ public class FormStepMetaType extends IdentityMetaType {
             "fields", FieldsType.getInstance()
     );
 
-    protected FormStepMetaType() {
+    private FormStepMetaType() {
         super("form", Set.of("form"));
 
         setDescriptionKey("doc.step.form.description");
@@ -72,7 +72,7 @@ public class FormStepMetaType extends IdentityMetaType {
             return INSTANCE;
         }
 
-        protected FieldsType() {
+        private FieldsType() {
             super(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance()));
 
             setDescriptionKey("doc.step.feature.fields.description");
