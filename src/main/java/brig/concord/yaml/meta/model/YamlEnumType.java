@@ -36,6 +36,7 @@ public class YamlEnumType extends YamlScalarType {
 
     public void setLiterals(String... literals) {
         myLiterals = cloneArray(literals);
+        checkDescriptionsMatchLiterals();
     }
 
     public YamlEnumType withLiterals(String... literals) {
@@ -45,10 +46,11 @@ public class YamlEnumType extends YamlScalarType {
 
     public void setDescriptionKeys(@NotNull @PropertyKey(resourceBundle = BUNDLE) String... keys) {
         this.myDescriptions = new String[keys.length];
-        for (int i = 0; i < keys.length; i++) {
+        for (var i = 0; i < keys.length; i++) {
             var key = keys[i];
             this.myDescriptions[i] = ConcordBundle.message(key);
         }
+        checkDescriptionsMatchLiterals();
     }
 
     public String[] getLiteralDescriptions() {
@@ -59,9 +61,9 @@ public class YamlEnumType extends YamlScalarType {
     public @NotNull List<DocumentedField> getValues() {
         var descriptions = getLiteralDescriptions();
         if (descriptions.length > 0) {
-            var children = new ArrayList<DocumentedField>(getLiterals().length);
-            String[] literals = getLiterals();
-            for (int i = 0; i < literals.length; i++) {
+            var literals = getLiterals();
+            var children = new ArrayList<DocumentedField>(literals.length);
+            for (var i = 0; i < literals.length; i++) {
                 children.add(new DocumentedField(literals[i], getTypeName(), false, descriptions[i], List.of()));
             }
             return children;
@@ -77,7 +79,7 @@ public class YamlEnumType extends YamlScalarType {
     protected void validateScalarValue(@NotNull YAMLScalar scalarValue, @NotNull ProblemsHolder holder) {
         super.validateScalarValue(scalarValue, holder);
 
-        String text = scalarValue.getTextValue();
+        var text = scalarValue.getTextValue();
         if (text.isEmpty()) {
             // not our business
             return;
@@ -102,6 +104,13 @@ public class YamlEnumType extends YamlScalarType {
         return LookupElementBuilder.create(literal).withStrikeoutness(deprecated);
     }
 
+
+    private void checkDescriptionsMatchLiterals() {
+        if (myDescriptions.length != 0 && myLiterals.length != 0 && myDescriptions.length != myLiterals.length) {
+            throw new IllegalStateException(
+                    "descriptions count (" + myDescriptions.length + ") != literals count (" + myLiterals.length + ") in " + getTypeName());
+        }
+    }
 
     private static String @NotNull [] cloneArray(String @NotNull [] array) {
         return array.length == 0 ? ArrayUtilRt.EMPTY_STRING_ARRAY : array.clone();

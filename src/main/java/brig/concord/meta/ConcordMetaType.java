@@ -2,7 +2,6 @@ package brig.concord.meta;
 
 import brig.concord.ConcordBundle;
 import brig.concord.meta.model.value.AnyOfType;
-import brig.concord.meta.model.value.BooleanMetaType;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;

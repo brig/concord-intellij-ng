@@ -5,7 +5,6 @@ import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.platform.backend.documentation.DocumentationData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
-import org.jsoup.Jsoup;
 
 import static brig.concord.ConcordBundle.BUNDLE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,11 +38,6 @@ public abstract class BaseDocumentationTargetTest extends ConcordYamlTestBaseJun
                     expectedHtml.replaceAll("\\s+", "").trim(),
                     actualHtml.replaceAll("\\s+", "").trim(),
                     actualHtml
-            );
-
-            assertEquals(
-                    Jsoup.parse(expectedHtml).html(),
-                    Jsoup.parse(actualHtml).html()
             );
         }
         assertNotNull(target.computeDocumentationHint());

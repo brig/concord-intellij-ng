@@ -47,36 +47,6 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
         return requiredFeatures;
     }
 
-//    @Override
-//    public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
-//        var prefix = getDocBundlePrefix();
-//        var required = getRequiredFields();
-//
-//        var groupDesc = ConcordBundle.findMessage(prefix + ".group.description");
-//        var modeDesc = ConcordBundle.findMessage(prefix + ".mode.description");
-//
-//        var modeChildren = List.of(
-//                new Documented.DocumentedField("cancel", null, false,
-//                        ConcordBundle.findMessage(prefix + ".mode.cancel"), List.of()),
-//                new Documented.DocumentedField("cancelOld", null, false,
-//                        ConcordBundle.findMessage(prefix + ".mode.cancelOld"), List.of()),
-//                new Documented.DocumentedField("wait", null, false,
-//                        ConcordBundle.findMessage(prefix + ".mode.wait"), List.of())
-//        );
-//
-//        return List.of(
-//                new Documented.DocumentedField("group",
-//                        features.get("group").getTypeName(),
-//                        required.contains("group"),
-//                        groupDesc),
-//                new Documented.DocumentedField("mode",
-//                        features.get("mode").getTypeName(),
-//                        required.contains("mode"),
-//                        modeDesc,
-//                        modeChildren)
-//        );
-//    }
-
     @Override
     public @Nullable String getDocumentationExample() {
         return "configuration:\n  exclusive:\n    group: \"myGroup\"\n    mode: \"cancel\"\n";

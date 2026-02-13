@@ -80,7 +80,7 @@ public class FormStepMetaType extends IdentityMetaType {
 
         @Override
         public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
-            return FormFieldMetaType.getInstance().getDocumentationFields();
+            return FormFieldMetaType.getInstance().getAllDocumentationFields();
         }
     }
 }

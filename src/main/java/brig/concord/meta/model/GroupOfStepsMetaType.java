@@ -1,12 +1,13 @@
 package brig.concord.meta.model;
 
 import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.psi.YAMLValue;
-import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.PropertyKey;
 
 import java.util.Map;
 import java.util.Set;
+
+import static brig.concord.ConcordBundle.BUNDLE;
 
 public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
@@ -14,15 +15,15 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
     private final Map<String, YamlMetaType> features;
 
-    protected GroupOfStepsMetaType(String name) {
+    protected GroupOfStepsMetaType(String name, @NotNull @PropertyKey(resourceBundle = BUNDLE) String identityKeyDescriptionKey) {
         super(name, Set.of(name));
 
-        this.features = createFeatures(name);
+        this.features = createFeatures(name, identityKeyDescriptionKey);
     }
 
-    private static Map<String, YamlMetaType> createFeatures(String name) {
+    private static Map<String, YamlMetaType> createFeatures(String name, String identityKeyDescriptionKey) {
         var identitySteps = new StepsMetaType();
-        identitySteps.setDescriptionKey("doc.step." + name + ".key.description");
+        identitySteps.setDescriptionKey(identityKeyDescriptionKey);
         return StepFeatures.combine(
                 StepFeatures.nameAndMeta(), StepFeatures.error(),
                 Map.of(name, identitySteps,
@@ -34,10 +35,5 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
     @Override
     public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
-    }
-
-    @Override
-    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        super.validateValue(value, problemsHolder);
     }
 }

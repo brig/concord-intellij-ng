@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 public class ResourcesDocumentationTest extends BaseDocumentationTargetTest {
 
     @Test
-    public void testCompleteResoucrce() {
+    public void testCompleteResource() {
         configureFromText("""
                 flows:
                   main:

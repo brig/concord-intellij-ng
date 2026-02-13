@@ -40,11 +40,6 @@ public abstract class YamlMetaType implements Documented {
         this.descriptionKey = descriptionKey;
     }
 
-    @Deprecated
-    public YamlMetaType withDocBundlePrefix(@Nullable String docBundlePrefix) {
-        return this;
-    }
-
     @Override
     public @Nullable String getDescription() {
         if (descriptionKey != null) {

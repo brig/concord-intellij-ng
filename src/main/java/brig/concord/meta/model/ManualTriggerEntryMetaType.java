@@ -34,7 +34,7 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType implements Highl
             "exclusive", TriggerExclusiveMetaType.getInstance()
     );
 
-    protected ManualTriggerEntryMetaType() {
+    private ManualTriggerEntryMetaType() {
         setDescriptionKey("doc.triggers.manual.description");
     }
 
