@@ -8,7 +8,7 @@ public class FlowCallDocumentationTest extends BaseDocumentationTargetTest {
     public void testFlowCallWithDocumentation() {
         configureFromResource("/documentation/flowcall/concord.yaml");
 
-        assertDocTargetWithHint(value("/flows/main[0]/call"),
+        assertDocTargetRaw(value("/flows/main[0]/call"),
                 "Process S3 files and return count",
                 "/documentation/flowcall/processS3.html");
     }
@@ -17,7 +17,7 @@ public class FlowCallDocumentationTest extends BaseDocumentationTargetTest {
     public void testFlowCallQuoted() {
         configureFromResource("/documentation/flowcall/concord.yaml");
 
-        assertDocTargetWithHint(value("/flows/main[1]/call"),
+        assertDocTargetRaw(value("/flows/main[1]/call"),
                 "Quoted call target flow",
                 "/documentation/flowcall/quotedCall.html");
     }

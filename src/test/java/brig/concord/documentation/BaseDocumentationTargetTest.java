@@ -20,14 +20,14 @@ public abstract class BaseDocumentationTargetTest extends ConcordYamlTestBaseJun
     }
 
     protected DocumentationTarget assertDocTarget(AbstractTarget path,
-                                                   @NotNull @PropertyKey(resourceBundle = BUNDLE) String bundleKey,
-                                                   String htmlResource) {
-        return assertDocTargetWithHint(path, ConcordBundle.message(bundleKey), htmlResource);
+                                                         @NotNull @PropertyKey(resourceBundle = BUNDLE) String key,
+                                                         String htmlResource) {
+        return assertDocTargetRaw(path, ConcordBundle.message(key), htmlResource);
     }
 
-    protected DocumentationTarget assertDocTargetWithHint(AbstractTarget path,
-                                                           @NotNull String expectedHint,
-                                                           String htmlResource) {
+    protected DocumentationTarget assertDocTargetRaw(AbstractTarget path,
+                                                     @NotNull String expectedHint,
+                                                     String htmlResource) {
         var targets = provider.documentationTargets(myFixture.getFile(), path.range().getStartOffset());
         assertEquals(1, targets.size());
 
