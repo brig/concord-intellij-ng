@@ -3,8 +3,10 @@ package brig.concord.documentation;
 import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.IdentityMetaType;
+import brig.concord.meta.model.TaskStepMetaType;
 import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.psi.ConcordFile;
+import brig.concord.schema.TaskSchemaRegistry;
 import brig.concord.yaml.YAMLTokenTypes;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
@@ -43,6 +45,11 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
             var flowDocTarget = resolveFlowCallDocumentation(file, element.getParent());
             if (flowDocTarget != null) {
                 return List.of(flowDocTarget);
+            }
+
+            var taskDocTarget = resolveTaskDocumentation(file, element.getParent());
+            if (taskDocTarget != null) {
+                return List.of(taskDocTarget);
             }
         }
 
@@ -88,6 +95,36 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
         }
 
         return new FlowDocumentationTarget(callKv, flowDoc);
+    }
+
+    private static @Nullable TaskDocumentationTarget resolveTaskDocumentation(
+            @NotNull PsiFile file, @Nullable PsiElement parent) {
+        if (!(parent instanceof YAMLScalar scalar)) {
+            return null;
+        }
+
+        var metaTypeProvider = ConcordMetaTypeProvider.getInstance(file.getProject());
+        var metaType = metaTypeProvider.getResolvedMetaType(scalar);
+        if (!(metaType instanceof TaskStepMetaType.TaskNameMetaType)) {
+            return null;
+        }
+
+        var taskName = scalar.getTextValue();
+        if (taskName == null || taskName.isBlank()) {
+            return null;
+        }
+
+        var schema = TaskSchemaRegistry.getInstance(file.getProject()).getSchema(taskName);
+        if (schema == null) {
+            return null;
+        }
+
+        var taskKv = scalar.getParent();
+        if (!(taskKv instanceof YAMLKeyValue kv)) {
+            return null;
+        }
+
+        return new TaskDocumentationTarget(kv, schema);
     }
 
     private static @Nullable YamlMetaType resolveDocumentationType(

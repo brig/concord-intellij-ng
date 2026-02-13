@@ -11,7 +11,11 @@ public sealed interface SchemaType {
 
     record Array(@Nullable String itemType) implements SchemaType {}
 
-    record Enum(@NotNull List<String> values) implements SchemaType {}
+    record Enum(@NotNull List<String> values, @NotNull List<String> descriptions) implements SchemaType {
+        public Enum(@NotNull List<String> values) {
+            this(values, List.of());
+        }
+    }
 
     record Composite(@NotNull List<SchemaType> alternatives) implements SchemaType {}
 

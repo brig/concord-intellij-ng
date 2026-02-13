@@ -196,8 +196,14 @@
     "type": "object",
     "properties": {
       "action": {
-        "type": "string",
-        "enum": ["start", "startExternal", "fork", "kill", "createApiKey", "createOrUpdateApiKey"],
+        "oneOf": [
+          { "const": "start", "description": "Start a new process" },
+          { "const": "startExternal", "description": "Start a process on an external Concord server" },
+          { "const": "fork", "description": "Fork the current process" },
+          { "const": "kill", "description": "Kill a running process" },
+          { "const": "createApiKey", "description": "Create an API key for a user" },
+          { "const": "createOrUpdateApiKey", "description": "Create or update an API key for a user" }
+        ],
         "description": "The action to perform"
       }
     },

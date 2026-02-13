@@ -1,0 +1,10 @@
+flows:
+  main:
+    - task: concord
+      in:
+        action: start
+    - task: strictTask
+      in:
+        url: "http://example.com"
+        method: GET
+    - task: unknownTask

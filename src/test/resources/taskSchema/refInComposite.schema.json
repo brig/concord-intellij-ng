@@ -58,6 +58,36 @@
           { "type": "integer" }
         ],
         "description": "oneOf with chained $ref"
+      },
+      "constEnumWithDesc": {
+        "oneOf": [
+          { "const": "read", "description": "Read access" },
+          { "const": "write", "description": "Write access" },
+          { "const": "admin", "description": "Full access" }
+        ],
+        "description": "oneOf const enum with descriptions"
+      },
+      "constEnumNoDesc": {
+        "oneOf": [
+          { "const": "low" },
+          { "const": "medium" },
+          { "const": "high" }
+        ],
+        "description": "oneOf const enum without descriptions"
+      },
+      "constEnumMixedDesc": {
+        "oneOf": [
+          { "const": "fast", "description": "Fast mode" },
+          { "const": "slow" }
+        ],
+        "description": "oneOf const enum with partial descriptions"
+      },
+      "oneOfMixedConstAndType": {
+        "oneOf": [
+          { "const": "auto" },
+          { "type": "integer" }
+        ],
+        "description": "oneOf mixing const and type — not a const enum"
       }
     }
   },

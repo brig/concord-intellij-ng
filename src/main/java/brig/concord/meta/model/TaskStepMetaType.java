@@ -46,7 +46,7 @@ public class TaskStepMetaType extends IdentityMetaType {
         return features;
     }
 
-    static class TaskNameMetaType extends StringMetaType implements HighlightProvider {
+    public static class TaskNameMetaType extends StringMetaType implements HighlightProvider {
 
         private static final TaskNameMetaType INSTANCE = new TaskNameMetaType();
 

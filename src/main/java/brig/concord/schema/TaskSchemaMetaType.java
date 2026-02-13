@@ -94,7 +94,16 @@ public class TaskSchemaMetaType extends ConcordMetaType {
     }
 
     private static YamlMetaType toMetaType(@NotNull TaskSchemaProperty property) {
-        return schemaTypeToMetaType(property.schemaType());
+        var metaType = schemaTypeToMetaType(property.schemaType());
+        var description = property.description();
+        if (description != null) {
+            if (metaType instanceof AnyOfType anyOfType) {
+                return anyOfType.withDescription(description, property.required());
+            }
+            return AnyOfType.anyOf(metaType, ExpressionMetaType.getInstance())
+                    .withDescription(description, property.required());
+        }
+        return metaType;
     }
 
     private static YamlMetaType schemaTypeToMetaType(@NotNull SchemaType schemaType) {
