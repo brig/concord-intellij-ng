@@ -12,8 +12,6 @@ starting with the built-in Concord task schema
 
 ### Changed
 
-- fix the tool window icon resource to use the correct format/path/svg
-([#102](https://github.com/brig/concord-intellij-ng/pull/102))
 - project: migrate to junit5 
 ([#101](https://github.com/brig/concord-intellij-ng/pull/101))
 - project: intellij plugins version up 
