@@ -125,7 +125,7 @@ public class FlowDocumentationTarget implements DocumentationTarget {
                 .toList();
     }
 
-    record ParamInfo(@NotNull String name, @Nullable String type, boolean mandatory,
+    private record ParamInfo(@NotNull String name, @Nullable String type, boolean mandatory,
                      @Nullable String description) {
     }
 }

@@ -1,21 +1,25 @@
 package brig.concord.schema;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class TaskSchema {
 
     private final String taskName;
+    private final @Nullable String description;
     private final TaskSchemaSection baseInSection;
     private final List<TaskSchemaConditional> inConditionals;
     private final TaskSchemaSection outSection;
 
     public TaskSchema(@NotNull String taskName,
+                      @Nullable String description,
                       @NotNull TaskSchemaSection baseInSection,
                       @NotNull List<TaskSchemaConditional> inConditionals,
                       @NotNull TaskSchemaSection outSection) {
         this.taskName = taskName;
+        this.description = description;
         this.baseInSection = baseInSection;
         this.inConditionals = List.copyOf(inConditionals);
         this.outSection = outSection;
@@ -23,6 +27,10 @@ public class TaskSchema {
 
     public @NotNull String getTaskName() {
         return taskName;
+    }
+
+    public @Nullable String getDescription() {
+        return description;
     }
 
     public @NotNull TaskSchemaSection getBaseInSection() {

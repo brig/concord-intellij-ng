@@ -1,0 +1,32 @@
+<div class='definition'>
+    <pre>multiKeyTask</pre>
+</div>
+<div class='content'><p>a task with multiple discriminator keys</p>
+    <p><b>Input Parameters:</b></p>
+    <ul>
+        <li><code>action</code> <i>(enum, required)</i> &mdash; action to perform
+            <ul>
+                <li><code>process</code></li>
+                <li><code>upload</code></li>
+            </ul>
+        </li>
+        <li><code>mode</code> <i>(enum)</i> &mdash; execution mode
+            <ul>
+                <li><code>sync</code></li>
+                <li><code>async</code></li>
+            </ul>
+        </li>
+    </ul>
+    <p><i>When action = process, mode = sync:</i></p>
+    <ul>
+        <li><code>timeout</code> <i>(integer)</i> &mdash; timeout in seconds</li>
+    </ul>
+    <p><i>When action = upload:</i></p>
+    <ul>
+        <li><code>destination</code> <i>(string)</i> &mdash; upload destination path</li>
+    </ul>
+    <p><b>Output Parameters:</b></p>
+    <ul>
+        <li><code>ok</code> <i>(boolean, required)</i> &mdash; whether the operation succeeded</li>
+    </ul>
+</div>
