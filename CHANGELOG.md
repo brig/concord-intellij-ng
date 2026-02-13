@@ -4,6 +4,9 @@
 
 ### Added
 
+- adds comprehensive documentation support for Concord task definitions,
+including task-level descriptions, input/output parameter documentation
+([#110](https://github.com/brig/concord-intellij-ng/pull/110))
 - adds support for propagating flow-doc input parameter metadata (description, type, required) to call-step parameter docs
 ([#109](https://github.com/brig/concord-intellij-ng/pull/109))
 - adds documentation support for flow calls in Concord YAML files
