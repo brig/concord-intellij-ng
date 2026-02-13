@@ -189,7 +189,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
             }
 
             var footer = "Additional parameters depend on the value of "
-                    + formatDiscriminatorKeys(discriminatorKeys);
+                    + formatDiscriminatorKeysHtml(discriminatorKeys);
             return new InputResult(discriminatorParams, footer, List.of());
         }
 
@@ -214,11 +214,12 @@ public class TaskDocumentationTarget implements DocumentationTarget {
 
     private static String formatConditionHeader(@NotNull Map<String, List<String>> discriminators) {
         return "When " + discriminators.entrySet().stream()
-                .map(e -> e.getKey() + " = " + String.join("|", e.getValue()))
+                .map(e -> StringUtil.escapeXmlEntities(e.getKey()) + " = " +
+                        e.getValue().stream().map(StringUtil::escapeXmlEntities).collect(Collectors.joining("|")))
                 .collect(Collectors.joining(", ")) + ":";
     }
 
-    private static String formatDiscriminatorKeys(Set<String> keys) {
+    private static String formatDiscriminatorKeysHtml(Set<String> keys) {
         return keys.stream()
                 .map(k -> "<code>" + StringUtil.escapeXmlEntities(k) + "</code>")
                 .collect(Collectors.joining(", "));
@@ -262,21 +263,14 @@ public class TaskDocumentationTarget implements DocumentationTarget {
                 yield (itemType != null ? itemType : "any") + "[]";
             }
             case SchemaType.Enum e -> "enum";
-            case SchemaType.Composite c -> {
-                var sb = new StringBuilder();
-                for (int i = 0; i < c.alternatives().size(); i++) {
-                    if (i > 0) {
-                        sb.append("|");
-                    }
-                    sb.append(schemaTypeDisplayName(c.alternatives().get(i)));
-                }
-                yield sb.toString();
-            }
+            case SchemaType.Composite c -> c.alternatives().stream()
+                    .map(TaskDocumentationTarget::schemaTypeDisplayName)
+                    .collect(Collectors.joining("|"));
             case SchemaType.Any a -> "any";
         };
     }
 
-    record ConditionalGroup(@NotNull String header, @NotNull List<ParamInfo> params) {}
+    private record ConditionalGroup(@NotNull String header, @NotNull List<ParamInfo> params) {}
 
     private record InputResult(List<ParamInfo> params, @Nullable String footer,
                                 @NotNull List<ConditionalGroup> groups) {}

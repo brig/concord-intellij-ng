@@ -6,6 +6,7 @@ import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.meta.model.value.AnythingMetaType;
 import brig.concord.meta.model.value.ParamMetaTypes;
 import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLMapping;
@@ -99,6 +100,10 @@ public class TaskSchemaMetaType extends ConcordMetaType {
         if (description != null) {
             if (metaType instanceof AnyOfType anyOfType) {
                 return anyOfType.withDescription(description, property.required());
+            }
+            var props = new TypeProps(null, description, property.required());
+            if (metaType instanceof AnythingMetaType) {
+                return new AnythingMetaType(props);
             }
             return AnyOfType.anyOf(metaType, ExpressionMetaType.getInstance())
                     .withDescription(description, property.required());
