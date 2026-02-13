@@ -12,6 +12,8 @@ starting with the built-in Concord task schema
 
 ### Changed
 
+- fix icon for tool window
+([#102](https://github.com/brig/concord-intellij-ng/pull/102))
 - project: migrate to junit5 
 ([#101](https://github.com/brig/concord-intellij-ng/pull/101))
 - project: intellij plugins version up 
@@ -21,8 +23,6 @@ starting with the built-in Concord task schema
 
 ### Changed
 
-- fix icon for tool window
-([#102](https://github.com/brig/concord-intellij-ng/pull/102))
 - improve performance by replacing filename-based scanning with indexed lookups and simplifying fingerprint computation
 ([#98](https://github.com/brig/concord-intellij-ng/pull/98))
 - fixes Concord modification tracking in multi-project scenarios by filtering filesystem/document 
