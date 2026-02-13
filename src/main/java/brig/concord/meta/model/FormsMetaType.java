@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
@@ -26,7 +26,7 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
     }
 
     private FormsMetaType() {
-        super(desc("doc.forms.description"));
+        super(descKey("doc.forms.description"));
     }
 
     @Override
@@ -95,7 +95,7 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
         }
 
         public FormFieldsMetaType() {
-            super(FieldsWrapper.getInstance(), desc("doc.forms.formName.description"));
+            super(FieldsWrapper.getInstance(), descKey("doc.forms.formName.description"));
         }
     }
 }

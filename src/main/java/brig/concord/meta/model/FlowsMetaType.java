@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class FlowsMetaType extends MapMetaType implements HighlightProvider {
 
@@ -25,7 +25,7 @@ public class FlowsMetaType extends MapMetaType implements HighlightProvider {
     private static final List<Field> defaultCompletions = List.of(new Field("default", StepsMetaType.getInstance()));
 
     private FlowsMetaType() {
-        super(desc("doc.flows.description"));
+        super(descKey("doc.flows.description"));
     }
 
     @Override

@@ -132,23 +132,33 @@ public class FlowCallParamsProvider {
             return AnythingMetaType.getInstance();
         }
 
+        AnyOfType baseType;
         if (parameter.isArrayType()) {
-            return switch (parameter.getBaseType().toLowerCase()) {
+            baseType = switch (parameter.getBaseType().toLowerCase()) {
                 case "string" -> ParamMetaTypes.STRING_ARRAY_OR_EXPRESSION;
                 case "boolean" -> ParamMetaTypes.BOOLEAN_ARRAY_OR_EXPRESSION;
                 case "object" -> ParamMetaTypes.OBJECT_ARRAY_OR_EXPRESSION;
                 case "number", "int", "integer" -> ParamMetaTypes.NUMBER_ARRAY_OR_EXPRESSION;
                 default -> ParamMetaTypes.ARRAY_OR_EXPRESSION;
             };
+        } else {
+            baseType = switch (parameter.getBaseType().toLowerCase()) {
+                case "string" -> ParamMetaTypes.STRING_OR_EXPRESSION;
+                case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
+                case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
+                case "number", "int", "integer" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
+                default -> null;
+            };
         }
 
-        return switch (parameter.getBaseType().toLowerCase()) {
-            case "string" -> ParamMetaTypes.STRING_OR_EXPRESSION;
-            case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
-            case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
-            case "number", "int", "integer" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
-            default -> AnythingMetaType.getInstance();
-        };
+        if (baseType == null) {
+            return AnythingMetaType.getInstance();
+        }
+
+        var description = parameter.getDescription();
+        var mandatory = parameter.isMandatory();
+
+        return baseType.withDescription(description, mandatory);
     }
 
     public static @Nullable FlowDocumentation findFlowDocumentation(PsiElement element) {

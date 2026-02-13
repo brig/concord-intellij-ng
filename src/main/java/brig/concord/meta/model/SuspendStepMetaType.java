@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class SuspendStepMetaType extends IdentityMetaType {
 
@@ -17,10 +17,10 @@ public class SuspendStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "suspend", new StringMetaType(desc("doc.step.suspend.key.description").andRequired()));
+            "suspend", new StringMetaType(descKey("doc.step.suspend.key.description").andRequired()));
 
     private SuspendStepMetaType() {
-        super("suspend", desc("doc.step.suspend.description"));
+        super("suspend", descKey("doc.step.suspend.description"));
     }
 
     @Override

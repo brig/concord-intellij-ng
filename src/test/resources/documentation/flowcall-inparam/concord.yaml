@@ -1,0 +1,27 @@
+flows:
+  ##
+  # Process S3 files and return count
+  # in:
+  #   s3Bucket: string, mandatory, S3 bucket name
+  #   prefix: string, optional, File prefix filter
+  #   count: int, mandatory
+  # out:
+  #   processed: int, Files processed count
+  ##
+  processS3:
+    - log: "processing"
+
+  simpleFlow:
+    - log: "hello"
+
+  caller:
+    - call: processS3
+      in:
+        s3Bucket: "my-bucket"
+        prefix: "data/"
+        count: 42
+
+  noDocCaller:
+    - call: simpleFlow
+      in:
+        x: "value"

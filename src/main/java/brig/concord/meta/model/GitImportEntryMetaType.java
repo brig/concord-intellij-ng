@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class GitImportEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -23,17 +23,17 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "name", new StringMetaType(desc("doc.imports.git.name.description")),
-            "url", new StringMetaType(desc("doc.imports.git.url.description")),
-            "version", new StringMetaType(desc("doc.imports.git.version.description")),
-            "path", new StringMetaType(desc("doc.imports.git.path.description")),
-            "dest", new StringMetaType(desc("doc.imports.git.dest.description")),
-            "exclude", new RegexpArrayMetaType(desc("doc.imports.git.exclude.description")),
+            "name", new StringMetaType(descKey("doc.imports.git.name.description")),
+            "url", new StringMetaType(descKey("doc.imports.git.url.description")),
+            "version", new StringMetaType(descKey("doc.imports.git.version.description")),
+            "path", new StringMetaType(descKey("doc.imports.git.path.description")),
+            "dest", new StringMetaType(descKey("doc.imports.git.dest.description")),
+            "exclude", new RegexpArrayMetaType(descKey("doc.imports.git.exclude.description")),
             "secret", SecretMetaType.getInstance()
     );
 
     private GitImportEntryMetaType() {
-        super(desc("doc.imports.git.description"));
+        super(descKey("doc.imports.git.description"));
     }
 
     @Override
@@ -55,13 +55,13 @@ public class GitImportEntryMetaType extends ConcordMetaType implements Highlight
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
-                "org", new StringMetaType(desc("doc.imports.git.secret.org.description")),
-                "name", new StringMetaType(desc("doc.imports.git.secret.name.description").andRequired()),
-                "password", new StringMetaType(desc("doc.imports.git.secret.password.description"))
+                "org", new StringMetaType(descKey("doc.imports.git.secret.org.description")),
+                "name", new StringMetaType(descKey("doc.imports.git.secret.name.description").andRequired()),
+                "password", new StringMetaType(descKey("doc.imports.git.secret.password.description"))
         );
 
         private SecretMetaType() {
-            super(desc("doc.imports.git.secret.description"));
+            super(descKey("doc.imports.git.secret.description"));
         }
 
         @Override

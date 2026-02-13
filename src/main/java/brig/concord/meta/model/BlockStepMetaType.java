@@ -1,6 +1,6 @@
 package brig.concord.meta.model;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class BlockStepMetaType extends GroupOfStepsMetaType {
 
@@ -11,6 +11,6 @@ public class BlockStepMetaType extends GroupOfStepsMetaType {
     }
 
     private BlockStepMetaType() {
-        super("block", "doc.step.block.key.description", desc("doc.step.block.description"));
+        super("block", "doc.step.block.key.description", descKey("doc.step.block.description"));
     }
 }

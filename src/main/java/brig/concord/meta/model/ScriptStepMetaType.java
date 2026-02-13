@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ScriptStepMetaType extends IdentityMetaType {
 
@@ -21,14 +21,14 @@ public class ScriptStepMetaType extends IdentityMetaType {
 
     private static final Map<String, YamlMetaType> features = StepFeatures.combine(
             StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
-            Map.of(SCRIPT_KEY, new StringMetaType(desc("doc.step.script.key.description").andRequired()),
-                   BODY_KEY, new StringMetaType(desc("doc.step.feature.body.description")),
+            Map.of(SCRIPT_KEY, new StringMetaType(descKey("doc.step.script.key.description").andRequired()),
+                   BODY_KEY, new StringMetaType(descKey("doc.step.feature.body.description")),
                    "in", InParamsMetaType.getInstance(),
                    "out", ScriptOutParamsMetaType.getInstance())
     );
 
     private ScriptStepMetaType() {
-        super("script", desc("doc.step.script.description"));
+        super("script", descKey("doc.step.script.description"));
     }
 
     @Override

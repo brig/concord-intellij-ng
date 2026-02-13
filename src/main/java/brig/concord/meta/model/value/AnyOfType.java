@@ -5,6 +5,7 @@ import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.meta.model.YamlScalarType;
+import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
@@ -40,6 +41,10 @@ public class AnyOfType extends YamlAnyOfType {
 
     protected AnyOfType(List<YamlMetaType> types, @NotNull TypeProps props) {
         super(types, props);
+    }
+
+    public AnyOfType withDescription(@Nullable String description, boolean required) {
+        return new AnyOfType(streamSubTypes().toList(), new TypeProps(null, description, required));
     }
 
     @Override

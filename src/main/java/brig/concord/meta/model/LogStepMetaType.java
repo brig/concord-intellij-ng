@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class LogStepMetaType extends IdentityMetaType {
 
@@ -18,11 +18,11 @@ public class LogStepMetaType extends IdentityMetaType {
 
     private static final Map<String, YamlMetaType> features = StepFeatures.combine(
             StepFeatures.nameAndMeta(),
-            Map.of("log", new StringMetaType(desc("doc.step.log.key.description").andRequired()))
+            Map.of("log", new StringMetaType(descKey("doc.step.log.key.description").andRequired()))
     );
 
     private LogStepMetaType() {
-        super("log", desc("doc.step.log.description"));
+        super("log", descKey("doc.step.log.description"));
     }
 
     @Override

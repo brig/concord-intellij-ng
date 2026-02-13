@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.Set;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class SwitchStepMetaType extends IdentityMetaType {
 
@@ -26,11 +26,11 @@ public class SwitchStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "switch", new ExpressionMetaType(desc("doc.type.expression.description").andRequired())
+            "switch", new ExpressionMetaType(descKey("doc.type.expression.description").andRequired())
     );
 
     private SwitchStepMetaType() {
-        super("switch", desc("doc.step.switch.description"));
+        super("switch", descKey("doc.step.switch.description"));
     }
 
     @Override

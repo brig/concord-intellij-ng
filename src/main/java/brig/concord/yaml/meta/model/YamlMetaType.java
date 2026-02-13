@@ -1,7 +1,5 @@
 package brig.concord.yaml.meta.model;
 
-// Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-
 import brig.concord.ConcordBundle;
 import com.intellij.application.options.CodeStyle;
 import com.intellij.codeInsight.completion.InsertionContext;
@@ -29,18 +27,19 @@ public abstract class YamlMetaType implements Documented {
     private final boolean required;
 
     protected YamlMetaType(@NonNls @NotNull String typeName) {
-        this(typeName, null, false);
+        this(typeName, null, null, false);
     }
 
     protected YamlMetaType(@NonNls @NotNull String typeName, @NotNull TypeProps props) {
-        this(typeName, props.descriptionKey(), props.isRequired());
+        this(typeName, props.descriptionKey(), props.description(), props.isRequired());
     }
 
     private YamlMetaType(@NotNull String typeName,
-                          @Nullable @PropertyKey(resourceBundle = BUNDLE) String descriptionKey,
-                          boolean required) {
+                         @Nullable @PropertyKey(resourceBundle = BUNDLE) String descriptionKey,
+                         String description,
+                         boolean required) {
         this.myTypeName = typeName;
-        this.description = descriptionKey != null ? ConcordBundle.message(descriptionKey) : null;
+        this.description = descriptionKey != null ? ConcordBundle.message(descriptionKey) : description;
         this.required = required;
     }
 
@@ -111,14 +110,6 @@ public abstract class YamlMetaType implements Documented {
      */
     public abstract void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
                                                     @NotNull Field.Relation relation);
-
-    protected static void buildCompleteKeyMarkup(@NotNull YamlInsertionMarkup markup,
-                                                 @NotNull Field feature) {
-        markup.append(feature.getName());
-        Field.Relation defaultRelation = feature.getDefaultRelation();
-        YamlMetaType defaultType = feature.getType(defaultRelation);
-        defaultType.buildInsertionSuffixMarkup(markup, defaultRelation);
-    }
 
     @Override
     public String toString() {

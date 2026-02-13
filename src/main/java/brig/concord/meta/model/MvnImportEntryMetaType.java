@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class MvnImportEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -22,12 +22,12 @@ public class MvnImportEntryMetaType extends ConcordMetaType implements Highlight
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "url", new StringMetaType(desc("doc.imports.mvn.url.description").andRequired()),
-            "dest", new StringMetaType(desc("doc.imports.mvn.dest.description"))
+            "url", new StringMetaType(descKey("doc.imports.mvn.url.description").andRequired()),
+            "dest", new StringMetaType(descKey("doc.imports.mvn.dest.description"))
     );
 
     private MvnImportEntryMetaType() {
-        super(desc("doc.imports.mvn.description"));
+        super(descKey("doc.imports.mvn.description"));
     }
 
     @Override

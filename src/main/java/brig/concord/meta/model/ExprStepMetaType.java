@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ExprStepMetaType extends IdentityMetaType {
 
@@ -18,12 +18,12 @@ public class ExprStepMetaType extends IdentityMetaType {
 
     private static final Map<String, YamlMetaType> features = StepFeatures.combine(
             StepFeatures.nameAndMeta(), StepFeatures.error(),
-            Map.of("expr", new ExpressionMetaType(desc("doc.type.expression.description").andRequired()),
+            Map.of("expr", new ExpressionMetaType(descKey("doc.type.expression.description").andRequired()),
                    "out", ExprOutParamsMetaType.getInstance())
     );
 
     private ExprStepMetaType() {
-        super("expr", desc("doc.step.expr.description"));
+        super("expr", descKey("doc.step.expr.description"));
     }
 
     @Override

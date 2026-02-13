@@ -5,7 +5,7 @@ import brig.concord.yaml.meta.model.YamlMetaType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public final class StepFeatures {
 
@@ -18,7 +18,7 @@ public final class StepFeatures {
 
     public static Map<String, YamlMetaType> error() {
         return Map.of(
-                "error", new StepsMetaType(desc("doc.step.feature.error.description"))
+                "error", new StepsMetaType(descKey("doc.step.feature.error.description"))
         );
     }
 

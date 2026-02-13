@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class SetStepMetaType extends IdentityMetaType {
 
@@ -17,10 +17,10 @@ public class SetStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "set", new AnyMapMetaType(desc("doc.step.set.key.description").andRequired()));
+            "set", new AnyMapMetaType(descKey("doc.step.set.key.description").andRequired()));
 
     private SetStepMetaType() {
-        super("set", desc("doc.step.set.description"));
+        super("set", descKey("doc.step.set.description"));
     }
 
     @Override

@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class FormFieldMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -34,33 +34,33 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
     private static final List<String> featureKeys = List.of("type", "label", "value", "allow");
     private static final Map<String, YamlMetaType> features = caseInsensitiveMap(Map.of(
             "type", FieldType.getInstance(),
-            "label", new StringMetaType(desc("doc.forms.formName.formField.label.description")),
-            "value", new AnythingMetaType(desc("doc.forms.formName.formField.value.description")),
-            "allow", new AnythingMetaType(desc("doc.forms.formName.formField.allow.description"))
+            "label", new StringMetaType(descKey("doc.forms.formName.formField.label.description")),
+            "value", new AnythingMetaType(descKey("doc.forms.formName.formField.value.description")),
+            "allow", new AnythingMetaType(descKey("doc.forms.formName.formField.allow.description"))
     ));
 
     private static final Map<String, YamlMetaType> stringFeatures = caseInsensitiveMap(Map.of(
-            "pattern", new RegexpMetaType(desc("doc.forms.formName.formField.pattern.description")),
-            "inputType", new StringMetaType(desc("doc.forms.formName.formField.inputType.description")),
-            "placeholder", new StringMetaType(desc("doc.forms.formName.formField.placeholder.description")),
-            "search", new BooleanMetaType(desc("doc.forms.formName.formField.search.description")),
-            "readOnly", new BooleanMetaType(desc("doc.forms.formName.formField.readonly.description"))
+            "pattern", new RegexpMetaType(descKey("doc.forms.formName.formField.pattern.description")),
+            "inputType", new StringMetaType(descKey("doc.forms.formName.formField.inputType.description")),
+            "placeholder", new StringMetaType(descKey("doc.forms.formName.formField.placeholder.description")),
+            "search", new BooleanMetaType(descKey("doc.forms.formName.formField.search.description")),
+            "readOnly", new BooleanMetaType(descKey("doc.forms.formName.formField.readonly.description"))
     ));
 
     private static final Map<String, YamlMetaType> intFeatures = Map.of(
-            "min", new IntegerMetaType(desc("doc.forms.formName.formField.min.description")),
-            "max", new IntegerMetaType(desc("doc.forms.formName.formField.max.description")),
-            "placeholder", new StringMetaType(desc("doc.forms.formName.formField.placeholder.description")),
-            "readOnly", new BooleanMetaType(desc("doc.forms.formName.formField.readonly.description"))
+            "min", new IntegerMetaType(descKey("doc.forms.formName.formField.min.description")),
+            "max", new IntegerMetaType(descKey("doc.forms.formName.formField.max.description")),
+            "placeholder", new StringMetaType(descKey("doc.forms.formName.formField.placeholder.description")),
+            "readOnly", new BooleanMetaType(descKey("doc.forms.formName.formField.readonly.description"))
     );
 
     private static final Map<String, YamlMetaType> booleanFeatures = Map.of(
-            "readOnly", new BooleanMetaType(desc("doc.forms.formName.formField.readonly.description"))
+            "readOnly", new BooleanMetaType(descKey("doc.forms.formName.formField.readonly.description"))
     );
 
     private static final Map<String, YamlMetaType> dateFeatures = Map.of(
-            "popupPosition", new StringMetaType(desc("doc.forms.formName.formField.popupPosition.description")),
-            "readOnly", new BooleanMetaType(desc("doc.forms.formName.formField.readonly.description"))
+            "popupPosition", new StringMetaType(descKey("doc.forms.formName.formField.popupPosition.description")),
+            "readOnly", new BooleanMetaType(descKey("doc.forms.formName.formField.readonly.description"))
     );
 
     private static final Map<String, Map<String, YamlMetaType>> featuresByType = Map.of(
@@ -79,7 +79,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
 
 
     private FormFieldMetaType() {
-        super(desc("doc.forms.formName.formField.description"));
+        super(descKey("doc.forms.formName.formField.description"));
     }
 
     @Override
@@ -245,7 +245,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         }
 
         public FieldType() {
-            super("string", desc("doc.forms.formName.formField.type.description").andRequired());
+            super("string", descKey("doc.forms.formName.formField.type.description").andRequired());
 
             List<String> literals = new ArrayList<>();
             for (var t : types) {

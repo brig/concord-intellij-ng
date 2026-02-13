@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ExprOutParamsMetaType extends YamlAnyOfType {
 
@@ -21,7 +21,7 @@ public class ExprOutParamsMetaType extends YamlAnyOfType {
 
     private ExprOutParamsMetaType() {
         super(List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()),
-                desc("doc.step.feature.out.description"));
+                descKey("doc.step.feature.out.description"));
     }
 
     @Override

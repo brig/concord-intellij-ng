@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ParallelStepMetaType extends IdentityMetaType {
 
@@ -18,7 +18,7 @@ public class ParallelStepMetaType extends IdentityMetaType {
     private static final Map<String, YamlMetaType> features;
 
     static {
-        var parallelSteps = new StepsMetaType(desc("doc.step.parallel.key.description").andRequired());
+        var parallelSteps = new StepsMetaType(descKey("doc.step.parallel.key.description").andRequired());
         features = Map.of(
                 "parallel", parallelSteps,
                 "out", ParallelOutParamsMetaType.getInstance(),
@@ -27,7 +27,7 @@ public class ParallelStepMetaType extends IdentityMetaType {
     }
 
     private ParallelStepMetaType() {
-        super("parallel", desc("doc.step.parallel.description"));
+        super("parallel", descKey("doc.step.parallel.description"));
     }
 
     @Override

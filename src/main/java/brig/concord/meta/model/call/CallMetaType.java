@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static brig.concord.meta.model.value.ExpressionMetaType.containsExpression;
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class CallMetaType extends StringMetaType implements HighlightProvider {
 
@@ -33,7 +33,7 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
     }
 
     public CallMetaType() {
-        super(desc("doc.step.call.key.description"));
+        super(descKey("doc.step.call.key.description"));
     }
 
     public CallMetaType(@NotNull TypeProps props) {

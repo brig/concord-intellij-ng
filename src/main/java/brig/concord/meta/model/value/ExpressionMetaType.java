@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ExpressionMetaType extends YamlScalarType {
 
@@ -19,7 +19,7 @@ public class ExpressionMetaType extends YamlScalarType {
     private static final Pattern EXPR_PATTERN = Pattern.compile("^\\$\\{.*}$", Pattern.DOTALL);
 
     public ExpressionMetaType() {
-        super("expression", desc("doc.type.expression.description"));
+        super("expression", descKey("doc.type.expression.description"));
     }
 
     public ExpressionMetaType(@NotNull TypeProps props) {

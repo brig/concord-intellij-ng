@@ -8,18 +8,23 @@ import static brig.concord.ConcordBundle.BUNDLE;
 
 public record TypeProps(
         @Nullable @PropertyKey(resourceBundle = BUNDLE) String descriptionKey,
+        String description,
         boolean isRequired
 ) {
 
-    public static TypeProps desc(@NotNull @PropertyKey(resourceBundle = BUNDLE) String descriptionKey) {
-        return new TypeProps(descriptionKey, false);
+    public static TypeProps descKey(@NotNull @PropertyKey(resourceBundle = BUNDLE) String descriptionKey) {
+        return new TypeProps(descriptionKey, null, false);
+    }
+
+    public static TypeProps desc(@NotNull String description) {
+        return new TypeProps(null, description, false);
     }
 
     public static TypeProps required() {
-        return new TypeProps(null, true);
+        return new TypeProps(null, null, true);
     }
 
     public TypeProps andRequired() {
-        return new TypeProps(descriptionKey, true);
+        return new TypeProps(descriptionKey, description, true);
     }
 }

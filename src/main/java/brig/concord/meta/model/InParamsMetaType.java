@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class InParamsMetaType extends YamlAnyOfType {
 
@@ -21,7 +21,7 @@ public class InParamsMetaType extends YamlAnyOfType {
 
     private InParamsMetaType() {
         super(List.of(ExpressionMetaType.getInstance(), AnyMapMetaType.getInstance()),
-                desc("doc.step.feature.in.description"));
+                descKey("doc.step.feature.in.description"));
     }
 
     @Override
