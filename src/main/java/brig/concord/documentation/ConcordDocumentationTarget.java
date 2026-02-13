@@ -29,7 +29,7 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
         this.typeName = typeName;
     }
 
-    public ConcordDocumentationTarget(String keyName, Documented documented, String typeName) {
+    public ConcordDocumentationTarget(@Nullable String keyName, Documented documented, String typeName) {
         this.elementPointer = null;
         this.keyName = keyName;
         this.documented = documented;
@@ -60,37 +60,21 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
 
     @Override
     public @Nullable DocumentationResult computeDocumentation() {
-        String displayName;
-        var element = elementPointer != null ? elementPointer.getElement() : null;
-        if (elementPointer != null) {
-            if (element == null) {
-                return null;
-            }
-            displayName = element.getKeyText();
-        } else {
-            displayName = keyName;
-        }
-
-        if (displayName == null) {
+        var resolved = resolveNameAndDescription();
+        if (resolved == null) {
             return null;
         }
 
         var sb = new StringBuilder();
 
-        sb.append(DEFINITION_START).append(StringUtil.escapeXmlEntities(displayName)).append(DEFINITION_END);
+        sb.append(DEFINITION_START).append(StringUtil.escapeXmlEntities(resolved.name())).append(DEFINITION_END);
 
         sb.append(CONTENT_START);
 
         sb.append("<p>Type: <code>").append(StringUtil.escapeXmlEntities(typeName)).append("</code></p>");
 
-        String description;
-        if (element != null) {
-            description = documented.getDocumentationDescription(element);
-        } else {
-            description = documented.getDescription();
-        }
-        if (description != null) {
-            sb.append("<p>").append(description).append("</p>");
+        if (resolved.description() != null) {
+            sb.append("<p>").append(resolved.description()).append("</p>");
         }
 
         var keysList = buildKeysList(documented.getDocumentationFields());
@@ -214,6 +198,22 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
             sb.append("</ul>");
         }
         sb.append("</li>");
+    }
+
+    private record Resolved(@NotNull String name, @Nullable String description) {}
+
+    private @Nullable Resolved resolveNameAndDescription() {
+        if (elementPointer != null) {
+            var element = elementPointer.getElement();
+            if (element == null) {
+                return null;
+            }
+            return new Resolved(element.getKeyText(), documented.getDocumentationDescription(element));
+        }
+        if (keyName == null) {
+            return null;
+        }
+        return new Resolved(keyName, documented.getDescription());
     }
 
     private static String normalizeDescription(@NotNull String description) {

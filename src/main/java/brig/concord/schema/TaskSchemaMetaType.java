@@ -1,6 +1,5 @@
 package brig.concord.schema;
 
-import brig.concord.documentation.Documented;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.value.AnyOfType;
 import brig.concord.meta.model.value.ExpressionMetaType;
@@ -45,25 +44,6 @@ public class TaskSchemaMetaType extends ConcordMetaType {
         }
         this.features = Map.copyOf(result);
         return this.features;
-    }
-
-    @Override
-    public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
-        var features = getFeatures();
-        return section.properties().entrySet().stream()
-                .sorted(Map.Entry.comparingByKey())
-                .map(e -> {
-                    var prop = e.getValue();
-                    var metaType = features.get(e.getKey());
-                    return new Documented.DocumentedField(
-                            e.getKey(),
-                            metaType != null ? metaType.getTypeName() : null,
-                            prop.required(),
-                            prop.description(),
-                            List.of()
-                    );
-                })
-                .toList();
     }
 
     public @Nullable String getPropertyDescription(@NotNull String name) {
@@ -120,48 +100,44 @@ public class TaskSchemaMetaType extends ConcordMetaType {
     }
 
     private static YamlMetaType toMetaType(@NotNull TaskSchemaProperty property) {
-        var metaType = schemaTypeToMetaType(property.schemaType());
         var description = property.description();
-        if (description != null) {
-            if (metaType instanceof AnyOfType anyOfType) {
-                return anyOfType.withDescription(description, property.required());
-            }
-            var props = new TypeProps(null, description, property.required());
-            if (metaType instanceof AnythingMetaType) {
-                return new AnythingMetaType(props);
-            }
-            return AnyOfType.anyOf(metaType, ExpressionMetaType.getInstance())
-                    .withDescription(description, property.required());
-        }
-        return metaType;
+        var props = (description != null || property.required())
+                ? TypeProps.desc(description).andRequired(property.required())
+                : null;
+        return schemaTypeToMetaType(property.schemaType(), props);
     }
 
-    private static YamlMetaType schemaTypeToMetaType(@NotNull SchemaType schemaType) {
+    private static YamlMetaType schemaTypeToMetaType(@NotNull SchemaType schemaType,
+                                                     @Nullable TypeProps props) {
         return switch (schemaType) {
             case SchemaType.Scalar s -> switch (s.typeName()) {
-                case "string" -> ParamMetaTypes.STRING_OR_EXPRESSION;
-                case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
-                case "integer", "number" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
-                case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
-                default -> AnythingMetaType.getInstance();
+                case "string" -> withProps(ParamMetaTypes.STRING_OR_EXPRESSION, props);
+                case "boolean" -> withProps(ParamMetaTypes.BOOLEAN_OR_EXPRESSION, props);
+                case "integer", "number" -> withProps(ParamMetaTypes.NUMBER_OR_EXPRESSION, props);
+                case "object" -> withProps(ParamMetaTypes.OBJECT_OR_EXPRESSION, props);
+                default -> props != null ? new AnythingMetaType(props) : AnythingMetaType.getInstance();
             };
-            case SchemaType.Array a -> arrayMetaType(a.itemType());
+            case SchemaType.Array a -> withProps(arrayMetaType(a.itemType()), props);
             case SchemaType.Enum e -> {
                 var enumType = new YamlEnumType("enum")
                         .withLiterals(e.values().toArray(new String[0]));
-                yield AnyOfType.anyOf(enumType, ExpressionMetaType.getInstance());
+                yield withProps(AnyOfType.anyOf(enumType, ExpressionMetaType.getInstance()), props);
             }
             case SchemaType.Composite c -> {
                 var metaTypes = c.alternatives().stream()
-                        .map(TaskSchemaMetaType::schemaTypeToMetaType)
+                        .map(alt -> schemaTypeToMetaType(alt, null))
                         .toArray(YamlMetaType[]::new);
-                yield AnyOfType.anyOf(metaTypes);
+                yield withProps(AnyOfType.anyOf(metaTypes), props);
             }
-            case SchemaType.Any a -> AnythingMetaType.getInstance();
+            case SchemaType.Any a -> props != null ? new AnythingMetaType(props) : AnythingMetaType.getInstance();
         };
     }
 
-    private static YamlMetaType arrayMetaType(@Nullable String itemType) {
+    private static AnyOfType withProps(@NotNull AnyOfType base, @Nullable TypeProps props) {
+        return props != null ? base.withProps(props) : base;
+    }
+
+    private static AnyOfType arrayMetaType(@Nullable String itemType) {
         if (itemType == null) {
             return ParamMetaTypes.ARRAY_OR_EXPRESSION;
         }

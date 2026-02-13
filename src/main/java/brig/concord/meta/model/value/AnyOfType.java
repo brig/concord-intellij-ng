@@ -43,8 +43,8 @@ public class AnyOfType extends YamlAnyOfType {
         super(types, props);
     }
 
-    public AnyOfType withDescription(@Nullable String description, boolean required) {
-        return new AnyOfType(streamSubTypes().toList(), new TypeProps(null, description, required));
+    public AnyOfType withProps(@NotNull TypeProps props) {
+        return new AnyOfType(streamSubTypes().toList(), props);
     }
 
     @Override
