@@ -61,7 +61,7 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
     @Override
     public @Nullable DocumentationResult computeDocumentation() {
         String displayName;
-        YAMLKeyValue element = elementPointer != null ? elementPointer.getElement() : null;
+        var element = elementPointer != null ? elementPointer.getElement() : null;
         if (elementPointer != null) {
             if (element == null) {
                 return null;
