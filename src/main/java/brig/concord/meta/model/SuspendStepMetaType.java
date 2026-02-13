@@ -1,12 +1,12 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.StringMetaType;
-
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Set;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class SuspendStepMetaType extends IdentityMetaType {
 
@@ -17,12 +17,10 @@ public class SuspendStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "suspend", new StringMetaType().withDescriptionKey("doc.step.suspend.key.description"));
+            "suspend", new StringMetaType(desc("doc.step.suspend.key.description").andRequired()));
 
     private SuspendStepMetaType() {
-        super("suspend", Set.of("suspend"));
-
-        setDescriptionKey("doc.step.suspend.description");
+        super("suspend", desc("doc.step.suspend.description"));
     }
 
     @Override

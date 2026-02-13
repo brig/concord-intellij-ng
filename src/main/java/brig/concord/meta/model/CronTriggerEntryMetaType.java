@@ -8,14 +8,15 @@ import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.meta.model.value.StringArrayMetaType;
 import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.meta.model.value.TimezoneMetaType;
-
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Set;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class CronTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -25,30 +26,23 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
         return INSTANCE;
     }
 
-    private static final Set<String> required = Set.of("spec", "entryPoint");
-
     private static final Map<String, YamlMetaType> features = Map.of(
-            "spec", new StringMetaType("cron").withDescriptionKey("doc.triggers.cron.spec.description"),
-            "entryPoint", new CallMetaType().withDescriptionKey("doc.triggers.cron.entryPoint.description"),
-            "runAs", new RunAsMetaType().withDescriptionKey("doc.triggers.cron.runAs.description"),
-            "activeProfiles", new StringArrayMetaType().withDescriptionKey("doc.triggers.cron.activeProfiles.description"),
+            "spec", new StringMetaType("cron", desc("doc.triggers.cron.spec.description").andRequired()),
+            "entryPoint", new CallMetaType(desc("doc.triggers.cron.entryPoint.description").andRequired()),
+            "runAs", new RunAsMetaType(desc("doc.triggers.cron.runAs.description")),
+            "activeProfiles", new StringArrayMetaType(desc("doc.triggers.cron.activeProfiles.description")),
             "timezone", TimezoneMetaType.getInstance(),
-            "arguments", new AnyMapMetaType().withDescriptionKey("doc.triggers.cron.arguments.description"),
+            "arguments", new AnyMapMetaType(desc("doc.triggers.cron.arguments.description")),
             "exclusive", TriggerExclusiveMetaType.getInstance()
     );
 
     private CronTriggerEntryMetaType() {
-        setDescriptionKey("doc.triggers.cron.description");
+        super(desc("doc.triggers.cron.description"));
     }
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
-    }
-
-    @Override
-    protected Set<String> getRequiredFields() {
-        return required;
     }
 
     @Override
@@ -58,15 +52,13 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
 
     private static class RunAsMetaType extends ConcordMetaType {
 
-        private static final RunAsMetaType INSTANCE = new RunAsMetaType();
-
-        public static RunAsMetaType getInstance() {
-            return INSTANCE;
-        }
-
         private static final Map<String, YamlMetaType> features = Map.of(
                 "withSecret", StringMetaType.getInstance()
         );
+
+        private RunAsMetaType(@NotNull TypeProps props) {
+            super(props);
+        }
 
         @Override
         protected @NotNull Map<String, YamlMetaType> getFeatures() {

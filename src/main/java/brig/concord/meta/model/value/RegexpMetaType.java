@@ -1,10 +1,11 @@
 package brig.concord.meta.model.value;
 
 import brig.concord.ConcordBundle;
+import brig.concord.yaml.meta.model.TypeProps;
+import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -19,6 +20,10 @@ public class RegexpMetaType extends StringMetaType {
 
     public RegexpMetaType() {
         super("regexp");
+    }
+
+    public RegexpMetaType(@NotNull TypeProps props) {
+        super("regexp", props);
     }
 
     @Override

@@ -11,6 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.List;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaType {
 
@@ -23,10 +26,9 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
     }
 
     private TaskOutParamsMetaType() {
-        super(StringMetaType.getInstance(), AnyMapMetaType.getInstance());
+        super(List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()),
+                desc("doc.step.feature.out.description"));
         this.hasSchema = false;
-
-        setDescriptionKey("doc.step.feature.out.description");
     }
 
     private TaskOutParamsMetaType(@NotNull YamlMetaType objectType, boolean hasSchema) {

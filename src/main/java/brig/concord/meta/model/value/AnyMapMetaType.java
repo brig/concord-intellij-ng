@@ -1,9 +1,10 @@
 package brig.concord.meta.model.value;
 
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.TypeProps;
+import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import brig.concord.yaml.meta.model.Field;
-import brig.concord.yaml.meta.model.YamlMetaType;
 
 public class AnyMapMetaType extends MapMetaType {
 
@@ -14,6 +15,10 @@ public class AnyMapMetaType extends MapMetaType {
     }
 
     public AnyMapMetaType() {
+    }
+
+    public AnyMapMetaType(@NotNull TypeProps props) {
+        super(props);
     }
 
     @Override

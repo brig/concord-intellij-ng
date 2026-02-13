@@ -26,6 +26,10 @@ public class YamlAnything extends YamlMetaType {
         super("any");
     }
 
+    public YamlAnything(@NotNull TypeProps props) {
+        super("any", props);
+    }
+
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
         return ourAnyField;

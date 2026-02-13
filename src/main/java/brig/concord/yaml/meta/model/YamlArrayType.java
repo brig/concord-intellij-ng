@@ -24,8 +24,18 @@ public class YamlArrayType extends YamlMetaType {
         myElementType = elementType;
     }
 
+    public YamlArrayType(@NotNull YamlMetaType elementType, @NotNull TypeProps props) {
+        super(elementType.getTypeName("[]"), props);
+        myElementType = elementType;
+    }
+
     protected YamlArrayType(@NotNull String typeName) {
         super(typeName);
+        myElementType = null;
+    }
+
+    protected YamlArrayType(@NotNull String typeName, @NotNull TypeProps props) {
+        super(typeName, props);
         myElementType = null;
     }
 

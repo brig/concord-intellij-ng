@@ -3,13 +3,13 @@ package brig.concord.meta.model;
 import brig.concord.ConcordBundle;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.psi.YAMLMapping;
-import brig.concord.yaml.psi.YAMLValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -44,7 +44,7 @@ public class ImportElementMetaType extends IdentityElementMetaType implements Hi
         private final Map<String, YamlMetaType> features;
 
         protected ImportMetaType(String identity, YamlMetaType entry) {
-            super(identity, Set.of(identity));
+            super(identity);
 
             this.features = Map.of(identity, entry);
         }
@@ -52,6 +52,14 @@ public class ImportElementMetaType extends IdentityElementMetaType implements Hi
         @Override
         protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
+        }
+
+        @Override
+        public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
+            if (existingFields.contains(getIdentity())) {
+                return List.of();
+            }
+            return List.of(getIdentity());
         }
 
         @Override

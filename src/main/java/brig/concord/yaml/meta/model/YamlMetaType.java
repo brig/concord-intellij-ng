@@ -25,27 +25,32 @@ import static brig.concord.ConcordBundle.BUNDLE;
 
 public abstract class YamlMetaType implements Documented {
     private final @NotNull String myTypeName;
-    private @Nullable String descriptionKey;
+    private final @Nullable String description;
+    private final boolean required;
 
     protected YamlMetaType(@NonNls @NotNull String typeName) {
-        myTypeName = typeName;
+        this(typeName, null, false);
     }
 
-    public YamlMetaType withDescriptionKey(@NotNull @PropertyKey(resourceBundle = BUNDLE) String descriptionKey) {
-        this.descriptionKey = descriptionKey;
-        return this;
+    protected YamlMetaType(@NonNls @NotNull String typeName, @NotNull TypeProps props) {
+        this(typeName, props.descriptionKey(), props.isRequired());
     }
 
-    public void setDescriptionKey(@NotNull @PropertyKey(resourceBundle = BUNDLE) String descriptionKey) {
-        this.descriptionKey = descriptionKey;
+    private YamlMetaType(@NotNull String typeName,
+                          @Nullable @PropertyKey(resourceBundle = BUNDLE) String descriptionKey,
+                          boolean required) {
+        this.myTypeName = typeName;
+        this.description = descriptionKey != null ? ConcordBundle.message(descriptionKey) : null;
+        this.required = required;
+    }
+
+    public boolean isRequired() {
+        return required;
     }
 
     @Override
     public @Nullable String getDescription() {
-        if (descriptionKey != null) {
-            return ConcordBundle.message(descriptionKey);
-        }
-        return null;
+        return description;
     }
 
     @Contract(pure = true)

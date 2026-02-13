@@ -1,6 +1,8 @@
 package brig.concord.meta.model.value;
 
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlArrayType;
+import org.jetbrains.annotations.NotNull;
 
 public class StringArrayMetaType extends YamlArrayType {
 
@@ -12,5 +14,9 @@ public class StringArrayMetaType extends YamlArrayType {
 
     public StringArrayMetaType() {
         super(StringMetaType.getInstance());
+    }
+
+    public StringArrayMetaType(@NotNull TypeProps props) {
+        super(StringMetaType.getInstance(), props);
     }
 }

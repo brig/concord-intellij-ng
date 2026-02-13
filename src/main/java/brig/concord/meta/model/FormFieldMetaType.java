@@ -4,27 +4,24 @@ import brig.concord.ConcordBundle;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
-import brig.concord.meta.model.value.AnythingMetaType;
-import brig.concord.meta.model.value.BooleanMetaType;
-import brig.concord.meta.model.value.IntegerMetaType;
-import brig.concord.meta.model.value.RegexpMetaType;
-import brig.concord.meta.model.value.StringMetaType;
-
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import org.jetbrains.annotations.NotNull;
+import brig.concord.meta.model.value.*;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class FormFieldMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -34,37 +31,36 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         return INSTANCE;
     }
 
-    private static final Set<String> required = Set.of("type");
     private static final List<String> featureKeys = List.of("type", "label", "value", "allow");
     private static final Map<String, YamlMetaType> features = caseInsensitiveMap(Map.of(
             "type", FieldType.getInstance(),
-            "label", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.label.description"),
-            "value", new AnythingMetaType().withDescriptionKey("doc.forms.formName.formField.value.description"),
-            "allow", new AnythingMetaType().withDescriptionKey("doc.forms.formName.formField.allow.description")
+            "label", new StringMetaType(desc("doc.forms.formName.formField.label.description")),
+            "value", new AnythingMetaType(desc("doc.forms.formName.formField.value.description")),
+            "allow", new AnythingMetaType(desc("doc.forms.formName.formField.allow.description"))
     ));
 
     private static final Map<String, YamlMetaType> stringFeatures = caseInsensitiveMap(Map.of(
-            "pattern", new RegexpMetaType().withDescriptionKey("doc.forms.formName.formField.pattern.description"),
-            "inputType", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.inputType.description"),
-            "placeholder", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.placeholder.description"),
-            "search", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.search.description"),
-            "readOnly", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.readonly.description")
+            "pattern", new RegexpMetaType(desc("doc.forms.formName.formField.pattern.description")),
+            "inputType", new StringMetaType(desc("doc.forms.formName.formField.inputType.description")),
+            "placeholder", new StringMetaType(desc("doc.forms.formName.formField.placeholder.description")),
+            "search", new BooleanMetaType(desc("doc.forms.formName.formField.search.description")),
+            "readOnly", new BooleanMetaType(desc("doc.forms.formName.formField.readonly.description"))
     ));
 
     private static final Map<String, YamlMetaType> intFeatures = Map.of(
-            "min", new IntegerMetaType().withDescriptionKey("doc.forms.formName.formField.min.description"),
-            "max", new IntegerMetaType().withDescriptionKey("doc.forms.formName.formField.max.description"),
-            "placeholder", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.placeholder.description"),
-            "readOnly", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.readonly.description")
+            "min", new IntegerMetaType(desc("doc.forms.formName.formField.min.description")),
+            "max", new IntegerMetaType(desc("doc.forms.formName.formField.max.description")),
+            "placeholder", new StringMetaType(desc("doc.forms.formName.formField.placeholder.description")),
+            "readOnly", new BooleanMetaType(desc("doc.forms.formName.formField.readonly.description"))
     );
 
     private static final Map<String, YamlMetaType> booleanFeatures = Map.of(
-            "readOnly", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.readonly.description")
+            "readOnly", new BooleanMetaType(desc("doc.forms.formName.formField.readonly.description"))
     );
 
     private static final Map<String, YamlMetaType> dateFeatures = Map.of(
-            "popupPosition", new StringMetaType().withDescriptionKey("doc.forms.formName.formField.popupPosition.description"),
-            "readOnly", new BooleanMetaType().withDescriptionKey("doc.forms.formName.formField.readonly.description")
+            "popupPosition", new StringMetaType(desc("doc.forms.formName.formField.popupPosition.description")),
+            "readOnly", new BooleanMetaType(desc("doc.forms.formName.formField.readonly.description"))
     );
 
     private static final Map<String, Map<String, YamlMetaType>> featuresByType = Map.of(
@@ -83,17 +79,12 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
 
 
     private FormFieldMetaType() {
-        setDescriptionKey("doc.forms.formName.formField.description");
+        super(desc("doc.forms.formName.formField.description"));
     }
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return allFeatures;
-    }
-
-    @Override
-    protected Set<String> getRequiredFields() {
-        return required;
     }
 
     @Override
@@ -254,7 +245,7 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         }
 
         public FieldType() {
-            super("string");
+            super("string", desc("doc.forms.formName.formField.type.description").andRequired());
 
             List<String> literals = new ArrayList<>();
             for (var t : types) {
@@ -264,7 +255,6 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
                 }
             }
             setLiterals(literals.toArray(new String[0]));
-            setDescriptionKey("doc.forms.formName.formField.type.description");
         }
 
         public static boolean isValidType(String type) {

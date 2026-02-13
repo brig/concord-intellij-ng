@@ -50,6 +50,12 @@ public abstract class YamlComposedTypeBase extends YamlMetaType {
         myTypes = copyList(types);
     }
 
+    protected YamlComposedTypeBase(@NotNull String typeName, List<YamlMetaType> types, @NotNull TypeProps props) {
+        super(typeName, props);
+        assert types.size() > 1 : "Nothing to compose: " + types;
+        myTypes = copyList(types);
+    }
+
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
         if (!myFields.containsKey(name)) {

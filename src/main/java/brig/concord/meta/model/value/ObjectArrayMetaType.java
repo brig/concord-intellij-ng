@@ -1,6 +1,7 @@
 package brig.concord.meta.model.value;
 
 import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlArrayType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,10 @@ public class ObjectArrayMetaType extends YamlArrayType {
 
     public ObjectArrayMetaType() {
         super(AnyMapMetaType.getInstance());
+    }
+
+    public ObjectArrayMetaType(@NotNull TypeProps props) {
+        super(AnyMapMetaType.getInstance(), props);
     }
 
     @Override

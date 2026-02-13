@@ -1,6 +1,8 @@
 package brig.concord.meta.model.value;
 
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlIntegerType;
+import org.jetbrains.annotations.NotNull;
 
 public class IntegerMetaType extends YamlIntegerType {
 
@@ -12,5 +14,9 @@ public class IntegerMetaType extends YamlIntegerType {
 
     public IntegerMetaType() {
         super(false);
+    }
+
+    public IntegerMetaType(@NotNull TypeProps props) {
+        super(false, props);
     }
 }

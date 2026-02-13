@@ -4,7 +4,6 @@ import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.StringArrayMetaType;
-
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
@@ -12,12 +11,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+import static brig.concord.yaml.meta.model.TypeProps.desc;
+
 public class ResourcesMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final ResourcesMetaType INSTANCE = new ResourcesMetaType();
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "concord", new StringArrayMetaType().withDescriptionKey("doc.resources.concord.description")
+            "concord", new StringArrayMetaType(desc("doc.resources.concord.description"))
     );
 
     public static ResourcesMetaType getInstance() {
@@ -25,7 +26,7 @@ public class ResourcesMetaType extends ConcordMetaType implements HighlightProvi
     }
 
     private ResourcesMetaType() {
-        setDescriptionKey("doc.resources.description");
+        super(desc("doc.resources.description"));
     }
 
     @Override

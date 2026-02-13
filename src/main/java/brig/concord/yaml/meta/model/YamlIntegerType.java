@@ -26,6 +26,11 @@ public class YamlIntegerType extends YamlScalarType {
         myQuotedValuesAllowed = quotedValuesAllowed;
     }
 
+    public YamlIntegerType(boolean quotedValuesAllowed, @NotNull TypeProps props) {
+        super("integer", props);
+        myQuotedValuesAllowed = quotedValuesAllowed;
+    }
+
     @Override
     protected void validateScalarValue(@NotNull YAMLScalar scalarValue, @NotNull ProblemsHolder holder) {
         try {

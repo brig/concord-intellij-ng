@@ -4,13 +4,14 @@ import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.MapMetaType;
-
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
 
@@ -21,7 +22,7 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
     }
 
     private ProfilesMetaType() {
-        setDescriptionKey("doc.profiles.description");
+        super(desc("doc.profiles.description"));
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
         }
 
         private ProfilesEntryMetaType() {
-            setDescriptionKey("doc.profiles.profileName.description");
+            super(desc("doc.profiles.profileName.description"));
         }
 
         @Override

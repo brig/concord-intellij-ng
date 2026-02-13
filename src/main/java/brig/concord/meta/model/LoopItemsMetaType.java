@@ -2,14 +2,15 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.meta.model.value.ExpressionMetaType;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlArrayType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class LoopItemsMetaType extends YamlAnyOfType {
 
@@ -20,9 +21,8 @@ public class LoopItemsMetaType extends YamlAnyOfType {
     }
 
     private LoopItemsMetaType() {
-        super(ExpressionMetaType.getInstance(), new YamlArrayType(LoopArrayItemMetaType.getInstance()), AnyMapMetaType.getInstance());
-
-        setDescriptionKey("doc.step.feature.loop.items.description");
+        super(List.of(ExpressionMetaType.getInstance(), new YamlArrayType(LoopArrayItemMetaType.getInstance()), AnyMapMetaType.getInstance()),
+                desc("doc.step.feature.loop.items.description").andRequired());
     }
 
     @Override

@@ -3,11 +3,13 @@ package brig.concord.meta.model.call;
 import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.DynamicMetaType;
 import brig.concord.meta.model.value.ExpressionMetaType;
-import com.intellij.psi.PsiElement;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import com.intellij.psi.PsiElement;
 
 import java.util.List;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class CallInParamsMetaType extends YamlAnyOfType implements DynamicMetaType {
 
@@ -22,8 +24,8 @@ public class CallInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
     }
 
     private CallInParamsMetaType(YamlMetaType objectType) {
-        super(ExpressionMetaType.getInstance(), objectType);
-        setDescriptionKey("doc.step.feature.in.description");
+        super(List.of(ExpressionMetaType.getInstance(), objectType),
+                desc("doc.step.feature.in.description"));
     }
 
     @Override

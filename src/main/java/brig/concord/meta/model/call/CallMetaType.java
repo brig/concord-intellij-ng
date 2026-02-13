@@ -7,6 +7,9 @@ import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.psi.ProcessDefinition;
 import brig.concord.psi.ProcessDefinitionProvider;
 import brig.concord.psi.ref.FlowDefinitionReference;
+import brig.concord.yaml.meta.model.CompletionContext;
+import brig.concord.yaml.meta.model.TypeProps;
+import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
@@ -14,13 +17,12 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import brig.concord.yaml.meta.model.CompletionContext;
-import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static brig.concord.meta.model.value.ExpressionMetaType.containsExpression;
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class CallMetaType extends StringMetaType implements HighlightProvider {
 
@@ -31,7 +33,11 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
     }
 
     public CallMetaType() {
-        setDescriptionKey("doc.step.call.key.description");
+        super(desc("doc.step.call.key.description"));
+    }
+
+    public CallMetaType(@NotNull TypeProps props) {
+        super(props);
     }
 
     @Override

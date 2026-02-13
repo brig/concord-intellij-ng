@@ -2,13 +2,12 @@ package brig.concord.meta.model;
 
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import brig.concord.yaml.meta.model.Field;
-import brig.concord.yaml.meta.model.YamlMetaType;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,16 +20,11 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
             new TriggerMetaType("manual", ManualTriggerEntryMetaType.getInstance())
     );
 
-    private static final IdentityMetaType GENERIC_TRIGGER = new IdentityMetaType("generic", Collections.emptySet()) {
+    private static final IdentityMetaType GENERIC_TRIGGER = new IdentityMetaType("generic") {
 
         @Override
         public @Nullable Field findFeatureByName(@NotNull String name) {
             return metaTypeToField(GenericTriggerEntryMetaType.getInstance(), name);
-        }
-
-        @Override
-        protected Set<String> getRequiredFields() {
-            return Collections.emptySet();
         }
 
         @Override
@@ -73,7 +67,7 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         private final Map<String, YamlMetaType> features;
 
         protected TriggerMetaType(String identity, YamlMetaType entry) {
-            super(identity, Set.of(identity));
+            super(identity);
 
             this.features = Map.of(identity, entry);
         }
@@ -81,6 +75,14 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         @Override
         protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
+        }
+
+        @Override
+        public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
+            if (existingFields.contains(getIdentity())) {
+                return List.of();
+            }
+            return List.of(getIdentity());
         }
     }
 }

@@ -1,19 +1,21 @@
 package brig.concord.meta;
 
 import brig.concord.ConcordBundle;
+import brig.concord.documentation.Documented;
 import brig.concord.meta.model.value.AnyOfType;
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.*;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import brig.concord.documentation.Documented;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class ConcordMetaType extends YamlMetaType {
@@ -22,39 +24,40 @@ public abstract class ConcordMetaType extends YamlMetaType {
         super("object");
     }
 
-    protected abstract @NotNull Map<String, YamlMetaType> getFeatures();
-
-    protected Set<String> getRequiredFields() {
-        return Collections.emptySet();
+    protected ConcordMetaType(@NotNull TypeProps props) {
+        super("object", props);
     }
+
+    protected abstract @NotNull Map<String, YamlMetaType> getFeatures();
 
     @Override
     public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
-        var required = getRequiredFields();
         return getFeatures().entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
-                .map(e -> {
-                    List<DocumentedField> children = List.of();
-                    if (e.getValue() instanceof YamlEnumType enumType) {
-                        var descriptions = enumType.getLiteralDescriptions();
-                        if (descriptions.length > 0) {
-                            children = new ArrayList<>(enumType.getLiterals().length);
-                            String[] literals = enumType.getLiterals();
-                            for (int i = 0; i < literals.length; i++) {
-                                children.add(new DocumentedField(literals[i], enumType.getTypeName(), false, descriptions[i], List.of()));
-                            }
-                        }
-                    }
-
-                    var desc = e.getValue().getDescription();
-                    return new Documented.DocumentedField(
-                            e.getKey(),
-                            e.getValue().getTypeName(),
-                            required.contains(e.getKey()),
-                            desc,
-                            children);
-                })
+                .map(e -> toDocumentedField(e.getKey(), e.getValue()))
                 .toList();
+    }
+
+    private static DocumentedField toDocumentedField(String name, YamlMetaType type) {
+        return new DocumentedField(name, type.getTypeName(), type.isRequired(), type.getDescription(), enumChildren(type));
+    }
+
+    private static List<DocumentedField> enumChildren(YamlMetaType type) {
+        if (!(type instanceof YamlEnumType enumType)) {
+            return List.of();
+        }
+
+        var descriptions = enumType.getLiteralDescriptions();
+        if (descriptions.length == 0) {
+            return List.of();
+        }
+
+        String[] literals = enumType.getLiterals();
+        var children = new ArrayList<DocumentedField>(literals.length);
+        for (int i = 0; i < literals.length; i++) {
+            children.add(new DocumentedField(literals[i], enumType.getTypeName(), false, descriptions[i], List.of()));
+        }
+        return children;
     }
 
     @Override
@@ -66,7 +69,9 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     @Override
     public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
-        return getRequiredFields().stream()
+        return getFeatures().entrySet().stream()
+                .filter(e -> e.getValue().isRequired())
+                .map(Map.Entry::getKey)
                 .filter(s -> !existingFields.contains(s))
                 .sorted()
                 .collect(Collectors.toList());

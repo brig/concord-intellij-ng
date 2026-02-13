@@ -46,8 +46,11 @@ public class TaskSchemaMetaType extends ConcordMetaType {
     }
 
     @Override
-    protected Set<String> getRequiredFields() {
-        return section.requiredFields();
+    public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
+        return section.requiredFields().stream()
+                .filter(s -> !existingFields.contains(s))
+                .sorted()
+                .collect(Collectors.toList());
     }
 
     @Override

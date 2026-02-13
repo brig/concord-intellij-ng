@@ -25,6 +25,10 @@ public abstract class YamlScalarType extends YamlMetaType {
         super(typeName);
     }
 
+    protected YamlScalarType(@NonNls @NotNull String typeName, @NotNull TypeProps props) {
+        super(typeName, props);
+    }
+
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
         return null;

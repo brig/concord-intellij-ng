@@ -1,6 +1,8 @@
 package brig.concord.meta.model;
 
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlArrayType;
+import org.jetbrains.annotations.NotNull;
 
 public class DependenciesMetaType extends YamlArrayType {
 
@@ -12,5 +14,9 @@ public class DependenciesMetaType extends YamlArrayType {
 
     DependenciesMetaType() {
         super(DependencyMetaType.getInstance());
+    }
+
+    DependenciesMetaType(@NotNull TypeProps props) {
+        super(DependencyMetaType.getInstance(), props);
     }
 }

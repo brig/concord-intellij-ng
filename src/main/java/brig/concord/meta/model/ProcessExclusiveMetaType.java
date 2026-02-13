@@ -5,28 +5,27 @@ import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.StringMetaType;
-
+import brig.concord.yaml.meta.model.TypeProps;
+import brig.concord.yaml.meta.model.YamlEnumType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.meta.model.YamlEnumType;
-import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.psi.YAMLScalar;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Set;
+
+import static brig.concord.yaml.meta.model.TypeProps.desc;
 
 public class ProcessExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final ProcessExclusiveMetaType INSTANCE = new ProcessExclusiveMetaType();
 
-    private static final Set<String> requiredFeatures = Set.of("group");
-
     private static final Map<String, YamlMetaType> features = Map.of(
-            "group", new GroupMetaType().withDescriptionKey("doc.configuration.exclusive.group.description"),
-            "mode", new ModeType().withDescriptionKey("doc.configuration.exclusive.mode.description")
+            "group", new GroupMetaType(desc("doc.configuration.exclusive.group.description").andRequired()),
+            "mode", new ModeType(desc("doc.configuration.exclusive.mode.description"))
     );
 
     public static ProcessExclusiveMetaType getInstance() {
@@ -34,17 +33,12 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     private ProcessExclusiveMetaType() {
-        setDescriptionKey("doc.configuration.exclusive.description");
+        super(desc("doc.configuration.exclusive.description"));
     }
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
-    }
-
-    @Override
-    protected Set<String> getRequiredFields() {
-        return requiredFeatures;
     }
 
     @Override
@@ -64,6 +58,10 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
 
     private static class GroupMetaType extends StringMetaType {
 
+        private GroupMetaType(@NotNull TypeProps props) {
+            super(props);
+        }
+
         @Override
         protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
             super.validateScalarValue(value, holder);
@@ -76,8 +74,8 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
 
     private static class ModeType extends YamlEnumType {
 
-        private ModeType() {
-            super("string");
+        private ModeType(@NotNull TypeProps props) {
+            super("string", props);
 
             setLiterals("cancel", "cancelOld", "wait");
             setDescriptionKeys(

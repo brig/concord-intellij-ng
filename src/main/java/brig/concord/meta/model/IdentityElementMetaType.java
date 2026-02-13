@@ -2,16 +2,16 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.DynamicMetaType;
 import brig.concord.psi.YamlPsiUtils;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.PsiElement;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
