@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 import static brig.concord.yaml.meta.model.TypeProps.required;
 
 public class GenericTriggerEntryMetaType extends ConcordMetaType {
@@ -22,7 +22,7 @@ public class GenericTriggerEntryMetaType extends ConcordMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "entryPoint", new CallMetaType(desc("doc.step.call.key.description").andRequired()),
+            "entryPoint", new CallMetaType(descKey("doc.step.call.key.description").andRequired()),
             "activeProfiles", StringArrayMetaType.getInstance(),
             "arguments", AnyMapMetaType.getInstance(),
             "exclusive", TriggerExclusiveMetaType.getInstance(),

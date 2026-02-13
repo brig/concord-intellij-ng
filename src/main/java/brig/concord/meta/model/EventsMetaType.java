@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class EventsMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -23,23 +23,23 @@ public class EventsMetaType extends ConcordMetaType implements HighlightProvider
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("recordEvents", new BooleanMetaType(desc("doc.configuration.events.recordEvents.description")));
-        features.put("recordTaskInVars", new BooleanMetaType(desc("doc.configuration.events.recordTaskInVars.description")));
-        features.put("truncateMaxStringLength", new IntegerMetaType(desc("doc.configuration.events.truncateMaxStringLength.description")));
-        features.put("truncateMaxArrayLength", new IntegerMetaType(desc("doc.configuration.events.truncateMaxArrayLength.description")));
-        features.put("truncateMaxDepth", new IntegerMetaType(desc("doc.configuration.events.truncateMaxDepth.description")));
-        features.put("recordTaskOutVars", new BooleanMetaType(desc("doc.configuration.events.recordTaskOutVars.description")));
-        features.put("truncateInVars", new BooleanMetaType(desc("doc.configuration.events.truncateInVars.description")));
-        features.put("truncateOutVars", new BooleanMetaType(desc("doc.configuration.events.truncateOutVars.description")));
-        features.put("inVarsBlacklist", new StringArrayMetaType(desc("doc.configuration.events.inVarsBlacklist.description")));
-        features.put("outVarsBlacklist", new StringArrayMetaType(desc("doc.configuration.events.outVarsBlacklist.description")));
-        features.put("recordTaskMeta", new BooleanMetaType(desc("doc.configuration.events.recordTaskMeta.description")));
-        features.put("truncateMeta", new BooleanMetaType(desc("doc.configuration.events.truncateMeta.description")));
-        features.put("metaBlacklist", new StringArrayMetaType(desc("doc.configuration.events.metaBlacklist.description")));
+        features.put("recordEvents", new BooleanMetaType(descKey("doc.configuration.events.recordEvents.description")));
+        features.put("recordTaskInVars", new BooleanMetaType(descKey("doc.configuration.events.recordTaskInVars.description")));
+        features.put("truncateMaxStringLength", new IntegerMetaType(descKey("doc.configuration.events.truncateMaxStringLength.description")));
+        features.put("truncateMaxArrayLength", new IntegerMetaType(descKey("doc.configuration.events.truncateMaxArrayLength.description")));
+        features.put("truncateMaxDepth", new IntegerMetaType(descKey("doc.configuration.events.truncateMaxDepth.description")));
+        features.put("recordTaskOutVars", new BooleanMetaType(descKey("doc.configuration.events.recordTaskOutVars.description")));
+        features.put("truncateInVars", new BooleanMetaType(descKey("doc.configuration.events.truncateInVars.description")));
+        features.put("truncateOutVars", new BooleanMetaType(descKey("doc.configuration.events.truncateOutVars.description")));
+        features.put("inVarsBlacklist", new StringArrayMetaType(descKey("doc.configuration.events.inVarsBlacklist.description")));
+        features.put("outVarsBlacklist", new StringArrayMetaType(descKey("doc.configuration.events.outVarsBlacklist.description")));
+        features.put("recordTaskMeta", new BooleanMetaType(descKey("doc.configuration.events.recordTaskMeta.description")));
+        features.put("truncateMeta", new BooleanMetaType(descKey("doc.configuration.events.truncateMeta.description")));
+        features.put("metaBlacklist", new StringArrayMetaType(descKey("doc.configuration.events.metaBlacklist.description")));
     }
 
     private EventsMetaType() {
-        super(desc("doc.configuration.events.description"));
+        super(descKey("doc.configuration.events.description"));
     }
 
     public static EventsMetaType getInstance() {

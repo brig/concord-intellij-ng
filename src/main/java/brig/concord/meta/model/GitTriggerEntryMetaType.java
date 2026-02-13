@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class GitTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -24,19 +24,19 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "entryPoint", new CallMetaType(desc("doc.triggers.github.entryPoint.description").andRequired()),
-            "useInitiator", new BooleanMetaType(desc("doc.triggers.github.useInitiator.description")),
-            "activeProfiles", new StringArrayMetaType(desc("doc.triggers.github.activeProfiles.description")),
-            "useEventCommitId", new BooleanMetaType(desc("doc.triggers.github.useEventCommitId.description")),
-            "ignoreEmptyPush", new BooleanMetaType(desc("doc.triggers.github.ignoreEmptyPush.description")),
-            "arguments", new AnyMapMetaType(desc("doc.triggers.github.arguments.description")),
+            "entryPoint", new CallMetaType(descKey("doc.triggers.github.entryPoint.description").andRequired()),
+            "useInitiator", new BooleanMetaType(descKey("doc.triggers.github.useInitiator.description")),
+            "activeProfiles", new StringArrayMetaType(descKey("doc.triggers.github.activeProfiles.description")),
+            "useEventCommitId", new BooleanMetaType(descKey("doc.triggers.github.useEventCommitId.description")),
+            "ignoreEmptyPush", new BooleanMetaType(descKey("doc.triggers.github.ignoreEmptyPush.description")),
+            "arguments", new AnyMapMetaType(descKey("doc.triggers.github.arguments.description")),
             "exclusive", TriggerExclusiveMetaType.getInstance(),
             "conditions", ConditionsMetaType.getInstance(),
-            "version", new IntegerMetaType(desc("doc.triggers.github.version.description").andRequired())
+            "version", new IntegerMetaType(descKey("doc.triggers.github.version.description").andRequired())
     );
 
     private GitTriggerEntryMetaType() {
-        super(desc("doc.triggers.github.description"));
+        super(descKey("doc.triggers.github.description"));
     }
 
     @Override
@@ -58,15 +58,15 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         private RepositoryInfoMetaType() {
-            super(desc("doc.triggers.github.conditions.repositoryInfo.description"));
+            super(descKey("doc.triggers.github.conditions.repositoryInfo.description"));
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
-                "repositoryId", new RegexpMetaType(desc("doc.triggers.github.conditions.repositoryInfo.repositoryId.description")),
-                "repository", new RegexpMetaType(desc("doc.triggers.github.conditions.repositoryInfo.repository.description")),
-                "projectId", new RegexpMetaType(desc("doc.triggers.github.conditions.repositoryInfo.projectId.description")),
-                "branch", new RegexpMetaType(desc("doc.triggers.github.conditions.repositoryInfo.branch.description")),
-                "enabled", new BooleanMetaType(desc("doc.triggers.github.conditions.repositoryInfo.enabled.description")));
+                "repositoryId", new RegexpMetaType(descKey("doc.triggers.github.conditions.repositoryInfo.repositoryId.description")),
+                "repository", new RegexpMetaType(descKey("doc.triggers.github.conditions.repositoryInfo.repository.description")),
+                "projectId", new RegexpMetaType(descKey("doc.triggers.github.conditions.repositoryInfo.projectId.description")),
+                "branch", new RegexpMetaType(descKey("doc.triggers.github.conditions.repositoryInfo.branch.description")),
+                "enabled", new BooleanMetaType(descKey("doc.triggers.github.conditions.repositoryInfo.enabled.description")));
 
         @Override
         protected @NotNull Map<String, YamlMetaType> getFeatures() {
@@ -88,14 +88,14 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         private FilesMetaType() {
-            super(desc("doc.triggers.github.conditions.files.description"));
+            super(descKey("doc.triggers.github.conditions.files.description"));
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
-                "added", new RegexpOrArrayMetaType(desc("doc.triggers.github.conditions.files.added.description")),
-                "removed", new RegexpOrArrayMetaType(desc("doc.triggers.github.conditions.files.removed.description")),
-                "modified", new RegexpOrArrayMetaType(desc("doc.triggers.github.conditions.files.modified.description")),
-                "any", new RegexpOrArrayMetaType(desc("doc.triggers.github.conditions.files.any.description"))
+                "added", new RegexpOrArrayMetaType(descKey("doc.triggers.github.conditions.files.added.description")),
+                "removed", new RegexpOrArrayMetaType(descKey("doc.triggers.github.conditions.files.removed.description")),
+                "modified", new RegexpOrArrayMetaType(descKey("doc.triggers.github.conditions.files.modified.description")),
+                "any", new RegexpOrArrayMetaType(descKey("doc.triggers.github.conditions.files.any.description"))
         );
 
         @Override
@@ -118,20 +118,20 @@ public class GitTriggerEntryMetaType extends ConcordMetaType implements Highligh
         }
 
         private ConditionsMetaType() {
-            super(desc("doc.triggers.github.conditions.description").andRequired());
+            super(descKey("doc.triggers.github.conditions.description").andRequired());
         }
 
         private static final Map<String, YamlMetaType> features = Map.of(
-                "type", new StringMetaType(desc("doc.triggers.github.conditions.type.description").andRequired()),
-                "githubHost", new RegexpMetaType(desc("doc.triggers.github.conditions.githubHost.description")),
-                "githubOrg", new RegexpMetaType(desc("doc.triggers.github.conditions.githubOrg.description")),
-                "githubRepo", new RegexpMetaType(desc("doc.triggers.github.conditions.githubRepo.description")),
-                "branch", new RegexpMetaType(desc("doc.triggers.github.conditions.branch.description")),
-                "sender", new RegexpMetaType(desc("doc.triggers.github.conditions.sender.description")),
-                "status", new RegexpMetaType(desc("doc.triggers.github.conditions.status.description")),
-                "repositoryInfo", new YamlArrayType(RepositoryInfoMetaType.getInstance(), desc("doc.triggers.github.conditions.repositoryInfo.description")),
+                "type", new StringMetaType(descKey("doc.triggers.github.conditions.type.description").andRequired()),
+                "githubHost", new RegexpMetaType(descKey("doc.triggers.github.conditions.githubHost.description")),
+                "githubOrg", new RegexpMetaType(descKey("doc.triggers.github.conditions.githubOrg.description")),
+                "githubRepo", new RegexpMetaType(descKey("doc.triggers.github.conditions.githubRepo.description")),
+                "branch", new RegexpMetaType(descKey("doc.triggers.github.conditions.branch.description")),
+                "sender", new RegexpMetaType(descKey("doc.triggers.github.conditions.sender.description")),
+                "status", new RegexpMetaType(descKey("doc.triggers.github.conditions.status.description")),
+                "repositoryInfo", new YamlArrayType(RepositoryInfoMetaType.getInstance(), descKey("doc.triggers.github.conditions.repositoryInfo.description")),
                 "files", FilesMetaType.getInstance(),
-                "payload", new AnyMapMetaType(desc("doc.triggers.github.conditions.payload.description"))
+                "payload", new AnyMapMetaType(descKey("doc.triggers.github.conditions.payload.description"))
         );
 
         @Override

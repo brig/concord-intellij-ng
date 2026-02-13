@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class CheckpointStepMetaType extends IdentityMetaType {
 
@@ -17,11 +17,11 @@ public class CheckpointStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "checkpoint", new StringMetaType(desc("doc.step.checkpoint.key.description").andRequired()),
+            "checkpoint", new StringMetaType(descKey("doc.step.checkpoint.key.description").andRequired()),
             "meta", StepMetaMetaType.getInstance());
 
     private CheckpointStepMetaType() {
-        super("checkpoint", desc("doc.step.checkpoint.description"));
+        super("checkpoint", descKey("doc.step.checkpoint.description"));
     }
 
     @Override

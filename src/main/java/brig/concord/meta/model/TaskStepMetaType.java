@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class TaskStepMetaType extends IdentityMetaType {
 
@@ -34,11 +34,11 @@ public class TaskStepMetaType extends IdentityMetaType {
             Map.of("task", TaskNameMetaType.getInstance(),
                    "in", TaskInParamsMetaType.getInstance(),
                    "out", TaskOutParamsMetaType.getInstance(),
-                   "ignoreErrors", new BooleanMetaType(desc("doc.step.feature.ignoreErrors.description")))
+                   "ignoreErrors", new BooleanMetaType(descKey("doc.step.feature.ignoreErrors.description")))
     );
 
     private TaskStepMetaType() {
-        super("task", desc("doc.step.task.description"));
+        super("task", descKey("doc.step.task.description"));
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TaskStepMetaType extends IdentityMetaType {
         }
 
         private TaskNameMetaType() {
-            super(desc("doc.step.task.key.description").andRequired());
+            super(descKey("doc.step.task.key.description").andRequired());
         }
 
         @Override

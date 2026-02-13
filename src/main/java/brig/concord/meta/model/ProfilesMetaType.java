@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
 
@@ -22,7 +22,7 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
     }
 
     private ProfilesMetaType() {
-        super(desc("doc.profiles.description"));
+        super(descKey("doc.profiles.description"));
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ProfilesMetaType extends MapMetaType implements HighlightProvider{
         }
 
         private ProfilesEntryMetaType() {
-            super(desc("doc.profiles.profileName.description"));
+            super(descKey("doc.profiles.profileName.description"));
         }
 
         @Override

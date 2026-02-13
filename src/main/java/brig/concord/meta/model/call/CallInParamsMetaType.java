@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement;
 
 import java.util.List;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class CallInParamsMetaType extends YamlAnyOfType implements DynamicMetaType {
 
@@ -25,7 +25,7 @@ public class CallInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
 
     private CallInParamsMetaType(YamlMetaType objectType) {
         super(List.of(ExpressionMetaType.getInstance(), objectType),
-                desc("doc.step.feature.in.description"));
+                descKey("doc.step.feature.in.description"));
     }
 
     @Override

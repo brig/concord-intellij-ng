@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class CallOutParamsMetaType extends YamlAnyOfType {
 
@@ -24,7 +24,7 @@ public class CallOutParamsMetaType extends YamlAnyOfType {
 
     private CallOutParamsMetaType() {
         super(List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance()),
-                desc("doc.step.feature.out.description"));
+                descKey("doc.step.feature.out.description"));
     }
 
     @Override

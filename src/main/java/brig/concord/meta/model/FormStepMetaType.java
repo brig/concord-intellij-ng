@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class FormStepMetaType extends IdentityMetaType {
 
@@ -25,16 +25,16 @@ public class FormStepMetaType extends IdentityMetaType {
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "form", new StringMetaType(desc("doc.step.form.key.description").andRequired()),
-            "yield", new BooleanMetaType(desc("doc.step.feature.yield.description")),
-            "saveSubmittedBy", new BooleanMetaType(desc("doc.step.feature.saveSubmittedBy.description")),
-            "runAs", new AnyMapMetaType(desc("doc.step.feature.runAs.description")),
-            "values", new AnyMapMetaType(desc("doc.step.feature.values.description")),
+            "form", new StringMetaType(descKey("doc.step.form.key.description").andRequired()),
+            "yield", new BooleanMetaType(descKey("doc.step.feature.yield.description")),
+            "saveSubmittedBy", new BooleanMetaType(descKey("doc.step.feature.saveSubmittedBy.description")),
+            "runAs", new AnyMapMetaType(descKey("doc.step.feature.runAs.description")),
+            "values", new AnyMapMetaType(descKey("doc.step.feature.values.description")),
             "fields", FieldsType.getInstance()
     );
 
     private FormStepMetaType() {
-        super("form", desc("doc.step.form.description"));
+        super("form", descKey("doc.step.form.description"));
     }
 
     @Override
@@ -71,7 +71,7 @@ public class FormStepMetaType extends IdentityMetaType {
 
         private FieldsType() {
             super(List.of(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance())),
-                    desc("doc.step.feature.fields.description"));
+                    descKey("doc.step.feature.fields.description"));
         }
 
         @Override

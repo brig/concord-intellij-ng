@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class IfStepMetaType extends IdentityMetaType {
 
@@ -22,17 +22,17 @@ public class IfStepMetaType extends IdentityMetaType {
     private static final Map<String, YamlMetaType> features;
 
     static {
-        var thenSteps = new StepsMetaType(desc("doc.step.feature.then.description").andRequired());
-        var elseSteps = new StepsMetaType(desc("doc.step.feature.else.description"));
+        var thenSteps = new StepsMetaType(descKey("doc.step.feature.then.description").andRequired());
+        var elseSteps = new StepsMetaType(descKey("doc.step.feature.else.description"));
         features = Map.of(
-                "if", new ExpressionMetaType(desc("doc.type.expression.description").andRequired()),
+                "if", new ExpressionMetaType(descKey("doc.type.expression.description").andRequired()),
                 THEN, thenSteps,
                 ELSE, elseSteps,
                 "meta", StepMetaMetaType.getInstance());
     }
 
     private IfStepMetaType() {
-        super("if", desc("doc.step.if.description"));
+        super("if", descKey("doc.step.if.description"));
     }
 
     @Override

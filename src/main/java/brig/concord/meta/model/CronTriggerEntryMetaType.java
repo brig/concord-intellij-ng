@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class CronTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -27,17 +27,17 @@ public class CronTriggerEntryMetaType extends ConcordMetaType implements Highlig
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "spec", new StringMetaType("cron", desc("doc.triggers.cron.spec.description").andRequired()),
-            "entryPoint", new CallMetaType(desc("doc.triggers.cron.entryPoint.description").andRequired()),
-            "runAs", new RunAsMetaType(desc("doc.triggers.cron.runAs.description")),
-            "activeProfiles", new StringArrayMetaType(desc("doc.triggers.cron.activeProfiles.description")),
+            "spec", new StringMetaType("cron", descKey("doc.triggers.cron.spec.description").andRequired()),
+            "entryPoint", new CallMetaType(descKey("doc.triggers.cron.entryPoint.description").andRequired()),
+            "runAs", new RunAsMetaType(descKey("doc.triggers.cron.runAs.description")),
+            "activeProfiles", new StringArrayMetaType(descKey("doc.triggers.cron.activeProfiles.description")),
             "timezone", TimezoneMetaType.getInstance(),
-            "arguments", new AnyMapMetaType(desc("doc.triggers.cron.arguments.description")),
+            "arguments", new AnyMapMetaType(descKey("doc.triggers.cron.arguments.description")),
             "exclusive", TriggerExclusiveMetaType.getInstance()
     );
 
     private CronTriggerEntryMetaType() {
-        super(desc("doc.triggers.cron.description"));
+        super(descKey("doc.triggers.cron.description"));
     }
 
     @Override

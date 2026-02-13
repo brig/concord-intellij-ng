@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class LoopMetaType extends ConcordMetaType implements HighlightProvider  {
 
@@ -22,7 +22,7 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
 
     private static final Map<String, YamlMetaType> features = Map.of(
             "items", LoopItemsMetaType.getInstance(),
-            "parallelism", AnyOfType.anyOf(desc("doc.step.feature.loop.parallelism.description"),
+            "parallelism", AnyOfType.anyOf(descKey("doc.step.feature.loop.parallelism.description"),
                     IntegerMetaType.getInstance(), ExpressionMetaType.getInstance()),
             "mode", ModeType.getInstance()
     );
@@ -32,7 +32,7 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
     }
 
     private LoopMetaType() {
-        super(desc("doc.step.feature.loop.description"));
+        super(descKey("doc.step.feature.loop.description"));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
         }
 
         private ModeType() {
-            super("string", desc("doc.step.feature.loop.mode.description"));
+            super("string", descKey("doc.step.feature.loop.mode.description"));
             setLiterals("serial", "parallel");
             setDescriptionKeys(
                     "doc.step.feature.loop.mode.serial.description",

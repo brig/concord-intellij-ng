@@ -17,15 +17,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ProcessExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
 
     private static final ProcessExclusiveMetaType INSTANCE = new ProcessExclusiveMetaType();
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "group", new GroupMetaType(desc("doc.configuration.exclusive.group.description").andRequired()),
-            "mode", new ModeType(desc("doc.configuration.exclusive.mode.description"))
+            "group", new GroupMetaType(descKey("doc.configuration.exclusive.group.description").andRequired()),
+            "mode", new ModeType(descKey("doc.configuration.exclusive.mode.description"))
     );
 
     public static ProcessExclusiveMetaType getInstance() {
@@ -33,7 +33,7 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     private ProcessExclusiveMetaType() {
-        super(desc("doc.configuration.exclusive.description"));
+        super(descKey("doc.configuration.exclusive.description"));
     }
 
     @Override

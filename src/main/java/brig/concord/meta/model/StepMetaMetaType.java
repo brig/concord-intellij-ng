@@ -2,7 +2,7 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.AnyMapMetaType;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class StepMetaMetaType extends AnyMapMetaType {
 
@@ -13,6 +13,6 @@ public class StepMetaMetaType extends AnyMapMetaType {
     }
 
     private StepMetaMetaType() {
-        super(desc("doc.step.feature.meta.description"));
+        super(descKey("doc.step.feature.meta.description"));
     }
 }

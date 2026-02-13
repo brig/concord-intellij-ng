@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class CallStepMetaType extends IdentityMetaType {
 
@@ -19,13 +19,13 @@ public class CallStepMetaType extends IdentityMetaType {
 
     private static final Map<String, YamlMetaType> features = StepFeatures.combine(
             StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
-            Map.of("call", new CallMetaType(desc("doc.step.call.key.description").andRequired()),
+            Map.of("call", new CallMetaType(descKey("doc.step.call.key.description").andRequired()),
                    "in", CallInParamsMetaType.getInstance(),
                    "out", CallOutParamsMetaType.getInstance())
     );
 
     private CallStepMetaType() {
-        super("call", desc("doc.step.call.description"));
+        super("call", descKey("doc.step.call.description"));
     }
 
     @Override

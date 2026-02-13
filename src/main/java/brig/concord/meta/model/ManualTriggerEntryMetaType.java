@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ManualTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -25,15 +25,15 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType implements Highl
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "name", new StringMetaType(desc("doc.triggers.manual.name.description")),
-            "entryPoint", new CallMetaType(desc("doc.triggers.manual.entryPoint.description").andRequired()),
-            "activeProfiles", new StringArrayMetaType(desc("doc.triggers.manual.activeProfiles.description")),
-            "arguments", new AnyMapMetaType(desc("doc.triggers.manual.arguments.description")),
+            "name", new StringMetaType(descKey("doc.triggers.manual.name.description")),
+            "entryPoint", new CallMetaType(descKey("doc.triggers.manual.entryPoint.description").andRequired()),
+            "activeProfiles", new StringArrayMetaType(descKey("doc.triggers.manual.activeProfiles.description")),
+            "arguments", new AnyMapMetaType(descKey("doc.triggers.manual.arguments.description")),
             "exclusive", TriggerExclusiveMetaType.getInstance()
     );
 
     private ManualTriggerEntryMetaType() {
-        super(desc("doc.triggers.manual.description"));
+        super(descKey("doc.triggers.manual.description"));
     }
 
     @Override

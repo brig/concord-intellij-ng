@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class TriggerExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -33,7 +33,7 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
         }
 
         private ModeType() {
-            super("string", desc("doc.triggers.exclusive.mode.description"));
+            super("string", descKey("doc.triggers.exclusive.mode.description"));
             setLiterals("cancel", "cancelOld", "wait");
             setDescriptionKeys("doc.triggers.exclusive.mode.cancel.description",
                     "doc.triggers.exclusive.mode.cancelOld.description",
@@ -48,13 +48,13 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
     }
 
     private static final Map<String, YamlMetaType> features = Map.of(
-            "group", new StringMetaType(desc("doc.triggers.exclusive.group.description")),
-            "groupBy", new StringMetaType(desc("doc.triggers.exclusive.groupBy.description")),
+            "group", new StringMetaType(descKey("doc.triggers.exclusive.group.description")),
+            "groupBy", new StringMetaType(descKey("doc.triggers.exclusive.groupBy.description")),
             "mode", ModeType.getInstance()
     );
 
     private TriggerExclusiveMetaType() {
-        super(desc("doc.triggers.exclusive.description"));
+        super(descKey("doc.triggers.exclusive.description"));
     }
 
     @Override

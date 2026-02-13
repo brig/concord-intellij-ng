@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ConfigurationMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -23,24 +23,24 @@ public class ConfigurationMetaType extends ConcordMetaType implements HighlightP
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("runtime", new YamlEnumType("string", desc("doc.configuration.runtime.description")).withLiterals("concord-v2"));
-        features.put("debug", new BooleanMetaType(desc("doc.configuration.debug.description")));
-        features.put("entryPoint", new CallMetaType(desc("doc.configuration.entryPoint.description")));
-        features.put("dependencies", new DependenciesMetaType(desc("doc.configuration.dependencies.description")));
-        features.put("arguments", new AnyMapMetaType(desc("doc.configuration.arguments.description")));
-        features.put("meta", new AnyMapMetaType(desc("doc.configuration.meta.description")));
+        features.put("runtime", new YamlEnumType("string", descKey("doc.configuration.runtime.description")).withLiterals("concord-v2"));
+        features.put("debug", new BooleanMetaType(descKey("doc.configuration.debug.description")));
+        features.put("entryPoint", new CallMetaType(descKey("doc.configuration.entryPoint.description")));
+        features.put("dependencies", new DependenciesMetaType(descKey("doc.configuration.dependencies.description")));
+        features.put("arguments", new AnyMapMetaType(descKey("doc.configuration.arguments.description")));
+        features.put("meta", new AnyMapMetaType(descKey("doc.configuration.meta.description")));
         features.put("events", EventsMetaType.getInstance());
-        features.put("requirements", new AnyMapMetaType(desc("doc.configuration.requirements.description")));
-        features.put("processTimeout", new DurationMetaType(desc("doc.configuration.processTimeout.description")));
-        features.put("suspendTimeout", new DurationMetaType(desc("doc.configuration.suspendTimeout.description")));
+        features.put("requirements", new AnyMapMetaType(descKey("doc.configuration.requirements.description")));
+        features.put("processTimeout", new DurationMetaType(descKey("doc.configuration.processTimeout.description")));
+        features.put("suspendTimeout", new DurationMetaType(descKey("doc.configuration.suspendTimeout.description")));
         features.put("exclusive", ProcessExclusiveMetaType.getInstance());
-        features.put("out", new StringArrayMetaType(desc("doc.configuration.out.description")));
-        features.put("template", new StringMetaType(desc("doc.configuration.template.description")));
-        features.put("parallelLoopParallelism", new IntegerMetaType(desc("doc.configuration.parallelLoopParallelism.description")));
+        features.put("out", new StringArrayMetaType(descKey("doc.configuration.out.description")));
+        features.put("template", new StringMetaType(descKey("doc.configuration.template.description")));
+        features.put("parallelLoopParallelism", new IntegerMetaType(descKey("doc.configuration.parallelLoopParallelism.description")));
     }
 
     private ConfigurationMetaType() {
-        super(desc("doc.configuration.description"));
+        super(descKey("doc.configuration.description"));
     }
 
     public static ConfigurationMetaType getInstance() {

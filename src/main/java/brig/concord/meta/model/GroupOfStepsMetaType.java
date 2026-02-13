@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
@@ -27,7 +27,7 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
     }
 
     private static Map<String, YamlMetaType> createFeatures(String name, String identityKeyDescriptionKey) {
-        var identitySteps = new StepsMetaType(desc(identityKeyDescriptionKey).andRequired());
+        var identitySteps = new StepsMetaType(descKey(identityKeyDescriptionKey).andRequired());
         return StepFeatures.combine(
                 StepFeatures.nameAndMeta(), StepFeatures.error(),
                 Map.of(name, identitySteps,

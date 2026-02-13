@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ConcordFileMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -28,7 +28,7 @@ public class ConcordFileMetaType extends ConcordMetaType implements HighlightPro
     static {
         features.put("resources", ResourcesMetaType.getInstance());
         features.put("configuration", ConfigurationMetaType.getInstance());
-        features.put("publicFlows", new StringArrayMetaType(desc("doc.publicFlows.description")));
+        features.put("publicFlows", new StringArrayMetaType(descKey("doc.publicFlows.description")));
         features.put("forms", FormsMetaType.getInstance());
         features.put("imports", ImportsMetaType.getInstance());
         features.put("profiles", ProfilesMetaType.getInstance());

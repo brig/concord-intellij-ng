@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static brig.concord.yaml.meta.model.TypeProps.desc;
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class LoopItemsMetaType extends YamlAnyOfType {
 
@@ -22,7 +22,7 @@ public class LoopItemsMetaType extends YamlAnyOfType {
 
     private LoopItemsMetaType() {
         super(List.of(ExpressionMetaType.getInstance(), new YamlArrayType(LoopArrayItemMetaType.getInstance()), AnyMapMetaType.getInstance()),
-                desc("doc.step.feature.loop.items.description").andRequired());
+                descKey("doc.step.feature.loop.items.description").andRequired());
     }
 
     @Override
