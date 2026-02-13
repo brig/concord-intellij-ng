@@ -1,13 +1,19 @@
 package brig.concord.documentation;
 
+import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.IdentityMetaType;
+import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.psi.ConcordFile;
 import brig.concord.yaml.YAMLTokenTypes;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLScalar;
+import com.intellij.openapi.project.DumbService;
+import com.intellij.platform.backend.documentation.DocumentationTarget;
 import com.intellij.platform.backend.documentation.DocumentationTargetProvider;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilCore;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +24,7 @@ import java.util.List;
 public class ConcordDocumentationTargetProvider implements DocumentationTargetProvider {
 
     @Override
-    public @NotNull List<ConcordDocumentationTarget> documentationTargets(@NotNull PsiFile file, int offset) {
+    public @NotNull List<? extends DocumentationTarget> documentationTargets(@NotNull PsiFile file, int offset) {
         if (!(file instanceof ConcordFile)) {
             return List.of();
         }
@@ -28,8 +34,19 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
             return List.of();
         }
 
-        // Navigate from scalar key token to the YAMLKeyValue parent
         var elementType = PsiUtilCore.getElementType(element);
+
+        // Check for flow name values (TEXT, SCALAR_STRING, SCALAR_DSTRING)
+        if (elementType == YAMLTokenTypes.TEXT
+                || elementType == YAMLTokenTypes.SCALAR_STRING
+                || elementType == YAMLTokenTypes.SCALAR_DSTRING) {
+            var flowDocTarget = resolveFlowCallDocumentation(file, element.getParent());
+            if (flowDocTarget != null) {
+                return List.of(flowDocTarget);
+            }
+        }
+
+        // Navigate from scalar key token to the YAMLKeyValue parent
         if (elementType == YAMLTokenTypes.SCALAR_KEY) {
             element = element.getParent();
         }
@@ -42,6 +59,35 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
             }
         }
         return List.of();
+    }
+
+    private static @Nullable FlowDocumentationTarget resolveFlowCallDocumentation(
+            @NotNull PsiFile file, @Nullable PsiElement parent) {
+        if (!(parent instanceof YAMLScalar scalar)) {
+            return null;
+        }
+
+        if (DumbService.isDumb(file.getProject())) {
+            return null;
+        }
+
+        var metaTypeProvider = ConcordMetaTypeProvider.getInstance(file.getProject());
+        var metaType = metaTypeProvider.getResolvedMetaType(scalar);
+        if (!(metaType instanceof CallMetaType)) {
+            return null;
+        }
+
+        var flowDoc = FlowCallParamsProvider.findFlowDocumentation(scalar);
+        if (flowDoc == null) {
+            return null;
+        }
+
+        var callKv = FlowCallParamsProvider.findCallKv(scalar);
+        if (callKv == null) {
+            return null;
+        }
+
+        return new FlowDocumentationTarget(callKv, flowDoc);
     }
 
     private static @Nullable YamlMetaType resolveDocumentationType(

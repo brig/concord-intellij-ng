@@ -3,6 +3,7 @@ package brig.concord.documentation;
 import brig.concord.ConcordBundle;
 import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.platform.backend.documentation.DocumentationData;
+import com.intellij.platform.backend.documentation.DocumentationTarget;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
@@ -32,6 +33,7 @@ public abstract class BaseDocumentationTargetTest extends ConcordYamlTestBaseJun
 
         var target = targets.getFirst();
         assertNotNull(target);
+        assertInstanceOf(ConcordDocumentationTarget.class, target);
 
         var htmlDoc = target.computeDocumentation();
         assertNotNull(htmlDoc);
@@ -50,6 +52,37 @@ public abstract class BaseDocumentationTargetTest extends ConcordYamlTestBaseJun
         assertNotNull(target.computePresentation());
         assertEquals(expectedHint, target.computeDocumentationHint());
 
-        return target;
+        return (ConcordDocumentationTarget) target;
+    }
+
+    protected FlowDocumentationTarget assertFlowDocTarget(AbstractTarget path,
+                                                           @NotNull String expectedHint,
+                                                           String htmlResource) {
+        var targets = provider.documentationTargets(myFixture.getFile(), path.range().getStartOffset());
+        assertEquals(1, targets.size());
+
+        var target = targets.getFirst();
+        assertNotNull(target);
+        assertInstanceOf(FlowDocumentationTarget.class, target);
+
+        var flowTarget = (FlowDocumentationTarget) target;
+        var htmlDoc = flowTarget.computeDocumentation();
+        assertNotNull(htmlDoc);
+        if (htmlResource != null) {
+            assertInstanceOf(DocumentationData.class, htmlDoc);
+            var expectedHtml = loadResource(htmlResource);
+            var actualHtml = ((DocumentationData) htmlDoc).getHtml();
+
+            assertEquals(
+                    expectedHtml.replaceAll("\\s+", "").trim(),
+                    actualHtml.replaceAll("\\s+", "").trim(),
+                    actualHtml
+            );
+        }
+        assertNotNull(flowTarget.computeDocumentationHint());
+        assertNotNull(flowTarget.computePresentation());
+        assertEquals(expectedHint, flowTarget.computeDocumentationHint());
+
+        return flowTarget;
     }
 }
