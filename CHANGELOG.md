@@ -5,7 +5,9 @@
 ### Added
 
 - adds support for propagating flow-doc input parameter metadata (description, type, required) to call-step parameter docs
-([#109](https://github.com/brig/concord-intellij-ng/pull/109)) 
+([#109](https://github.com/brig/concord-intellij-ng/pull/109))
+- adds documentation support for flow calls in Concord YAML files
+([#107](https://github.com/brig/concord-intellij-ng/pull/107))
 - adds documentation for Concord YAML elements
 ([#106](https://github.com/brig/concord-intellij-ng/pull/106))
 - adds JSON-based task schema support to power YAML inspections and completion for task `in`/`out` parameters,
