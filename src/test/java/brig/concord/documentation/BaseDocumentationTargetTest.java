@@ -19,21 +19,20 @@ public abstract class BaseDocumentationTargetTest extends ConcordYamlTestBaseJun
         assertEquals(0, targets.size());
     }
 
-    protected ConcordDocumentationTarget assertDocTarget(AbstractTarget path,
-                                                         @NotNull @PropertyKey(resourceBundle = BUNDLE) String key,
-                                                         String htmlResource) {
-        return assertDocTargetRaw(path, ConcordBundle.message(key), htmlResource);
+    protected DocumentationTarget assertDocTarget(AbstractTarget path,
+                                                   @NotNull @PropertyKey(resourceBundle = BUNDLE) String bundleKey,
+                                                   String htmlResource) {
+        return assertDocTargetWithHint(path, ConcordBundle.message(bundleKey), htmlResource);
     }
 
-    protected ConcordDocumentationTarget assertDocTargetRaw(AbstractTarget path,
-                                                             @NotNull String expectedHint,
-                                                             String htmlResource) {
+    protected DocumentationTarget assertDocTargetWithHint(AbstractTarget path,
+                                                           @NotNull String expectedHint,
+                                                           String htmlResource) {
         var targets = provider.documentationTargets(myFixture.getFile(), path.range().getStartOffset());
         assertEquals(1, targets.size());
 
         var target = targets.getFirst();
         assertNotNull(target);
-        assertInstanceOf(ConcordDocumentationTarget.class, target);
 
         var htmlDoc = target.computeDocumentation();
         assertNotNull(htmlDoc);
@@ -52,37 +51,6 @@ public abstract class BaseDocumentationTargetTest extends ConcordYamlTestBaseJun
         assertNotNull(target.computePresentation());
         assertEquals(expectedHint, target.computeDocumentationHint());
 
-        return (ConcordDocumentationTarget) target;
-    }
-
-    protected FlowDocumentationTarget assertFlowDocTarget(AbstractTarget path,
-                                                           @NotNull String expectedHint,
-                                                           String htmlResource) {
-        var targets = provider.documentationTargets(myFixture.getFile(), path.range().getStartOffset());
-        assertEquals(1, targets.size());
-
-        var target = targets.getFirst();
-        assertNotNull(target);
-        assertInstanceOf(FlowDocumentationTarget.class, target);
-
-        var flowTarget = (FlowDocumentationTarget) target;
-        var htmlDoc = flowTarget.computeDocumentation();
-        assertNotNull(htmlDoc);
-        if (htmlResource != null) {
-            assertInstanceOf(DocumentationData.class, htmlDoc);
-            var expectedHtml = loadResource(htmlResource);
-            var actualHtml = ((DocumentationData) htmlDoc).getHtml();
-
-            assertEquals(
-                    expectedHtml.replaceAll("\\s+", "").trim(),
-                    actualHtml.replaceAll("\\s+", "").trim(),
-                    actualHtml
-            );
-        }
-        assertNotNull(flowTarget.computeDocumentationHint());
-        assertNotNull(flowTarget.computePresentation());
-        assertEquals(expectedHint, flowTarget.computeDocumentationHint());
-
-        return flowTarget;
+        return target;
     }
 }
