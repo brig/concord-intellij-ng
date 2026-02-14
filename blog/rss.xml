@@ -4,10 +4,54 @@
         <title>Concord IntelliJ Plugin Blog</title>
         <link>https://brig.github.io/concord-intellij-ng/blog</link>
         <description>Concord IntelliJ Plugin Blog</description>
-        <lastBuildDate>Sat, 07 Feb 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sat, 14 Feb 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[What's New in Concord IntelliJ 0.19.0]]></title>
+            <link>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0</link>
+            <guid>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0</guid>
+            <pubDate>Sat, 14 Feb 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[The 0.19.0 release brings Hover Documentation for flows, tasks, and YAML keys,]]></description>
+            <content:encoded><![CDATA[<p>The <code>0.19.0</code> release brings <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/hover-docs">Hover Documentation</a></strong> for flows, tasks, and YAML keys,
+a <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/completion#task-parameter-completion">Task Schema System</a></strong> that powers context-aware completion and validation for task parameters,
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/completion#quick-documentation-in-completion">Quick Documentation in Completion</a></strong> popups,
+and a new <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/dependencies#server-only-versions">Server-Only Dependency Inspection</a></strong> with an automatic quick fix.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="hover-documentation">Hover Documentation<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0#hover-documentation" class="hash-link" aria-label="Direct link to Hover Documentation" title="Direct link to Hover Documentation" translate="no">​</a></h2>
+<p>You can now press <span class="keystroke__keystrokes"><kbd class="keystroke">Ctrl</kbd><kbd class="keystroke">Q</kbd></span> on any Concord element to see contextual documentation without leaving the editor.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="flow-call-documentation">Flow Call Documentation<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0#flow-call-documentation" class="hash-link" aria-label="Direct link to Flow Call Documentation" title="Direct link to Flow Call Documentation" translate="no">​</a></h3>
+<p>Hovering over a flow name in a <span class="tokenBadge" data-kind="step">call</span> step shows the flow's description, input/output parameters with types, required/optional flags, and descriptions — all extracted from the target flow's <a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/flow-docs">documentation block</a>.</p>
+<figure class="docFigure docFigure--sm5"><img src="https://brig.github.io/concord-intellij-ng/assets/images/hover-docs-flow-d04b6a65ddce8d99d85e33e18e1dbdec.png" alt="Flow Hover Documentation"><figcaption><p>Hover documentation for a flow call showing parameters from its documentation block.</p></figcaption></figure>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="task-documentation">Task Documentation<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0#task-documentation" class="hash-link" aria-label="Direct link to Task Documentation" title="Direct link to Task Documentation" translate="no">​</a></h3>
+<p>Hovering over a task name shows its full description along with input/output parameters, types, and enum values — powered by built-in task schemas. For tasks with conditional parameters (e.g. different params for <code>action: start</code> vs <code>action: fork</code>), the popup groups them intelligently.</p>
+<figure class="docFigure docFigure--md"><img src="https://brig.github.io/concord-intellij-ng/assets/images/hover-docs-task-10b45e47092bfc7c4d2eefa2144b3ede.png" alt="Task Hover Documentation"><figcaption><p>Hover documentation for a task showing input and output parameters from the task schema.</p></figcaption></figure>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="yaml-key-documentation">YAML Key Documentation<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0#yaml-key-documentation" class="hash-link" aria-label="Direct link to YAML Key Documentation" title="Direct link to YAML Key Documentation" translate="no">​</a></h3>
+<p>Hovering over any Concord YAML key — top-level sections, step types, and their properties — shows a description of that key's purpose in context.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="task-schema-system">Task Schema System<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0#task-schema-system" class="hash-link" aria-label="Direct link to Task Schema System" title="Direct link to Task Schema System" translate="no">​</a></h2>
+<p>A new JSON Schema-based system powers intelligent completion and validation for <span class="tokenBadge" data-kind="step">task</span> step parameters.</p>
+<ul>
+<li class=""><strong>Parameter Completion:</strong> The plugin suggests valid <code>in</code> parameter names for known tasks as you type.</li>
+<li class=""><strong>Enum Value Completion:</strong> For parameters that accept a fixed set of values (e.g. <code>action</code>, <code>method</code>), the allowed options are suggested.</li>
+<li class=""><strong>Conditional Parameters:</strong> Suggestions adapt based on already specified values. After setting <code>action: start</code>, only parameters relevant to the <code>start</code> action are suggested.</li>
+<li class=""><strong>Validation:</strong> Unknown keys and invalid values inside task <code>in</code>/<code>out</code> blocks are flagged by inspections.</li>
+</ul>
+<p>The initial release ships with the built-in <code>concord</code> task schema. More task schemas will be added in future releases.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="quick-documentation-in-completion">Quick Documentation in Completion<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0#quick-documentation-in-completion" class="hash-link" aria-label="Direct link to Quick Documentation in Completion" title="Direct link to Quick Documentation in Completion" translate="no">​</a></h2>
+<p>While the completion list is open, you can now press <span class="keystroke__keystrokes"><kbd class="keystroke">Ctrl</kbd><kbd class="keystroke">Q</kbd></span> to preview documentation for the selected item without accepting it. This works for YAML keys, task names, and task parameters.</p>
+<figure class="docFigure docFigure--md"><img src="https://brig.github.io/concord-intellij-ng/assets/images/completion-doc-task-74ff9d8955aa1adf5e4ea2a079bd7fdb.png" alt="Task Name Documentation in Completion"><figcaption><p>Quick documentation for a task name showing description, input and output parameters.</p></figcaption></figure>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/completion-doc-param-fd30bcbab8ea0e56f79d517928612a65.png" alt="Task Parameter Documentation in Completion"><figcaption><p>Quick documentation for a task parameter showing its type and description.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="server-only-dependency-inspection">Server-Only Dependency Inspection<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0#server-only-dependency-inspection" class="hash-link" aria-label="Direct link to Server-Only Dependency Inspection" title="Direct link to Server-Only Dependency Inspection" translate="no">​</a></h2>
+<p>Dependencies that use version strings like <code>latest</code> — resolved at runtime by the Concord server but not by the IDE locally — are now detected and flagged with a weak warning. The plugin offers a <strong>quick fix</strong> that adds a concrete version to the <code>cli</code> profile, giving the IDE what it needs without affecting server execution.</p>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/deps-inspection-warn-02e7e0393395dba2d19985aabf18c6d0.png" alt="Server-only dependency version warning"><figcaption><p>Weak warning on a dependency with <code>latest</code> version that cannot be resolved locally.</p></figcaption></figure>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/deps-quick-fix-257210c91c49304026ebc8034e8c9061.png" alt="Quick fix to add dependency to cli profile"><figcaption><p>Quick fix suggesting to add the dependency to the <code>cli</code> profile with a concrete version.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="other-improvements">Other Improvements<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0#other-improvements" class="hash-link" aria-label="Direct link to Other Improvements" title="Direct link to Other Improvements" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Tool Window Icon:</strong> Fixed the tool window icon to use proper SVG format.</li>
+</ul>]]></content:encoded>
+            <category>Release</category>
+            <category>Features</category>
+        </item>
         <item>
             <title><![CDATA[What's New in Concord IntelliJ 0.18.0]]></title>
             <link>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.18.0</link>
