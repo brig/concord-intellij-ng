@@ -4,6 +4,8 @@
 
 ### Added
 
+- add documentation support for completion popup items (lookup elements)
+([#111](https://github.com/brig/concord-intellij-ng/pull/111))
 - adds comprehensive documentation support for Concord task definitions,
 including task-level descriptions, input/output parameter documentation
 ([#110](https://github.com/brig/concord-intellij-ng/pull/110))
