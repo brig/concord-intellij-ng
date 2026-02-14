@@ -4,6 +4,9 @@
 
 ### Added
 
+- adds an inspection to detect dependencies with server-only version strings like `latest`
+or placeholders that cannot be resolved locally by the IDE. Provides a quick fix to add a concrete version to the `cli` profile
+([#113](https://github.com/brig/concord-intellij-ng/pull/113))
 - add documentation support for completion popup items (lookup elements)
 ([#111](https://github.com/brig/concord-intellij-ng/pull/111))
 - adds comprehensive documentation support for Concord task definitions,
