@@ -43,6 +43,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          gradle-home-cache-excludes: |
+            caches/transforms-*
 
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@v5
