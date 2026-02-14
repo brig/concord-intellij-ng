@@ -22,7 +22,9 @@ public class UnresolvedDependencyInspection extends ConcordInspectionTool {
                     return;
                 }
 
-                var failedDeps = TaskRegistry.getInstance(holder.getProject()).getFailedDependencies();
+                var registry = TaskRegistry.getInstance(holder.getProject());
+                var failedDeps = registry.getFailedDependencies();
+                var skippedDeps = registry.getSkippedDependencies();
 
                 DependencyCollector.forEachDependencyScalar(concordFile, scalar -> {
                     var coordinate = MavenCoordinate.parse(scalar.getTextValue());
@@ -34,6 +36,10 @@ public class UnresolvedDependencyInspection extends ConcordInspectionTool {
                                 ProblemHighlightType.GENERIC_ERROR_OR_WARNING
                         );
                         return;
+                    }
+
+                    if (skippedDeps.contains(coordinate)) {
+                        return; // handled by ServerOnlyDependencyInspection
                     }
 
                     var errorMessage = failedDeps.get(coordinate);

@@ -98,6 +98,81 @@ Clicking an error navigates to the exact line in the YAML file where the depende
 Additionally, files that contain unresolved dependencies are marked as problem files in the **Project** tree
 (file names displayed in red), making it easy to spot affected files at a glance.
 
+## Server-Only Versions
+
+Some dependencies use special version string like `latest` that are resolved
+at runtime by the Concord server. While these work fine when a flow is executed on the server,
+the IDE cannot resolve them locally — which means **task name completion**, **parameter validation**,
+and **hover documentation** won't work for those tasks.
+
+The plugin detects these versions and shows a **weak warning** on the dependency string:
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/deps-inspection-warn.png').default} alt="Server-only dependency version warning" />
+    <figcaption>
+        Weak warning on a dependency with <code>latest</code> version that cannot be resolved locally.
+    </figcaption>
+</figure>
+
+### The `cli` Profile Approach
+
+The recommended solution is to add a concrete version of the dependency to a special
+<span className="tokenBadge" data-kind="section">profiles</span> → `cli` section. The plugin resolves
+dependencies from all profiles, including `cli`, so this gives the IDE what it needs without
+affecting server execution:
+
+```concord
+configuration:
+  dependencies:
+    - "mvn://com.walmartlabs.concord.plugins.basic:smtp-tasks:latest"
+
+profiles:
+  cli:
+    configuration:
+      dependencies:
+        - "mvn://com.walmartlabs.concord.plugins.basic:smtp-tasks:2.36.0"
+```
+
+The original `latest` version is preserved for the server, while the IDE uses the concrete `2.36.0`
+to provide full autocomplete and validation.
+
+### Quick Fix: Add to `cli` Profile
+
+The plugin provides a quick fix that automates this process:
+
+1. Place the caret on the highlighted dependency.
+2. Press <Keystroke mac={[{icon: "⌥", label: "Alt"}, {label: "⏎"}]} win={[{label: "Alt"}, {label: "Enter"}]} /> to open the intention menu.
+3. Select **Add to cli profile with concrete version**.
+4. Enter the desired version in the dialog that appears.
+
+The plugin will create the `profiles.cli.configuration.dependencies` structure automatically
+if it doesn't exist, or append to the existing list.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/deps-quick-fix.png').default} alt="Quick fix to add dependency to cli profile" />
+    <figcaption>
+        Quick fix suggesting to add the dependency to the <code>cli</code> profile with a concrete version.
+    </figcaption>
+</figure>
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/deps-quick-fix-result.png').default} alt="Result after applying the quick fix" />
+    <figcaption>
+        After applying the fix, the concrete version is added to <code>profiles.cli</code> and the warning is suppressed.
+    </figcaption>
+</figure>
+
+:::tip
+Once a dependency with the same `groupId:artifactId` exists in the `cli` profile,
+the warning on the original `latest` version is automatically suppressed.
+:::
+
+:::note
+The inspection also detects other non-resolvable version patterns (e.g. placeholders
+that don't contain a numeric version). It works in `configuration.dependencies`,
+`configuration.extraDependencies`, and their profile-specific variants.
+:::
+
 ## Dependency Change Tracking
 
 The plugin monitors your dependency declarations for changes. When you add, remove, or modify a dependency
