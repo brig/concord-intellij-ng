@@ -1,0 +1,85 @@
+---
+title: Syntax Highlighting
+description: Semantic syntax highlighting for Concord YAML
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+
+# Syntax Highlighting
+
+The Concord IntelliJ Plugin goes beyond standard YAML highlighting. It understands the **structure and semantics** of your Concord files, applying specific colors to different parts of the flow to improve readability.
+
+This helps you instantly distinguish between a flow name, a step keyword, a variable expression, and a regular string.
+
+## Semantic Coloring
+
+The plugin identifies and highlights the following elements distinctly:
+
+### 1. Structural Elements
+Top-level sections like <span className="tokenBadge" data-kind="section">flows</span>, <span className="tokenBadge" data-kind="section">forms</span>, <span className="tokenBadge" data-kind="section">triggers</span>, <span className="tokenBadge" data-kind="section">configuration</span>, and <span className="tokenBadge" data-kind="section">publicFlows</span> are highlighted as keywords, making the high-level structure of the file obvious.
+
+### 2. Flow Definitions & Calls
+*   **Definitions:** When you define a flow (e.g., <span className="tokenBadge" data-kind="target-id">myFlow:</span>), it is highlighted as a flow declaration (function-like construct).
+*   **Calls:** When you use the <span className="tokenBadge" data-kind="step">call</span> step, the target flow name is highlighted, making it easy to spot where execution jumps to another flow.
+
+### 3. Steps & Keywords
+Built-in steps (<span className="tokenBadge" data-kind="step">log</span>, <span className="tokenBadge" data-kind="step">if</span>, <span className="tokenBadge" data-kind="step">switch</span>, <span className="tokenBadge" data-kind="step">return</span>, <span className="tokenBadge" data-kind="step">throw</span>, etc.) and task names are highlighted differently from regular YAML keys. This separates the "logic" from the "data".
+
+### 4. Expressions
+Concord expressions <span className="tokenBadge" data-kind="expression">{'${...}'}</span> are highlighted as code injections. This is crucial for spotting variables embedded inside strings.
+
+### 5. Flow Documentation
+Structured flow documentation blocks are recognized and highlighted as documentation, with specific colors for <span className="tokenBadge" data-kind="doc-section">in</span>/<span className="tokenBadge" data-kind="doc-section">out</span> parameters, description text.
+
+## Customizing Colors
+
+You can fully customize the color scheme to match your preferences or accessibility needs.
+
+1. Press <Keystroke mac={[{ icon: "⌘", label: "Cmd" }, { label: "," }]} win={[{ label: "Ctrl" }, { label: "Alt" }, { label: "S" }]} />
+      to open **Settings**
+2.  Go to **Editor | Color Scheme | Concord**.
+3.  Click on the element you want to change in the preview pane.
+
+:::tip
+The plugin comes with built-in defaults that adapt to both **Light** and **Dark** IDE themes.
+:::
+
+## Example
+
+Here is how the highlighter interprets different elements:
+
+```concord
+configuration:
+  runtime: concord-v2
+
+flows:
+  # A simple flow definition
+  default:
+    - log: "Starting the process..."
+
+    # 'call' keyword and flow name are distinct
+    - call: deployApp
+      in:
+        appName: "my-app"
+      out: result
+
+    - if: ${result == "success"}
+      then:
+        - log: "Deployment successful!"
+
+  ##
+  # Deploys the application.
+  # in:
+  #   appName: string, mandatory, app name
+  # out:
+  #   result: string, mandatory, deployment result
+  ##
+  deployApp:
+    - log: "Deploying ${appName}..."
+```
+
+*   `configuration`, `flows` — **Top-level Sections**
+*   `default`, `deployApp` — **Flow Identifiers**
+*   `log`, `call`, `if` — **Keywords / Steps**
+*   `${result == "success"}` — **Expressions**
+*   `## ... ##` — **Documentation**
