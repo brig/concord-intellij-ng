@@ -1,6 +1,7 @@
 package brig.concord.documentation;
 
 import brig.concord.meta.model.TaskStepMetaType.TaskNameLookup;
+import brig.concord.meta.model.call.CallOutValueMetaType.OutParameterLookup;
 import brig.concord.psi.ConcordFile;
 import brig.concord.schema.TaskSchemaRegistry;
 import brig.concord.yaml.meta.model.TypeFieldPair;
@@ -32,6 +33,10 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
             return resolveTaskNameDocumentation(psiFile.getProject(), taskLookup);
         }
 
+        if (obj instanceof OutParameterLookup outParam) {
+            return resolveOutParameterDocumentation(outParam);
+        }
+
         return null;
     }
 
@@ -54,6 +59,16 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
         }
 
         return new TaskDocumentationTarget(schema);
+    }
+
+    private static @NotNull DocumentationTarget resolveOutParameterDocumentation(@NotNull OutParameterLookup lookup) {
+        var description = lookup.description();
+        var mandatory = lookup.mandatory() ? "mandatory" : "optional";
+        var fullDescription = description != null && !description.isEmpty()
+                ? mandatory + " — " + description
+                : mandatory;
+
+        return new ConcordDocumentationTarget(lookup.name(), Documented.ofDescription(fullDescription), lookup.type());
     }
 
 }

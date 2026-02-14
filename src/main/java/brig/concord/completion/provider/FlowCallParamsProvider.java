@@ -11,16 +11,20 @@ import brig.concord.psi.YamlPsiUtils;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLPsiElement;
 import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.HashMap;
@@ -193,11 +197,51 @@ public class FlowCallParamsProvider {
             return null;
         }
 
+        var doc = findFlowDocCached(definition);
+        if (doc != null) {
+            return doc;
+        }
+
+        // In a completion copy the original file's PSI may be broken
+        // (e.g., an empty sequence item `- ` causes the parser to absorb
+        // the `##` flow-doc block into the preceding key-value).
+        // The completion copy itself has valid PSI (the dummy identifier fills
+        // the empty slot), so look for the flow definition there.
+        var file = callKv.getContainingFile();
+        if (file != null && file != file.getOriginalFile()) {
+            var localDef = findFlowDefinitionInFile(file, flowName);
+            if (localDef != null) {
+                return findFlowDocCached(localDef);
+            }
+        }
+
+        return null;
+    }
+
+    private static @Nullable FlowDocumentation findFlowDocCached(PsiElement definition) {
         return CachedValuesManager.getCachedValue(definition, FLOW_DOC_CACHE, () -> {
             var doc = findFlowDocumentationBefore(definition);
             var file = definition.getContainingFile();
             return CachedValueProvider.Result.create(doc, file != null ? file : definition);
         });
+    }
+
+    /**
+     * Finds a flow definition directly in the given file by PSI navigation,
+     * without using the file-based index.
+     */
+    private static @Nullable PsiElement findFlowDefinitionInFile(PsiFile file, String flowName) {
+        var doc = PsiTreeUtil.getChildOfType(file, YAMLDocument.class);
+        if (doc == null) {
+            return null;
+        }
+
+        var flowKey = YamlPsiUtils.get(doc, YAMLPsiElement.class, "flows", flowName);
+        if (flowKey == null) {
+            return null;
+        }
+
+        return flowKey.getParent();
     }
 
     private static @Nullable FlowDocumentation findFlowDocumentationBefore(PsiElement flowDefinition) {

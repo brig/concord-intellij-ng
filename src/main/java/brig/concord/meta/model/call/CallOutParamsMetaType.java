@@ -1,10 +1,9 @@
 package brig.concord.meta.model.call;
 
 import brig.concord.meta.model.value.AnyMapMetaType;
-import brig.concord.meta.model.value.StringArrayMetaType;
-import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.YamlArrayType;
 import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +22,7 @@ public class CallOutParamsMetaType extends YamlAnyOfType {
     }
 
     private CallOutParamsMetaType() {
-        super(List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance()),
+        super(List.of(CallOutValueMetaType.getInstance(), AnyMapMetaType.getInstance(), new YamlArrayType(CallOutValueMetaType.getInstance())),
                 descKey("doc.step.feature.out.description"));
     }
 
