@@ -10,4 +10,6 @@ import java.util.List;
 public interface YAMLSequence extends YAMLCompoundValue {
     @NotNull
     List<YAMLSequenceItem> getItems();
+
+    void addItem(@NotNull YAMLSequenceItem item);
 }

@@ -180,6 +180,15 @@
 
         <localInspection language="Concord"
                          bundle="messages.ConcordBundle"
+                         shortName="ServerOnlyDependency"
+                         level="WEAK WARNING"
+                         key="inspections.server.only.dependency.name"
+                         groupKey="inspections.group.name"
+                         enabledByDefault="true"
+                         implementationClass="brig.concord.inspection.ServerOnlyDependencyInspection"/>
+
+        <localInspection language="Concord"
+                         bundle="messages.ConcordBundle"
                          shortName="OutOfScope"
                          level="WARNING"
                          key="inspections.out.of.scope.name"

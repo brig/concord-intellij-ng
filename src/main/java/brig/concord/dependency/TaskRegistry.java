@@ -39,6 +39,9 @@ public final class TaskRegistry {
     // Dependencies that failed to resolve, with error messages. Swapped atomically.
     private volatile Map<MavenCoordinate, String> failedDependencies = Map.of();
 
+    // Dependencies skipped because their version is not resolvable locally (e.g. "latest", "PROJECT_VERSION").
+    private volatile Set<MavenCoordinate> skippedDependencies = Set.of();
+
     // Files currently marked as having problems in the Project tree via WolfTheProblemSolver.
     private static final Object DEPENDENCY_PROBLEM_SOURCE = new Object();
     private volatile Set<VirtualFile> markedProblemFiles = Set.of();
@@ -56,6 +59,13 @@ public final class TaskRegistry {
      */
     public @NotNull Map<MavenCoordinate, String> getFailedDependencies() {
         return failedDependencies;
+    }
+
+    /**
+     * Returns dependencies that were skipped because their version is not resolvable locally.
+     */
+    public @NotNull Set<MavenCoordinate> getSkippedDependencies() {
+        return skippedDependencies;
     }
 
     /**
@@ -97,6 +107,14 @@ public final class TaskRegistry {
     @TestOnly
     public void setFailedDependencies(@NotNull Map<MavenCoordinate, String> failures) {
         this.failedDependencies = failures.isEmpty() ? Map.of() : Map.copyOf(failures);
+    }
+
+    /**
+     * Sets skipped dependencies directly. For testing only.
+     */
+    @TestOnly
+    public void setSkippedDependencies(@NotNull Set<MavenCoordinate> skipped) {
+        this.skippedDependencies = skipped.isEmpty() ? Set.of() : Set.copyOf(skipped);
     }
 
     /**
@@ -215,6 +233,7 @@ public final class TaskRegistry {
 
         if (allCoordinates.isEmpty()) {
             LOG.debug("No dependencies found");
+            skippedDependencies = Set.of();
             updateFailedAndRestart(Map.of(), scopeDependencies);
             notifyTracker(Set.of(), modCountAtStart, isInitialLoad);
             reporter.finish(0, 0);
@@ -223,14 +242,45 @@ public final class TaskRegistry {
 
         LOG.debug("Found " + allCoordinates.size() + " unique dependencies across " + scopeDependencies.size() + " scopes");
 
-        // Step 2: Resolve all coordinates at once
-        indicator.setText("Resolving " + allCoordinates.size() + " artifacts...");
-        reporter.reportResolving(allCoordinates.size());
-        ProgressManager.checkCanceled();
-        var resolveResult = resolver.resolveAll(allCoordinates);
-        var resolvedJars = resolveResult.resolved();
-        updateFailedAndRestart(resolveResult.errors(), scopeDependencies);
-        reporter.reportErrors(resolveResult.errors(), scopeDependencies);
+        // Step 2: Partition coordinates — skip "latest" versions, try to resolve the rest
+        Set<MavenCoordinate> toResolve = new LinkedHashSet<>();
+        Set<MavenCoordinate> initialSkipped = new LinkedHashSet<>();
+        for (var coord : allCoordinates) {
+            if (coord.isLatestVersion()) {
+                initialSkipped.add(coord);
+            } else {
+                toResolve.add(coord);
+            }
+        }
+
+        Map<MavenCoordinate, java.nio.file.Path> resolvedJars;
+        Map<MavenCoordinate, String> realErrors;
+        if (toResolve.isEmpty()) {
+            resolvedJars = Map.of();
+            realErrors = Map.of();
+        } else {
+            indicator.setText("Resolving " + toResolve.size() + " artifacts...");
+            reporter.reportResolving(toResolve.size());
+            ProgressManager.checkCanceled();
+            var resolveResult = resolver.resolveAll(toResolve);
+            resolvedJars = resolveResult.resolved();
+
+            // Reclassify failed non-version-like coordinates as skipped instead of errors
+            realErrors = new LinkedHashMap<>();
+            Set<MavenCoordinate> additionalSkipped = new LinkedHashSet<>();
+            for (var entry : resolveResult.errors().entrySet()) {
+                if (entry.getKey().isResolvableVersion()) {
+                    realErrors.put(entry.getKey(), entry.getValue());
+                } else {
+                    additionalSkipped.add(entry.getKey());
+                }
+            }
+            initialSkipped.addAll(additionalSkipped);
+        }
+
+        skippedDependencies = initialSkipped.isEmpty() ? Set.of() : Set.copyOf(initialSkipped);
+        updateFailedAndRestart(realErrors, scopeDependencies);
+        reporter.reportErrors(realErrors, scopeDependencies);
 
         // Step 3: Extract task names from each JAR once, cache by coordinate
         Map<MavenCoordinate, Set<String>> taskNamesByCoordinate = new HashMap<>();
@@ -280,7 +330,7 @@ public final class TaskRegistry {
         // Notify tracker about loaded dependencies
         notifyTracker(allCoordinates, modCountAtStart, isInitialLoad);
 
-        reporter.finish(resolvedJars.size(), resolveResult.errors().size());
+        reporter.finish(resolvedJars.size(), realErrors.size());
     }
 
     private void restartInspections(@NotNull Set<VirtualFile> files) {

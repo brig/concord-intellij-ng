@@ -171,8 +171,8 @@ public final class DependencyCollector {
         });
     }
 
-    private static void visitDependencyScalars(@NotNull YAMLMapping configMapping,
-                                               @NotNull Consumer<YAMLScalar> consumer) {
+    public static void visitDependencyScalars(@NotNull YAMLMapping configMapping,
+                                              @NotNull Consumer<YAMLScalar> consumer) {
         visitSequenceScalars(configMapping, "dependencies", consumer);
         visitSequenceScalars(configMapping, "extraDependencies", consumer);
     }
