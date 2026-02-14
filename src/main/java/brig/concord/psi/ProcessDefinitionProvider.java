@@ -12,7 +12,7 @@ public class ProcessDefinitionProvider {
         return INSTANCE;
     }
 
-    public @NotNull ProcessDefinition get(PsiElement element) {
+    public @NotNull ProcessDefinition get(@NotNull PsiElement element) {
         return AstLoadingFilter.disallowTreeLoading(() -> _get(element));
     }
 
