@@ -12,7 +12,6 @@ import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,17 +46,14 @@ public abstract class ConcordMetaType extends YamlMetaType {
             return List.of();
         }
 
-        var descriptions = enumType.getLiteralDescriptions();
-        if (descriptions.length == 0) {
+        var enumValues = enumType.getEnumValues();
+        if (enumValues.isEmpty() || enumValues.getFirst().description() == null) {
             return List.of();
         }
 
-        String[] literals = enumType.getLiterals();
-        var children = new ArrayList<DocumentedField>(literals.length);
-        for (int i = 0; i < literals.length; i++) {
-            children.add(new DocumentedField(literals[i], enumType.getTypeName(), false, descriptions[i], List.of()));
-        }
-        return children;
+        return enumValues.stream()
+                .map(v -> new DocumentedField(v.literal(), enumType.getTypeName(), false, v.description(), List.of()))
+                .toList();
     }
 
     @Override

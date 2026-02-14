@@ -114,11 +114,8 @@ public class TaskSchemaMetaType extends ConcordMetaType {
             };
             case SchemaType.Array a -> withProps(arrayMetaType(a.itemType()), props);
             case SchemaType.Enum e -> {
-                var enumType = new YamlEnumType("string")
-                        .withLiterals(e.values().toArray(new String[0]));
-                if (!e.descriptions().isEmpty()) {
-                    enumType.withDescriptions(e.descriptions().toArray(new String[0]));
-                }
+                var enumType = new YamlEnumType("string",
+                        YamlEnumType.EnumValue.fromLiterals(e.values(), e.descriptions()));
                 yield withProps(AnyOfType.anyOf(enumType, ExpressionMetaType.getInstance()), props);
             }
             case SchemaType.Composite c -> {

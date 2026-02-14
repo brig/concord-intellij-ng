@@ -23,7 +23,7 @@ public class ConfigurationMetaType extends ConcordMetaType implements HighlightP
     private static final Map<String, YamlMetaType> features = new HashMap<>();
 
     static {
-        features.put("runtime", new YamlEnumType("string", descKey("doc.configuration.runtime.description")).withLiterals("concord-v2"));
+        features.put("runtime", new YamlEnumType("string", descKey("doc.configuration.runtime.description"), YamlEnumType.EnumValue.fromLiterals("concord-v2")));
         features.put("debug", new BooleanMetaType(descKey("doc.configuration.debug.description")));
         features.put("entryPoint", new CallMetaType(descKey("doc.configuration.entryPoint.description")));
         features.put("dependencies", new DependenciesMetaType(descKey("doc.configuration.dependencies.description")));

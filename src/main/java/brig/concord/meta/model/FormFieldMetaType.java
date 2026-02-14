@@ -245,16 +245,18 @@ public class FormFieldMetaType extends ConcordMetaType implements HighlightProvi
         }
 
         public FieldType() {
-            super("string", descKey("doc.forms.formName.formField.type.description").andRequired());
+            super("string", descKey("doc.forms.formName.formField.type.description").andRequired(), buildValues());
+        }
 
-            List<String> literals = new ArrayList<>();
+        private static List<EnumValue> buildValues() {
+            var values = new ArrayList<EnumValue>();
             for (var t : types) {
-                literals.add(t);
+                values.add(new EnumValue(t));
                 for (var c : cardinality) {
-                    literals.add(t + c);
+                    values.add(new EnumValue(t + c));
                 }
             }
-            setLiterals(literals.toArray(new String[0]));
+            return List.copyOf(values);
         }
 
         public static boolean isValidType(String type) {

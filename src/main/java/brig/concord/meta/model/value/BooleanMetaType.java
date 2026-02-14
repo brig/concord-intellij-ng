@@ -10,7 +10,12 @@ import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class BooleanMetaType extends YamlEnumType {
+
+    private static final List<EnumValue> VALUES =
+            EnumValue.fromLiterals("true", "false", "TRUE", "FALSE", "True", "False");
 
     private static final BooleanMetaType INSTANCE = new BooleanMetaType();
 
@@ -19,13 +24,11 @@ public class BooleanMetaType extends YamlEnumType {
     }
 
     public BooleanMetaType() {
-        super("boolean");
-        setLiterals("true", "false", "TRUE", "FALSE", "True",  "False");
+        super("boolean", VALUES);
     }
 
     public BooleanMetaType(@NotNull TypeProps props) {
-        super("boolean", props);
-        setLiterals("true", "false", "TRUE", "FALSE", "True",  "False");
+        super("boolean", props, VALUES);
     }
 
     @Override
