@@ -5,7 +5,7 @@
 ### Added
 
 - adds autocompletion support for output variables in the out field of call steps
-([#117](https://github.com/brig/concord-intellij-ng/pull/117))
+([#118](https://github.com/brig/concord-intellij-ng/pull/118))
 
 ### Changed
 
