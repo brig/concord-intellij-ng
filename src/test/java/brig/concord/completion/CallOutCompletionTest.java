@@ -62,6 +62,38 @@ class CallOutCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testOutArrayCompletionCrossFile() {
+        createFile("project-a/concord/utils.concord.yaml",
+                """
+                        flows:
+                          ##
+                          # out:
+                          #   processed: int, Files processed count
+                          #   status: string, Processing status
+                          ##
+                          processS3:
+                            - log: "hello"
+                        """);
+
+        var main = createFile("project-a/concord.yaml",
+                """
+                        flows:
+                          default:
+                            - call: "processS3"
+                              out:
+                                - <caret>
+                        """);
+
+        configureFromExistingFile(main);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookupElementStrings = myFixture.getLookupElementStrings();
+        Assertions.assertNotNull(lookupElementStrings, "lookupElementStrings is null");
+        assertThat(lookupElementStrings).containsExactlyInAnyOrder("processed", "status");
+    }
+
+    @Test
     void testOutNoFlowDoc() {
         configureFromText(
                 """
