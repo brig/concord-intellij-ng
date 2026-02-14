@@ -4,6 +4,10 @@ import brig.concord.ConcordBundle;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.call.CallStepMetaType;
+import brig.concord.yaml.meta.model.CompletionContext;
+import brig.concord.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.YAMLSequenceItem;
+import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
@@ -11,10 +15,6 @@ import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import brig.concord.yaml.meta.model.CompletionContext;
-import brig.concord.yaml.psi.YAMLScalar;
-import brig.concord.yaml.psi.YAMLSequenceItem;
-import brig.concord.yaml.psi.YAMLValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +47,8 @@ public class StepElementMetaType extends IdentityElementMetaType implements High
         return INSTANCE;
     }
 
-    protected StepElementMetaType() {
-        super("Steps", List.copyOf(steps));
+    private StepElementMetaType() {
+        super(List.copyOf(steps));
     }
 
     @Override

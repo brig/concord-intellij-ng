@@ -1,0 +1,9 @@
+flows:
+  default:
+    - switch: ${action}
+      start:
+        - log: "Starting"
+      stop:
+        - log: "Stopping"
+      default:
+        - log: "Unknown action"

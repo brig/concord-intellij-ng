@@ -225,7 +225,7 @@ class ErrorInspectionTests extends InspectionTestBase {
                 args("019", a -> a.assertObjectRequired().assertUndefinedFlow()),
                 args("020", InspectionAssertions::assertUndefinedFlow),
                 args("021", a -> a.assertUndefinedFlow().assertExpressionExpected()),
-                args("022", a -> a.assertUnexpectedKey("unknown")),
+                args("022", a -> a.assertUnexpectedKey("unknown").assertMissingKey("p1")),
                 args("023", a -> a.assertInvalidValue(STRING_OR_EXPRESSION))
         );
     }

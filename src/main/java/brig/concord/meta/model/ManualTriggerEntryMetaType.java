@@ -7,15 +7,14 @@ import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.meta.model.value.StringArrayMetaType;
 import brig.concord.meta.model.value.StringMetaType;
-
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ManualTriggerEntryMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -25,27 +24,21 @@ public class ManualTriggerEntryMetaType extends ConcordMetaType implements Highl
         return INSTANCE;
     }
 
-    private static final Set<String> required = Set.of("entryPoint");
-
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "name", StringMetaType::getInstance,
-            "entryPoint", CallMetaType::getInstance,
-            "activeProfiles", StringArrayMetaType::getInstance,
-            "arguments", AnyMapMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "name", new StringMetaType(descKey("doc.triggers.manual.name.description")),
+            "entryPoint", new CallMetaType(descKey("doc.triggers.manual.entryPoint.description").andRequired()),
+            "activeProfiles", new StringArrayMetaType(descKey("doc.triggers.manual.activeProfiles.description")),
+            "arguments", new AnyMapMetaType(descKey("doc.triggers.manual.arguments.description")),
+            "exclusive", TriggerExclusiveMetaType.getInstance()
     );
 
-    protected ManualTriggerEntryMetaType() {
-        super("manual trigger entry");
+    private ManualTriggerEntryMetaType() {
+        super(descKey("doc.triggers.manual.description"));
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
-    }
-
-    @Override
-    protected Set<String> getRequiredFields() {
-        return required;
     }
 
     @Override

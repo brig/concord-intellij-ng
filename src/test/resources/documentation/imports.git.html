@@ -1,0 +1,26 @@
+<div class='definition'>
+    <pre>git</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Git import definition. Imports a remote Git repository into the process working directory</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>dest</code> <i>(string)</i> &mdash; destination directory relative to the process working directory
+            (default: ./concord/)
+        </li>
+        <li><code>exclude</code> <i>(regexp[])</i> &mdash; list of regular expression patterns to exclude files during
+            import
+        </li>
+        <li><code>name</code> <i>(string)</i> &mdash; organization and repository name, e.g. walmartlabs/concord.
+            Automatically expanded to a full URL based on server configuration. Mutually exclusive with url
+        </li>
+        <li><code>path</code> <i>(string)</i> &mdash; path in the repository to copy from</li>
+        <li><code>secret</code> <i>(object)</i> &mdash; reference to a KEY_PAIR or USERNAME_PASSWORD secret. Must be a
+            non-password protected secret
+        </li>
+        <li><code>url</code> <i>(string)</i> &mdash; repository URL in http(s) or git@ format. Mutually exclusive with
+            name
+        </li>
+        <li><code>version</code> <i>(string)</i> &mdash; branch, tag, or commit ID to use (default: master)</li>
+    </ul>
+</div>

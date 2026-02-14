@@ -1,0 +1,134 @@
+flows:
+  main:
+    - suspend: "event"
+    - name: only name
+
+    - return
+    - exit
+    - checkpoint: test
+      meta:
+        k: "v"
+
+    - name: "Expr step"
+      expr: ${qweqweqwe}
+      meta:
+        k: "v"
+      error:
+        - log: "log"
+      out:
+        k: "v"
+
+    - form: "formName"
+      yield: true
+      saveSubmittedBy: true
+      runAs:
+        ldap:
+          group: "myGroup"
+      values:
+        name: "default"
+      fields:
+        - fullName: { label: "Name", type: "string" }
+
+    - name: "Throw step"
+      throw: ${error}
+
+    - name: call step name
+      call: "default2"
+      in:
+        k: "v"
+      out:
+        k: "one"
+      meta:
+        k: "v"
+      error:
+        - log: "call error"
+      loop:
+        items:
+          - "a"
+          - "b"
+      retry:
+        times: 1
+        delay: "${delayExpr}"
+    - parallel:
+      - log: "test1"
+      - log: "test2"
+      out:
+        k: "v"
+      meta:
+        k: "v"
+
+    - try:
+        - log: "ME"
+
+        - if: "${test}"
+          then:
+            - log: "test"
+          else:
+            - log: "test"
+      meta:
+        k: "v"
+      out:
+        - o
+
+    - name: "Script step"
+      script: groovy
+      body: "test"
+      in:
+        k: "v"
+      out:
+        k: "v"
+      meta:
+        k: "v"
+      error:
+        - log: "error"
+      loop:
+        items: "${test}"
+      retry:
+        times: 2
+        delay: 3
+
+    - set:
+        k: "v"
+
+    - switch: "${test}"
+      one:
+        - "return"
+        - return
+      default:
+        - suspend: "now"
+    - name: "Test task"
+      task: "test"
+      in:
+        k: v
+      out: "test"
+      meta:
+        k: "v"
+      error:
+        - log: "error"
+      loop:
+        items:
+          - "one"
+          - "two"
+      retry:
+        times: 3
+        delay: 5
+      ignoreErrors: true
+
+    - name: "Log step"
+      log: "test message"
+      meta:
+        k: "v"
+    - name: "LogYaml step"
+      logYaml: ${someVar}
+      meta:
+        k: "v"
+    - if: ${condition}
+      then:
+        - log: "yes"
+      else:
+        - log: "no"
+      meta:
+        k: "v"
+    - block:
+        - log: "step1"
+        - log: "step2"

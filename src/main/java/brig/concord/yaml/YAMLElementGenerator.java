@@ -100,6 +100,11 @@ public class YAMLElementGenerator {
         return at;
     }
 
+    public @NotNull YAMLSequenceItem createSequenceItem(@NotNull String valueText) {
+        final YAMLFile file = createDummyYamlWithText("- " + valueText);
+        return PsiTreeUtil.collectElementsOfType(file, YAMLSequenceItem.class).iterator().next();
+    }
+
     public @NotNull YAMLScalar createYamlScalar(@NotNull String text) {
         final YAMLFile file = createDummyYamlWithText("foo: " + text);
         YAMLKeyValue kv = PsiTreeUtil.collectElementsOfType(file, YAMLKeyValue.class).iterator().next();

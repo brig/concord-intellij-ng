@@ -1,0 +1,18 @@
+<div class='definition'>
+    <pre>expr</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Expression step. Evaluates a single expression</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>error</code> <i>(object[]|string[])</i> &mdash; error handling steps</li>
+        <li><code>expr</code> <i>(expression, required)</i> &mdash; concord expression (e.g. ${myVar})</li>
+        <li><code>meta</code> <i>(object)</i> &mdash; step metadata</li>
+        <li><code>name</code> <i>(string)</i> &mdash; step display name</li>
+        <li><code>out</code> <i>(string|object)</i> &mdash; output variable mappings</li>
+    </ul>
+    <p><b>Example:</b></p>
+    <pre><code>- expr: ${myVar.method()}
+  out:
+    result: ${result}</code></pre>
+</div>

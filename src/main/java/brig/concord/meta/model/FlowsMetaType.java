@@ -3,15 +3,16 @@ package brig.concord.meta.model;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.MapMetaType;
-
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLMapping;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class FlowsMetaType extends MapMetaType implements HighlightProvider {
 
@@ -23,8 +24,8 @@ public class FlowsMetaType extends MapMetaType implements HighlightProvider {
 
     private static final List<Field> defaultCompletions = List.of(new Field("default", StepsMetaType.getInstance()));
 
-    protected FlowsMetaType() {
-        super("FLows");
+    private FlowsMetaType() {
+        super(descKey("doc.flows.description"));
     }
 
     @Override

@@ -23,6 +23,7 @@ import InjectIcon from '@site/src/icons/code-file.svg';
 import BreadcrumbsIcon from '@site/src/icons/breadcrumbs.svg';
 import RunIcon from '@site/src/icons/run.svg';
 import DependenciesIcon from '@site/src/icons/dependencies.svg';
+import HoverDocsIcon from '@site/src/icons/hover-docs.svg';
 
 export const FeatureCard = ({icon: Icon, title, description, to}) => (
   <Link className="landingCard" to={to}>
@@ -74,6 +75,12 @@ Understand complex projects by visualizing relationships between flows.
         title="Breadcrumbs"
         description="Track your location in deep YAML structures."
         to="/docs/features/breadcrumbs"
+    />
+    <FeatureCard
+        icon={HoverDocsIcon}
+        title="Hover Docs"
+        description="Instant documentation popups for flows, tasks, and parameters."
+        to="/docs/features/hover-docs"
     />
 </div>
 
@@ -191,6 +198,10 @@ Become a power user with these IntelliJ keystrokes.
        <li>
          <b>Structure View</b>
          <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {label: "7"}]} win={[{label: "Alt"}, {label: "7"}]} />
+       </li>
+       <li>
+         <b>Quick Documentation</b>
+         <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Q"}]} win={[{label: "Ctrl"}, {label: "Q"}]} />
        </li>
     </ul>
   </div>

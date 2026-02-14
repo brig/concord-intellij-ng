@@ -1,0 +1,29 @@
+<div class='definition'>
+    <pre>concord</pre>
+</div>
+<div class='content'><p>schema for the concord task - start/fork processes, manage API keys</p>
+    <p><b>Input Parameters:</b></p>
+    <ul>
+        <li><code>action</code> <i>(enum, required)</i> &mdash; the action to perform
+            <ul>
+                <li><code>start</code> &mdash; start a new process</li>
+                <li><code>startExternal</code> &mdash; start a process on an external Concord server</li>
+                <li><code>fork</code> &mdash; fork the current process</li>
+                <li><code>kill</code> &mdash; kill a running process</li>
+                <li><code>createApiKey</code> &mdash; create an API key for a user</li>
+                <li><code>createOrUpdateApiKey</code> &mdash; create or update an API key for a user</li>
+            </ul>
+        </li>
+    </ul>
+    <p><i>Additional parameters depend on the value of <code>action</code></i></p>
+    <p><b>Output Parameters:</b></p>
+    <ul>
+        <li><code>ok</code> <i>(boolean, required)</i> &mdash; whether the operation succeeded</li>
+        <li><code>id</code> <i>(string)</i> &mdash; instance ID (for start) or API key ID (for createApiKey)</li>
+        <li><code>ids</code> <i>(string[])</i> &mdash; instance IDs (for fork with multiple processes)</li>
+        <li><code>name</code> <i>(string)</i> &mdash; API key name</li>
+        <li><code>key</code> <i>(string)</i> &mdash; the actual API key value</li>
+        <li><code>result</code> <i>(string)</i> &mdash; result status (CREATED or UPDATED for createOrUpdateApiKey)</li>
+        <li><code>expiredAt</code> <i>(string)</i> &mdash; API key expiration timestamp</li>
+    </ul>
+</div>

@@ -104,6 +104,12 @@
         <callHierarchyProvider language="Concord"
                                implementationClass="brig.concord.hierarchy.FlowCallHierarchyProvider"/>
 
+        <!-- Documentation -->
+        <platform.backend.documentation.targetProvider
+                implementation="brig.concord.documentation.ConcordDocumentationTargetProvider"/>
+        <platform.backend.documentation.lookupElementTargetProvider
+                implementation="brig.concord.documentation.ConcordLookupDocumentationProvider"/>
+
         <!-- Validation -->
         <annotator language="Concord"
                    implementationClass="brig.concord.yaml.annotator.YAMLInvalidBlockChildrenErrorAnnotator"/>
@@ -171,6 +177,15 @@
                          groupKey="inspections.group.name"
                          enabledByDefault="true"
                          implementationClass="brig.concord.inspection.UnresolvedDependencyInspection"/>
+
+        <localInspection language="Concord"
+                         bundle="messages.ConcordBundle"
+                         shortName="ServerOnlyDependency"
+                         level="WEAK WARNING"
+                         key="inspections.server.only.dependency.name"
+                         groupKey="inspections.group.name"
+                         enabledByDefault="true"
+                         implementationClass="brig.concord.inspection.ServerOnlyDependencyInspection"/>
 
         <localInspection language="Concord"
                          bundle="messages.ConcordBundle"

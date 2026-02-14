@@ -36,6 +36,7 @@ const sidebars: SidebarsConfig = {
         'features/structure-view',
         'features/rename',
         'features/flow-docs',
+        'features/hover-docs',
         'features/scopes',
         'features/dependencies',
         'features/tool-window',

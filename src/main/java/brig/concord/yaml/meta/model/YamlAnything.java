@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Like {@link YamlUnstructuredClass} but allows scalar values
+ * Allows any value: scalar, sequence, or mapping with arbitrary nesting.
  */
 public class YamlAnything extends YamlMetaType {
     private static final YamlAnything ourInstance = new YamlAnything();
@@ -23,7 +23,11 @@ public class YamlAnything extends YamlMetaType {
             .withEmptyValueAllowed(true);
 
     public YamlAnything() {
-        super("yaml:anything");
+        super("any");
+    }
+
+    public YamlAnything(@NotNull TypeProps props) {
+        super("any", props);
     }
 
     @Override
@@ -43,12 +47,9 @@ public class YamlAnything extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           Field.@NotNull Relation relation,
-                                           ForcedCompletionPath.@NotNull Iteration iteration) {
+                                           Field.@NotNull Relation relation) {
         markup.append(": ");
-        if (iteration.isEndOfPathReached()) {
-            markup.appendCaret();
-        }
+        markup.appendCaret();
     }
 
     public static YamlMetaType getInstance() {

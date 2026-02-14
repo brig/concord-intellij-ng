@@ -1,21 +1,20 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.model.value.AnyMapMetaType;
-import brig.concord.meta.model.value.BooleanMetaType;
-import brig.concord.meta.model.value.ExpressionMetaType;
-import brig.concord.meta.model.value.MapMetaType;
-import brig.concord.meta.model.value.StringMetaType;
-
+import brig.concord.documentation.Documented;
+import brig.concord.meta.model.value.*;
+import brig.concord.yaml.meta.model.CompletionContext;
+import brig.concord.yaml.meta.model.YamlAnyOfType;
+import brig.concord.yaml.meta.model.YamlArrayType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.codeInsight.lookup.LookupElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import brig.concord.yaml.meta.model.*;
-import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class FormStepMetaType extends IdentityMetaType {
 
@@ -25,21 +24,21 @@ public class FormStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "form", StringMetaType::getInstance, // TODO: type for search
-            "yield", BooleanMetaType::getInstance,
-            "saveSubmittedBy", BooleanMetaType::getInstance,
-            "runAs", AnyMapMetaType::getInstance,
-            "values", AnyMapMetaType::getInstance,
-            "fields", FieldsType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "form", new StringMetaType(descKey("doc.step.form.key.description").andRequired()),
+            "yield", new BooleanMetaType(descKey("doc.step.feature.yield.description")),
+            "saveSubmittedBy", new BooleanMetaType(descKey("doc.step.feature.saveSubmittedBy.description")),
+            "runAs", new AnyMapMetaType(descKey("doc.step.feature.runAs.description")),
+            "values", new AnyMapMetaType(descKey("doc.step.feature.values.description")),
+            "fields", FieldsType.getInstance()
     );
 
-    protected FormStepMetaType() {
-        super("Form", "form", Set.of("form"));
+    private FormStepMetaType() {
+        super("form", descKey("doc.step.form.description"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 
@@ -56,10 +55,6 @@ public class FormStepMetaType extends IdentityMetaType {
             return INSTANCE;
         }
 
-        protected FieldWrapper() {
-            super("Form call field");
-        }
-
         @Override
         protected YamlMetaType getMapEntryType(String name) {
             return FormFieldMetaType.getInstance();
@@ -74,8 +69,14 @@ public class FormStepMetaType extends IdentityMetaType {
             return INSTANCE;
         }
 
-        protected FieldsType() {
-            super("Form call fields", List.of(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance())));
+        private FieldsType() {
+            super(List.of(ExpressionMetaType.getInstance(), new YamlArrayType(FieldWrapper.getInstance())),
+                    descKey("doc.step.feature.fields.description"));
+        }
+
+        @Override
+        public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
+            return FormFieldMetaType.getInstance().getAllDocumentationFields();
         }
     }
 }

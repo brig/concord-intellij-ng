@@ -2,13 +2,14 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.meta.model.value.ExpressionMetaType;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class InParamsMetaType extends YamlAnyOfType {
 
@@ -18,8 +19,9 @@ public class InParamsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected InParamsMetaType() {
-        super("in params [object|expression]", List.of(ExpressionMetaType.getInstance(), AnyMapMetaType.getInstance()));
+    private InParamsMetaType() {
+        super(List.of(ExpressionMetaType.getInstance(), AnyMapMetaType.getInstance()),
+                descKey("doc.step.feature.in.description"));
     }
 
     @Override

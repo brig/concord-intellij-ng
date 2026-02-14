@@ -1,0 +1,7 @@
+flows:
+  default:
+    - name: "Download artifact"
+      task: "http"
+      in:
+        url: "https://example.com"
+      out: response

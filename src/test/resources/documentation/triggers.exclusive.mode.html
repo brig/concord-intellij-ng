@@ -1,0 +1,18 @@
+<div class='definition'>
+    <pre>mode</pre>
+</div>
+<div class='content'><p>Type: <code>string</code></p>
+    <p>Conflict resolution mode (default: cancel)</p>
+    <p><b>Values:</b></p>
+    <ul>
+        <li><code>cancel</code> <i>(string)</i> &mdash; cancel all new processes if there is already a running process
+            in the same group
+        </li>
+        <li><code>cancelOld</code> <i>(string)</i> &mdash; cancel older running processes in the same group when a new
+            process starts
+        </li>
+        <li><code>wait</code> <i>(string)</i> &mdash; allow only one process in the same group to run; new processes
+            wait until the current one finishes
+        </li>
+    </ul>
+</div>

@@ -3,16 +3,17 @@ package brig.concord.meta.model;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.MapMetaType;
-
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlArrayType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLMapping;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
@@ -20,12 +21,12 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
 
     private static final List<Field> defaultCompletions = List.of(new Field("myForm", FormFieldsMetaType.getInstance()));
 
-    protected FormsMetaType() {
-        super("Form definition");
-    }
-
     public static FormsMetaType getInstance() {
         return INSTANCE;
+    }
+
+    private FormsMetaType() {
+        super(descKey("doc.forms.description"));
     }
 
     @Override
@@ -43,6 +44,19 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
         return ConcordHighlightingColors.DSL_KIND;
     }
 
+    @Override
+    public @Nullable String getDocumentationExample() {
+        return """
+                forms:
+                  myForm:
+                    - myValue: { type: "string", label: "Value" }
+                
+                flows:
+                  default:
+                    - form: myForm
+                """;
+    }
+
     private static class FieldsWrapper extends MapMetaType implements HighlightProvider {
 
         private static final FieldsWrapper INSTANCE = new FieldsWrapper();
@@ -53,8 +67,7 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
             return INSTANCE;
         }
 
-        protected FieldsWrapper() {
-            super("Form fields");
+        private FieldsWrapper() {
         }
 
         @Override
@@ -82,7 +95,7 @@ public class FormsMetaType extends MapMetaType implements HighlightProvider {
         }
 
         public FormFieldsMetaType() {
-            super(FieldsWrapper.getInstance());
+            super(FieldsWrapper.getInstance(), descKey("doc.forms.formName.description"));
         }
     }
 }

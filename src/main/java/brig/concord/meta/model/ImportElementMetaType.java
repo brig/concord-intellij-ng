@@ -3,26 +3,25 @@ package brig.concord.meta.model;
 import brig.concord.ConcordBundle;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.psi.YAMLMapping;
-import brig.concord.yaml.psi.YAMLValue;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class ImportElementMetaType extends IdentityElementMetaType implements HighlightProvider {
 
     private static final List<IdentityMetaType> entries = List.of(
-            new ImportMetaType("dir", DirImportEntryMetaType::getInstance),
-            new ImportMetaType("git", GitImportEntryMetaType::getInstance),
-            new ImportMetaType("mvn", MvnImportEntryMetaType::getInstance)
+            new ImportMetaType("dir", DirImportEntryMetaType.getInstance()),
+            new ImportMetaType("git", GitImportEntryMetaType.getInstance()),
+            new ImportMetaType("mvn", MvnImportEntryMetaType.getInstance())
     );
 
     private static final ImportElementMetaType INSTANCE = new ImportElementMetaType();
@@ -31,8 +30,8 @@ public class ImportElementMetaType extends IdentityElementMetaType implements Hi
         return INSTANCE;
     }
 
-    protected ImportElementMetaType() {
-        super("Imports", entries);
+    private ImportElementMetaType() {
+        super(entries);
     }
 
     @Override
@@ -42,17 +41,25 @@ public class ImportElementMetaType extends IdentityElementMetaType implements Hi
 
     private static class ImportMetaType extends IdentityMetaType {
 
-        private final Map<String, Supplier<YamlMetaType>> features;
+        private final Map<String, YamlMetaType> features;
 
-        protected ImportMetaType(String identity, Supplier<YamlMetaType> entry) {
-            super(identity, identity, Set.of(identity));
+        protected ImportMetaType(String identity, YamlMetaType entry) {
+            super(identity);
 
             this.features = Map.of(identity, entry);
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
+        }
+
+        @Override
+        public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
+            if (existingFields.contains(getIdentity())) {
+                return List.of();
+            }
+            return List.of(getIdentity());
         }
 
         @Override

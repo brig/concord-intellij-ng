@@ -2,27 +2,25 @@ package brig.concord.meta.model;
 
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.HighlightProvider;
+import brig.concord.yaml.meta.model.Field;
+import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import brig.concord.yaml.meta.model.Field;
-import brig.concord.yaml.meta.model.YamlMetaType;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 public class TriggerElementMetaType extends IdentityElementMetaType implements HighlightProvider {
 
     private static final List<IdentityMetaType> entries = List.of(
-            new TriggerMetaType("github", GitTriggerEntryMetaType::getInstance),
-            new TriggerMetaType("cron", CronTriggerEntryMetaType::getInstance),
-            new TriggerMetaType("manual", ManualTriggerEntryMetaType::getInstance)
+            new TriggerMetaType("github", GitTriggerEntryMetaType.getInstance()),
+            new TriggerMetaType("cron", CronTriggerEntryMetaType.getInstance()),
+            new TriggerMetaType("manual", ManualTriggerEntryMetaType.getInstance())
     );
 
-    private static final IdentityMetaType GENERIC_TRIGGER = new IdentityMetaType("generic", "generic", Collections.emptySet()) {
+    private static final IdentityMetaType GENERIC_TRIGGER = new IdentityMetaType("generic") {
 
         @Override
         public @Nullable Field findFeatureByName(@NotNull String name) {
@@ -30,12 +28,7 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         }
 
         @Override
-        protected Set<String> getRequiredFields() {
-            return Collections.emptySet();
-        }
-
-        @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return Map.of();
         }
     };
@@ -46,8 +39,8 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
         return INSTANCE;
     }
 
-    protected TriggerElementMetaType() {
-        super("Triggers", entries);
+    private TriggerElementMetaType() {
+        super(entries);
     }
 
     @Override
@@ -71,17 +64,25 @@ public class TriggerElementMetaType extends IdentityElementMetaType implements H
 
     private static class TriggerMetaType extends IdentityMetaType {
 
-        private final Map<String, Supplier<YamlMetaType>> features;
+        private final Map<String, YamlMetaType> features;
 
-        protected TriggerMetaType(String identity, Supplier<YamlMetaType> entry) {
-            super(identity, identity, Set.of(identity));
+        protected TriggerMetaType(String identity, YamlMetaType entry) {
+            super(identity);
 
             this.features = Map.of(identity, entry);
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             return features;
+        }
+
+        @Override
+        public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
+            if (existingFields.contains(getIdentity())) {
+                return List.of();
+            }
+            return List.of(getIdentity());
         }
     }
 }

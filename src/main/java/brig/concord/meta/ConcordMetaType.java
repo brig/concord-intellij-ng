@@ -1,31 +1,59 @@
 package brig.concord.meta;
 
 import brig.concord.ConcordBundle;
+import brig.concord.documentation.Documented;
 import brig.concord.meta.model.value.AnyOfType;
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.*;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.Supplier;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class ConcordMetaType extends YamlMetaType {
 
-    protected ConcordMetaType(@NonNls @NotNull String typeName) {
-        super(typeName);
+    protected ConcordMetaType() {
+        super("object");
     }
 
-    protected abstract @NotNull Map<String, Supplier<YamlMetaType>> getFeatures();
+    protected ConcordMetaType(@NotNull TypeProps props) {
+        super("object", props);
+    }
 
-    protected Set<String> getRequiredFields() {
-        return Collections.emptySet();
+    protected abstract @NotNull Map<String, YamlMetaType> getFeatures();
+
+    @Override
+    public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
+        return getFeatures().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(e -> toDocumentedField(e.getKey(), e.getValue()))
+                .toList();
+    }
+
+    private static DocumentedField toDocumentedField(String name, YamlMetaType type) {
+        return new DocumentedField(name, type.getTypeName(), type.isRequired(), type.getDescription(), enumChildren(type));
+    }
+
+    private static List<DocumentedField> enumChildren(YamlMetaType type) {
+        if (!(type instanceof YamlEnumType enumType)) {
+            return List.of();
+        }
+
+        var enumValues = enumType.getEnumValues();
+        if (enumValues.isEmpty() || enumValues.getFirst().description() == null) {
+            return List.of();
+        }
+
+        return enumValues.stream()
+                .map(v -> new DocumentedField(v.literal(), enumType.getTypeName(), false, v.description(), List.of()))
+                .toList();
     }
 
     @Override
@@ -37,7 +65,9 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     @Override
     public @NotNull List<String> computeMissingFields(@NotNull Set<String> existingFields) {
-        return getRequiredFields().stream()
+        return getFeatures().entrySet().stream()
+                .filter(e -> e.getValue().isRequired())
+                .map(Map.Entry::getKey)
                 .filter(s -> !existingFields.contains(s))
                 .sorted()
                 .collect(Collectors.toList());
@@ -55,9 +85,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        var metaType = Optional.ofNullable(getFeatures().get(name))
-                .map(Supplier::get)
-                .orElse(null);
+        var metaType = getFeatures().get(name);
         return metaTypeToField(metaType, name);
     }
 
@@ -84,8 +112,7 @@ public abstract class ConcordMetaType extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           Field.@NotNull Relation relation,
-                                           ForcedCompletionPath.@NotNull Iteration iteration) {
+                                           Field.@NotNull Relation relation) {
         markup.append(":");
         if (relation == Field.Relation.SEQUENCE_ITEM) {
             markup.doTabbedBlockForSequenceItem();

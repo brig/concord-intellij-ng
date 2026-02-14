@@ -59,6 +59,26 @@ class TaskSchemaParserTest {
     }
 
     @Test
+    void testEnumDescriptions() {
+        var base = schema.getBaseInSection();
+        var actionProp = base.properties().get("action");
+        var enumType = (SchemaType.Enum) actionProp.schemaType();
+        assertEquals(6, enumType.descriptions().size());
+        assertEquals("Start a new process", enumType.descriptions().get(0));
+        assertEquals("Fork the current process", enumType.descriptions().get(2));
+    }
+
+    @Test
+    void testEnumDescriptionsMissing() {
+        // strictTask method uses plain enum (no oneOf+const), so no descriptions
+        var base = strictSchema.getBaseInSection();
+        var methodProp = base.properties().get("method");
+        var enumType = (SchemaType.Enum) methodProp.schemaType();
+        assertFalse(enumType.values().isEmpty());
+        assertTrue(enumType.descriptions().isEmpty());
+    }
+
+    @Test
     void testDiscriminatorKeys() {
         var keys = schema.getDiscriminatorKeys();
         assertTrue(keys.contains("action"));
@@ -294,6 +314,48 @@ class TaskSchemaParserTest {
     }
 
     @Test
+    void testConstEnumWithDescriptions() {
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("constEnumWithDesc");
+        assertNotNull(prop);
+        assertInstanceOf(SchemaType.Enum.class, prop.schemaType());
+        var enumType = (SchemaType.Enum) prop.schemaType();
+        assertEquals(List.of("read", "write", "admin"), enumType.values());
+        assertEquals(List.of("Read access", "Write access", "Full access"), enumType.descriptions());
+    }
+
+    @Test
+    void testConstEnumWithoutDescriptions() {
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("constEnumNoDesc");
+        assertNotNull(prop);
+        assertInstanceOf(SchemaType.Enum.class, prop.schemaType());
+        var enumType = (SchemaType.Enum) prop.schemaType();
+        assertEquals(List.of("low", "medium", "high"), enumType.values());
+        assertTrue(enumType.descriptions().isEmpty());
+    }
+
+    @Test
+    void testConstEnumPartialDescriptions() {
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("constEnumMixedDesc");
+        assertNotNull(prop);
+        assertInstanceOf(SchemaType.Enum.class, prop.schemaType());
+        var enumType = (SchemaType.Enum) prop.schemaType();
+        assertEquals(List.of("fast", "slow"), enumType.values());
+        assertEquals(List.of("Fast mode", ""), enumType.descriptions());
+    }
+
+    @Test
+    void testOneOfMixedConstAndType_notEnum() {
+        // oneOf with const + type is NOT a const-enum, should be Composite
+        var section = refCompositeSchema.getBaseInSection();
+        var prop = section.properties().get("oneOfMixedConstAndType");
+        assertNotNull(prop);
+        assertInstanceOf(SchemaType.Composite.class, prop.schemaType());
+    }
+
+    @Test
     void testOutSectionOneOfWithRef() {
         var out = refCompositeSchema.getOutSection();
         var prop = out.properties().get("result");
@@ -305,6 +367,16 @@ class TaskSchemaParserTest {
                 )),
                 prop.schemaType()
         );
+    }
+
+    @Test
+    void testTaskDescription() {
+        assertEquals("Schema for the concord task - start/fork processes, manage API keys", schema.getDescription());
+    }
+
+    @Test
+    void testStrictTaskDescription() {
+        assertEquals("An HTTP client task for making web requests", strictSchema.getDescription());
     }
 
     @Test

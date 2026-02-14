@@ -3,9 +3,12 @@ package brig.concord.yaml.psi.impl;
 // Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 
 import com.intellij.lang.ASTNode;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
+import brig.concord.yaml.YAMLElementGenerator;
+import brig.concord.yaml.YAMLUtil;
 import brig.concord.yaml.psi.YAMLSequence;
 import brig.concord.yaml.psi.YAMLSequenceItem;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;
@@ -20,6 +23,26 @@ public abstract class YAMLSequenceImpl extends YAMLCompoundValueImpl implements 
     @Override
     public @NotNull List<YAMLSequenceItem> getItems() {
         return PsiTreeUtil.getChildrenOfTypeAsList(this, YAMLSequenceItem.class);
+    }
+
+    @Override
+    public void addItem(@NotNull YAMLSequenceItem item) {
+        var items = getItems();
+        if (items.isEmpty()) {
+            add(item);
+            return;
+        }
+
+        var lastItem = items.getLast();
+        int indent = YAMLUtil.getIndentToThisElement(items.getFirst());
+
+        var generator = YAMLElementGenerator.getInstance(getProject());
+        PsiElement anchor = lastItem;
+        anchor = addAfter(generator.createEol(), anchor);
+        if (indent != 0) {
+            anchor = addAfter(generator.createIndent(indent), anchor);
+        }
+        addAfter(item, anchor);
     }
 
     @Override

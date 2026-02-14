@@ -21,16 +21,12 @@ import java.util.Set;
 
 public abstract class YamlScalarType extends YamlMetaType {
 
-    /**
-     * @deprecated initialise the {@code displayName} explicitly via {@link #YamlScalarType(String, String)}
-     */
-    @Deprecated(forRemoval = true)
     protected YamlScalarType(@NonNls @NotNull String typeName) {
         super(typeName);
     }
 
-    protected YamlScalarType(@NonNls @NotNull String typeName, @NonNls @NotNull String displayName) {
-        super(typeName, displayName);
+    protected YamlScalarType(@NonNls @NotNull String typeName, @NotNull TypeProps props) {
+        super(typeName, props);
     }
 
     @Override
@@ -69,22 +65,15 @@ public abstract class YamlScalarType extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           @NotNull Field.Relation relation,
-                                           @NotNull ForcedCompletionPath.Iteration iteration) {
+                                           @NotNull Field.Relation relation) {
         switch (relation) {
             case OBJECT_CONTENTS /* weird, but let's ignore and breakthrough to defaults */, SCALAR_VALUE -> {
                 markup.append(": ");
-                if (iteration.isEndOfPathReached()) {
-                    markup.appendCaret();
-                }
+                markup.appendCaret();
             }
             case SEQUENCE_ITEM -> {
                 markup.append(":");
-                markup.doTabbedBlockForSequenceItem(() -> {
-                    if (iteration.isEndOfPathReached()) {
-                        markup.appendCaret();
-                    }
-                });
+                markup.doTabbedBlockForSequenceItem(markup::appendCaret);
             }
             default -> throw new IllegalStateException("Unknown relation: " + relation); //NON-NLS
         }

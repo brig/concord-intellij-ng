@@ -1,6 +1,11 @@
 package brig.concord.meta.model;
 
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlArrayType;
+import brig.concord.yaml.meta.model.YamlMetaType;
+import org.jetbrains.annotations.NotNull;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class StepsMetaType extends YamlArrayType {
 
@@ -11,6 +16,15 @@ public class StepsMetaType extends YamlArrayType {
     }
 
     public StepsMetaType() {
-        super(StepElementMetaType.getInstance());
+        super("object[]|string[]", descKey("doc.flows.flowName.description"));
+    }
+
+    public StepsMetaType(@NotNull TypeProps props) {
+        super("object[]|string[]", props);
+    }
+
+    @Override
+    public @NotNull YamlMetaType getElementType() {
+        return StepElementMetaType.getInstance();
     }
 }

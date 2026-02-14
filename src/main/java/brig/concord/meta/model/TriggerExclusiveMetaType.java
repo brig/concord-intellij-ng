@@ -1,26 +1,27 @@
 package brig.concord.meta.model;
 
+import brig.concord.ConcordBundle;
 import brig.concord.highlighting.ConcordHighlightingColors;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.StringMetaType;
-
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import org.jetbrains.annotations.NotNull;
-import brig.concord.ConcordBundle;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import com.intellij.openapi.editor.colors.TextAttributesKey;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class TriggerExclusiveMetaType extends ConcordMetaType implements HighlightProvider {
 
@@ -32,9 +33,12 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
             return INSTANCE;
         }
 
-        protected ModeType() {
-            super("Mode", "[cancel|cancelOld|wait]");
-            withLiterals("cancel", "cancelOld", "wait");
+        private ModeType() {
+            super("string", descKey("doc.triggers.exclusive.mode.description"),
+                    List.of(
+                            EnumValue.ofKey("cancel", "doc.triggers.exclusive.mode.cancel.description"),
+                            EnumValue.ofKey("cancelOld", "doc.triggers.exclusive.mode.cancelOld.description"),
+                            EnumValue.ofKey("wait", "doc.triggers.exclusive.mode.wait.description")));
         }
     }
 
@@ -44,18 +48,18 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "group", StringMetaType::getInstance,
-            "groupBy", StringMetaType::getInstance,
-            "mode", ModeType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "group", new StringMetaType(descKey("doc.triggers.exclusive.group.description")),
+            "groupBy", new StringMetaType(descKey("doc.triggers.exclusive.groupBy.description")),
+            "mode", ModeType.getInstance()
     );
 
-    protected TriggerExclusiveMetaType() {
-        super("Trigger Exclusive");
+    private TriggerExclusiveMetaType() {
+        super(descKey("doc.triggers.exclusive.description"));
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 

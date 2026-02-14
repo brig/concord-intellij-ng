@@ -1,0 +1,5 @@
+flows:
+  default:
+    - block:
+        - log: "Step 1"
+        - log: "Step 2"

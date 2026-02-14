@@ -1,13 +1,12 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.StringMetaType;
-
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class LogYamlStepMetaType extends IdentityMetaType {
 
@@ -17,17 +16,17 @@ public class LogYamlStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
-            StepFeatures.NAME_AND_META,
-            Map.of("logYaml", StringMetaType::getInstance)
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(),
+            Map.of("logYaml", new StringMetaType(descKey("doc.step.logYaml.key.description").andRequired()))
     );
 
-    protected LogYamlStepMetaType() {
-        super("LogYaml", "logYaml", Set.of("logYaml"));
+    private LogYamlStepMetaType() {
+        super("logYaml", descKey("doc.step.logYaml.description"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 }

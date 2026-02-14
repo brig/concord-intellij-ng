@@ -3,20 +3,19 @@ package brig.concord.meta.model;
 import brig.concord.ConcordBundle;
 import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.psi.YamlPsiUtils;
-
-import com.intellij.codeInspection.ProblemHighlightType;
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLValue;
+import com.intellij.codeInspection.ProblemHighlightType;
+import com.intellij.codeInspection.ProblemsHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class SwitchStepMetaType extends IdentityMetaType {
 
@@ -26,13 +25,17 @@ public class SwitchStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    protected SwitchStepMetaType() {
-        super("Switch", "switch", Set.of("switch"));
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "switch", new ExpressionMetaType(descKey("doc.type.expression.description").andRequired())
+    );
+
+    private SwitchStepMetaType() {
+        super("switch", descKey("doc.step.switch.description"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
-        return Collections.emptyMap();
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
+        return features;
     }
 
     @Override

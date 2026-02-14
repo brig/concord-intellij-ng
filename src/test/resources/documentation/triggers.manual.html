@@ -1,0 +1,19 @@
+<div class='definition'>
+    <pre>manual</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Manual trigger definition. Starts a process only when explicitly requested via UI or API</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>activeProfiles</code> <i>(string[])</i> &mdash; list of profiles that Concord applies for the process
+        </li>
+        <li><code>arguments</code> <i>(object)</i> &mdash; additional parameters that are passed to the flow</li>
+        <li><code>entryPoint</code> <i>(string, required)</i> &mdash; name of the flow that Concord starts when the
+            trigger is executed
+        </li>
+        <li><code>exclusive</code> <i>(object)</i> &mdash; exclusive execution configuration for the process. Available
+            only for processes running in projects
+        </li>
+        <li><code>name</code> <i>(string)</i> &mdash; trigger name used for display and identification</li>
+    </ul>
+</div>

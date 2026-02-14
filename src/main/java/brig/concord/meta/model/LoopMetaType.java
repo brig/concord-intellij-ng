@@ -6,45 +6,39 @@ import brig.concord.meta.HighlightProvider;
 import brig.concord.meta.model.value.AnyOfType;
 import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.meta.model.value.IntegerMetaType;
-
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class LoopMetaType extends ConcordMetaType implements HighlightProvider  {
 
     private static final LoopMetaType INSTANCE = new LoopMetaType();
 
-    private static final Set<String> requiredFeatures = Set.of("items");
-
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "items", LoopItemsMetaType::getInstance,
-            "parallelism", () -> AnyOfType.anyOf(IntegerMetaType.getInstance(), ExpressionMetaType.getInstance()),
-            "mode", ModeType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "items", LoopItemsMetaType.getInstance(),
+            "parallelism", AnyOfType.anyOf(descKey("doc.step.feature.loop.parallelism.description"),
+                    IntegerMetaType.getInstance(), ExpressionMetaType.getInstance()),
+            "mode", ModeType.getInstance()
     );
 
     public static LoopMetaType getInstance() {
         return INSTANCE;
     }
 
-    protected LoopMetaType() {
-        super("loop");
+    private LoopMetaType() {
+        super(descKey("doc.step.feature.loop.description"));
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
-    }
-
-    @Override
-    protected Set<String> getRequiredFields() {
-        return requiredFeatures;
     }
 
     @Override
@@ -60,9 +54,11 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
             return INSTANCE;
         }
 
-        protected ModeType() {
-            super("Mode", "[serial|parallel]");
-            withLiterals("serial", "parallel");
+        private ModeType() {
+            super("string", descKey("doc.step.feature.loop.mode.description"),
+                    List.of(
+                            EnumValue.ofKey("serial", "doc.step.feature.loop.mode.serial.description"),
+                            EnumValue.ofKey("parallel", "doc.step.feature.loop.mode.parallel.description")));
         }
     }
 }

@@ -2,6 +2,8 @@ package brig.concord.meta.model;
 
 import brig.concord.yaml.meta.model.YamlArrayType;
 
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
+
 public class TriggersMetaType extends YamlArrayType {
 
     private static final TriggersMetaType INSTANCE = new TriggersMetaType();
@@ -11,6 +13,6 @@ public class TriggersMetaType extends YamlArrayType {
     }
 
     public TriggersMetaType() {
-        super(TriggerElementMetaType.getInstance());
+        super(TriggerElementMetaType.getInstance(), descKey("doc.triggers.description"));
     }
 }

@@ -1,0 +1,40 @@
+<div class='definition'>
+    <pre>configuration</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Process configuration values for a Concord process (runtime, arguments, dependencies, timeouts, metadata,
+        etc.)</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>arguments</code> <i>(object)</i> &mdash; default process arguments, available as top-level variables
+            in flows
+        </li>
+        <li><code>debug</code> <i>(boolean)</i> &mdash; enables debug logging for the process</li>
+        <li><code>dependencies</code> <i>(string[])</i> &mdash; additional Maven dependencies to include at runtime</li>
+        <li><code>entryPoint</code> <i>(string)</i> &mdash; name of the starting flow (default: 'default')</li>
+        <li><code>events</code> <i>(object)</i> &mdash; configures process event recording and truncation to prevent
+            large or sensitive values from being stored in events
+        </li>
+        <li><code>exclusive</code> <i>(object)</i> &mdash; ensures only one process runs per <b>project + group</b>.
+            Conflict behavior is controlled by <code>mode</code></li>
+        <li><code>meta</code> <i>(object)</i> &mdash; process metadata map exposed by flows; values are updated after
+            each step and can be retrieved via the API or shown in the Concord Console process list. Supports nested
+            keys (e.g. <code>nested.value</code>) and form fields (e.g. <code>myForm.myValue</code>)
+        </li>
+        <li><code>out</code> <i>(string[])</i> &mdash; list of variables to return as process output</li>
+        <li><code>parallelLoopParallelism</code> <i>(integer)</i> &mdash; maximum number of parallel threads for
+            parallel loops
+        </li>
+        <li><code>processTimeout</code> <i>(string)</i> &mdash; maximum process execution time (format: ISO 8601
+            duration, e.g. PT1H)
+        </li>
+        <li><code>requirements</code> <i>(object)</i> &mdash; execution requirements for agent selection and resource
+            constraints
+        </li>
+        <li><code>runtime</code> <i>(string)</i> &mdash; runtime version for the process (e.g. concord-v2)</li>
+        <li><code>suspendTimeout</code> <i>(string)</i> &mdash; maximum time a process can stay in SUSPENDED state
+            (format: ISO 8601 duration)
+        </li>
+        <li><code>template</code> <i>(string)</i> &mdash; name of the template to apply to this process</li>
+    </ul>
+</div>

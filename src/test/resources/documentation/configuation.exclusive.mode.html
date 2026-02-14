@@ -1,0 +1,16 @@
+<div class='definition'>
+    <pre>mode</pre>
+</div>
+<div class='content'><p>Type: <code>string</code></p>
+    <p>Conflict resolution mode (default: cancel)</p>
+    <p><b>Values:</b></p>
+    <ul>
+        <li><code>cancel</code> <i>(string)</i> &mdash; new submission is immediately cancelled if another run in the
+            same project+group is running
+        </li>
+        <li><code>cancelOld</code> <i>(string)</i> &mdash; running process in the same project+group is cancelled in
+            favor of the new submission
+        </li>
+        <li><code>wait</code> <i>(string)</i> &mdash; enqueue: only one run per group; others wait</li>
+    </ul>
+</div>

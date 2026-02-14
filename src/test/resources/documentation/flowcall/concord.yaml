@@ -1,0 +1,27 @@
+flows:
+  main:
+    - call: processS3
+    - call: "quotedCall"
+    - call: noDocFlow
+
+  ##
+  # Process S3 files and return count
+  # in:
+  #   s3Bucket: string, mandatory, S3 bucket name
+  #   prefix: string, optional, File prefix filter
+  # out:
+  #   processed: int, optional, Files processed count
+  ##
+  processS3:
+    - log: "processing"
+
+  ##
+  # Quoted call target flow
+  # in:
+  #   name: string, required, The name
+  ##
+  quotedCall:
+    - log: "quoted"
+
+  noDocFlow:
+    - log: "no docs"

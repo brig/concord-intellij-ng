@@ -53,10 +53,20 @@ public class Field {
         }
     }
 
+    /**
+     * Stores the original type before array unwrapping.
+     * When the field type is {@link YamlArrayType}, the constructor unwraps it:
+     * {@code myMainType} is replaced with the element type (for schema validation),
+     * while this field preserves the original array type (e.g. {@code string[]})
+     * for display in documentation via {@link #getOriginalType()}.
+     */
+    private YamlMetaType myOriginalType;
+
     public Field(@NonNls @NotNull String name, @NotNull YamlMetaType mainType) {
         myName = name;
         myMainType = mainType;
         if(myMainType instanceof YamlArrayType) {
+            myOriginalType = myMainType;
             myMainType = ((YamlArrayType)myMainType).getElementType();
             myIsMany = !(myMainType instanceof YamlArrayType);
         }
@@ -248,7 +258,7 @@ public class Field {
 
         LookupElementBuilder lookup = LookupElementBuilder
                 .create(new TypeFieldPair(ownerClass, this), getName())
-                .withTypeText(getMainType().getDisplayName(), true)
+                .withTypeText(getMainType().getTypeName(), true)
                 .withIcon(getLookupIcon())
                 .withStrikeoutness(isDeprecated());
 
@@ -298,12 +308,17 @@ public class Field {
         result.myIsMany = myIsMany;
         result.myOverriddenDefaultRelation = myOverriddenDefaultRelation;
         result.myPerRelationTypes.putAll(myPerRelationTypes);
+        result.myOriginalType = myOriginalType;
 
         return result;
     }
 
     protected @NotNull Field newField(@NotNull YamlMetaType type) {
         return new Field(this.myName, type);
+    }
+
+    public @NotNull YamlMetaType getOriginalType() {
+        return myOriginalType != null ? myOriginalType : getMainType();
     }
 
     private @NotNull YamlMetaType getMainType() {

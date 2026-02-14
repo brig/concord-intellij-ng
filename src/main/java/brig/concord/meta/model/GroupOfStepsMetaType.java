@@ -1,42 +1,43 @@
 package brig.concord.meta.model;
 
-import com.intellij.codeInspection.ProblemsHolder;
-import org.jetbrains.annotations.NotNull;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlMetaType;
-import brig.concord.yaml.psi.YAMLValue;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
     public static final String ERROR = "error";
 
-    private final Map<String, Supplier<YamlMetaType>> features;
+    private final Map<String, YamlMetaType> features;
 
-    protected GroupOfStepsMetaType(String name) {
-        super(name, name, Set.of(name));
+    protected GroupOfStepsMetaType(String name, @NotNull String identityKeyDescriptionKey) {
+        super(name);
 
-        this.features = createFeatures(name);
+        this.features = createFeatures(name, identityKeyDescriptionKey);
     }
 
-    private static Map<String, Supplier<YamlMetaType>> createFeatures(String name) {
+    protected GroupOfStepsMetaType(String name, @NotNull String identityKeyDescriptionKey, @NotNull TypeProps props) {
+        super(name, props);
+
+        this.features = createFeatures(name, identityKeyDescriptionKey);
+    }
+
+    private static Map<String, YamlMetaType> createFeatures(String name, String identityKeyDescriptionKey) {
+        var identitySteps = new StepsMetaType(descKey(identityKeyDescriptionKey).andRequired());
         return StepFeatures.combine(
-                StepFeatures.NAME_AND_META, StepFeatures.ERROR,
-                Map.of(name, StepsMetaType::getInstance,
-                       "out", GroupOfStepsOutParamsMetaType::getInstance,
-                       "loop", LoopMetaType::getInstance)
+                StepFeatures.nameAndMeta(), StepFeatures.error(),
+                Map.of(name, identitySteps,
+                       "out", GroupOfStepsOutParamsMetaType.getInstance(),
+                       "loop", LoopMetaType.getInstance())
         );
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
-    }
-
-    @Override
-    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        super.validateValue(value, problemsHolder);
     }
 }

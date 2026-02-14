@@ -2,6 +2,7 @@ package brig.concord.completion.provider;
 
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.value.*;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
@@ -23,7 +24,6 @@ import brig.concord.yaml.psi.YAMLMapping;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class FlowCallParamsProvider {
 
@@ -80,24 +80,23 @@ public class FlowCallParamsProvider {
     static class FlowDocMetaType extends ConcordMetaType implements CallInParamMetaType {
 
         private final FlowDocumentation documentation;
-        private volatile Map<String, Supplier<YamlMetaType>> features;
+        private volatile Map<String, YamlMetaType> features;
 
         public FlowDocMetaType(FlowDocumentation documentation) {
-            super("call in params");
             this.documentation = documentation;
         }
 
         @Override
-        protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+        protected @NotNull Map<String, YamlMetaType> getFeatures() {
             var f = this.features;
             if (f != null) {
                 return f;
             }
 
-            var result = new HashMap<String, Supplier<YamlMetaType>>();
+            var result = new HashMap<String, YamlMetaType>();
             for (var param : documentation.getInputParameters()) {
                 var metaType = toMetaType(param);
-                result.put(param.getName(), () -> metaType);
+                result.put(param.getName(), metaType);
             }
             this.features = Map.copyOf(result);
             return this.features;
@@ -134,23 +133,33 @@ public class FlowCallParamsProvider {
             return AnythingMetaType.getInstance();
         }
 
+        AnyOfType baseType;
         if (parameter.isArrayType()) {
-            return switch (parameter.getBaseType().toLowerCase()) {
+            baseType = switch (parameter.getBaseType().toLowerCase()) {
                 case "string" -> ParamMetaTypes.STRING_ARRAY_OR_EXPRESSION;
                 case "boolean" -> ParamMetaTypes.BOOLEAN_ARRAY_OR_EXPRESSION;
                 case "object" -> ParamMetaTypes.OBJECT_ARRAY_OR_EXPRESSION;
                 case "number", "int", "integer" -> ParamMetaTypes.NUMBER_ARRAY_OR_EXPRESSION;
                 default -> ParamMetaTypes.ARRAY_OR_EXPRESSION;
             };
+        } else {
+            baseType = switch (parameter.getBaseType().toLowerCase()) {
+                case "string" -> ParamMetaTypes.STRING_OR_EXPRESSION;
+                case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
+                case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
+                case "number", "int", "integer" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
+                default -> null;
+            };
         }
 
-        return switch (parameter.getBaseType().toLowerCase()) {
-            case "string" -> ParamMetaTypes.STRING_OR_EXPRESSION;
-            case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
-            case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
-            case "number", "int", "integer" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
-            default -> AnythingMetaType.getInstance();
-        };
+        if (baseType == null) {
+            return AnythingMetaType.getInstance();
+        }
+
+        var description = parameter.getDescription();
+        var mandatory = parameter.isMandatory();
+
+        return baseType.withProps(TypeProps.desc(description).andRequired(mandatory));
     }
 
     public static @Nullable FlowDocumentation findFlowDocumentation(PsiElement element) {

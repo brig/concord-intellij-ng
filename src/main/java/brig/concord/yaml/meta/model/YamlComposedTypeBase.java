@@ -44,8 +44,14 @@ public abstract class YamlComposedTypeBase extends YamlMetaType {
 
     protected abstract YamlMetaType composeTypes(YamlMetaType... types);
 
-    protected YamlComposedTypeBase(@NotNull String typeName, @NotNull String displayName, List<YamlMetaType> types) {
-        super(typeName, displayName);
+    protected YamlComposedTypeBase(@NotNull String typeName, List<YamlMetaType> types) {
+        super(typeName);
+        assert types.size() > 1 : "Nothing to compose: " + types;
+        myTypes = copyList(types);
+    }
+
+    protected YamlComposedTypeBase(@NotNull String typeName, List<YamlMetaType> types, @NotNull TypeProps props) {
+        super(typeName, props);
         assert types.size() > 1 : "Nothing to compose: " + types;
         myTypes = copyList(types);
     }
@@ -113,8 +119,7 @@ public abstract class YamlComposedTypeBase extends YamlMetaType {
 
     @Override
     public void buildInsertionSuffixMarkup(@NotNull YamlInsertionMarkup markup,
-                                           @NotNull Field.Relation relation,
-                                           @NotNull ForcedCompletionPath.Iteration iteration) {
+                                           @NotNull Field.Relation relation) {
 
         if (relation == Field.Relation.SCALAR_VALUE ||
                 (relation == Field.Relation.OBJECT_CONTENTS && !listScalarSubTypes().isEmpty())) {

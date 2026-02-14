@@ -115,6 +115,40 @@ public final class MavenCoordinate {
     }
 
     /**
+     * Returns true if the version is "latest".
+     */
+    public boolean isLatestVersion() {
+        return "latest".equals(version);
+    }
+
+    /**
+     * Returns true if the version contains at least one digit,
+     * meaning it looks like a real version that Maven can resolve.
+     */
+    public boolean isResolvableVersion() {
+        for (int i = 0; i < version.length(); i++) {
+            if (Character.isDigit(version.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns groupId:artifactId (without version) for matching across versions.
+     */
+    public @NotNull String toGA() {
+        return groupId + ":" + artifactId;
+    }
+
+    /**
+     * Returns a new MavenCoordinate with a different version.
+     */
+    public @NotNull MavenCoordinate withVersion(@NotNull String newVersion) {
+        return new MavenCoordinate(groupId, artifactId, newVersion, classifier, type);
+    }
+
+    /**
      * Returns the GAV string (groupId:artifactId:version).
      */
     public @NotNull String toGav() {

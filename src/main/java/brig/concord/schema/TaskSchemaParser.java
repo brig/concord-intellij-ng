@@ -16,9 +16,10 @@ public class TaskSchemaParser {
 
     public @NotNull TaskSchema parse(@NotNull String taskName, @NotNull InputStream json) {
         var root = JsonParser.parseReader(new InputStreamReader(json, StandardCharsets.UTF_8)).getAsJsonObject();
+        var description = getString(root, "description");
         var inSection = parseInSection(root);
         var outSection = parseOutSection(root);
-        return new TaskSchema(taskName, inSection.base, inSection.conditionals, outSection);
+        return new TaskSchema(taskName, description, inSection.base, inSection.conditionals, outSection);
     }
 
     private record InSectionResult(TaskSchemaSection base, List<TaskSchemaConditional> conditionals) {}
@@ -229,7 +230,13 @@ public class TaskSchemaParser {
     }
 
     private @NotNull SchemaType parseSchemaType(@NotNull JsonObject root, @NotNull JsonObject obj) {
-        // 1. Handle oneOf / anyOf → Composite (or unwrap if single alternative)
+        // 1. Check oneOf for const-enum pattern: oneOf: [{const: "a", description: "..."}, ...]
+        var constEnum = parseConstEnum(root, obj);
+        if (constEnum != null) {
+            return constEnum;
+        }
+
+        // 2. Handle oneOf / anyOf → Composite (or unwrap if single alternative)
         var compositeAlternatives = parseCompositeAlternatives(root, obj, "oneOf");
         if (compositeAlternatives == null) {
             compositeAlternatives = parseCompositeAlternatives(root, obj, "anyOf");
@@ -240,7 +247,7 @@ public class TaskSchemaParser {
                     : new SchemaType.Composite(compositeAlternatives);
         }
 
-        // 2. Check enum
+        // 3. Check enum
         if (obj.has("enum")) {
             var enumValues = new ArrayList<String>();
             for (var v : obj.getAsJsonArray("enum")) {
@@ -354,6 +361,48 @@ public class TaskSchemaParser {
             return ap.getAsBoolean();
         }
         return true; // default to true
+    }
+
+    private @Nullable SchemaType.Enum parseConstEnum(@NotNull JsonObject root, @NotNull JsonObject obj) {
+        var oneOf = obj.getAsJsonArray("oneOf");
+        if (oneOf == null || oneOf.isEmpty()) {
+            return null;
+        }
+
+        var values = new ArrayList<String>();
+        var descriptions = new ArrayList<String>();
+        var hasDescriptions = false;
+
+        for (var element : oneOf) {
+            var resolved = resolveRef(root, element);
+            if (!resolved.isJsonObject()) {
+                return null;
+            }
+            var item = resolved.getAsJsonObject();
+            var constValue = item.get("const");
+            if (constValue == null) {
+                return null; // not a const-enum pattern
+            }
+            var sv = asStringValue(constValue);
+            if (sv == null) {
+                return null;
+            }
+            values.add(sv);
+            var desc = getString(item, "description");
+            descriptions.add(desc != null ? desc : "");
+            if (desc != null) {
+                hasDescriptions = true;
+            }
+        }
+
+        if (values.isEmpty()) {
+            return null;
+        }
+
+        return new SchemaType.Enum(
+                List.copyOf(values),
+                hasDescriptions ? List.copyOf(descriptions) : List.of()
+        );
     }
 
     private static @Nullable String asStringValue(@NotNull JsonElement element) {

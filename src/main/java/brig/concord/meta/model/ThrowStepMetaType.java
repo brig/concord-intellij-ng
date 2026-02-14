@@ -5,8 +5,8 @@ import brig.concord.yaml.meta.model.YamlStringType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ThrowStepMetaType extends IdentityMetaType {
 
@@ -16,16 +16,16 @@ public class ThrowStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "throw", YamlStringType::getInstance,
-            "name", StepNameMetaType::getInstance);
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "throw", new YamlStringType("string", descKey("doc.step.throw.key.description").andRequired()),
+            "name", StepNameMetaType.getInstance());
 
-    protected ThrowStepMetaType() {
-        super("Throw", "throw", Set.of("throw"));
+    private ThrowStepMetaType() {
+        super("throw", descKey("doc.step.throw.description"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 }

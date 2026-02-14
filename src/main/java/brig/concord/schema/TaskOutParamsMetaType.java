@@ -13,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
+
 public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaType {
 
     private static final TaskOutParamsMetaType INSTANCE = new TaskOutParamsMetaType();
@@ -23,13 +25,14 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
         return INSTANCE;
     }
 
-    protected TaskOutParamsMetaType() {
-        super("out params [object|string]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()));
+    private TaskOutParamsMetaType() {
+        super(List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()),
+                descKey("doc.step.feature.out.description"));
         this.hasSchema = false;
     }
 
     private TaskOutParamsMetaType(@NotNull YamlMetaType objectType, boolean hasSchema) {
-        super("out params [object|string]", List.of(StringMetaType.getInstance(), objectType));
+        super(StringMetaType.getInstance(), objectType);
         this.hasSchema = hasSchema;
     }
 

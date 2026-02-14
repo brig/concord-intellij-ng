@@ -1,15 +1,21 @@
 package brig.concord.meta.model.value;
 
 import brig.concord.ConcordBundle;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlEnumType;
 import brig.concord.yaml.psi.YAMLQuotedText;
+import brig.concord.yaml.psi.YAMLScalar;
+import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.psi.YAMLScalar;
-import brig.concord.yaml.psi.YAMLValue;
+
+import java.util.List;
 
 public class BooleanMetaType extends YamlEnumType {
+
+    private static final List<EnumValue> VALUES =
+            EnumValue.fromLiterals("true", "false", "TRUE", "FALSE", "True", "False");
 
     private static final BooleanMetaType INSTANCE = new BooleanMetaType();
 
@@ -18,8 +24,11 @@ public class BooleanMetaType extends YamlEnumType {
     }
 
     public BooleanMetaType() {
-        super("yaml:boolean", "boolean");
-        withLiterals("true", "false", "TRUE", "FALSE", "True",  "False");
+        super("boolean", VALUES);
+    }
+
+    public BooleanMetaType(@NotNull TypeProps props) {
+        super("boolean", props, VALUES);
     }
 
     @Override

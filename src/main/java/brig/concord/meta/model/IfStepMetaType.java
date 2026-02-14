@@ -1,13 +1,12 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.ExpressionMetaType;
-
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class IfStepMetaType extends IdentityMetaType {
 
@@ -20,18 +19,24 @@ public class IfStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "if", ExpressionMetaType::getInstance,
-            THEN, StepsMetaType::getInstance,
-            ELSE, StepsMetaType::getInstance,
-            "meta", StepMetaMetaType::getInstance);
+    private static final Map<String, YamlMetaType> features;
 
-    protected IfStepMetaType() {
-        super("If", "if", Set.of("if", THEN));
+    static {
+        var thenSteps = new StepsMetaType(descKey("doc.step.feature.then.description").andRequired());
+        var elseSteps = new StepsMetaType(descKey("doc.step.feature.else.description"));
+        features = Map.of(
+                "if", new ExpressionMetaType(descKey("doc.type.expression.description").andRequired()),
+                THEN, thenSteps,
+                ELSE, elseSteps,
+                "meta", StepMetaMetaType.getInstance());
+    }
+
+    private IfStepMetaType() {
+        super("if", descKey("doc.step.if.description"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 }

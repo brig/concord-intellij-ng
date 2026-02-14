@@ -53,7 +53,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("junit:junit:4.13.2")
-    testImplementation("org.assertj:assertj-core:3.27.3")
+    testImplementation("org.assertj:assertj-core:3.27.7")
 
     implementation("com.cronutils:cron-utils:9.2.0")
     implementation("org.ow2.asm:asm:9.7")
@@ -189,6 +189,22 @@ val runIdeNoK8s by intellijPlatformTesting.runIde.registering {
     plugins {
         disablePlugin("com.intellij.kubernetes")
     }
+}
+
+// Configuration for extracting IntelliJ IDEA sources for local reference
+val ideaSources by configurations.creating {
+    isTransitive = false
+}
+
+dependencies {
+    ideaSources("com.jetbrains.intellij.idea:idea:${properties("platformVersion")}:sources")
+}
+
+tasks.register<Sync>("extractIdeaSources") {
+    group = "ide"
+    description = "Extracts IntelliJ IDEA sources to .idea-sources/ for local reference"
+    from(ideaSources.map { zipTree(it) })
+    into(layout.projectDirectory.dir(".idea-sources"))
 }
 
 

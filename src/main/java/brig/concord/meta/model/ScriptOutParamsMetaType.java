@@ -2,13 +2,14 @@ package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.meta.model.value.StringMetaType;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class ScriptOutParamsMetaType extends YamlAnyOfType {
 
@@ -18,8 +19,9 @@ public class ScriptOutParamsMetaType extends YamlAnyOfType {
         return INSTANCE;
     }
 
-    protected ScriptOutParamsMetaType() {
-        super("out params [object|string]", List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()));
+    private ScriptOutParamsMetaType() {
+        super(List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()),
+                descKey("doc.step.feature.out.description"));
     }
 
     @Override

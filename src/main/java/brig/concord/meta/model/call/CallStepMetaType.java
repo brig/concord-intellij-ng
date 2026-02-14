@@ -1,12 +1,13 @@
 package brig.concord.meta.model.call;
 
-import brig.concord.meta.model.*;
+import brig.concord.meta.model.IdentityMetaType;
+import brig.concord.meta.model.StepFeatures;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class CallStepMetaType extends IdentityMetaType {
 
@@ -16,19 +17,19 @@ public class CallStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
-            StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
-            Map.of("call", CallMetaType::getInstance,
-                   "in", CallInParamsMetaType::getInstance,
-                   "out", CallOutParamsMetaType::getInstance)
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
+            Map.of("call", new CallMetaType(descKey("doc.step.call.key.description").andRequired()),
+                   "in", CallInParamsMetaType.getInstance(),
+                   "out", CallOutParamsMetaType.getInstance())
     );
 
-    protected CallStepMetaType() {
-        super("Call", "call", Set.of("call"));
+    private CallStepMetaType() {
+        super("call", descKey("doc.step.call.description"));
     }
 
     @Override
-    public @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    public @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 }

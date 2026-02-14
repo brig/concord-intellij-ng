@@ -22,7 +22,12 @@ public class YamlIntegerType extends YamlScalarType {
     }
 
     public YamlIntegerType(boolean quotedValuesAllowed) {
-        super("yaml:integer", "integer");
+        super("integer");
+        myQuotedValuesAllowed = quotedValuesAllowed;
+    }
+
+    public YamlIntegerType(boolean quotedValuesAllowed, @NotNull TypeProps props) {
+        super("integer", props);
         myQuotedValuesAllowed = quotedValuesAllowed;
     }
 

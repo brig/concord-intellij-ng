@@ -1,0 +1,14 @@
+<div class='definition'>
+    <pre>resources</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Configures which Concord YAML files are loaded in addition to the root <code>concord.yml</code>. If not
+        specified, Concord uses the default patterns under <code>concord/</code> (for example: <code>glob:concord/{**/,}{*.,}concord.yml</code>)
+    </p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>concord</code> <i>(string[])</i> &mdash; list of path patterns (<code>glob:</code> or
+            <code>regex:</code>) used to find additional Concord files
+        </li>
+    </ul>
+</div>

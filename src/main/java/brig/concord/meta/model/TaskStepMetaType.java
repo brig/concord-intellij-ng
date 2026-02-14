@@ -7,7 +7,6 @@ import brig.concord.meta.model.value.BooleanMetaType;
 import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.schema.TaskInParamsMetaType;
 import brig.concord.schema.TaskOutParamsMetaType;
-
 import brig.concord.yaml.meta.model.CompletionContext;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLScalar;
@@ -19,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class TaskStepMetaType extends IdentityMetaType {
 
@@ -30,24 +29,27 @@ public class TaskStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, Supplier<YamlMetaType>> features = StepFeatures.combine(
-            StepFeatures.NAME_AND_META, StepFeatures.ERROR, StepFeatures.LOOP_AND_RETRY,
-            Map.of("task", TaskNameMetaType::getInstance,
-                   "in", TaskInParamsMetaType::getInstance,
-                   "out", TaskOutParamsMetaType::getInstance,
-                   "ignoreErrors", BooleanMetaType::getInstance)
+    private static final Map<String, YamlMetaType> features = StepFeatures.combine(
+            StepFeatures.nameAndMeta(), StepFeatures.error(), StepFeatures.loopAndRetry(),
+            Map.of("task", TaskNameMetaType.getInstance(),
+                   "in", TaskInParamsMetaType.getInstance(),
+                   "out", TaskOutParamsMetaType.getInstance(),
+                   "ignoreErrors", new BooleanMetaType(descKey("doc.step.feature.ignoreErrors.description")))
     );
 
-    protected TaskStepMetaType() {
-        super("Task", "task", Set.of("task"));
+    private TaskStepMetaType() {
+        super("task", descKey("doc.step.task.description"));
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 
-    static class TaskNameMetaType extends StringMetaType implements HighlightProvider {
+    public record TaskNameLookup(@NotNull String name) {
+    }
+
+    public static class TaskNameMetaType extends StringMetaType implements HighlightProvider {
 
         private static final TaskNameMetaType INSTANCE = new TaskNameMetaType();
 
@@ -60,6 +62,10 @@ public class TaskStepMetaType extends IdentityMetaType {
             return ConcordHighlightingColors.TARGET_IDENTIFIER;
         }
 
+        private TaskNameMetaType() {
+            super(descKey("doc.step.task.key.description").andRequired());
+        }
+
         @Override
         public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar,
                                                                       @Nullable CompletionContext completionContext) {
@@ -68,7 +74,7 @@ public class TaskStepMetaType extends IdentityMetaType {
 
             return taskNames.stream()
                     .sorted()
-                    .map(name -> LookupElementBuilder.create(name)
+                    .map(name -> LookupElementBuilder.create(new TaskNameLookup(name), name)
                             .withPresentableText(name)
                             .withTypeText("task"))
                     .toList();

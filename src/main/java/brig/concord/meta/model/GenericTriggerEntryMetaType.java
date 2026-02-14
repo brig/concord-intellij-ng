@@ -5,13 +5,13 @@ import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.meta.model.value.IntegerMetaType;
 import brig.concord.meta.model.value.StringArrayMetaType;
-
 import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Supplier;
+
+import static brig.concord.yaml.meta.model.TypeProps.descKey;
+import static brig.concord.yaml.meta.model.TypeProps.required;
 
 public class GenericTriggerEntryMetaType extends ConcordMetaType {
 
@@ -21,28 +21,21 @@ public class GenericTriggerEntryMetaType extends ConcordMetaType {
         return INSTANCE;
     }
 
-    private static final Set<String> required = Set.of("entryPoint", "conditions", "version");
-
-    private static final Map<String, Supplier<YamlMetaType>> features = Map.of(
-            "entryPoint", CallMetaType::getInstance,
-            "activeProfiles", StringArrayMetaType::getInstance,
-            "arguments", AnyMapMetaType::getInstance,
-            "exclusive", TriggerExclusiveMetaType::getInstance,
-            "conditions", AnyMapMetaType::getInstance,
-            "version", IntegerMetaType::getInstance
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "entryPoint", new CallMetaType(descKey("doc.step.call.key.description").andRequired()),
+            "activeProfiles", StringArrayMetaType.getInstance(),
+            "arguments", AnyMapMetaType.getInstance(),
+            "exclusive", TriggerExclusiveMetaType.getInstance(),
+            "conditions", new AnyMapMetaType(required()),
+            "version", new IntegerMetaType(required())
     );
 
-    protected GenericTriggerEntryMetaType() {
-        super("generic trigger entry");
+    private GenericTriggerEntryMetaType() {
     }
 
     @Override
-    protected @NotNull Map<String, Supplier<YamlMetaType>> getFeatures() {
+    protected @NotNull Map<String, YamlMetaType> getFeatures() {
         return features;
     }
 
-    @Override
-    protected Set<String> getRequiredFields() {
-        return required;
-    }
 }

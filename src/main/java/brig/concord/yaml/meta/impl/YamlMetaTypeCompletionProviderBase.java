@@ -7,14 +7,12 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ProcessingContext;
 import com.intellij.util.containers.ContainerUtil;
-import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.YAMLElementTypes;
@@ -168,39 +166,16 @@ public abstract class YamlMetaTypeCompletionProviderBase extends CompletionProvi
 
         final boolean needsSequenceItemMark = existingPairs.isEmpty() && needsSequenceItem(meta.getField());
 
-        if (params.getCompletionType() == CompletionType.SMART) {
-            final String text = insertedScalar.getText();
-            final int caretPos = text.indexOf(DUMMY_IDENTIFIER_TRIMMED);
-            String pattern = StringUtil.toLowerCase((caretPos >= 0 ? text.substring(0, caretPos) : text));
-
-            final Collection<List<Field>> paths = collectPaths(filteredList, !pattern.isEmpty() ? 10 : 1);
-
-            for (List<Field> pathToInsert : paths) {
-                final Field lastField = pathToInsert.getLast();
-                if (StringUtil.toLowerCase(lastField.getName()).startsWith(pattern)) {
-                    final YamlMetaType.ForcedCompletionPath completionPath = YamlMetaType.ForcedCompletionPath.forDeepCompletion(pathToInsert);
-                    LookupElementBuilder l = LookupElementBuilder
-                            .create(completionPath, completionPath.getName())
-                            .withIcon(lastField.getLookupIcon())
-                            .withInsertHandler(createKeyInsertHandler(params.getPosition().getProject(), needsSequenceItemMark, pathToInsert.getFirst()))
-                            .withTypeText(lastField.getDefaultType().getDisplayName(), true)
-                            .withStrikeoutness(lastField.isDeprecated());
-                    result.addElement(l);
-                }
-            }
-        }
-        else {
-            filteredList.stream()
-                    .filter(childField -> !existingByKey.containsKey(childField.getName()))
-                    .forEach(childField -> {
-                        var lookups = ContainerUtil.filter(childField.getKeyLookups(metaType, insertedScalar), l -> {
-                            return !existingByKey.containsKey(l.getLookupString());
-                        });
-
-                        registerBasicKeyCompletion(result, lookups,
-                                createKeyInsertHandler(params.getPosition().getProject(), needsSequenceItemMark, childField));
+        filteredList.stream()
+                .filter(childField -> !existingByKey.containsKey(childField.getName()))
+                .forEach(childField -> {
+                    var lookups = ContainerUtil.filter(childField.getKeyLookups(metaType, insertedScalar), l -> {
+                        return !existingByKey.containsKey(l.getLookupString());
                     });
-        }
+
+                    registerBasicKeyCompletion(result, lookups,
+                            createKeyInsertHandler(params.getPosition().getProject(), needsSequenceItemMark, childField));
+                });
     }
 
     protected @NotNull InsertHandler<LookupElement> createKeyInsertHandler(@Nullable Project project,
@@ -220,32 +195,6 @@ public abstract class YamlMetaTypeCompletionProviderBase extends CompletionProvi
         if (!lookups.isEmpty()) {
             lookups.stream().map(l -> l.withInsertHandler(insertHandler)).forEach(result::addElement);
         }
-    }
-
-    private static @NotNull Collection<List<Field>> collectPaths(final @NotNull Collection<? extends Field> fields, final int deepness) {
-        Collection<List<Field>> result = new ArrayList<>();
-        doCollectPathsRec(fields, Collections.emptyList(), result, deepness);
-        return result;
-    }
-
-    private static void doCollectPathsRec(final @NotNull Collection<? extends Field> fields,
-                                          final @NotNull List<? extends Field> currentPath,
-                                          final @NotNull Collection<? super List<Field>> result, final int deepness) {
-        if (currentPath.size() >= deepness) {
-            return;
-        }
-
-        fields.stream()
-                .filter(field -> !field.isAnyNameAllowed())
-                .forEach(field -> {
-                    final List<Field> fieldPath = StreamEx.<Field>of(currentPath).append(field).toList();
-                    result.add(fieldPath);
-                    final YamlMetaType metaType = field.getType(field.getDefaultRelation());
-                    if (metaType instanceof YamlMetaClass) {
-                        doCollectPathsRec(ContainerUtil.filter(((YamlMetaClass)metaType).getFeatures(), Field::isEditable),
-                                fieldPath, result, deepness);
-                    }
-                });
     }
 
     private static boolean addValueCompletions(@NotNull YAMLScalar insertedScalar,
