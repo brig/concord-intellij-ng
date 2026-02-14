@@ -107,18 +107,18 @@ and **hover documentation** won't work for those tasks.
 
 The plugin detects these versions and shows a **weak warning** on the dependency string:
 
-```concord
-configuration:
-  dependencies:
-    #  Version 'latest' can only be resolved by the Concord server.
-    - "mvn://com.walmartlabs.concord.plugins.basic:smtp-tasks:latest"
-```
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/deps-inspection-warn.png').default} alt="Server-only dependency version warning" />
+    <figcaption>
+        Weak warning on a dependency with <code>latest</code> version that cannot be resolved locally.
+    </figcaption>
+</figure>
 
-### The `idea` Profile Approach
+### The `cli` Profile Approach
 
 The recommended solution is to add a concrete version of the dependency to a special
-<span className="tokenBadge" data-kind="section">profiles</span> → `idea` section. The plugin resolves
-dependencies from all profiles, including `idea`, so this gives the IDE what it needs without
+<span className="tokenBadge" data-kind="section">profiles</span> → `cli` section. The plugin resolves
+dependencies from all profiles, including `cli`, so this gives the IDE what it needs without
 affecting server execution:
 
 ```concord
@@ -127,7 +127,7 @@ configuration:
     - "mvn://com.walmartlabs.concord.plugins.basic:smtp-tasks:latest"
 
 profiles:
-  idea:
+  cli:
     configuration:
       dependencies:
         - "mvn://com.walmartlabs.concord.plugins.basic:smtp-tasks:2.36.0"
@@ -136,22 +136,34 @@ profiles:
 The original `latest` version is preserved for the server, while the IDE uses the concrete `2.36.0`
 to provide full autocomplete and validation.
 
-### Quick Fix: Add to `idea` Profile
+### Quick Fix: Add to `cli` Profile
 
 The plugin provides a quick fix that automates this process:
 
 1. Place the caret on the highlighted dependency.
 2. Press <Keystroke mac={[{icon: "⌥", label: "Alt"}, {label: "⏎"}]} win={[{label: "Alt"}, {label: "Enter"}]} /> to open the intention menu.
-3. Select **Add to idea profile with concrete version**.
+3. Select **Add to cli profile with concrete version**.
 4. Enter the desired version in the dialog that appears.
 
-The plugin will create the `profiles.idea.configuration.dependencies` structure automatically
+The plugin will create the `profiles.cli.configuration.dependencies` structure automatically
 if it doesn't exist, or append to the existing list.
 
-<!-- TODO: screenshot of the inspection warning + quick fix in action -->
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/deps-quick-fix.png').default} alt="Quick fix to add dependency to cli profile" />
+    <figcaption>
+        Quick fix suggesting to add the dependency to the <code>cli</code> profile with a concrete version.
+    </figcaption>
+</figure>
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/deps-quick-fix-result.png').default} alt="Result after applying the quick fix" />
+    <figcaption>
+        After applying the fix, the concrete version is added to <code>profiles.cli</code> and the warning is suppressed.
+    </figcaption>
+</figure>
 
 :::tip
-Once a dependency with the same `groupId:artifactId` exists in the `idea` profile,
+Once a dependency with the same `groupId:artifactId` exists in the `cli` profile,
 the warning on the original `latest` version is automatically suppressed.
 :::
 

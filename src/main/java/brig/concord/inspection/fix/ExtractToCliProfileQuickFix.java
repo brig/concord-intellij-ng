@@ -20,12 +20,12 @@ import com.intellij.psi.PsiManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
-public class ExtractToIdeaProfileQuickFix implements LocalQuickFix {
+public class ExtractToCliProfileQuickFix implements LocalQuickFix {
 
     @SafeFieldForPreview
     private final MavenCoordinate coordinate;
 
-    public ExtractToIdeaProfileQuickFix(@NotNull MavenCoordinate coordinate) {
+    public ExtractToCliProfileQuickFix(@NotNull MavenCoordinate coordinate) {
         this.coordinate = coordinate;
     }
 
@@ -87,15 +87,18 @@ public class ExtractToIdeaProfileQuickFix implements LocalQuickFix {
             return;
         }
 
-        var rootVf = scopes.getFirst().getRootFile();
-        var rootPsi = PsiManager.getInstance(project).findFile(rootVf);
-        if (!(rootPsi instanceof ConcordFile rootConcord)) {
-            return;
-        }
+        var psiManager = PsiManager.getInstance(project);
+        for (var scope : scopes) {
+            var rootVf = scope.getRootFile();
+            var rootPsi = psiManager.findFile(rootVf);
+            if (!(rootPsi instanceof ConcordFile rootConcord)) {
+                continue;
+            }
 
-        WriteCommandAction.runWriteCommandAction(project, getFamilyName(), null, () -> {
-            insertDependency(project, rootConcord, depString);
-        }, rootPsi);
+            WriteCommandAction.runWriteCommandAction(project, getFamilyName(), null, () -> {
+                insertDependency(project, rootConcord, depString);
+            }, rootPsi);
+        }
     }
 
     private void insertDependency(@NotNull Project project,
@@ -103,12 +106,12 @@ public class ExtractToIdeaProfileQuickFix implements LocalQuickFix {
                                   @NotNull String depString) {
         var generator = YAMLElementGenerator.getInstance(project);
 
-        // Navigate: profiles -> idea -> configuration -> dependencies
+        // Navigate: profiles -> cli -> configuration -> dependencies
         var profilesKv = rootFile.profiles().orElse(null);
         if (profilesKv == null) {
-            // Create entire profiles.idea.configuration.dependencies structure
+            // Create entire profiles.cli.configuration.dependencies structure
             var yaml = "profiles:\n" +
-                    "  idea:\n" +
+                    "  cli:\n" +
                     "    configuration:\n" +
                     "      dependencies:\n" +
                     "        - " + depString;
@@ -137,24 +140,24 @@ public class ExtractToIdeaProfileQuickFix implements LocalQuickFix {
             return;
         }
 
-        var ideaKv = profilesMapping.getKeyValueByKey("idea");
-        if (ideaKv == null) {
-            var newKv = generator.createYamlKeyValue("idea",
+        var cliKv = profilesMapping.getKeyValueByKey("cli");
+        if (cliKv == null) {
+            var newKv = generator.createYamlKeyValue("cli",
                     "configuration:\n  dependencies:\n    - " + depString);
             profilesMapping.putKeyValue(newKv);
             return;
         }
 
-        var ideaValue = ideaKv.getValue();
-        if (!(ideaValue instanceof YAMLMapping ideaMapping)) {
+        var cliValue = cliKv.getValue();
+        if (!(cliValue instanceof YAMLMapping cliMapping)) {
             return;
         }
 
-        var configKv = ideaMapping.getKeyValueByKey("configuration");
+        var configKv = cliMapping.getKeyValueByKey("configuration");
         if (configKv == null) {
             var newKv = generator.createYamlKeyValue("configuration",
                     "dependencies:\n  - " + depString);
-            ideaMapping.putKeyValue(newKv);
+            cliMapping.putKeyValue(newKv);
             return;
         }
 

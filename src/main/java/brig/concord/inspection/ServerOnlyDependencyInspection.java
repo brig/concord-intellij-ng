@@ -4,7 +4,7 @@ import brig.concord.ConcordBundle;
 import brig.concord.dependency.DependencyCollector;
 import brig.concord.dependency.MavenCoordinate;
 import brig.concord.dependency.TaskRegistry;
-import brig.concord.inspection.fix.ExtractToIdeaProfileQuickFix;
+import brig.concord.inspection.fix.ExtractToCliProfileQuickFix;
 import brig.concord.psi.ConcordFile;
 import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.psi.YAMLMapping;
@@ -34,7 +34,7 @@ public class ServerOnlyDependencyInspection extends ConcordInspectionTool {
                     return;
                 }
 
-                var coveredGAs = collectIdeaProfileGAs(concordFile);
+                var coveredGAs = collectCliProfileGAs(concordFile);
 
                 DependencyCollector.forEachDependencyScalar(concordFile, scalar -> {
                     var coordinate = MavenCoordinate.parse(scalar.getTextValue());
@@ -55,7 +55,7 @@ public class ServerOnlyDependencyInspection extends ConcordInspectionTool {
                             ConcordBundle.message("inspection.server.only.dependency.message",
                                     coordinate.getVersion()),
                             ProblemHighlightType.WEAK_WARNING,
-                            new ExtractToIdeaProfileQuickFix(coordinate)
+                            new ExtractToCliProfileQuickFix(coordinate)
                     );
                 });
             }
@@ -63,11 +63,11 @@ public class ServerOnlyDependencyInspection extends ConcordInspectionTool {
     }
 
     /**
-     * Collects groupId:artifactId strings from profiles.idea.configuration.dependencies
-     * and profiles.idea.configuration.extraDependencies in the root file of each scope
+     * Collects groupId:artifactId strings from profiles.cli.configuration.dependencies
+     * and profiles.cli.configuration.extraDependencies in the root file of each scope
      * that contains the given file.
      */
-    private @NotNull Set<String> collectIdeaProfileGAs(@NotNull ConcordFile file) {
+    private @NotNull Set<String> collectCliProfileGAs(@NotNull ConcordFile file) {
         var vf = file.getVirtualFile();
         if (vf == null) {
             return Set.of();
@@ -89,30 +89,30 @@ public class ServerOnlyDependencyInspection extends ConcordInspectionTool {
                 continue;
             }
 
-            collectGAsFromIdeaProfile(rootConcord, result);
+            collectGAsFromCliProfile(rootConcord, result);
         }
 
         return result;
     }
 
-    private static void collectGAsFromIdeaProfile(@NotNull ConcordFile rootFile, @NotNull Set<String> result) {
+    private static void collectGAsFromCliProfile(@NotNull ConcordFile rootFile, @NotNull Set<String> result) {
         rootFile.profiles().ifPresent(profilesKv -> {
             var profilesValue = profilesKv.getValue();
             if (!(profilesValue instanceof YAMLMapping profilesMapping)) {
                 return;
             }
 
-            var ideaKv = profilesMapping.getKeyValueByKey("idea");
-            if (ideaKv == null) {
+            var cliKv = profilesMapping.getKeyValueByKey("cli");
+            if (cliKv == null) {
                 return;
             }
 
-            var ideaValue = ideaKv.getValue();
-            if (!(ideaValue instanceof YAMLMapping ideaMapping)) {
+            var cliValue = cliKv.getValue();
+            if (!(cliValue instanceof YAMLMapping cliMapping)) {
                 return;
             }
 
-            var configKv = ideaMapping.getKeyValueByKey("configuration");
+            var configKv = cliMapping.getKeyValueByKey("configuration");
             if (configKv == null) {
                 return;
             }

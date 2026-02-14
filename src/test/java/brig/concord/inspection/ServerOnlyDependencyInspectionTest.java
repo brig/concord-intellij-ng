@@ -27,17 +27,17 @@ class ServerOnlyDependencyInspectionTest extends InspectionTestBase {
 
         inspection(value("/configuration/dependencies[0]"))
                 .expectHighlight("Version 'latest' can only be resolved by the Concord server. " +
-                        "Add a concrete version to the 'idea' profile for IDE support.");
+                        "Add a concrete version to the 'cli' profile for IDE support.");
     }
 
     @Test
-    void testLatestVersionCoveredByIdeaProfile() {
+    void testLatestVersionCoveredByCliProfile() {
         configureFromText("""
                 configuration:
                   dependencies:
                     - "mvn://com.example:lib:latest"
                 profiles:
-                  idea:
+                  cli:
                     configuration:
                       dependencies:
                         - "mvn://com.example:lib:2.0.0"
@@ -61,7 +61,7 @@ class ServerOnlyDependencyInspectionTest extends InspectionTestBase {
 
         inspection(value("/configuration/dependencies[0]"))
                 .expectHighlight("Version 'PROJECT_VERSION' can only be resolved by the Concord server. " +
-                        "Add a concrete version to the 'idea' profile for IDE support.");
+                        "Add a concrete version to the 'cli' profile for IDE support.");
     }
 
     @Test
@@ -89,13 +89,13 @@ class ServerOnlyDependencyInspectionTest extends InspectionTestBase {
     }
 
     @Test
-    void testIdeaProfileExtraDependenciesCoverage() {
+    void testCliProfileExtraDependenciesCoverage() {
         configureFromText("""
                 configuration:
                   dependencies:
                     - "mvn://com.example:lib:latest"
                 profiles:
-                  idea:
+                  cli:
                     configuration:
                       extraDependencies:
                         - "mvn://com.example:lib:3.0.0"
@@ -121,7 +121,7 @@ class ServerOnlyDependencyInspectionTest extends InspectionTestBase {
 
         inspection(value("/profiles/myProfile/configuration/dependencies[0]"))
                 .expectHighlight("Version 'latest' can only be resolved by the Concord server. " +
-                        "Add a concrete version to the 'idea' profile for IDE support.");
+                        "Add a concrete version to the 'cli' profile for IDE support.");
     }
 
     private void setSkipped(String... coordinates) {
