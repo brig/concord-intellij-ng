@@ -358,6 +358,9 @@ public final class TaskRegistry {
             var psiManager = PsiManager.getInstance(project);
             var analyzer = DaemonCodeAnalyzer.getInstance(project);
             for (var vf : files) {
+                if (!vf.isValid()) {
+                    continue;
+                }
                 var psiFile = psiManager.findFile(vf);
                 if (psiFile != null) {
                     analyzer.restart(psiFile);
@@ -374,12 +377,12 @@ public final class TaskRegistry {
 
         var wolf = WolfTheProblemSolver.getInstance(project);
         for (var file : old) {
-            if (!newProblemFiles.contains(file)) {
+            if (file.isValid() && !newProblemFiles.contains(file)) {
                 wolf.clearProblemsFromExternalSource(file, DEPENDENCY_PROBLEM_SOURCE);
             }
         }
         for (var file : newProblemFiles) {
-            if (!old.contains(file)) {
+            if (file.isValid() && !old.contains(file)) {
                 wolf.reportProblemsFromExternalSource(file, DEPENDENCY_PROBLEM_SOURCE);
             }
         }
