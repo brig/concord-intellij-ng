@@ -43,8 +43,8 @@ public class AnyOfType extends YamlAnyOfType {
         super(types, props);
     }
 
-    public AnyOfType withDescription(@Nullable String description, boolean required) {
-        return new AnyOfType(streamSubTypes().toList(), new TypeProps(null, description, required));
+    public AnyOfType withProps(@NotNull TypeProps props) {
+        return new AnyOfType(streamSubTypes().toList(), props);
     }
 
     @Override
@@ -109,6 +109,14 @@ public class AnyOfType extends YamlAnyOfType {
 
     private static @NotNull List<YamlMetaType> firstOrEmpty(@NotNull List<YamlMetaType> list) {
         return list.isEmpty() ? Collections.emptyList() : Collections.singletonList(list.getFirst());
+    }
+
+    @Override
+    public @NotNull List<DocumentedField> getValues() {
+        return streamSubTypes()
+                .flatMap(t -> t.getValues().stream())
+                .distinct()
+                .toList();
     }
 
     public boolean isScalar() {

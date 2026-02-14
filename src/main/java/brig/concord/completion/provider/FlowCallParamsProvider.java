@@ -2,6 +2,7 @@ package brig.concord.completion.provider;
 
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.value.*;
+import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
@@ -158,7 +159,7 @@ public class FlowCallParamsProvider {
         var description = parameter.getDescription();
         var mandatory = parameter.isMandatory();
 
-        return baseType.withDescription(description, mandatory);
+        return baseType.withProps(TypeProps.desc(description).andRequired(mandatory));
     }
 
     public static @Nullable FlowDocumentation findFlowDocumentation(PsiElement element) {

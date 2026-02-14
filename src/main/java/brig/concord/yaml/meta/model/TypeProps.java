@@ -16,7 +16,7 @@ public record TypeProps(
         return new TypeProps(descriptionKey, null, false);
     }
 
-    public static TypeProps desc(@NotNull String description) {
+    public static TypeProps desc(@Nullable String description) {
         return new TypeProps(null, description, false);
     }
 
@@ -26,5 +26,9 @@ public record TypeProps(
 
     public TypeProps andRequired() {
         return new TypeProps(descriptionKey, description, true);
+    }
+
+    public TypeProps andRequired(boolean required) {
+        return new TypeProps(descriptionKey, description, required);
     }
 }

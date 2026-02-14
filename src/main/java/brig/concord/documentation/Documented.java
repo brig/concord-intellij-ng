@@ -8,6 +8,15 @@ import java.util.List;
 
 public interface Documented {
 
+    static Documented ofDescription(@NotNull String description) {
+        return new Documented() {
+            @Override
+            public @NotNull String getDescription() {
+                return description;
+            }
+        };
+    }
+
     default @Nullable String getDescription() {
         return null;
     }

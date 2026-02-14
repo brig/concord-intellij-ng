@@ -62,16 +62,63 @@ flows:
         # repo, org, project, payload, ...
 ```
 
-:::tip
-Hover over a suggested parameter in the completion list to see its [documentation](./hover-docs) with type and description.
-:::
-
 ## Flow Documentation Completion
 
 When writing structured flow documentation (`/** ... */`), the plugin helps you define your parameters correctly:
 
 *   **Types:** Suggests valid Concord types like <span className="tokenBadge" data-kind="doc-param-type">string</span>, <span className="tokenBadge" data-kind="doc-param-type">int</span>, <span className="tokenBadge" data-kind="doc-param-type">boolean</span>, <span className="tokenBadge" data-kind="doc-param-type">object</span>, and their array counterparts (<span className="tokenBadge" data-kind="doc-param-type">string[]</span>, etc.).
 *   **Keywords:** Suggests keywords like <span className="tokenBadge" data-kind="doc-param-mandatory">mandatory</span>, <span className="tokenBadge" data-kind="doc-param-mandatory">required</span>, and <span className="tokenBadge" data-kind="doc-param-optional">optional</span> after the parameter type.
+
+## Quick Documentation in Completion
+
+While the completion list is open, you can preview the documentation for the selected item without accepting it. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "J"}]} win={[{label: "Ctrl"}, {label: "Q"}]} /> to open a documentation popup next to the completion list.
+
+### YAML Key Documentation
+
+Selecting a key like <span className="tokenBadge" data-kind="section">flows</span>, <span className="tokenBadge" data-kind="section">configuration</span>, <span className="tokenBadge" data-kind="step">task</span>, or <span className="tokenBadge" data-kind="step">call</span> in the completion list shows a short description of that key's purpose.
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-key.png').default} alt="YAML Key Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a YAML key selected in the completion list.
+    </figcaption>
+</figure>
+
+### Task Name Documentation
+
+When completing a task name, the documentation popup shows the full task description along with its input and output parameters, types, and descriptions — the same information you would see when [hovering over a task name](./hover-docs#task-documentation) in the editor.
+
+```concord
+flows:
+  main:
+    - task: co  # Ctrl+Space, then Ctrl+Q on "concord"
+```
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-task.png').default} alt="Task Name Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a task name showing description, input and output parameters.
+    </figcaption>
+</figure>
+
+### Task Parameter Documentation
+
+When completing parameters inside a task's <span className="tokenBadge" data-kind="step">in</span> block, the documentation popup shows the type and description of the selected parameter.
+
+```concord
+flows:
+  main:
+    - task: concord
+      in:
+        # Ctrl+Space, then Ctrl+Q on "url"
+```
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/completion-doc-param.png').default} alt="Task Parameter Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a task parameter showing its type and description.
+    </figcaption>
+</figure>
 
 ## How to Use
 

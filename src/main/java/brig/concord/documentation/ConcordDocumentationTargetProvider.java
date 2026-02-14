@@ -112,7 +112,7 @@ public class ConcordDocumentationTargetProvider implements DocumentationTargetPr
         }
 
         var taskName = scalar.getTextValue();
-        if (taskName == null || taskName.isBlank()) {
+        if (taskName.isBlank()) {
             return null;
         }
 

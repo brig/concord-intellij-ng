@@ -17,25 +17,35 @@ import static com.intellij.lang.documentation.DocumentationMarkup.*;
 
 public class ConcordDocumentationTarget implements DocumentationTarget {
 
-    private final SmartPsiElementPointer<YAMLKeyValue> elementPointer;
+    private final @Nullable SmartPsiElementPointer<YAMLKeyValue> elementPointer;
+    private final @Nullable String keyName;
     private final Documented documented;
     private final String typeName;
 
     public ConcordDocumentationTarget(YAMLKeyValue element, Documented documented, String typeName) {
         this.elementPointer = SmartPointerManager.createPointer(element);
+        this.keyName = null;
+        this.documented = documented;
+        this.typeName = typeName;
+    }
+
+    public ConcordDocumentationTarget(@Nullable String keyName, Documented documented, String typeName) {
+        this.elementPointer = null;
+        this.keyName = keyName;
         this.documented = documented;
         this.typeName = typeName;
     }
 
     @Override
     public @NotNull Pointer<? extends DocumentationTarget> createPointer() {
-        var ptr = this.elementPointer;
-        var doc = this.documented;
-        var type = this.typeName;
-        return () -> {
-            var element = ptr.getElement();
-            return element == null ? null : new ConcordDocumentationTarget(element, doc, type);
-        };
+        if (elementPointer != null) {
+            var ptr = this.elementPointer;
+            return () -> {
+                var element = ptr.getElement();
+                return element == null ? null : new ConcordDocumentationTarget(element, documented, typeName);
+            };
+        }
+        return () -> new ConcordDocumentationTarget(keyName, documented, typeName);
     }
 
     @Override
@@ -50,22 +60,21 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
 
     @Override
     public @Nullable DocumentationResult computeDocumentation() {
-        var element = elementPointer.getElement();
-        if (element == null) {
+        var resolved = resolveNameAndDescription();
+        if (resolved == null) {
             return null;
         }
 
         var sb = new StringBuilder();
 
-        sb.append(DEFINITION_START).append(StringUtil.escapeXmlEntities(element.getKeyText())).append(DEFINITION_END);
+        sb.append(DEFINITION_START).append(StringUtil.escapeXmlEntities(resolved.name())).append(DEFINITION_END);
 
         sb.append(CONTENT_START);
 
         sb.append("<p>Type: <code>").append(StringUtil.escapeXmlEntities(typeName)).append("</code></p>");
 
-        var description = documented.getDocumentationDescription(element);
-        if (description != null) {
-            sb.append("<p>").append(description).append("</p>");
+        if (resolved.description() != null) {
+            sb.append("<p>").append(resolved.description()).append("</p>");
         }
 
         var keysList = buildKeysList(documented.getDocumentationFields());
@@ -189,6 +198,22 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
             sb.append("</ul>");
         }
         sb.append("</li>");
+    }
+
+    private record Resolved(@NotNull String name, @Nullable String description) {}
+
+    private @Nullable Resolved resolveNameAndDescription() {
+        if (elementPointer != null) {
+            var element = elementPointer.getElement();
+            if (element == null) {
+                return null;
+            }
+            return new Resolved(element.getKeyText(), documented.getDocumentationDescription(element));
+        }
+        if (keyName == null) {
+            return null;
+        }
+        return new Resolved(keyName, documented.getDescription());
     }
 
     private static String normalizeDescription(@NotNull String description) {
