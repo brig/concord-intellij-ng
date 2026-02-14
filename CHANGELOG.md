@@ -1,12 +1,43 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- adds an inspection to detect dependencies with server-only version strings like `latest`
+or placeholders that cannot be resolved locally by the IDE. Provides a quick fix to add a concrete version to the `cli` profile
+([#113](https://github.com/brig/concord-intellij-ng/pull/113))
+- add documentation support for completion popup items (lookup elements)
+([#111](https://github.com/brig/concord-intellij-ng/pull/111))
+- adds comprehensive documentation support for Concord task definitions,
+including task-level descriptions, input/output parameter documentation
+([#110](https://github.com/brig/concord-intellij-ng/pull/110))
+- adds support for propagating flow-doc input parameter metadata (description, type, required) to call-step parameter docs
+([#109](https://github.com/brig/concord-intellij-ng/pull/109))
+- adds documentation support for flow calls in Concord YAML files
+([#107](https://github.com/brig/concord-intellij-ng/pull/107))
+- adds documentation for Concord YAML elements
+([#106](https://github.com/brig/concord-intellij-ng/pull/106))
+- adds JSON-based task schema support to power YAML inspections and completion for task `in`/`out` parameters,
+starting with the built-in Concord task schema
+([#96](https://github.com/brig/concord-intellij-ng/pull/96))
+
+### Changed
+
+- fix icon for tool window
+([#102](https://github.com/brig/concord-intellij-ng/pull/102))
+- project: migrate to junit5 
+([#101](https://github.com/brig/concord-intellij-ng/pull/101))
+- project: intellij plugins version up 
+([#95](https://github.com/brig/concord-intellij-ng/pull/95))
+
 ## 0.18.1 - 2026-02-07
 
 ### Changed
 
-- Improve performance by replacing filename-based scanning with indexed lookups and simplifying fingerprint computation
+- improve performance by replacing filename-based scanning with indexed lookups and simplifying fingerprint computation
 ([#98](https://github.com/brig/concord-intellij-ng/pull/98))
-- Fixes Concord modification tracking in multi-project scenarios by filtering filesystem/document 
+- fixes Concord modification tracking in multi-project scenarios by filtering filesystem/document 
 events to the current project and hardening PSI lookups
 ([#97](https://github.com/brig/concord-intellij-ng/pull/97))
 

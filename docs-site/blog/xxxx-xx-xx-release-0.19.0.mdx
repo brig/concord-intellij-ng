@@ -1,0 +1,96 @@
+---
+slug: whats-new-0.19.0
+title: What's New in Concord IntelliJ 0.19.0
+authors: [brig]
+tags: [release, features]
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+
+The `0.19.0` release brings **[Hover Documentation](/docs/features/hover-docs)** for flows, tasks, and YAML keys,
+a **[Task Schema System](/docs/features/completion#task-parameter-completion)** that powers context-aware completion and validation for task parameters,
+**[Quick Documentation in Completion](/docs/features/completion#quick-documentation-in-completion)** popups,
+and a new **[Server-Only Dependency Inspection](/docs/features/dependencies#server-only-versions)** with an automatic quick fix.
+
+<!--truncate-->
+
+## Hover Documentation
+
+You can now press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Q"}]} win={[{label: "Ctrl"}, {label: "Q"}]} /> on any Concord element to see contextual documentation without leaving the editor.
+
+### Flow Call Documentation
+
+Hovering over a flow name in a <span className="tokenBadge" data-kind="step">call</span> step shows the flow's description, input/output parameters with types, required/optional flags, and descriptions — all extracted from the target flow's [documentation block](/docs/features/flow-docs).
+
+<figure className="docFigure docFigure--sm5">
+    <img src={require('@site/static/img/hover-docs-flow.png').default} alt="Flow Hover Documentation" />
+    <figcaption>
+        Hover documentation for a flow call showing parameters from its documentation block.
+    </figcaption>
+</figure>
+
+### Task Documentation
+
+Hovering over a task name shows its full description along with input/output parameters, types, and enum values — powered by built-in task schemas. For tasks with conditional parameters (e.g. different params for `action: start` vs `action: fork`), the popup groups them intelligently.
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/hover-docs-task.png').default} alt="Task Hover Documentation" />
+    <figcaption>
+        Hover documentation for a task showing input and output parameters from the task schema.
+    </figcaption>
+</figure>
+
+### YAML Key Documentation
+
+Hovering over any Concord YAML key — top-level sections, step types, and their properties — shows a description of that key's purpose in context.
+
+## Task Schema System
+
+A new JSON Schema-based system powers intelligent completion and validation for <span className="tokenBadge" data-kind="step">task</span> step parameters.
+
+*   **Parameter Completion:** The plugin suggests valid `in` parameter names for known tasks as you type.
+*   **Enum Value Completion:** For parameters that accept a fixed set of values (e.g. `action`, `method`), the allowed options are suggested.
+*   **Conditional Parameters:** Suggestions adapt based on already specified values. After setting `action: start`, only parameters relevant to the `start` action are suggested.
+*   **Validation:** Unknown keys and invalid values inside task `in`/`out` blocks are flagged by inspections.
+
+The initial release ships with the built-in `concord` task schema. More task schemas will be added in future releases.
+
+## Quick Documentation in Completion
+
+While the completion list is open, you can now press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "J"}]} win={[{label: "Ctrl"}, {label: "Q"}]} /> to preview documentation for the selected item without accepting it. This works for YAML keys, task names, and task parameters.
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-task.png').default} alt="Task Name Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a task name showing description, input and output parameters.
+    </figcaption>
+</figure>
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/completion-doc-param.png').default} alt="Task Parameter Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a task parameter showing its type and description.
+    </figcaption>
+</figure>
+
+## Server-Only Dependency Inspection
+
+Dependencies that use version strings like `latest` — resolved at runtime by the Concord server but not by the IDE locally — are now detected and flagged with a weak warning. The plugin offers a **quick fix** that adds a concrete version to the `cli` profile, giving the IDE what it needs without affecting server execution.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/deps-inspection-warn.png').default} alt="Server-only dependency version warning" />
+    <figcaption>
+        Weak warning on a dependency with <code>latest</code> version that cannot be resolved locally.
+    </figcaption>
+</figure>
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/deps-quick-fix.png').default} alt="Quick fix to add dependency to cli profile" />
+    <figcaption>
+        Quick fix suggesting to add the dependency to the <code>cli</code> profile with a concrete version.
+    </figcaption>
+</figure>
+
+## Other Improvements
+
+*   **Tool Window Icon:** Fixed the tool window icon to use proper SVG format.
