@@ -166,10 +166,6 @@ public class FlowCallHierarchyProvider implements HierarchyProvider {
         }
 
         var process = ProcessDefinitionProvider.getInstance().get(callTarget);
-        if (process == null) {
-            return null;
-        }
-
         var flowElement = process.flow(value);
         if (flowElement instanceof YAMLKeyValue flowKv) {
             return flowKv;

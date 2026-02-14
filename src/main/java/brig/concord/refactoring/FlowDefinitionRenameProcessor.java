@@ -30,10 +30,6 @@ public class FlowDefinitionRenameProcessor extends RenamePsiElementProcessor {
         }
 
         var process = ProcessDefinitionProvider.getInstance().get(keyValue);
-        if (process == null) {
-            return;
-        }
-
         var flowName = keyValue.getKeyText();
         for (var flow : process.flows(flowName)) {
             if (!flow.equals(element)) {

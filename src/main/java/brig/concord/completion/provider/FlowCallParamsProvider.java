@@ -6,8 +6,8 @@ import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
+import brig.concord.psi.ProcessDefinitionProvider;
 import brig.concord.psi.YamlPsiUtils;
-import brig.concord.psi.ref.FlowDefinitionReference;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
@@ -21,6 +21,7 @@ import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -176,24 +177,27 @@ public class FlowCallParamsProvider {
 
     @Nullable
     private static FlowDocumentation doFindFlowDocumentation(YAMLKeyValue callKv) {
-        var flowName = callKv.getValue();
-        if (flowName == null) {
+        var flowNameValue = callKv.getValue();
+        if (!(flowNameValue instanceof YAMLScalar scalar)) {
             return null;
         }
 
-        for (var ref : flowName.getReferences()) {
-            if (ref instanceof FlowDefinitionReference fdr) {
-                var definition = fdr.resolve();
-                if (definition != null) {
-                    return CachedValuesManager.getCachedValue(definition, FLOW_DOC_CACHE, () -> {
-                        var doc = findFlowDocumentationBefore(definition);
-                        var file = definition.getContainingFile();
-                        return CachedValueProvider.Result.create(doc, file != null ? file : definition);
-                    });
-                }
-            }
+        var flowName = scalar.getTextValue();
+        if (flowName.isBlank()) {
+            return null;
         }
-        return null;
+
+        var process = ProcessDefinitionProvider.getInstance().get(callKv);
+        var definition = process.flow(flowName);
+        if (definition == null) {
+            return null;
+        }
+
+        return CachedValuesManager.getCachedValue(definition, FLOW_DOC_CACHE, () -> {
+            var doc = findFlowDocumentationBefore(definition);
+            var file = definition.getContainingFile();
+            return CachedValueProvider.Result.create(doc, file != null ? file : definition);
+        });
     }
 
     private static @Nullable FlowDocumentation findFlowDocumentationBefore(PsiElement flowDefinition) {

@@ -43,10 +43,6 @@ public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLScalar> i
 
     private static List<PsiElement> resolveAll(@NotNull YAMLScalar callElement) {
         var process = ProcessDefinitionProvider.getInstance().get(callElement);
-        if (process == null) {
-            return List.of();
-        }
-
         var flowName = callElement.getTextValue();
         return process.flows(flowName);
     }

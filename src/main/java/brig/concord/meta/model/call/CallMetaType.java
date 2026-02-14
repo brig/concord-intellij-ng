@@ -48,10 +48,6 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
     @Override
     public @NotNull List<? extends LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
         var processDefinition = ProcessDefinitionProvider.getInstance().get(insertedScalar);
-        if (processDefinition == null) {
-            return List.of();
-        }
-
         var currentFlow = ProcessDefinition.findEnclosingFlowDefinition(insertedScalar);
         return processDefinition.flowNames().stream()
                 .filter(name -> currentFlow == null || !name.equals(currentFlow.getKeyText()))

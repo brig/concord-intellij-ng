@@ -119,13 +119,10 @@ public final class FlowCallFinder {
 
         // Fallback: use ProcessDefinition
         var process = ProcessDefinitionProvider.getInstance().get(callKv);
-        if (process != null) {
-            var flow = process.flow(callSite.flowName());
-            if (flow instanceof YAMLKeyValue flowKv) {
-                return flowKv;
-            }
+        var flow = process.flow(callSite.flowName());
+        if (flow instanceof YAMLKeyValue flowKv) {
+            return flowKv;
         }
-
         return null;
     }
 
