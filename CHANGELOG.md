@@ -4,6 +4,9 @@
 
 ### Added
 
+- adds autocompletion support for output variables in the out field of call steps
+([#117](https://github.com/brig/concord-intellij-ng/pull/117))
+
 ### Changed
 
 - fixes potential InvalidVirtualFileAccessException errors in the TaskRegistry by adding validity checks before accessing VirtualFile instances
