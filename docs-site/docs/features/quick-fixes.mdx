@@ -31,6 +31,10 @@ If you enter an invalid type in a documentation block (e.g., `strnig` instead of
 ### 4. Resolve Duplicates
 When a duplicate flow name is detected, the plugin can help you navigate between the definitions or provide options to resolve the conflict.
 
+### 5. Add to `idea` Profile
+When a dependency uses a server-only version like `latest` or `PROJECT_VERSION`, the plugin offers to add a concrete version to the `profiles.idea.configuration.dependencies` section. This enables IDE features (completion, validation, hover docs) without changing the original dependency. The required YAML structure is created automatically if it doesn't exist.
+See [Dependencies — Server-Only Versions](./dependencies#server-only-versions) for details.
+
 ## Example
 
 ### Fixing a Type Error

@@ -31,6 +31,10 @@ Highlights Maven dependency strings (`mvn://...`) that could not be resolved —
 coordinates or unavailable artifacts. Invalid dependency format is also flagged.
 See [Dependencies — Error Reporting](./dependencies#error-reporting) for details.
 
+### 7. Server-Only Dependency Version
+Detects dependencies that use version strings like `latest` or `PROJECT_VERSION` that can only be resolved by the Concord server, not by the IDE locally. Offers a [quick fix](./quick-fixes#5-add-to-idea-profile) to add a concrete version to the `idea` profile.
+See [Dependencies — Server-Only Versions](./dependencies#server-only-versions) for details.
+
 ## Configuring Inspections
 
 You can control which inspections are enabled and their severity (Error, Warning, Information):

@@ -104,7 +104,7 @@ class ServerOnlyDependencyInspectionTest extends InspectionTestBase {
         setSkipped("mvn://com.example:lib:latest");
 
         inspection(value("/configuration/dependencies[0]"))
-                .expectNoProblems(com.intellij.lang.annotation.HighlightSeverity.WEAK_WARNING);
+                .expectNoProblems(HighlightSeverity.WEAK_WARNING);
     }
 
     @Test

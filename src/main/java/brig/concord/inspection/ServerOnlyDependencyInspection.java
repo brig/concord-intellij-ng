@@ -14,7 +14,6 @@ import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -47,7 +46,7 @@ public class ServerOnlyDependencyInspection extends ConcordInspectionTool {
                         return;
                     }
 
-                    if (coveredGAs != null && coveredGAs.contains(coordinate.toGA())) {
+                    if (coveredGAs.contains(coordinate.toGA())) {
                         return;
                     }
 
@@ -66,18 +65,18 @@ public class ServerOnlyDependencyInspection extends ConcordInspectionTool {
     /**
      * Collects groupId:artifactId strings from profiles.idea.configuration.dependencies
      * and profiles.idea.configuration.extraDependencies in the root file of each scope
-     * that contains the given file. Returns null if no scopes found.
+     * that contains the given file.
      */
-    private @Nullable Set<String> collectIdeaProfileGAs(@NotNull ConcordFile file) {
+    private @NotNull Set<String> collectIdeaProfileGAs(@NotNull ConcordFile file) {
         var vf = file.getVirtualFile();
         if (vf == null) {
-            return null;
+            return Set.of();
         }
 
         var project = file.getProject();
         var scopes = ConcordScopeService.getInstance(project).getScopesForFile(vf);
         if (scopes.isEmpty()) {
-            return null;
+            return Set.of();
         }
 
         Set<String> result = new LinkedHashSet<>();
@@ -96,7 +95,7 @@ public class ServerOnlyDependencyInspection extends ConcordInspectionTool {
         return result;
     }
 
-    private void collectGAsFromIdeaProfile(@NotNull ConcordFile rootFile, @NotNull Set<String> result) {
+    private static void collectGAsFromIdeaProfile(@NotNull ConcordFile rootFile, @NotNull Set<String> result) {
         rootFile.profiles().ifPresent(profilesKv -> {
             var profilesValue = profilesKv.getValue();
             if (!(profilesValue instanceof YAMLMapping profilesMapping)) {

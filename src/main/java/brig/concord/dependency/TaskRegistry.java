@@ -17,6 +17,7 @@ import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -217,6 +218,7 @@ public final class TaskRegistry {
 
         if (scopeDependencies.isEmpty()) {
             LOG.debug("No scopes found");
+            skippedDependencies = Set.of();
             updateFailedAndRestart(Map.of(), List.of());
             notifyTracker(Set.of(), modCountAtStart, isInitialLoad);
             reporter.finish(0, 0);
@@ -243,44 +245,13 @@ public final class TaskRegistry {
         LOG.debug("Found " + allCoordinates.size() + " unique dependencies across " + scopeDependencies.size() + " scopes");
 
         // Step 2: Partition coordinates — skip "latest" versions, try to resolve the rest
-        Set<MavenCoordinate> toResolve = new LinkedHashSet<>();
-        Set<MavenCoordinate> initialSkipped = new LinkedHashSet<>();
-        for (var coord : allCoordinates) {
-            if (coord.isLatestVersion()) {
-                initialSkipped.add(coord);
-            } else {
-                toResolve.add(coord);
-            }
-        }
+        var partitioned = resolvePartitioned(allCoordinates, resolver, indicator, reporter);
 
-        Map<MavenCoordinate, java.nio.file.Path> resolvedJars;
-        Map<MavenCoordinate, String> realErrors;
-        if (toResolve.isEmpty()) {
-            resolvedJars = Map.of();
-            realErrors = Map.of();
-        } else {
-            indicator.setText("Resolving " + toResolve.size() + " artifacts...");
-            reporter.reportResolving(toResolve.size());
-            ProgressManager.checkCanceled();
-            var resolveResult = resolver.resolveAll(toResolve);
-            resolvedJars = resolveResult.resolved();
+        skippedDependencies = partitioned.skipped().isEmpty() ? Set.of() : Set.copyOf(partitioned.skipped());
+        updateFailedAndRestart(partitioned.errors(), scopeDependencies);
+        reporter.reportErrors(partitioned.errors(), scopeDependencies);
 
-            // Reclassify failed non-version-like coordinates as skipped instead of errors
-            realErrors = new LinkedHashMap<>();
-            Set<MavenCoordinate> additionalSkipped = new LinkedHashSet<>();
-            for (var entry : resolveResult.errors().entrySet()) {
-                if (entry.getKey().isResolvableVersion()) {
-                    realErrors.put(entry.getKey(), entry.getValue());
-                } else {
-                    additionalSkipped.add(entry.getKey());
-                }
-            }
-            initialSkipped.addAll(additionalSkipped);
-        }
-
-        skippedDependencies = initialSkipped.isEmpty() ? Set.of() : Set.copyOf(initialSkipped);
-        updateFailedAndRestart(realErrors, scopeDependencies);
-        reporter.reportErrors(realErrors, scopeDependencies);
+        var resolvedJars = partitioned.resolvedJars();
 
         // Step 3: Extract task names from each JAR once, cache by coordinate
         Map<MavenCoordinate, Set<String>> taskNamesByCoordinate = new HashMap<>();
@@ -330,7 +301,49 @@ public final class TaskRegistry {
         // Notify tracker about loaded dependencies
         notifyTracker(allCoordinates, modCountAtStart, isInitialLoad);
 
-        reporter.finish(resolvedJars.size(), realErrors.size());
+        reporter.finish(resolvedJars.size(), partitioned.errors().size());
+    }
+
+    private record PartitionResult(
+            Map<MavenCoordinate, Path> resolvedJars,
+            Map<MavenCoordinate, String> errors,
+            Set<MavenCoordinate> skipped
+    ) {}
+
+    private static PartitionResult resolvePartitioned(@NotNull Set<MavenCoordinate> allCoordinates,
+                                                      @NotNull DependencyResolver resolver,
+                                                      @NotNull ProgressIndicator indicator,
+                                                      @NotNull DependencySyncReporter reporter) {
+        Set<MavenCoordinate> toResolve = new LinkedHashSet<>();
+        Set<MavenCoordinate> skipped = new LinkedHashSet<>();
+        for (var coord : allCoordinates) {
+            if (coord.isLatestVersion()) {
+                skipped.add(coord);
+            } else {
+                toResolve.add(coord);
+            }
+        }
+
+        if (toResolve.isEmpty()) {
+            return new PartitionResult(Map.of(), Map.of(), skipped);
+        }
+
+        indicator.setText("Resolving " + toResolve.size() + " artifacts...");
+        reporter.reportResolving(toResolve.size());
+        ProgressManager.checkCanceled();
+        var resolveResult = resolver.resolveAll(toResolve);
+
+        // Reclassify failed non-version-like coordinates as skipped instead of errors
+        Map<MavenCoordinate, String> realErrors = new LinkedHashMap<>();
+        for (var entry : resolveResult.errors().entrySet()) {
+            if (entry.getKey().isResolvableVersion()) {
+                realErrors.put(entry.getKey(), entry.getValue());
+            } else {
+                skipped.add(entry.getKey());
+            }
+        }
+
+        return new PartitionResult(resolveResult.resolved(), realErrors, skipped);
     }
 
     private void restartInspections(@NotNull Set<VirtualFile> files) {

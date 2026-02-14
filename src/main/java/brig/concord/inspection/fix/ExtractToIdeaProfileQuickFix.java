@@ -9,6 +9,7 @@ import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLSequence;
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo;
 import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemDescriptor;
@@ -45,6 +46,12 @@ public class ExtractToIdeaProfileQuickFix implements LocalQuickFix {
     }
 
     @Override
+    public @NotNull IntentionPreviewInfo generatePreview(@NotNull Project project,
+                                                         @NotNull ProblemDescriptor previewDescriptor) {
+        return IntentionPreviewInfo.EMPTY;
+    }
+
+    @Override
     public void applyFix(@NotNull Project project, @NotNull ProblemDescriptor descriptor) {
         if (IntentionPreviewUtils.isIntentionPreviewActive()) {
             return;
@@ -53,7 +60,7 @@ public class ExtractToIdeaProfileQuickFix implements LocalQuickFix {
         var version = Messages.showInputDialog(
                 project,
                 ConcordBundle.message("inspection.server.only.dependency.fix.dialog.message",
-                        coordinate.getGroupId() + ":" + coordinate.getArtifactId()),
+                        coordinate.toGA()),
                 ConcordBundle.message("inspection.server.only.dependency.fix.dialog.title"),
                 null
         );
@@ -98,8 +105,6 @@ public class ExtractToIdeaProfileQuickFix implements LocalQuickFix {
 
         // Navigate: profiles -> idea -> configuration -> dependencies
         var profilesKv = rootFile.profiles().orElse(null);
-        YAMLMapping profilesMapping;
-
         if (profilesKv == null) {
             // Create entire profiles.idea.configuration.dependencies structure
             var yaml = "profiles:\n" +
@@ -128,10 +133,9 @@ public class ExtractToIdeaProfileQuickFix implements LocalQuickFix {
         }
 
         var profilesValue = profilesKv.getValue();
-        if (!(profilesValue instanceof YAMLMapping)) {
+        if (!(profilesValue instanceof YAMLMapping profilesMapping)) {
             return;
         }
-        profilesMapping = (YAMLMapping) profilesValue;
 
         var ideaKv = profilesMapping.getKeyValueByKey("idea");
         if (ideaKv == null) {
