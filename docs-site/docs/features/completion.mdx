@@ -15,7 +15,8 @@ As you type in a `.concord.yaml` file, the plugin suggests valid keys based on y
 
 *   **Top-level sections:** <span className="tokenBadge" data-kind="section">flows</span>, <span className="tokenBadge" data-kind="section">configuration</span>, <span className="tokenBadge" data-kind="section">triggers</span>, <span className="tokenBadge" data-kind="section">forms</span>, etc.
 *   **Step types:** Inside a flow, it suggests <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">log</span>, <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">checkpoint</span>, <span className="tokenBadge" data-kind="step">if</span>, and others.
-*   **Call parameters:** When using a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests input parameters defined in the target flow's [Documentation Block](./flow-docs).
+*   **Call input parameters:** When using a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests input parameter names in the <span className="tokenBadge" data-kind="step">in</span> block defined in the target flow's [Documentation Block](./flow-docs).
+*   **Call output parameters:** When using a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests output parameter names in the <span className="tokenBadge" data-kind="step">out</span> field defined in the target flow's [Documentation Block](./flow-docs).
 *   **Task parameters:** When using a <span className="tokenBadge" data-kind="step">task</span> step, the plugin suggests input parameters and their values from built-in task schemas. See [Task Parameter Completion](#task-parameter-completion) below.
 
 ## Task Name Completion
@@ -61,6 +62,42 @@ flows:
         # Ctrl+Space here suggests parameters for the "start" action:
         # repo, org, project, payload, ...
 ```
+
+## Call Output Parameter Completion
+
+When writing the <span className="tokenBadge" data-kind="step">out</span> field of a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests output parameter names from the target flow's [Documentation Block](./flow-docs). This works for both scalar and array forms of the `out` field.
+
+The completion popup shows:
+
+*   **Parameter name** — the output variable name
+*   **Type** — shown on the right side (e.g. `int`, `string`)
+
+```concord
+flows:
+  main:
+    - call: processS3
+      in:
+        s3Bucket: "my-bucket"
+      out:  # Ctrl+Space suggests: s3Processed, s3Status
+
+  ##
+  # Process S3 files and return the results
+  # in:
+  #   s3Bucket: string, mandatory, S3 bucket name
+  # out:
+  #   s3Processed: int, Files processed count
+  #   s3Status: string, Processing status
+  ##
+  processS3:
+    - task: s3
+```
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-call-out.png').default} alt="Call Output Parameter Completion" />
+    <figcaption>
+        Completion popup suggesting output parameter names from the target flow's documentation block.
+    </figcaption>
+</figure>
 
 ## Flow Documentation Completion
 
@@ -132,7 +169,7 @@ Simply start typing, and the completion list will appear automatically.
 
 ### Autocomplete in Action
 
-Writing a <span className="tokenBadge" data-kind="section">call</span> step becomes much faster as the plugin suggests available flows and their input parameters:
+Writing a <span className="tokenBadge" data-kind="section">call</span> step becomes much faster as the plugin suggests available flows and their input and output parameters:
 
 :::tip Try it yourself
 Type `cal` and press `Enter` to create a <span className="tokenBadge" data-kind="section">call</span> step, then use <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to see available flow names.
