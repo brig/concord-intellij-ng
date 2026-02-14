@@ -7,6 +7,8 @@ import brig.concord.schema.TaskSchemaRegistry;
 import brig.concord.yaml.meta.model.TypeFieldPair;
 import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.platform.backend.documentation.DocumentationData;
+import com.intellij.platform.backend.documentation.DocumentationTarget;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,35 +39,9 @@ class LookupDocumentationTest extends ConcordYamlTestBaseJunit5 {
                 """);
 
         myFixture.complete(CompletionType.BASIC);
-        var lookups = myFixture.getLookupElements();
-        assertNotNull(lookups);
-        assertTrue(lookups.length > 0);
 
-        var foundDocumented = false;
-        for (var lookup : lookups) {
-            if (!(lookup.getObject() instanceof TypeFieldPair)) {
-                continue;
-            }
-
-            var target = provider.documentationTarget(myFixture.getFile(), lookup, 0);
-            var name = lookup.getLookupString();
-
-            if ("flows".equals(name) || "configuration".equals(name)) {
-                assertNotNull(target, "Expected documentation target for key: " + name);
-                assertNotNull(target.computeDocumentationHint(), "Expected hint for key: " + name);
-
-                var doc = target.computeDocumentation();
-                assertNotNull(doc, "Expected documentation for key: " + name);
-                assertInstanceOf(DocumentationData.class, doc);
-
-                var html = ((DocumentationData) doc).getHtml();
-                assertNotNull(html);
-                assertTrue(html.contains(name), "Documentation should contain key name: " + name);
-
-                foundDocumented = true;
-            }
-        }
-        assertTrue(foundDocumented, "Should find at least one documented root key");
+        var target = findLookupTarget("flows", TypeFieldPair.class);
+        assertLookupDoc(target, "/documentation/lookup/root-flows.html");
     }
 
     @Test
@@ -77,33 +53,9 @@ class LookupDocumentationTest extends ConcordYamlTestBaseJunit5 {
                 """);
 
         myFixture.complete(CompletionType.BASIC);
-        var lookups = myFixture.getLookupElements();
-        assertNotNull(lookups);
 
-        var foundTask = false;
-        for (var lookup : lookups) {
-            if (!(lookup.getObject() instanceof TypeFieldPair)) {
-                continue;
-            }
-
-            var target = provider.documentationTarget(myFixture.getFile(), lookup, 0);
-            var name = lookup.getLookupString();
-
-            if ("task".equals(name)) {
-                assertNotNull(target, "Expected documentation target for step: task");
-                assertNotNull(target.computeDocumentationHint());
-
-                var doc = target.computeDocumentation();
-                assertNotNull(doc);
-                assertInstanceOf(DocumentationData.class, doc);
-
-                var html = ((DocumentationData) doc).getHtml();
-                assertTrue(html.contains("task"));
-
-                foundTask = true;
-            }
-        }
-        assertTrue(foundTask, "Should find documented 'task' step key");
+        var target = findLookupTarget("task", TypeFieldPair.class);
+        assertLookupDoc(target, "/documentation/lookup/step-task.html");
     }
 
     @Test
@@ -117,33 +69,25 @@ class LookupDocumentationTest extends ConcordYamlTestBaseJunit5 {
         TaskRegistry.getInstance(getProject()).setTaskNames(file.getVirtualFile(), Set.of("strictTask"));
 
         myFixture.complete(CompletionType.BASIC);
-        var lookups = myFixture.getLookupElements();
-        assertNotNull(lookups);
 
-        var foundDoc = false;
-        for (var lookup : lookups) {
-            if (!(lookup.getObject() instanceof TaskNameLookup)) {
-                continue;
-            }
+        var target = findLookupTarget("strictTask", TaskNameLookup.class);
+        assertLookupDoc(target, "/documentation/lookup/taskname-strictTask.html");
+    }
 
-            assertEquals("strictTask", lookup.getLookupString());
+    @Test
+    void testConcordTaskNameDocumentation() {
+        var file = configureFromText("""
+                flows:
+                  main:
+                    - task: <caret>
+                """);
 
-            var target = provider.documentationTarget(myFixture.getFile(), lookup, 0);
-            assertNotNull(target, "Expected documentation target for task name: strictTask");
+        TaskRegistry.getInstance(getProject()).setTaskNames(file.getVirtualFile(), Set.of("concord"));
 
-            var doc = target.computeDocumentation();
-            assertNotNull(doc);
-            assertInstanceOf(DocumentationData.class, doc);
+        myFixture.complete(CompletionType.BASIC);
 
-            var html = ((DocumentationData) doc).getHtml();
-            // Should contain the task name and parameter info
-            assertTrue(html.contains("strictTask"), "Documentation should contain task name");
-            assertTrue(html.contains("url"), "Documentation should contain 'url' parameter");
-            assertTrue(html.contains("method"), "Documentation should contain 'method' parameter");
-
-            foundDoc = true;
-        }
-        assertTrue(foundDoc, "Should find documentation for task name lookup");
+        var target = findLookupTarget("concord", TaskNameLookup.class);
+        assertLookupDoc(target, "/documentation/lookup/taskname-concord.html");
     }
 
     @Test
@@ -179,34 +123,25 @@ class LookupDocumentationTest extends ConcordYamlTestBaseJunit5 {
                 """);
 
         myFixture.complete(CompletionType.BASIC);
-        var lookups = myFixture.getLookupElements();
-        assertNotNull(lookups);
 
-        var foundUrl = false;
-        for (var lookup : lookups) {
-            if (!(lookup.getObject() instanceof TypeFieldPair)) {
-                continue;
-            }
+        var target = findLookupTarget("url", TypeFieldPair.class);
+        assertLookupDoc(target, "/documentation/lookup/taskparam-url.html");
+    }
 
-            var target = provider.documentationTarget(myFixture.getFile(), lookup, 0);
-            var name = lookup.getLookupString();
+    @Test
+    void testTaskParamEnumDocumentation() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: concord
+                      in:
+                        <caret>
+                """);
 
-            if ("url".equals(name)) {
-                assertNotNull(target, "Expected documentation target for param: url");
-                assertEquals("URL to fetch", target.computeDocumentationHint());
+        myFixture.complete(CompletionType.BASIC);
 
-                var doc = target.computeDocumentation();
-                assertNotNull(doc);
-                assertInstanceOf(DocumentationData.class, doc);
-
-                var html = ((DocumentationData) doc).getHtml();
-                assertTrue(html.contains("url"), "Documentation should contain param name");
-                assertTrue(html.contains("URL to fetch"), "Documentation should contain description");
-
-                foundUrl = true;
-            }
-        }
-        assertTrue(foundUrl, "Should find documentation for 'url' task parameter");
+        var target = findLookupTarget("action", TypeFieldPair.class);
+        assertLookupDoc(target, "/documentation/lookup/taskparam-action.html");
     }
 
     @Test
@@ -285,5 +220,41 @@ class LookupDocumentationTest extends ConcordYamlTestBaseJunit5 {
                 assertNull(target, "Should return null for non-Concord files");
             }
         }
+    }
+
+    private @NotNull DocumentationTarget findLookupTarget(String name, Class<?> objectType) {
+        var lookups = myFixture.getLookupElements();
+        assertNotNull(lookups, "Completion should produce lookup elements");
+
+        for (var lookup : lookups) {
+            if (!objectType.isInstance(lookup.getObject())) {
+                continue;
+            }
+            if (!name.equals(lookup.getLookupString())) {
+                continue;
+            }
+
+            var target = provider.documentationTarget(myFixture.getFile(), lookup, 0);
+            assertNotNull(target, "Expected documentation target for: " + name);
+            return target;
+        }
+
+        fail("Lookup element '" + name + "' of type " + objectType.getSimpleName() + " not found in completion list");
+        return null; // unreachable
+    }
+
+    private void assertLookupDoc(DocumentationTarget target, String htmlResource) {
+        var doc = target.computeDocumentation();
+        assertNotNull(doc, "Expected documentation");
+        assertInstanceOf(DocumentationData.class, doc);
+
+        var actualHtml = ((DocumentationData) doc).getHtml();
+        var expectedHtml = loadResource(htmlResource);
+
+        assertEquals(
+                expectedHtml.replaceAll("\\s+", "").trim(),
+                actualHtml.replaceAll("\\s+", "").trim(),
+                actualHtml
+        );
     }
 }

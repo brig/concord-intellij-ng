@@ -25,7 +25,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
 
     private static final int SMART_PARAM_THRESHOLD = 10;
 
-    private final SmartPsiElementPointer<YAMLKeyValue> taskPointer;
+    private final @Nullable SmartPsiElementPointer<YAMLKeyValue> taskPointer;
     private final String taskName;
     private final @Nullable String description;
     private final List<ParamInfo> inputParams;
@@ -46,14 +46,27 @@ public class TaskDocumentationTarget implements DocumentationTarget {
         this.outputParams = toParamInfos(schema.getOutSection());
     }
 
-    private TaskDocumentationTarget(@NotNull YAMLKeyValue taskKv,
+    public TaskDocumentationTarget(@NotNull TaskSchema schema) {
+        this.taskPointer = null;
+        this.taskName = schema.getTaskName();
+        this.description = schema.getDescription();
+
+        var inputResult = buildInputParams(schema);
+        this.inputParams = inputResult.params;
+        this.inputFooter = inputResult.footer;
+        this.inputGroups = inputResult.groups;
+
+        this.outputParams = toParamInfos(schema.getOutSection());
+    }
+
+    private TaskDocumentationTarget(@Nullable SmartPsiElementPointer<YAMLKeyValue> taskPointer,
                                     @NotNull String taskName,
                                     @Nullable String description,
                                     @NotNull List<ParamInfo> inputParams,
                                     @Nullable String inputFooter,
                                     @NotNull List<ConditionalGroup> inputGroups,
                                     @NotNull List<ParamInfo> outputParams) {
-        this.taskPointer = SmartPointerManager.createPointer(taskKv);
+        this.taskPointer = taskPointer;
         this.taskName = taskName;
         this.description = description;
         this.inputParams = inputParams;
@@ -64,11 +77,14 @@ public class TaskDocumentationTarget implements DocumentationTarget {
 
     @Override
     public @NotNull Pointer<? extends DocumentationTarget> createPointer() {
-        var ptr = this.taskPointer;
-        return () -> {
-            var element = ptr.getElement();
-            return element == null ? null : new TaskDocumentationTarget(element, taskName, description, inputParams, inputFooter, inputGroups, outputParams);
-        };
+        if (taskPointer != null) {
+            var ptr = this.taskPointer;
+            return () -> {
+                var element = ptr.getElement();
+                return element == null ? null : new TaskDocumentationTarget(ptr, taskName, description, inputParams, inputFooter, inputGroups, outputParams);
+            };
+        }
+        return () -> new TaskDocumentationTarget(null, taskName, description, inputParams, inputFooter, inputGroups, outputParams);
     }
 
     @Override
@@ -83,8 +99,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
 
     @Override
     public @Nullable DocumentationResult computeDocumentation() {
-        var element = taskPointer.getElement();
-        if (element == null) {
+        if (taskPointer != null && taskPointer.getElement() == null) {
             return null;
         }
 

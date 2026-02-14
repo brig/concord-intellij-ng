@@ -2,7 +2,6 @@ package brig.concord.documentation;
 
 import brig.concord.meta.model.TaskStepMetaType.TaskNameLookup;
 import brig.concord.psi.ConcordFile;
-import brig.concord.schema.TaskSchemaMetaType;
 import brig.concord.schema.TaskSchemaRegistry;
 import brig.concord.yaml.meta.model.TypeFieldPair;
 import com.intellij.codeInsight.lookup.LookupElement;
@@ -54,13 +53,7 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
             return null;
         }
 
-        var section = schema.getBaseInSection();
-        if (section.properties().isEmpty()) {
-            return null;
-        }
-
-        var metaType = new TaskSchemaMetaType(section, schema.getDiscriminatorKeys());
-        return new ConcordDocumentationTarget(lookup.name(), metaType, "task");
+        return new TaskDocumentationTarget(schema);
     }
 
 }

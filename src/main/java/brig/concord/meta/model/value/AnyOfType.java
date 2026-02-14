@@ -111,6 +111,14 @@ public class AnyOfType extends YamlAnyOfType {
         return list.isEmpty() ? Collections.emptyList() : Collections.singletonList(list.getFirst());
     }
 
+    @Override
+    public @NotNull List<DocumentedField> getValues() {
+        return streamSubTypes()
+                .flatMap(t -> t.getValues().stream())
+                .distinct()
+                .toList();
+    }
+
     public boolean isScalar() {
         return streamSubTypes().allMatch(t -> t instanceof YamlScalarType);
     }

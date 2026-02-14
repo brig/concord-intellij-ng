@@ -57,6 +57,12 @@ public class YamlEnumType extends YamlScalarType {
         checkDescriptionsMatchLiterals();
     }
 
+    public YamlEnumType withDescriptions(@NotNull String... descriptions) {
+        this.myDescriptions = cloneArray(descriptions);
+        checkDescriptionsMatchLiterals();
+        return this;
+    }
+
     public String[] getLiteralDescriptions() {
         return myDescriptions;
     }
