@@ -12,6 +12,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 
 import static brig.concord.yaml.meta.model.TypeProps.descKey;
@@ -54,11 +55,10 @@ public class LoopMetaType extends ConcordMetaType implements HighlightProvider  
         }
 
         private ModeType() {
-            super("string", descKey("doc.step.feature.loop.mode.description"));
-            setLiterals("serial", "parallel");
-            setDescriptionKeys(
-                    "doc.step.feature.loop.mode.serial.description",
-                    "doc.step.feature.loop.mode.parallel.description");
+            super("string", descKey("doc.step.feature.loop.mode.description"),
+                    List.of(
+                            EnumValue.ofKey("serial", "doc.step.feature.loop.mode.serial.description"),
+                            EnumValue.ofKey("parallel", "doc.step.feature.loop.mode.parallel.description")));
         }
     }
 }

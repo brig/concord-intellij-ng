@@ -180,7 +180,7 @@ class TaskSchemaInspectionTest extends InspectionTestBase {
 
         inspection(value("/flows/main[0]/in/method"))
                 .expectHighlight(ConcordBundle.message(
-                        "invalid.value", "enum|expression"));
+                        "invalid.value", "string|expression"));
     }
 
     @Test
@@ -195,7 +195,7 @@ class TaskSchemaInspectionTest extends InspectionTestBase {
 
         inspection(value("/flows/main[0]/in/action"))
                 .expectHighlight(ConcordBundle.message(
-                        "invalid.value", "enum|expression"));
+                        "invalid.value", "string|expression"));
     }
 
     // --- oneOf polymorphic types ---

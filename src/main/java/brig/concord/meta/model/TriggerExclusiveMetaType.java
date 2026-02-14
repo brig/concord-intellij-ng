@@ -16,6 +16,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,11 +34,11 @@ public class TriggerExclusiveMetaType extends ConcordMetaType implements Highlig
         }
 
         private ModeType() {
-            super("string", descKey("doc.triggers.exclusive.mode.description"));
-            setLiterals("cancel", "cancelOld", "wait");
-            setDescriptionKeys("doc.triggers.exclusive.mode.cancel.description",
-                    "doc.triggers.exclusive.mode.cancelOld.description",
-                    "doc.triggers.exclusive.mode.wait.description");
+            super("string", descKey("doc.triggers.exclusive.mode.description"),
+                    List.of(
+                            EnumValue.ofKey("cancel", "doc.triggers.exclusive.mode.cancel.description"),
+                            EnumValue.ofKey("cancelOld", "doc.triggers.exclusive.mode.cancelOld.description"),
+                            EnumValue.ofKey("wait", "doc.triggers.exclusive.mode.wait.description")));
         }
     }
 

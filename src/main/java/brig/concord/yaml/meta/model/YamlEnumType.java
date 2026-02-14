@@ -6,7 +6,6 @@ import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.util.ArrayUtilRt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.ConcordBundle;
@@ -23,66 +22,76 @@ import java.util.stream.Stream;
 import static brig.concord.ConcordBundle.BUNDLE;
 
 public class YamlEnumType extends YamlScalarType {
-    private String[] myLiterals = ArrayUtilRt.EMPTY_STRING_ARRAY;
-    private String[] myDescriptions = ArrayUtilRt.EMPTY_STRING_ARRAY;
+
+    public record EnumValue(@NotNull String literal, @Nullable String description) {
+
+        public EnumValue(@NotNull String literal) {
+            this(literal, null);
+        }
+
+        public static EnumValue ofKey(@NotNull String literal,
+                                      @NotNull @PropertyKey(resourceBundle = BUNDLE) String descriptionKey) {
+            return new EnumValue(literal, ConcordBundle.message(descriptionKey));
+        }
+
+        public static List<EnumValue> fromLiterals(String... literals) {
+            return Arrays.stream(literals).map(EnumValue::new).toList();
+        }
+
+        public static List<EnumValue> fromLiterals(List<String> literals, List<String> descriptions) {
+            if (descriptions.isEmpty()) {
+                return literals.stream().map(EnumValue::new).toList();
+            }
+            if (descriptions.size() != literals.size()) {
+                throw new IllegalArgumentException(
+                        "descriptions count (" + descriptions.size() + ") != literals count (" + literals.size() + ")");
+            }
+            var result = new ArrayList<EnumValue>(literals.size());
+            for (int i = 0; i < literals.size(); i++) {
+                result.add(new EnumValue(literals.get(i), descriptions.get(i)));
+            }
+            return List.copyOf(result);
+        }
+    }
+
+    private final List<EnumValue> myEnumValues;
 
     public YamlEnumType(@NotNull String typeName) {
         super(typeName);
+        myEnumValues = List.of();
+    }
+
+    public YamlEnumType(@NotNull String typeName, @NotNull List<EnumValue> enumValues) {
+        super(typeName);
+        myEnumValues = List.copyOf(enumValues);
     }
 
     public YamlEnumType(@NotNull String typeName, @NotNull TypeProps props) {
         super(typeName, props);
+        myEnumValues = List.of();
     }
 
-    public String[] getLiterals() {
-        return myLiterals;
+    public YamlEnumType(@NotNull String typeName, @NotNull TypeProps props, @NotNull List<EnumValue> enumValues) {
+        super(typeName, props);
+        myEnumValues = List.copyOf(enumValues);
     }
 
-    public void setLiterals(String... literals) {
-        myLiterals = cloneArray(literals);
-        checkDescriptionsMatchLiterals();
-    }
-
-    public YamlEnumType withLiterals(String... literals) {
-        setLiterals(literals);
-        return this;
-    }
-
-    public void setDescriptionKeys(@NotNull @PropertyKey(resourceBundle = BUNDLE) String... keys) {
-        this.myDescriptions = new String[keys.length];
-        for (var i = 0; i < keys.length; i++) {
-            var key = keys[i];
-            this.myDescriptions[i] = ConcordBundle.message(key);
-        }
-        checkDescriptionsMatchLiterals();
-    }
-
-    public YamlEnumType withDescriptions(@NotNull String... descriptions) {
-        this.myDescriptions = cloneArray(descriptions);
-        checkDescriptionsMatchLiterals();
-        return this;
-    }
-
-    public String[] getLiteralDescriptions() {
-        return myDescriptions;
+    public List<EnumValue> getEnumValues() {
+        return myEnumValues;
     }
 
     @Override
     public @NotNull List<DocumentedField> getValues() {
-        var descriptions = getLiteralDescriptions();
-        if (descriptions.length > 0) {
-            var literals = getLiterals();
-            var children = new ArrayList<DocumentedField>(literals.length);
-            for (var i = 0; i < literals.length; i++) {
-                children.add(new DocumentedField(literals[i], getTypeName(), false, descriptions[i], List.of()));
-            }
-            return children;
+        if (myEnumValues.isEmpty() || myEnumValues.getFirst().description() == null) {
+            return List.of();
         }
-        return List.of();
+        return myEnumValues.stream()
+                .map(v -> new DocumentedField(v.literal(), getTypeName(), false, v.description(), List.of()))
+                .toList();
     }
 
     protected final @NotNull Stream<String> getLiteralsStream() {
-        return Arrays.stream(myLiterals);
+        return myEnumValues.stream().map(EnumValue::literal);
     }
 
     @Override
@@ -105,24 +114,12 @@ public class YamlEnumType extends YamlScalarType {
 
     @Override
     public @NotNull List<LookupElement> getValueLookups(@NotNull YAMLScalar insertedScalar, @Nullable CompletionContext completionContext) {
-        return Arrays.stream(myLiterals).map((String literal) -> createValueLookup(literal, false))
+        return myEnumValues.stream().map((EnumValue v) -> createValueLookup(v.literal(), false))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     protected @Nullable LookupElement createValueLookup(@NotNull String literal, boolean deprecated) {
         return LookupElementBuilder.create(literal).withStrikeoutness(deprecated);
-    }
-
-
-    private void checkDescriptionsMatchLiterals() {
-        if (myDescriptions.length != 0 && myLiterals.length != 0 && myDescriptions.length != myLiterals.length) {
-            throw new IllegalStateException(
-                    "descriptions count (" + myDescriptions.length + ") != literals count (" + myLiterals.length + ") in " + getTypeName());
-        }
-    }
-
-    private static String @NotNull [] cloneArray(String @NotNull [] array) {
-        return array.length == 0 ? ArrayUtilRt.EMPTY_STRING_ARRAY : array.clone();
     }
 }

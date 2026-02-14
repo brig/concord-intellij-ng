@@ -15,6 +15,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Map;
 
 import static brig.concord.yaml.meta.model.TypeProps.descKey;
@@ -75,14 +76,11 @@ public class ProcessExclusiveMetaType extends ConcordMetaType implements Highlig
     private static class ModeType extends YamlEnumType {
 
         private ModeType(@NotNull TypeProps props) {
-            super("string", props);
-
-            setLiterals("cancel", "cancelOld", "wait");
-            setDescriptionKeys(
-                    "doc.configuration.exclusive.mode.cancel.description",
-                    "doc.configuration.exclusive.mode.cancelOld.description",
-                    "doc.configuration.exclusive.mode.wait.description"
-                    );
+            super("string", props,
+                    List.of(
+                            EnumValue.ofKey("cancel", "doc.configuration.exclusive.mode.cancel.description"),
+                            EnumValue.ofKey("cancelOld", "doc.configuration.exclusive.mode.cancelOld.description"),
+                            EnumValue.ofKey("wait", "doc.configuration.exclusive.mode.wait.description")));
         }
     }
 }
