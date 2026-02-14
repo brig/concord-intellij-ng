@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+
+### Changed
+
+- fixes potential InvalidVirtualFileAccessException errors in the TaskRegistry by adding validity checks before accessing VirtualFile instances
+([#116](https://github.com/brig/concord-intellij-ng/pull/116))
+
 ## 0.19.0 - 2026-02-14
 
 ### Added
