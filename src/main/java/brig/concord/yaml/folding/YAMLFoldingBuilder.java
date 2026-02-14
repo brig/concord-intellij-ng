@@ -117,7 +117,7 @@ public class YAMLFoldingBuilder extends CustomFoldingBuilder {
         }
         else if (psiElement instanceof YAMLSequence) {
             final int size = ((YAMLSequence)psiElement).getItems().size();
-            final String placeholder = size + " " + StringUtil.pluralize("item", size);
+            final String placeholder = size + (size == 1 ? " item" : " items");
             if (psiElement instanceof YAMLArrayImpl) {
                 return "[" + placeholder + "]";
             }
@@ -127,7 +127,7 @@ public class YAMLFoldingBuilder extends CustomFoldingBuilder {
         }
         else if (psiElement instanceof YAMLMapping) {
             final int size = ((YAMLMapping)psiElement).getKeyValues().size();
-            final String placeholder = size + " " + StringUtil.pluralize("key", size);
+            final String placeholder = size + (size == 1 ? " key" : " keys");
             return "{" + placeholder + "}";
         }
         else if (psiElement instanceof YAMLKeyValue) {
