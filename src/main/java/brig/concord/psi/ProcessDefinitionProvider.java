@@ -2,6 +2,7 @@ package brig.concord.psi;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.util.AstLoadingFilter;
+import org.jetbrains.annotations.NotNull;
 
 public class ProcessDefinitionProvider {
 
@@ -11,7 +12,7 @@ public class ProcessDefinitionProvider {
         return INSTANCE;
     }
 
-    public ProcessDefinition get(PsiElement element) {
+    public @NotNull ProcessDefinition get(PsiElement element) {
         return AstLoadingFilter.disallowTreeLoading(() -> _get(element));
     }
 

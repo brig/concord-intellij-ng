@@ -56,10 +56,6 @@ public class DuplicateFlowNameInspection extends ConcordInspectionTool {
         }
 
         var process = ProcessDefinitionProvider.getInstance().get(keyValue);
-        if (process == null) {
-            return;
-        }
-
         var currentFile = keyValue.getContainingFile().getVirtualFile();
         for (var flow : process.flows(flowName)) {
             var flowFile = flow.getContainingFile().getVirtualFile();
