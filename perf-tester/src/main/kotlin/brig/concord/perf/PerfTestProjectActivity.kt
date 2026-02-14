@@ -3,6 +3,7 @@ package brig.concord.perf
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -13,10 +14,10 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
-import com.intellij.psi.PsiManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class PerfTestProjectActivity : ProjectActivity {
@@ -60,6 +61,16 @@ class PerfTestProjectActivity : ProjectActivity {
             delay(2.seconds)
         }
 
+        // Editing scenario: open root concord.yaml and type in resources/dependencies sections
+        val rootConcordYaml = concordFiles.find { it.name == "concord.yaml" && it.parent?.name == basePath?.substringAfterLast('/') }
+            ?: concordFiles.find { it.name == "concord.yaml" }
+        if (rootConcordYaml != null) {
+            println("PERF-TEST: Starting editing scenario on ${rootConcordYaml.path}")
+            runEditingScenario(project, rootConcordYaml)
+        } else {
+            println("PERF-TEST: Root concord.yaml not found, skipping editing scenario")
+        }
+
         println("PERF-TEST: Scenario finished. Waiting for JFR capture...")
         delay(10.seconds)
 
@@ -90,7 +101,7 @@ class PerfTestProjectActivity : ProjectActivity {
             // Move caret to marker
             val text = editor.document.text
             val offset = text.indexOf("# move here")
-            
+
             if (offset > -1) {
                 editor.caretModel.moveToOffset(offset)
                 editor.scrollingModel.scrollToCaret(ScrollType.CENTER)
@@ -103,5 +114,64 @@ class PerfTestProjectActivity : ProjectActivity {
             DaemonCodeAnalyzer.getInstance(project).restart()
             // println("PERF-TEST: Highlighting restarted")
         }
+    }
+
+    private suspend fun runEditingScenario(project: Project, file: VirtualFile) {
+        withContext(Dispatchers.EDT) {
+            val fileEditorManager = project.service<FileEditorManager>()
+            fileEditorManager.openFile(file, true)
+        }
+
+        val markers = listOf("# edit:resources", "# edit:dependencies")
+        for (marker in markers) {
+            println("PERF-TEST: Editing near '$marker'")
+            for (i in 1..5) {
+                withContext(Dispatchers.EDT) {
+                    typeAtMarker(project, marker, " x")
+                }
+                delay(500.milliseconds)
+                withContext(Dispatchers.EDT) {
+                    deleteAtMarker(project, marker, " x".length)
+                }
+                delay(500.milliseconds)
+            }
+        }
+        println("PERF-TEST: Editing scenario complete")
+    }
+
+    private fun typeAtMarker(project: Project, marker: String, textToInsert: String) {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val offset = editor.document.text.indexOf(marker)
+        if (offset < 0) {
+            println("PERF-TEST: Marker '$marker' not found")
+            return
+        }
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.insertString(offset, textToInsert)
+        }
+        editor.caretModel.moveToOffset(offset + textToInsert.length)
+        editor.scrollingModel.scrollToCaret(ScrollType.CENTER)
+        DaemonCodeAnalyzer.getInstance(project).restart()
+    }
+
+    private fun deleteAtMarker(project: Project, marker: String, length: Int) {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+        val markerOffset = editor.document.text.indexOf(marker)
+        if (markerOffset < 0) {
+            return
+        }
+
+        val deleteFrom = markerOffset - length
+        if (deleteFrom < 0) {
+            return
+        }
+
+        WriteCommandAction.runWriteCommandAction(project) {
+            editor.document.deleteString(deleteFrom, markerOffset)
+        }
+        editor.caretModel.moveToOffset(deleteFrom)
+        editor.scrollingModel.scrollToCaret(ScrollType.CENTER)
+        DaemonCodeAnalyzer.getInstance(project).restart()
     }
 }

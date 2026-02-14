@@ -26,6 +26,10 @@ intellijPlatform {
 tasks {
     // Настраиваем runIde для этого модуля
     runIde {
+        // Disable Compose Hot Reload Agent — it intercepts every class load and adds
+        // significant CPU noise (~45%) to JFR profiles with zero relevance to our plugin.
+        composeHotReload.set(false)
+
         // Указываем путь к проекту для тестирования
         val perfProjectDir = project.file("perf-project")
         args = listOf(perfProjectDir.toString())
@@ -34,6 +38,8 @@ tasks {
         val reportFile = rootProject.layout.buildDirectory.file("reports/perf.jfr").get().asFile
         doFirst {
             reportFile.parentFile.mkdirs()
+            // Fallback: filter out the hot-reload-agent if composeHotReload flag didn't prevent it
+            jvmArgs = jvmArgs?.filter { !it.contains("hot-reload-agent") }
         }
 
         jvmArgs = listOf(

@@ -1,4 +1,4 @@
-resources:
+resources: # edit:resources
   concord:
     - "glob:concord/{**/,}{*.,}concord.yaml"
     - "glob:flows/{**/,}{*.,}concord.yaml"
@@ -7,6 +7,9 @@ resources:
 
 configuration:
   runtime: concord-v2
+  dependencies: # edit:dependencies
+    - "mvn://com.walmartlabs.concord.plugins.basic:smtp-tasks:2.8.0"
+    - "mvn://com.walmartlabs.concord.plugins:git:2.12.0"
   arguments:
     stress_arg_0: "value_0"
     stress_arg_1: "value_1"
