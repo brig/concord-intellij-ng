@@ -54,6 +54,7 @@ public final class ConcordModificationTracker implements Disposable {
     private final Project project;
     private final SimpleModificationTracker structureTracker = new SimpleModificationTracker();
     private final SimpleModificationTracker dependenciesTracker = new SimpleModificationTracker();
+    private final SimpleModificationTracker argumentsTracker = new SimpleModificationTracker();
 
     private final AtomicReference<DirtyState> dirtyRef = new AtomicReference<>(DirtyState.empty());
     private final AtomicReference<ProcessingState> state = new AtomicReference<>(ProcessingState.IDLE);
@@ -107,6 +108,10 @@ public final class ConcordModificationTracker implements Disposable {
         return dependenciesTracker;
     }
 
+    public @NotNull ModificationTracker arguments() {
+        return argumentsTracker;
+    }
+
     @TestOnly
     public void setForceSyncInTests(boolean value) {
         this.forceSyncInTests = value;
@@ -131,6 +136,11 @@ public final class ConcordModificationTracker implements Disposable {
         dependenciesTracker.incModificationCount();
     }
 
+    @TestOnly
+    public void invalidateArguments() {
+        argumentsTracker.incModificationCount();
+    }
+
     private void onDirty(@NotNull DirtyState delta) {
         if (delta.isEmpty() || project.isDisposed()) {
             return;
@@ -139,6 +149,7 @@ public final class ConcordModificationTracker implements Disposable {
         if (forceSyncInTests && ApplicationManager.getApplication().isUnitTestMode()) {
             structureTracker.incModificationCount();
             dependenciesTracker.incModificationCount();
+            argumentsTracker.incModificationCount();
             return;
         }
 
@@ -220,6 +231,7 @@ public final class ConcordModificationTracker implements Disposable {
 
         var structureChanged = batch.structureDirty || batch.gitignoreDirty;
         var dependenciesChanged = false;
+        var argumentsChanged = false;
 
         // Process all dirty files
         for (var vf : batch.dirtyFiles) {
@@ -232,6 +244,9 @@ public final class ConcordModificationTracker implements Disposable {
                     // File was tracked, now invalid or not concord
                     if (oldFp.hasDependencies()) {
                         dependenciesChanged = true;
+                    }
+                    if (!oldFp.argumentsText().isEmpty()) {
+                        argumentsChanged = true;
                     }
                     // If it was a root file and had resources, technically structure changed,
                     // but we usually catch file deletion/rename in VFS listener already setting structureDirty=true.
@@ -248,8 +263,13 @@ public final class ConcordModificationTracker implements Disposable {
             }
             if (!(psiFile instanceof ConcordFile concordFile)) {
                 var oldFp = fileCache.remove(vf);
-                if (oldFp != null && oldFp.hasDependencies()) {
-                    dependenciesChanged = true;
+                if (oldFp != null) {
+                    if (oldFp.hasDependencies()) {
+                        dependenciesChanged = true;
+                    }
+                    if (!oldFp.argumentsText().isEmpty()) {
+                        argumentsChanged = true;
+                    }
                 }
                 continue;
             }
@@ -260,6 +280,9 @@ public final class ConcordModificationTracker implements Disposable {
                 if (old != null) {
                     if (old.hasDependencies()) {
                         dependenciesChanged = true;
+                    }
+                    if (!old.argumentsText().isEmpty()) {
+                        argumentsChanged = true;
                     }
                     if (isRoot && !old.resourcePatterns().isEmpty()) {
                         structureChanged = true;
@@ -274,6 +297,9 @@ public final class ConcordModificationTracker implements Disposable {
                 if (newFp.hasDependencies()) {
                     dependenciesChanged = true;
                 }
+                if (!newFp.argumentsText().isEmpty()) {
+                    argumentsChanged = true;
+                }
                 // If it's a new root file with resources, structure changed.
                 if (isRoot && !newFp.resourcePatterns().isEmpty()) {
                     structureChanged = true;
@@ -286,6 +312,10 @@ public final class ConcordModificationTracker implements Disposable {
 
                 if (!oldFp.dependenciesEquals(newFp)) {
                     dependenciesChanged = true;
+                }
+
+                if (!oldFp.argumentsEquals(newFp)) {
+                    argumentsChanged = true;
                 }
             }
         }
@@ -303,12 +333,15 @@ public final class ConcordModificationTracker implements Disposable {
                     if (fp.hasDependencies()) {
                         dependenciesChanged = true;
                     }
+                    if (!fp.argumentsText().isEmpty()) {
+                        argumentsChanged = true;
+                    }
                     iterator.remove();
                 }
             }
         }
 
-        return new BatchResult(structureChanged, dependenciesChanged);
+        return new BatchResult(structureChanged, dependenciesChanged, argumentsChanged);
     }
 
     private void applyBatchResult(@NotNull BatchResult result) {
@@ -321,10 +354,14 @@ public final class ConcordModificationTracker implements Disposable {
             dependenciesTracker.incModificationCount();
             project.getMessageBus().syncPublisher(ConcordDependenciesListener.TOPIC).dependenciesChanged();
         }
+
+        if (result.argumentsChanged) {
+            argumentsTracker.incModificationCount();
+        }
     }
 
-    private record BatchResult(boolean structureChanged, boolean dependenciesChanged) {
-        private static final BatchResult EMPTY = new BatchResult(false, false);
+    private record BatchResult(boolean structureChanged, boolean dependenciesChanged, boolean argumentsChanged) {
+        private static final BatchResult EMPTY = new BatchResult(false, false, false);
 
         private static BatchResult empty() {
             return EMPTY;
