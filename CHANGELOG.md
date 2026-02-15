@@ -4,6 +4,8 @@
 
 ### Added
 
+- add variables provider with arguments tracking and built-in vars 
+([#119](https://github.com/brig/concord-intellij-ng/pull/119))
 - adds autocompletion support for output variables in the out field of call steps
 ([#118](https://github.com/brig/concord-intellij-ng/pull/118))
 
