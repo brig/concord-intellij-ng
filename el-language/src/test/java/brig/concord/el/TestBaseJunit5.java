@@ -34,7 +34,8 @@ public abstract class TestBaseJunit5 {
             // TestApplicationExtension's LeakHunter detects this as a project leak.
             // closeAndDeleteProject() clears the static reference in its finally block.
             // Use reflection to call LightPlatformTestCase.closeAndDeleteProject()
-            // because LightPlatformTestCase extends JUnit 4's TestCase which is no longer on the classpath.
+            // because LightPlatformTestCase extends JUnit 4's TestCase which is not on the compile classpath
+            // (junit:junit is testRuntimeOnly), so a direct import would fail to compile.
             try {
                 var cls = Class.forName("com.intellij.testFramework.LightPlatformTestCase");
                 var method = cls.getMethod("closeAndDeleteProject");

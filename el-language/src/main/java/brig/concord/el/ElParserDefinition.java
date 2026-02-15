@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.ILazyParseableElementType;
 import com.intellij.psi.tree.TokenSet;
@@ -37,6 +38,11 @@ public class ElParserDefinition implements ParserDefinition {
     }
 
     @Override
+    public @NotNull TokenSet getWhitespaceTokens() {
+        return TokenSet.create(TokenType.WHITE_SPACE);
+    }
+
+    @Override
     public @NotNull TokenSet getCommentTokens() {
         return TokenSet.EMPTY;
     }
@@ -57,5 +63,10 @@ public class ElParserDefinition implements ParserDefinition {
     @Override
     public @NotNull PsiFile createFile(@NotNull FileViewProvider viewProvider) {
         return new ElFile(viewProvider);
+    }
+
+    @Override
+    public @NotNull SpaceRequirements spaceExistenceTypeBetweenTokens(ASTNode left, ASTNode right) {
+        return SpaceRequirements.MAY;
     }
 }

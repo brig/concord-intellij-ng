@@ -124,7 +124,7 @@ primaryExpr ::= literal
 
 identifierExpr ::= IDENTIFIER
 
-// Namespace function call: ns:func(args) or func(args)
+// Namespace function call: ns:func(args)
 // Uses external lookahead to avoid COLON ambiguity with ternary/map
 functionExpr ::= <<isFunctionCall>> IDENTIFIER COLON IDENTIFIER argList+ {pin=3}
 
