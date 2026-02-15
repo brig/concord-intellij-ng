@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.intellij.platform") version "2.11.0"
-    id("org.jetbrains.kotlin.jvm") version "2.3.10"
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.intellijPlatform)
 }
 
 repositories {

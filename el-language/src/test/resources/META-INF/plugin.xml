@@ -1,0 +1,16 @@
+<idea-plugin>
+    <id>brig.concord.el.test</id>
+    <name>Concord EL Test</name>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="concord-el"
+                  implementationClass="brig.concord.el.ElFileType"
+                  fieldName="INSTANCE"
+                  language="concord-el"
+                  extensions="el"/>
+        <lang.parserDefinition language="concord-el"
+                               implementationClass="brig.concord.el.ElParserDefinition"/>
+    </extensions>
+</idea-plugin>

@@ -6,11 +6,11 @@ fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "2.3.10"
-    id("org.jetbrains.intellij.platform") version "2.11.0"
-    id("org.jetbrains.changelog") version "2.5.0"
-    id("org.jetbrains.qodana") version "2025.3.1"
-    id("org.jetbrains.grammarkit") version "2023.3.0.1"
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.intellijPlatform)
+    alias(libs.plugins.changelog)
+    alias(libs.plugins.qodana)
+    alias(libs.plugins.grammarkit)
 }
 
 group = properties("pluginGroup")
@@ -48,16 +48,17 @@ dependencies {
         testFramework(TestFrameworkType.JUnit5)
     }
 
-    testImplementation(platform("org.junit:junit-bom:5.12.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testRuntimeOnly("junit:junit:4.13.2")
-    testImplementation("org.assertj:assertj-core:3.27.7")
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.legacy)
+    testImplementation(libs.assertj)
 
-    implementation("com.cronutils:cron-utils:9.2.0")
-    implementation("org.ow2.asm:asm:9.7")
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation(project(":el-language"))
+    implementation(libs.cron.utils)
+    implementation(libs.asm)
+    implementation(libs.gson)
 }
 
 kotlin {
@@ -91,7 +92,7 @@ changelog {
 }
 
 grammarKit {
-    jflexRelease.set("1.9.2")
+    jflexRelease.set(libs.versions.jflex.get())
 }
 
 tasks {

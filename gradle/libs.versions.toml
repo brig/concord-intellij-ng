@@ -1,0 +1,31 @@
+[versions]
+intellijPlatform = "2.11.0"
+kotlin = "2.3.10"
+grammarkit = "2023.3.0.1"
+changelog = "2.5.0"
+qodana = "2025.3.1"
+junit = "5.12.2"
+junitLegacy = "4.13.2"
+assertj = "3.27.7"
+jflex = "1.9.2"
+cronUtils = "9.2.0"
+asm = "9.7"
+gson = "2.11.0"
+
+[libraries]
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
+junit-legacy = { module = "junit:junit", version.ref = "junitLegacy" }
+assertj = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+cron-utils = { module = "com.cronutils:cron-utils", version.ref = "cronUtils" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+
+[plugins]
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+intellijPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intellijPlatform" }
+grammarkit = { id = "org.jetbrains.grammarkit", version.ref = "grammarkit" }
+changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
+qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
