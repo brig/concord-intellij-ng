@@ -1,5 +1,7 @@
 package brig.concord.highlighting;
 
+import brig.concord.el.ElLexerAdapter;
+import brig.concord.el.ElSyntaxHighlighter;
 import brig.concord.inspection.fix.InsertClosingMarkerFix;
 import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.meta.ConcordMetaTypeProvider;
@@ -12,6 +14,7 @@ import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiDocumentManager;
@@ -20,6 +23,7 @@ import com.intellij.psi.PsiErrorElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Locale;
 
 import static brig.concord.yaml.YAMLUtil.isNumberValue;
@@ -108,6 +112,7 @@ public class ConcordHighlightingAnnotator implements Annotator {
                 for (var r : ranges) {
                     highlight(holder, r, ConcordHighlightingColors.EXPRESSION);
                 }
+                highlightElTokens(doc, ranges, holder);
             }
             return;
         }
@@ -153,6 +158,29 @@ public class ConcordHighlightingAnnotator implements Annotator {
                 .range(range)
                 .textAttributes(key)
                 .create();
+    }
+
+    private static final ElSyntaxHighlighter EL_HIGHLIGHTER = new ElSyntaxHighlighter();
+
+    private static void highlightElTokens(@NotNull Document doc,
+                                           @NotNull List<TextRange> exprRanges,
+                                           @NotNull AnnotationHolder holder) {
+        var lexer = new ElLexerAdapter();
+        for (var exprRange : exprRanges) {
+            var exprText = doc.getText(exprRange);
+            lexer.start(exprText);
+            while (lexer.getTokenType() != null) {
+                var keys = EL_HIGHLIGHTER.getTokenHighlights(lexer.getTokenType());
+                if (keys.length > 0) {
+                    var tokenStart = exprRange.getStartOffset() + lexer.getTokenStart();
+                    var tokenEnd = exprRange.getStartOffset() + lexer.getTokenEnd();
+                    for (var key : keys) {
+                        highlight(holder, new TextRange(tokenStart, tokenEnd), key);
+                    }
+                }
+                lexer.advance();
+            }
+        }
     }
 
     private static boolean isBooleanValue(String v) {

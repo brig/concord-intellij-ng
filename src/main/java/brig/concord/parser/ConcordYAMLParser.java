@@ -1,6 +1,8 @@
 package brig.concord.parser;
 
 import brig.concord.ConcordBundle;
+import brig.concord.psi.ElExpressionElementType;
+import brig.concord.utils.ConcordExpressionRanges;
 import brig.concord.yaml.YAMLElementTypes;
 import brig.concord.yaml.YAMLTokenTypes;
 import com.intellij.lang.ASTNode;
@@ -403,7 +405,13 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
 
         IElementType type = getTokenType();
         while (type == TEXT || type == INDENT || type == EOL) {
-            advanceLexer();
+            if (type == TEXT && ConcordExpressionRanges.isWholeExpression(myBuilder.getTokenText())) {
+                PsiBuilder.Marker exprMarker = mark();
+                advanceLexer();
+                exprMarker.done(ElExpressionElementType.INSTANCE);
+            } else {
+                advanceLexer();
+            }
 
             if (type == TEXT) {
                 if (lastTextEnd != null && myIndent < indent) {

@@ -1,0 +1,12 @@
+package brig.concord.el;
+
+import com.intellij.lang.Language;
+
+public class ElLanguage extends Language {
+
+    public static final ElLanguage INSTANCE = new ElLanguage();
+
+    private ElLanguage() {
+        super("concord-el");
+    }
+}

@@ -1,0 +1,8 @@
+<idea-plugin>
+    <id>brig.concord.el.test</id>
+    <name>Concord EL Test</name>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="/META-INF/concord-el.xml" xpointer="xpointer(/idea-plugin/*)"/>
+</idea-plugin>

@@ -124,6 +124,16 @@ public final class ConcordExpressionRanges {
         return (bs % 2) == 1;
     }
 
+    public static boolean isWholeExpression(@Nullable String text) {
+        if (text == null || text.length() < 3 || !text.startsWith("${")) {
+            return false;
+        }
+        var ranges = find(text);
+        return ranges.size() == 1
+                && ranges.getFirst().getStartOffset() == 0
+                && ranges.getFirst().getEndOffset() == text.length();
+    }
+
     private ConcordExpressionRanges() {
     }
 }

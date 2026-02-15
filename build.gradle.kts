@@ -55,6 +55,7 @@ dependencies {
     testRuntimeOnly("junit:junit:4.13.2")
     testImplementation("org.assertj:assertj-core:3.27.7")
 
+    implementation(project(":el-language"))
     implementation("com.cronutils:cron-utils:9.2.0")
     implementation("org.ow2.asm:asm:9.7")
     implementation("com.google.code.gson:gson:2.11.0")

@@ -1,0 +1,16 @@
+// This is a generated file. Not intended for manual editing.
+package brig.concord.el.psi;
+
+import java.util.List;
+import org.jetbrains.annotations.*;
+import com.intellij.psi.PsiElement;
+
+public interface ElAccessExpr extends PsiElement {
+
+  @NotNull
+  ElPrimaryExpr getPrimaryExpr();
+
+  @NotNull
+  List<ElSuffix> getSuffixList();
+
+}

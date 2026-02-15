@@ -2,6 +2,7 @@ package brig.concord.yaml.psi.impl;
 
 // Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 
+import brig.concord.psi.ElExpressionElementType;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.tree.IElementType;
@@ -38,7 +39,8 @@ public class YAMLPlainTextImpl extends YAMLBlockScalarImpl implements YAMLScalar
 
                 boolean seenText = false;
                 for (ASTNode child = getFirstContentNode(); child != null; child = child.getTreeNext()) {
-                    if (child.getElementType() == YAMLTokenTypes.TEXT) {
+                    if (child.getElementType() == YAMLTokenTypes.TEXT
+                            || child.getElementType() == ElExpressionElementType.INSTANCE) {
                         seenText = true;
                         result.add(child.getTextRange().shiftRight(-myStart));
                     }

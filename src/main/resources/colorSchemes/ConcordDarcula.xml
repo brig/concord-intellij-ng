@@ -67,8 +67,7 @@
     <!-- Expressions ${} -->
     <option name="CONCORD_EXPRESSION">
         <value>
-            <option name="FOREGROUND" value="8A97B8"/>
-            <option name="FONT_TYPE" value="0"/>
+            <option name="BACKGROUND" value="2B3040"/>
         </value>
     </option>
 
