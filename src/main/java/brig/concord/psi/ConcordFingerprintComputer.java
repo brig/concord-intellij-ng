@@ -49,11 +49,14 @@ public final class ConcordFingerprintComputer {
             return null;
         }
 
+        var argumentsText = readArgumentsText(config.mapping);
+
         return new ConcordFileFingerprint(
                 normalize(resources),
                 normalize(dependencies),
                 normalize(extraDependencies),
-                profiles
+                profiles,
+                argumentsText
         );
     }
 
@@ -67,6 +70,24 @@ public final class ConcordFingerprintComputer {
         }
 
         return readList(resources.mapping, "concord");
+    }
+
+    private static @NotNull String readArgumentsText(@Nullable YAMLMapping configMapping) {
+        if (configMapping == null) {
+            return "";
+        }
+
+        var kv = configMapping.getKeyValueByKey("arguments");
+        if (kv == null) {
+            return "";
+        }
+
+        var value = kv.getValue();
+        if (value == null) {
+            return "";
+        }
+
+        return value.getText();
     }
 
     private static @Nullable Map<String, ConcordFileFingerprint.ProfileFingerprint> readProfiles(@NotNull YAMLMapping root) {

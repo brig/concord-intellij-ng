@@ -244,7 +244,7 @@ public class FlowCallParamsProvider {
         return flowKey.getParent();
     }
 
-    private static @Nullable FlowDocumentation findFlowDocumentationBefore(PsiElement flowDefinition) {
+    public static @Nullable FlowDocumentation findFlowDocumentationBefore(PsiElement flowDefinition) {
         var sibling = flowDefinition.getPrevSibling();
         while (sibling != null) {
             if (sibling instanceof FlowDocumentation doc) {
