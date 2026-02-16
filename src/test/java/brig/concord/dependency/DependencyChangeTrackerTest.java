@@ -176,7 +176,7 @@ class DependencyChangeTrackerTest extends ConcordYamlTestBaseJunit5 {
         Assertions.assertFalse(tracker.needsReload());
 
         // Simulate a dependency change by incrementing the dependencies modification count.
-        // In production, editing the file triggers ConcordModificationTracker → TOPIC.
+        // In production, editing the file triggers ConcordModificationTracker -> TOPIC.
         // Here we use forceSyncInTests=true (default from base class), so
         // ConcordModificationTracker.dependencies().getModificationCount() is already
         // incremented synchronously on file creation. We just need to increment again.
