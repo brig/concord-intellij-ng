@@ -178,15 +178,15 @@ class ElParserTest extends TestBaseJunit5 {
                 EL Expression File
                   ElAccessExprImpl(ACCESS_EXPR)
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('a')
+                      PsiElement(IDENTIFIER)('a')
                     ElDotSuffixImpl(DOT_SUFFIX)
-                      PsiElement(ElTokenType..)('.')
+                      PsiElement(.)('.')
                       ElMemberNameImpl(MEMBER_NAME)
-                        PsiElement(ElTokenType.IDENTIFIER)('b')
+                        PsiElement(IDENTIFIER)('b')
                     ElDotSuffixImpl(DOT_SUFFIX)
-                      PsiElement(ElTokenType..)('.')
+                      PsiElement(.)('.')
                       ElMemberNameImpl(MEMBER_NAME)
-                        PsiElement(ElTokenType.IDENTIFIER)('c')
+                        PsiElement(IDENTIFIER)('c')
                 """);
     }
 
@@ -197,19 +197,19 @@ class ElParserTest extends TestBaseJunit5 {
                 EL Expression File
                   ElAccessExprImpl(ACCESS_EXPR)
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('a')
+                      PsiElement(IDENTIFIER)('a')
                     ElDotSuffixImpl(DOT_SUFFIX)
-                      PsiElement(ElTokenType..)('.')
+                      PsiElement(.)('.')
                       ElMemberNameImpl(MEMBER_NAME)
-                        PsiElement(ElTokenType.IDENTIFIER)('method')
+                        PsiElement(IDENTIFIER)('method')
                       ElArgListImpl(ARG_LIST)
-                        PsiElement(ElTokenType.()('(')
+                        PsiElement(()('(')
                         ElLiteralImpl(LITERAL)
-                          PsiElement(ElTokenType.INTEGER_LITERAL)('1')
-                        PsiElement(ElTokenType.,)(',')
+                          PsiElement(INTEGER_LITERAL)('1')
+                        PsiElement(,)(',')
                         ElStringLiteralImpl(STRING_LITERAL)
-                          PsiElement(ElTokenType.SINGLE_QUOTED_STRING)(''x'')
-                        PsiElement(ElTokenType.))(')')
+                          PsiElement(SINGLE_QUOTED_STRING)(''x'')
+                        PsiElement())(')')
                 """);
     }
 
@@ -220,13 +220,13 @@ class ElParserTest extends TestBaseJunit5 {
                 EL Expression File
                   ElChoiceExprImpl(CHOICE_EXPR)
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('a')
-                    PsiElement(ElTokenType.?)('?')
+                      PsiElement(IDENTIFIER)('a')
+                    PsiElement(?)('?')
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('b')
-                    PsiElement(ElTokenType.:)(':')
+                      PsiElement(IDENTIFIER)('b')
+                    PsiElement(:)(':')
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('c')
+                      PsiElement(IDENTIFIER)('c')
                 """);
     }
 
@@ -237,14 +237,14 @@ class ElParserTest extends TestBaseJunit5 {
                 EL Expression File
                   ElAddExprImpl(ADD_EXPR)
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('a')
-                    PsiElement(ElTokenType.+)('+')
+                      PsiElement(IDENTIFIER)('a')
+                    PsiElement(+)('+')
                     ElMulExprImpl(MUL_EXPR)
                       ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                        PsiElement(ElTokenType.IDENTIFIER)('b')
-                      PsiElement(ElTokenType.*)('*')
+                        PsiElement(IDENTIFIER)('b')
+                      PsiElement(*)('*')
                       ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                        PsiElement(ElTokenType.IDENTIFIER)('c')
+                        PsiElement(IDENTIFIER)('c')
                 """);
     }
 
@@ -254,11 +254,11 @@ class ElParserTest extends TestBaseJunit5 {
         assertPsiStructure(file, """
                 EL Expression File
                   ElPrefixExprImpl(PREFIX_EXPR)
-                    PsiElement(ElTokenType.!)('!')
+                    PsiElement(!)('!')
                     ElPrefixExprImpl(PREFIX_EXPR)
-                      PsiElement(ElTokenType.empty)('empty')
+                      PsiElement(empty)('empty')
                       ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                        PsiElement(ElTokenType.IDENTIFIER)('list')
+                        PsiElement(IDENTIFIER)('list')
                 """);
     }
 
@@ -269,14 +269,14 @@ class ElParserTest extends TestBaseJunit5 {
                 EL Expression File
                   ElAssignExprImpl(ASSIGN_EXPR)
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('x')
-                    PsiElement(ElTokenType.->)('->')
+                      PsiElement(IDENTIFIER)('x')
+                    PsiElement(->)('->')
                     ElAddExprImpl(ADD_EXPR)
                       ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                        PsiElement(ElTokenType.IDENTIFIER)('x')
-                      PsiElement(ElTokenType.+)('+')
+                        PsiElement(IDENTIFIER)('x')
+                      PsiElement(+)('+')
                       ElLiteralImpl(LITERAL)
-                        PsiElement(ElTokenType.INTEGER_LITERAL)('1')
+                        PsiElement(INTEGER_LITERAL)('1')
                 """);
     }
 
@@ -286,30 +286,30 @@ class ElParserTest extends TestBaseJunit5 {
         assertPsiStructure(file, """
                 EL Expression File
                   ElListLiteralImpl(LIST_LITERAL)
-                    PsiElement(ElTokenType.[)('[')
+                    PsiElement([)('[')
                     ElLiteralImpl(LITERAL)
-                      PsiElement(ElTokenType.INTEGER_LITERAL)('1')
-                    PsiElement(ElTokenType.,)(',')
+                      PsiElement(INTEGER_LITERAL)('1')
+                    PsiElement(,)(',')
                     ElLiteralImpl(LITERAL)
-                      PsiElement(ElTokenType.INTEGER_LITERAL)('2')
-                    PsiElement(ElTokenType.,)(',')
+                      PsiElement(INTEGER_LITERAL)('2')
+                    PsiElement(,)(',')
                     ElLiteralImpl(LITERAL)
-                      PsiElement(ElTokenType.INTEGER_LITERAL)('3')
-                    PsiElement(ElTokenType.])(']')
+                      PsiElement(INTEGER_LITERAL)('3')
+                    PsiElement(])(']')
                 """);
 
         file = parseEl("{'a': 1}");
         assertPsiStructure(file, """
                 EL Expression File
                   ElMapLiteralImpl(MAP_LITERAL)
-                    PsiElement(ElTokenType.{)('{')
+                    PsiElement({)('{')
                     ElMapEntryImpl(MAP_ENTRY)
                       ElStringLiteralImpl(STRING_LITERAL)
-                        PsiElement(ElTokenType.SINGLE_QUOTED_STRING)(''a'')
-                      PsiElement(ElTokenType.:)(':')
+                        PsiElement(SINGLE_QUOTED_STRING)(''a'')
+                      PsiElement(:)(':')
                       ElLiteralImpl(LITERAL)
-                        PsiElement(ElTokenType.INTEGER_LITERAL)('1')
-                    PsiElement(ElTokenType.})('}')
+                        PsiElement(INTEGER_LITERAL)('1')
+                    PsiElement(})('}')
                 """);
     }
 
@@ -321,20 +321,20 @@ class ElParserTest extends TestBaseJunit5 {
                   ElExpressionImpl(EXPRESSION)
                     ElAssignExprImpl(ASSIGN_EXPR)
                       ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                        PsiElement(ElTokenType.IDENTIFIER)('a')
-                      PsiElement(ElTokenType.=)('=')
+                        PsiElement(IDENTIFIER)('a')
+                      PsiElement(=)('=')
                       ElLiteralImpl(LITERAL)
-                        PsiElement(ElTokenType.INTEGER_LITERAL)('1')
-                    PsiElement(ElTokenType.;)(';')
+                        PsiElement(INTEGER_LITERAL)('1')
+                    PsiElement(;)(';')
                     ElAssignExprImpl(ASSIGN_EXPR)
                       ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                        PsiElement(ElTokenType.IDENTIFIER)('b')
-                      PsiElement(ElTokenType.=)('=')
+                        PsiElement(IDENTIFIER)('b')
+                      PsiElement(=)('=')
                       ElLiteralImpl(LITERAL)
-                        PsiElement(ElTokenType.INTEGER_LITERAL)('2')
-                    PsiElement(ElTokenType.;)(';')
+                        PsiElement(INTEGER_LITERAL)('2')
+                    PsiElement(;)(';')
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('c')
+                      PsiElement(IDENTIFIER)('c')
                 """);
     }
 
@@ -345,12 +345,12 @@ class ElParserTest extends TestBaseJunit5 {
                 EL Expression File
                   ElAccessExprImpl(ACCESS_EXPR)
                     ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                      PsiElement(ElTokenType.IDENTIFIER)('map')
+                      PsiElement(IDENTIFIER)('map')
                     ElBracketSuffixImpl(BRACKET_SUFFIX)
-                      PsiElement(ElTokenType.[)('[')
+                      PsiElement([)('[')
                       ElStringLiteralImpl(STRING_LITERAL)
-                        PsiElement(ElTokenType.SINGLE_QUOTED_STRING)(''key'')
-                      PsiElement(ElTokenType.])(']')
+                        PsiElement(SINGLE_QUOTED_STRING)(''key'')
+                      PsiElement(])(']')
                 """);
     }
 
@@ -362,7 +362,7 @@ class ElParserTest extends TestBaseJunit5 {
         assertPsiStructure(file, """
                 EL Expression File
                   ElIdentifierExprImpl(IDENTIFIER_EXPR)
-                    PsiElement(ElTokenType.IDENTIFIER)('myVar')
+                    PsiElement(IDENTIFIER)('myVar')
                 """);
     }
 
@@ -372,7 +372,7 @@ class ElParserTest extends TestBaseJunit5 {
         assertPsiStructure(file, """
                 EL Expression File
                   ElLiteralImpl(LITERAL)
-                    PsiElement(ElTokenType.INTEGER_LITERAL)('42')
+                    PsiElement(INTEGER_LITERAL)('42')
                 """);
     }
 
@@ -382,7 +382,7 @@ class ElParserTest extends TestBaseJunit5 {
         assertPsiStructure(file, """
                 EL Expression File
                   ElStringLiteralImpl(STRING_LITERAL)
-                    PsiElement(ElTokenType.SINGLE_QUOTED_STRING)(''hello'')
+                    PsiElement(SINGLE_QUOTED_STRING)(''hello'')
                 """);
     }
 

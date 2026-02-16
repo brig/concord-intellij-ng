@@ -10,9 +10,4 @@ public class ElTokenType extends IElementType {
     public ElTokenType(@NotNull @NonNls String debugName) {
         super(debugName, ElLanguage.INSTANCE);
     }
-
-    @Override
-    public String toString() {
-        return "ElTokenType." + super.toString();
-    }
 }
