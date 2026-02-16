@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElMapLiteral extends PsiElement {
+public interface ElMapLiteral extends ElExpression {
 
   @NotNull
   List<ElMapEntry> getMapEntryList();

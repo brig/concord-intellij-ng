@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElAccessExprImpl extends ASTWrapperPsiElement implements ElAccessExpr {
+public class ElAccessExprImpl extends ElExpressionImpl implements ElAccessExpr {
 
   public ElAccessExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull ElVisitor visitor) {
     visitor.visitAccessExpr(this);
   }
@@ -29,8 +29,8 @@ public class ElAccessExprImpl extends ASTWrapperPsiElement implements ElAccessEx
 
   @Override
   @NotNull
-  public ElPrimaryExpr getPrimaryExpr() {
-    return findNotNullChildByClass(ElPrimaryExpr.class);
+  public ElExpression getExpression() {
+    return findNotNullChildByClass(ElExpression.class);
   }
 
   @Override

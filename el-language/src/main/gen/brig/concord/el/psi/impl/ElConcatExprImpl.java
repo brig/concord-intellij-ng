@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElConcatExprImpl extends ASTWrapperPsiElement implements ElConcatExpr {
+public class ElConcatExprImpl extends ElExpressionImpl implements ElConcatExpr {
 
   public ElConcatExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull ElVisitor visitor) {
     visitor.visitConcatExpr(this);
   }
@@ -25,12 +25,6 @@ public class ElConcatExprImpl extends ASTWrapperPsiElement implements ElConcatEx
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof ElVisitor) accept((ElVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @NotNull
-  public List<ElAddExpr> getAddExprList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ElAddExpr.class);
   }
 
 }

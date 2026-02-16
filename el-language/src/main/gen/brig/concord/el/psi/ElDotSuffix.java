@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElDotSuffix extends PsiElement {
+public interface ElDotSuffix extends ElSuffix {
 
   @Nullable
   ElArgList getArgList();

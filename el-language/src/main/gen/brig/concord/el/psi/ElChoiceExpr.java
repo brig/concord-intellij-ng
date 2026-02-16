@@ -5,12 +5,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElChoiceExpr extends PsiElement {
-
-  @NotNull
-  List<ElChoiceExpr> getChoiceExprList();
-
-  @NotNull
-  ElOrExpr getOrExpr();
+public interface ElChoiceExpr extends ElExpression {
 
 }

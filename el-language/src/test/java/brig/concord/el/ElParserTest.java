@@ -174,85 +174,216 @@ class ElParserTest extends TestBaseJunit5 {
     @Test
     void propertyAccessStructure() {
         var file = parseEl("a.b.c");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        // Should contain dot suffixes
-        assertThat(psi).contains("ElDotSuffix");
-        assertThat(psi).contains("ElIdentifierExpr");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElAccessExprImpl(ACCESS_EXPR)
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('a')
+                    ElDotSuffixImpl(DOT_SUFFIX)
+                      PsiElement(ElTokenType..)('.')
+                      ElMemberNameImpl(MEMBER_NAME)
+                        PsiElement(ElTokenType.IDENTIFIER)('b')
+                    ElDotSuffixImpl(DOT_SUFFIX)
+                      PsiElement(ElTokenType..)('.')
+                      ElMemberNameImpl(MEMBER_NAME)
+                        PsiElement(ElTokenType.IDENTIFIER)('c')
+                """);
     }
 
     @Test
     void methodCallStructure() {
         var file = parseEl("a.method(1, 'x')");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        assertThat(psi).contains("ElDotSuffix");
-        assertThat(psi).contains("ElArgList");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElAccessExprImpl(ACCESS_EXPR)
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('a')
+                    ElDotSuffixImpl(DOT_SUFFIX)
+                      PsiElement(ElTokenType..)('.')
+                      ElMemberNameImpl(MEMBER_NAME)
+                        PsiElement(ElTokenType.IDENTIFIER)('method')
+                      ElArgListImpl(ARG_LIST)
+                        PsiElement(ElTokenType.()('(')
+                        ElLiteralImpl(LITERAL)
+                          PsiElement(ElTokenType.INTEGER_LITERAL)('1')
+                        PsiElement(ElTokenType.,)(',')
+                        ElStringLiteralImpl(STRING_LITERAL)
+                          PsiElement(ElTokenType.SINGLE_QUOTED_STRING)(''x'')
+                        PsiElement(ElTokenType.))(')')
+                """);
     }
 
     @Test
     void ternaryStructure() {
         var file = parseEl("a ? b : c");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        assertThat(psi).contains("ElChoiceExpr");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElChoiceExprImpl(CHOICE_EXPR)
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('a')
+                    PsiElement(ElTokenType.?)('?')
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('b')
+                    PsiElement(ElTokenType.:)(':')
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('c')
+                """);
     }
 
     @Test
     void binaryOperatorStructure() {
         var file = parseEl("a + b * c");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        assertThat(psi).contains("ElAddExpr");
-        assertThat(psi).contains("ElMulExpr");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElAddExprImpl(ADD_EXPR)
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('a')
+                    PsiElement(ElTokenType.+)('+')
+                    ElMulExprImpl(MUL_EXPR)
+                      ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                        PsiElement(ElTokenType.IDENTIFIER)('b')
+                      PsiElement(ElTokenType.*)('*')
+                      ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                        PsiElement(ElTokenType.IDENTIFIER)('c')
+                """);
     }
 
     @Test
     void unaryStructure() {
         var file = parseEl("!empty list");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        assertThat(psi).contains("ElPrefixExpr");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElPrefixExprImpl(PREFIX_EXPR)
+                    PsiElement(ElTokenType.!)('!')
+                    ElPrefixExprImpl(PREFIX_EXPR)
+                      PsiElement(ElTokenType.empty)('empty')
+                      ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                        PsiElement(ElTokenType.IDENTIFIER)('list')
+                """);
     }
 
     @Test
     void lambdaStructure() {
         var file = parseEl("x -> x + 1");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        assertThat(psi).contains("ElAssignExpr");
-        assertThat(psi).contains("ElTokenType.->");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElAssignExprImpl(ASSIGN_EXPR)
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('x')
+                    PsiElement(ElTokenType.->)('->')
+                    ElAddExprImpl(ADD_EXPR)
+                      ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                        PsiElement(ElTokenType.IDENTIFIER)('x')
+                      PsiElement(ElTokenType.+)('+')
+                      ElLiteralImpl(LITERAL)
+                        PsiElement(ElTokenType.INTEGER_LITERAL)('1')
+                """);
     }
 
     @Test
     void collectionLiteralsStructure() {
         var file = parseEl("[1, 2, 3]");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        assertThat(psi).contains("ElListLiteral");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElListLiteralImpl(LIST_LITERAL)
+                    PsiElement(ElTokenType.[)('[')
+                    ElLiteralImpl(LITERAL)
+                      PsiElement(ElTokenType.INTEGER_LITERAL)('1')
+                    PsiElement(ElTokenType.,)(',')
+                    ElLiteralImpl(LITERAL)
+                      PsiElement(ElTokenType.INTEGER_LITERAL)('2')
+                    PsiElement(ElTokenType.,)(',')
+                    ElLiteralImpl(LITERAL)
+                      PsiElement(ElTokenType.INTEGER_LITERAL)('3')
+                    PsiElement(ElTokenType.])(']')
+                """);
 
         file = parseEl("{'a': 1}");
-        assertNoPsiErrors(file);
-        psi = psiToString(file);
-        assertThat(psi).contains("ElMapLiteral");
-        assertThat(psi).contains("ElMapEntry");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElMapLiteralImpl(MAP_LITERAL)
+                    PsiElement(ElTokenType.{)('{')
+                    ElMapEntryImpl(MAP_ENTRY)
+                      ElStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(ElTokenType.SINGLE_QUOTED_STRING)(''a'')
+                      PsiElement(ElTokenType.:)(':')
+                      ElLiteralImpl(LITERAL)
+                        PsiElement(ElTokenType.INTEGER_LITERAL)('1')
+                    PsiElement(ElTokenType.})('}')
+                """);
     }
 
     @Test
     void semicolonSequence() {
         var file = parseEl("a = 1; b = 2; c");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        assertThat(psi).contains("ElAssignExpr");
-        assertThat(psi).contains("ElTokenType.;");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElExpressionImpl(EXPRESSION)
+                    ElAssignExprImpl(ASSIGN_EXPR)
+                      ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                        PsiElement(ElTokenType.IDENTIFIER)('a')
+                      PsiElement(ElTokenType.=)('=')
+                      ElLiteralImpl(LITERAL)
+                        PsiElement(ElTokenType.INTEGER_LITERAL)('1')
+                    PsiElement(ElTokenType.;)(';')
+                    ElAssignExprImpl(ASSIGN_EXPR)
+                      ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                        PsiElement(ElTokenType.IDENTIFIER)('b')
+                      PsiElement(ElTokenType.=)('=')
+                      ElLiteralImpl(LITERAL)
+                        PsiElement(ElTokenType.INTEGER_LITERAL)('2')
+                    PsiElement(ElTokenType.;)(';')
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('c')
+                """);
     }
 
     @Test
     void bracketAccessStructure() {
         var file = parseEl("map['key']");
-        assertNoPsiErrors(file);
-        var psi = psiToString(file);
-        assertThat(psi).contains("ElBracketSuffix");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElAccessExprImpl(ACCESS_EXPR)
+                    ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                      PsiElement(ElTokenType.IDENTIFIER)('map')
+                    ElBracketSuffixImpl(BRACKET_SUFFIX)
+                      PsiElement(ElTokenType.[)('[')
+                      ElStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(ElTokenType.SINGLE_QUOTED_STRING)(''key'')
+                      PsiElement(ElTokenType.])(']')
+                """);
+    }
+
+    // ---- Collapse verification tests ----
+
+    @Test
+    void simpleIdentifierCollapsed() {
+        var file = parseEl("myVar");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElIdentifierExprImpl(IDENTIFIER_EXPR)
+                    PsiElement(ElTokenType.IDENTIFIER)('myVar')
+                """);
+    }
+
+    @Test
+    void simpleLiteralCollapsed() {
+        var file = parseEl("42");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElLiteralImpl(LITERAL)
+                    PsiElement(ElTokenType.INTEGER_LITERAL)('42')
+                """);
+    }
+
+    @Test
+    void stringLiteralCollapsed() {
+        var file = parseEl("'hello'");
+        assertPsiStructure(file, """
+                EL Expression File
+                  ElStringLiteralImpl(STRING_LITERAL)
+                    PsiElement(ElTokenType.SINGLE_QUOTED_STRING)(''hello'')
+                """);
     }
 
     @Test
@@ -275,6 +406,11 @@ class ElParserTest extends TestBaseJunit5 {
         return myFixture.configureByText("test.el", text);
     }
 
+    private static void assertPsiStructure(PsiFile file, String expected) {
+        assertNoPsiErrors(file);
+        assertThat(psiStructure(file)).isEqualTo(expected.stripTrailing());
+    }
+
     private static void assertNoPsiErrors(PsiFile file) {
         var errors = collectErrors(file);
         assertThat(errors)
@@ -294,6 +430,10 @@ class ElParserTest extends TestBaseJunit5 {
             }
         });
         return errors;
+    }
+
+    private static String psiStructure(PsiFile file) {
+        return DebugUtil.psiToString(file, false, false).stripTrailing();
     }
 
     private static String psiToString(PsiFile file) {

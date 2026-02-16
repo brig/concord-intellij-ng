@@ -13,6 +13,13 @@
   elementTypeClass="brig.concord.el.psi.ElElementType"
   tokenTypeClass="brig.concord.el.psi.ElTokenType"
 
+  // Expression hierarchy — collapse passthrough wrappers
+  extends(".*Expr|literal|parenExpr|listLiteral|mapLiteral")=expression
+  extends("stringLiteral")=literal
+
+  // Suffix hierarchy — collapse ElSuffix wrapper
+  extends("dotSuffix|bracketSuffix|callSuffix")=suffix
+
   tokens = [
     WHITE_SPACE          = 'regexp:\s+'
     INTEGER_LITERAL      = 'regexp:[0-9]+'

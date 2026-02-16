@@ -5,9 +5,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElRelExpr extends PsiElement {
-
-  @NotNull
-  List<ElConcatExpr> getConcatExprList();
+public interface ElRelExpr extends ElExpression {
 
 }

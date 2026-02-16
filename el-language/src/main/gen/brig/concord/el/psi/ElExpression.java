@@ -8,6 +8,6 @@ import com.intellij.psi.PsiElement;
 public interface ElExpression extends PsiElement {
 
   @NotNull
-  List<ElAssignExpr> getAssignExprList();
+  List<ElExpression> getExpressionList();
 
 }

@@ -11,7 +11,7 @@ import static brig.concord.el.psi.ElTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElSuffixImpl extends ASTWrapperPsiElement implements ElSuffix {
+public abstract class ElSuffixImpl extends ASTWrapperPsiElement implements ElSuffix {
 
   public ElSuffixImpl(@NotNull ASTNode node) {
     super(node);
@@ -25,24 +25,6 @@ public class ElSuffixImpl extends ASTWrapperPsiElement implements ElSuffix {
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof ElVisitor) accept((ElVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @Nullable
-  public ElBracketSuffix getBracketSuffix() {
-    return findChildByClass(ElBracketSuffix.class);
-  }
-
-  @Override
-  @Nullable
-  public ElCallSuffix getCallSuffix() {
-    return findChildByClass(ElCallSuffix.class);
-  }
-
-  @Override
-  @Nullable
-  public ElDotSuffix getDotSuffix() {
-    return findChildByClass(ElDotSuffix.class);
   }
 
 }

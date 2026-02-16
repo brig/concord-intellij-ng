@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElParenExprImpl extends ASTWrapperPsiElement implements ElParenExpr {
+public class ElParenExprImpl extends ElExpressionImpl implements ElParenExpr {
 
   public ElParenExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull ElVisitor visitor) {
     visitor.visitParenExpr(this);
   }

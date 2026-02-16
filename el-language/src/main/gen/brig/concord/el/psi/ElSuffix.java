@@ -7,13 +7,4 @@ import com.intellij.psi.PsiElement;
 
 public interface ElSuffix extends PsiElement {
 
-  @Nullable
-  ElBracketSuffix getBracketSuffix();
-
-  @Nullable
-  ElCallSuffix getCallSuffix();
-
-  @Nullable
-  ElDotSuffix getDotSuffix();
-
 }

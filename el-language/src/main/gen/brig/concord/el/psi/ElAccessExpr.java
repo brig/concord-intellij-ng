@@ -5,10 +5,10 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElAccessExpr extends PsiElement {
+public interface ElAccessExpr extends ElExpression {
 
   @NotNull
-  ElPrimaryExpr getPrimaryExpr();
+  ElExpression getExpression();
 
   @NotNull
   List<ElSuffix> getSuffixList();

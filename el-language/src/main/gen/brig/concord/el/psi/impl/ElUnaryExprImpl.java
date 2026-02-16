@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElUnaryExprImpl extends ASTWrapperPsiElement implements ElUnaryExpr {
+public abstract class ElUnaryExprImpl extends ElExpressionImpl implements ElUnaryExpr {
 
   public ElUnaryExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull ElVisitor visitor) {
     visitor.visitUnaryExpr(this);
   }
@@ -25,18 +25,6 @@ public class ElUnaryExprImpl extends ASTWrapperPsiElement implements ElUnaryExpr
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof ElVisitor) accept((ElVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @Nullable
-  public ElAccessExpr getAccessExpr() {
-    return findChildByClass(ElAccessExpr.class);
-  }
-
-  @Override
-  @Nullable
-  public ElPrefixExpr getPrefixExpr() {
-    return findChildByClass(ElPrefixExpr.class);
   }
 
 }

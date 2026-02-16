@@ -5,9 +5,6 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElAddExpr extends PsiElement {
-
-  @NotNull
-  List<ElMulExpr> getMulExprList();
+public interface ElAddExpr extends ElExpression {
 
 }

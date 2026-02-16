@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 public class ElVisitor extends PsiElementVisitor {
 
   public void visitAccessExpr(@NotNull ElAccessExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitAddExpr(@NotNull ElAddExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitAndExpr(@NotNull ElAndExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitArgList(@NotNull ElArgList o) {
@@ -24,31 +24,31 @@ public class ElVisitor extends PsiElementVisitor {
   }
 
   public void visitAssignExpr(@NotNull ElAssignExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitBracketSuffix(@NotNull ElBracketSuffix o) {
-    visitPsiElement(o);
+    visitSuffix(o);
   }
 
   public void visitCallSuffix(@NotNull ElCallSuffix o) {
-    visitPsiElement(o);
+    visitSuffix(o);
   }
 
   public void visitChoiceExpr(@NotNull ElChoiceExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitConcatExpr(@NotNull ElConcatExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitDotSuffix(@NotNull ElDotSuffix o) {
-    visitPsiElement(o);
+    visitSuffix(o);
   }
 
   public void visitEqExpr(@NotNull ElEqExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitExpression(@NotNull ElExpression o) {
@@ -56,19 +56,19 @@ public class ElVisitor extends PsiElementVisitor {
   }
 
   public void visitFunctionExpr(@NotNull ElFunctionExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitIdentifierExpr(@NotNull ElIdentifierExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitListLiteral(@NotNull ElListLiteral o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitLiteral(@NotNull ElLiteral o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitMapEntry(@NotNull ElMapEntry o) {
@@ -76,7 +76,7 @@ public class ElVisitor extends PsiElementVisitor {
   }
 
   public void visitMapLiteral(@NotNull ElMapLiteral o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitMemberName(@NotNull ElMemberName o) {
@@ -84,31 +84,31 @@ public class ElVisitor extends PsiElementVisitor {
   }
 
   public void visitMulExpr(@NotNull ElMulExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitOrExpr(@NotNull ElOrExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitParenExpr(@NotNull ElParenExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitPrefixExpr(@NotNull ElPrefixExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitPrimaryExpr(@NotNull ElPrimaryExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitRelExpr(@NotNull ElRelExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitStringLiteral(@NotNull ElStringLiteral o) {
-    visitPsiElement(o);
+    visitLiteral(o);
   }
 
   public void visitSuffix(@NotNull ElSuffix o) {
@@ -116,7 +116,7 @@ public class ElVisitor extends PsiElementVisitor {
   }
 
   public void visitUnaryExpr(@NotNull ElUnaryExpr o) {
-    visitPsiElement(o);
+    visitExpression(o);
   }
 
   public void visitPsiElement(@NotNull PsiElement o) {

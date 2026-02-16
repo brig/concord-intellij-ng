@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElAndExprImpl extends ASTWrapperPsiElement implements ElAndExpr {
+public class ElAndExprImpl extends ElExpressionImpl implements ElAndExpr {
 
   public ElAndExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull ElVisitor visitor) {
     visitor.visitAndExpr(this);
   }
@@ -25,12 +25,6 @@ public class ElAndExprImpl extends ASTWrapperPsiElement implements ElAndExpr {
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof ElVisitor) accept((ElVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @NotNull
-  public List<ElEqExpr> getEqExprList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ElEqExpr.class);
   }
 
 }

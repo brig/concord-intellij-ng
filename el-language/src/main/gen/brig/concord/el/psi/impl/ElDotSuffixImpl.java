@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElDotSuffixImpl extends ASTWrapperPsiElement implements ElDotSuffix {
+public class ElDotSuffixImpl extends ElSuffixImpl implements ElDotSuffix {
 
   public ElDotSuffixImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull ElVisitor visitor) {
     visitor.visitDotSuffix(this);
   }

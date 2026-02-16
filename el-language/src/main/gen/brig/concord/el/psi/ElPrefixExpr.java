@@ -5,9 +5,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElPrefixExpr extends PsiElement {
+public interface ElPrefixExpr extends ElExpression {
 
   @NotNull
-  ElUnaryExpr getUnaryExpr();
+  ElExpression getExpression();
 
 }

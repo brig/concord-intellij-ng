@@ -8,15 +8,15 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElLiteralImpl extends ASTWrapperPsiElement implements ElLiteral {
+public class ElLiteralImpl extends ElExpressionImpl implements ElLiteral {
 
   public ElLiteralImpl(@NotNull ASTNode node) {
     super(node);
   }
 
+  @Override
   public void accept(@NotNull ElVisitor visitor) {
     visitor.visitLiteral(this);
   }
@@ -25,12 +25,6 @@ public class ElLiteralImpl extends ASTWrapperPsiElement implements ElLiteral {
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof ElVisitor) accept((ElVisitor)visitor);
     else super.accept(visitor);
-  }
-
-  @Override
-  @Nullable
-  public ElStringLiteral getStringLiteral() {
-    return findChildByClass(ElStringLiteral.class);
   }
 
   @Override

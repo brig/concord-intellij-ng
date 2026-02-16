@@ -29,8 +29,8 @@ public class ElExpressionImpl extends ASTWrapperPsiElement implements ElExpressi
 
   @Override
   @NotNull
-  public List<ElAssignExpr> getAssignExprList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, ElAssignExpr.class);
+  public List<ElExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, ElExpression.class);
   }
 
 }

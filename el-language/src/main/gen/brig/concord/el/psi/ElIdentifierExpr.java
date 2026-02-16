@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElIdentifierExpr extends PsiElement {
+public interface ElIdentifierExpr extends ElExpression {
 
   @NotNull
   PsiElement getIdentifier();

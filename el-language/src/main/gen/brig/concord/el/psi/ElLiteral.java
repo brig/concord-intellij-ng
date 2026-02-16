@@ -5,10 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElLiteral extends PsiElement {
-
-  @Nullable
-  ElStringLiteral getStringLiteral();
+public interface ElLiteral extends ElExpression {
 
   @Nullable
   PsiElement getFloatLiteral();

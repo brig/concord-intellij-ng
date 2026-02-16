@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface ElBracketSuffix extends PsiElement {
+public interface ElBracketSuffix extends ElSuffix {
 
   @Nullable
   ElArgList getArgList();

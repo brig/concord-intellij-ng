@@ -21,7 +21,7 @@ public class ElParser implements PsiParser, LightPsiParser {
 
   public void parseLight(IElementType root_, PsiBuilder builder_) {
     boolean result_;
-    builder_ = adapt_builder_(root_, builder_, this, null);
+    builder_ = adapt_builder_(root_, builder_, this, EXTENDS_SETS_);
     Marker marker_ = enter_section_(builder_, 0, _COLLAPSE_, null);
     result_ = parse_root_(root_, builder_);
     exit_section_(builder_, 0, marker_, root_, result_, true, TRUE_CONDITION);
@@ -35,12 +35,22 @@ public class ElParser implements PsiParser, LightPsiParser {
     return root(builder_, level_ + 1);
   }
 
+  public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
+    create_token_set_(BRACKET_SUFFIX, CALL_SUFFIX, DOT_SUFFIX, SUFFIX),
+    create_token_set_(ACCESS_EXPR, ADD_EXPR, AND_EXPR, ASSIGN_EXPR,
+      CHOICE_EXPR, CONCAT_EXPR, EQ_EXPR, EXPRESSION,
+      FUNCTION_EXPR, IDENTIFIER_EXPR, LIST_LITERAL, LITERAL,
+      MAP_LITERAL, MUL_EXPR, OR_EXPR, PAREN_EXPR,
+      PREFIX_EXPR, PRIMARY_EXPR, REL_EXPR, STRING_LITERAL,
+      UNARY_EXPR),
+  };
+
   /* ********************************************************** */
   // primaryExpr suffix*
   public static boolean accessExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "accessExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, ACCESS_EXPR, "<access expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, ACCESS_EXPR, "<access expr>");
     result_ = primaryExpr(builder_, level_ + 1);
     result_ = result_ && accessExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -63,7 +73,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean addExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "addExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, ADD_EXPR, "<add expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, ADD_EXPR, "<add expr>");
     result_ = mulExpr(builder_, level_ + 1);
     result_ = result_ && addExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -106,7 +116,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean andExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "andExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, AND_EXPR, "<and expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, AND_EXPR, "<and expr>");
     result_ = eqExpr(builder_, level_ + 1);
     result_ = result_ && andExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -204,7 +214,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean assignExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "assignExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, ASSIGN_EXPR, "<assign expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, ASSIGN_EXPR, "<assign expr>");
     result_ = choiceExpr(builder_, level_ + 1);
     result_ = result_ && assignExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -291,7 +301,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean choiceExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "choiceExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, CHOICE_EXPR, "<choice expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, CHOICE_EXPR, "<choice expr>");
     result_ = orExpr(builder_, level_ + 1);
     result_ = result_ && choiceExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -323,7 +333,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean concatExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "concatExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, CONCAT_EXPR, "<concat expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, CONCAT_EXPR, "<concat expr>");
     result_ = addExpr(builder_, level_ + 1);
     result_ = result_ && concatExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -379,7 +389,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean eqExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "eqExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, EQ_EXPR, "<eq expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, EQ_EXPR, "<eq expr>");
     result_ = relExpr(builder_, level_ + 1);
     result_ = result_ && eqExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -424,7 +434,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean expression(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "expression")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, EXPRESSION, "<expression>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, EXPRESSION, "<expression>");
     result_ = assignExpr(builder_, level_ + 1);
     result_ = result_ && expression_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -559,7 +569,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean literal(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "literal")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, LITERAL, "<literal>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, LITERAL, "<literal>");
     result_ = consumeToken(builder_, INTEGER_LITERAL);
     if (!result_) result_ = consumeToken(builder_, FLOAT_LITERAL);
     if (!result_) result_ = stringLiteral(builder_, level_ + 1);
@@ -692,7 +702,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean mulExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "mulExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, MUL_EXPR, "<mul expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, MUL_EXPR, "<mul expr>");
     result_ = unaryExpr(builder_, level_ + 1);
     result_ = result_ && mulExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -738,7 +748,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean orExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "orExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, OR_EXPR, "<or expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, OR_EXPR, "<or expr>");
     result_ = andExpr(builder_, level_ + 1);
     result_ = result_ && orExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -819,7 +829,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean prefixExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "prefixExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, PREFIX_EXPR, "<prefix expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, PREFIX_EXPR, "<prefix expr>");
     result_ = prefixExpr_0(builder_, level_ + 1);
     result_ = result_ && unaryExpr(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -847,7 +857,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean primaryExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "primaryExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, PRIMARY_EXPR, "<primary expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, PRIMARY_EXPR, "<primary expr>");
     result_ = literal(builder_, level_ + 1);
     if (!result_) result_ = parenExpr(builder_, level_ + 1);
     if (!result_) result_ = listLiteral(builder_, level_ + 1);
@@ -865,7 +875,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean relExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "relExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, REL_EXPR, "<rel expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, REL_EXPR, "<rel expr>");
     result_ = concatExpr(builder_, level_ + 1);
     result_ = result_ && relExpr_1(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);
@@ -942,7 +952,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean suffix(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "suffix")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, SUFFIX, "<suffix>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, SUFFIX, "<suffix>");
     result_ = dotSuffix(builder_, level_ + 1);
     if (!result_) result_ = bracketSuffix(builder_, level_ + 1);
     if (!result_) result_ = callSuffix(builder_, level_ + 1);
@@ -955,7 +965,7 @@ public class ElParser implements PsiParser, LightPsiParser {
   public static boolean unaryExpr(PsiBuilder builder_, int level_) {
     if (!recursion_guard_(builder_, level_, "unaryExpr")) return false;
     boolean result_;
-    Marker marker_ = enter_section_(builder_, level_, _NONE_, UNARY_EXPR, "<unary expr>");
+    Marker marker_ = enter_section_(builder_, level_, _COLLAPSE_, UNARY_EXPR, "<unary expr>");
     result_ = prefixExpr(builder_, level_ + 1);
     if (!result_) result_ = accessExpr(builder_, level_ + 1);
     exit_section_(builder_, level_, marker_, result_, false, null);

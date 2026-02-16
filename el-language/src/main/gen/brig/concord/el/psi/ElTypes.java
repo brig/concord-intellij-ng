@@ -159,20 +159,11 @@ public interface ElTypes {
       else if (type == PREFIX_EXPR) {
         return new ElPrefixExprImpl(node);
       }
-      else if (type == PRIMARY_EXPR) {
-        return new ElPrimaryExprImpl(node);
-      }
       else if (type == REL_EXPR) {
         return new ElRelExprImpl(node);
       }
       else if (type == STRING_LITERAL) {
         return new ElStringLiteralImpl(node);
-      }
-      else if (type == SUFFIX) {
-        return new ElSuffixImpl(node);
-      }
-      else if (type == UNARY_EXPR) {
-        return new ElUnaryExprImpl(node);
       }
       throw new AssertionError("Unknown element type: " + type);
     }
