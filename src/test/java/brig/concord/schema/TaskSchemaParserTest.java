@@ -229,21 +229,21 @@ class TaskSchemaParserTest {
 
     @Test
     void testMultiKeyConditional_allKeysMatch() {
-        // Both action=process AND mode=sync → timeout should be present
+        // Both action=process AND mode=sync -> timeout should be present
         var section = multiKeySchema.resolveInSection(Map.of("action", "process", "mode", "sync"));
         assertTrue(section.properties().containsKey("timeout"));
     }
 
     @Test
     void testMultiKeyConditional_partialMatch() {
-        // Only action=process without mode → timeout should NOT be present (AND semantics)
+        // Only action=process without mode -> timeout should NOT be present (AND semantics)
         var section = multiKeySchema.resolveInSection(Map.of("action", "process"));
         assertFalse(section.properties().containsKey("timeout"));
     }
 
     @Test
     void testMultiKeyConditional_singleKeyConditional() {
-        // action=upload → destination should be present (single-key conditional still works)
+        // action=upload -> destination should be present (single-key conditional still works)
         var section = multiKeySchema.resolveInSection(Map.of("action", "upload"));
         assertTrue(section.properties().containsKey("destination"));
     }
@@ -300,7 +300,7 @@ class TaskSchemaParserTest {
 
     @Test
     void testOneOfWithChainedRef() {
-        // nestedRef → $ref → stringType, should resolve through the chain
+        // nestedRef -> $ref -> stringType, should resolve through the chain
         var section = refCompositeSchema.getBaseInSection();
         var prop = section.properties().get("oneOfNestedRef");
         assertNotNull(prop);
@@ -389,7 +389,7 @@ class TaskSchemaParserTest {
 
     @Test
     void testPropertyWithoutType() {
-        // "meta" in concord.schema.json has description but no type → SchemaType.Any
+        // "meta" in concord.schema.json has description but no type -> SchemaType.Any
         var section = schema.resolveInSection(Map.of("action", "start"));
         var metaProp = section.properties().get("meta");
         assertNotNull(metaProp);

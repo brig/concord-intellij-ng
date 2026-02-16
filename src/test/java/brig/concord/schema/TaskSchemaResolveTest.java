@@ -173,7 +173,7 @@ class TaskSchemaResolveTest {
         );
         var schema = new TaskSchema("test", null, base, List.of(conditional), TaskSchemaSection.empty());
 
-        // Only action matches, mode is missing → no match
+        // Only action matches, mode is missing -> no match
         var resolved = schema.resolveInSection(Map.of("action", "process"));
         assertFalse(resolved.properties().containsKey("timeout"));
     }
