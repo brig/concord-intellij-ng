@@ -70,7 +70,39 @@ public abstract class YAMLBlockScalarTextEvaluator<T extends YAMLBlockScalarImpl
                 thisLineStart = child.getStartOffset() + 1;
             }
             else {
-                if (isEol(child.getTreeNext())) {
+                String childText = child.getText();
+                int newlineIdx = childText.indexOf('\n');
+
+                if (newlineIdx >= 0) {
+                    // Multi-line content node (e.g., collapsed EL expression spanning lines)
+                    int nodeStart = childRange.getStartOffset();
+                    int pos = 0;
+                    int nl = newlineIdx;
+
+                    while (nl >= 0) {
+                        // Close current line range
+                        if (thisLineStart != -1) {
+                            result.add(TextRange.create(thisLineStart, nodeStart + nl).shiftRight(-myStart));
+                        }
+                        // Start next line, skip indent
+                        pos = nl + 1;
+                        int indentSkip = 0;
+                        while (pos + indentSkip < childText.length()
+                                && indentSkip < indent
+                                && childText.charAt(pos + indentSkip) == ' ') {
+                            indentSkip++;
+                        }
+                        thisLineStart = nodeStart + pos + indentSkip;
+                        nl = childText.indexOf('\n', pos);
+                    }
+                    // After loop: thisLineStart is set for last segment within this node
+                    if (isEol(child.getTreeNext())) {
+                        int endOffset = shouldIncludeEolInRange(child) ? child.getTreeNext().getTextRange().getEndOffset() : childRange.getEndOffset();
+                        result.add(TextRange.create(thisLineStart, endOffset).shiftRight(-myStart));
+                        thisLineStart = -1;
+                    }
+                }
+                else if (isEol(child.getTreeNext())) {
                     if (thisLineStart == -1) {
                         Logger.getInstance(YAMLBlockScalarTextEvaluator.class).warn("thisLineStart == -1: '" + myHost.getText() + "'", new Throwable());
                         continue;

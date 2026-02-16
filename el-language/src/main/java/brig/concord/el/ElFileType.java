@@ -26,7 +26,7 @@ public class ElFileType extends LanguageFileType {
 
     @Override
     public @NotNull String getDefaultExtension() {
-        return "el";
+        return "";
     }
 
     @Override

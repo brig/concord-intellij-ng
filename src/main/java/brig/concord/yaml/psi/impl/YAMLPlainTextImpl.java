@@ -2,6 +2,7 @@ package brig.concord.yaml.psi.impl;
 
 // Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
 
+import brig.concord.lexer.ConcordElTokenTypes;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.tree.IElementType;
@@ -38,11 +39,25 @@ public class YAMLPlainTextImpl extends YAMLBlockScalarImpl implements YAMLScalar
 
                 boolean seenText = false;
                 for (ASTNode child = getFirstContentNode(); child != null; child = child.getTreeNext()) {
-                    if (child.getElementType() == YAMLTokenTypes.TEXT) {
+                    IElementType ct = child.getElementType();
+                    if (ct == YAMLTokenTypes.TEXT
+                            || ct == ConcordElTokenTypes.EL_EXPR_START
+                            || ct == ConcordElTokenTypes.EL_EXPR
+                            || ct == ConcordElTokenTypes.EL_EXPR_BODY
+                            || ct == ConcordElTokenTypes.EL_EXPR_END) {
                         seenText = true;
-                        result.add(child.getTextRange().shiftRight(-myStart));
+                        TextRange childRange = child.getTextRange().shiftRight(-myStart);
+                        // Merge with previous range if adjacent (e.g. TEXT + EL_EXPR_START + EL_EXPR + EL_EXPR_END + TEXT)
+                        if (!result.isEmpty()) {
+                            TextRange last = result.getLast();
+                            if (last.getEndOffset() == childRange.getStartOffset()) {
+                                result.set(result.size() - 1, new TextRange(last.getStartOffset(), childRange.getEndOffset()));
+                                continue;
+                            }
+                        }
+                        result.add(childRange);
                     }
-                    else if (child.getElementType() == YAMLTokenTypes.EOL) {
+                    else if (ct == YAMLTokenTypes.EOL) {
                         if (!seenText) {
                             result.add(child.getTextRange().shiftRight(-myStart));
                         }

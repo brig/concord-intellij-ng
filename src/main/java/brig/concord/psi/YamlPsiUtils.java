@@ -1,11 +1,13 @@
 package brig.concord.psi;
 
+import brig.concord.lexer.ConcordElTokenTypes;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,8 +76,8 @@ public final class YamlPsiUtils {
         return result;
     }
 
-    public static boolean isDynamicExpression(@Nullable String value) {
-        return value != null && value.contains("${");
+    public static boolean isDynamicExpression(@NotNull YAMLScalar scalar) {
+        return scalar.getNode().findChildByType(ConcordElTokenTypes.EL_EXPR_START) != null;
     }
 
     private YamlPsiUtils() {

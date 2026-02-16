@@ -2,6 +2,7 @@ package brig.concord.parser;
 
 import brig.concord.ConcordLanguage;
 import brig.concord.lexer.ConcordYAMLFlexLexer;
+import brig.concord.lexer.ExpressionSplittingLexer;
 import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.psi.impl.ConcordFileImpl;
 import brig.concord.psi.impl.FlowDocParameterImpl;
@@ -32,7 +33,7 @@ public class ConcordYAMLParserDefinition implements ParserDefinition {
 
     @Override
     public @NotNull Lexer createLexer(final Project project) {
-        return new ConcordYAMLFlexLexer();
+        return new ExpressionSplittingLexer(new ConcordYAMLFlexLexer());
     }
 
     @Override

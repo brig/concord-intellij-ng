@@ -26,7 +26,37 @@ Top-level sections like <span className="tokenBadge" data-kind="section">flows</
 Built-in steps (<span className="tokenBadge" data-kind="step">log</span>, <span className="tokenBadge" data-kind="step">if</span>, <span className="tokenBadge" data-kind="step">switch</span>, <span className="tokenBadge" data-kind="step">return</span>, <span className="tokenBadge" data-kind="step">throw</span>, etc.) and task names are highlighted differently from regular YAML keys. This separates the "logic" from the "data".
 
 ### 4. Expressions
-Concord expressions <span className="tokenBadge" data-kind="expression">{'${...}'}</span> are highlighted as code injections. This is crucial for spotting variables embedded inside strings.
+Concord expressions <span className="tokenBadge" data-kind="expression">{'${...}'}</span> are highlighted at the lexer level, providing accurate, real-time coloring as you type. The `${` and `}` delimiters are highlighted distinctly from the surrounding text.
+
+Expression highlighting works across all scalar types:
+
+*   **Inline in strings:** `"Hello, ${userName}!"` — the `${...}` portion is colored as an expression while the rest stays string-colored.
+*   **Multiple expressions:** `"${a} and ${b}"` — each expression is highlighted independently.
+*   **Nested braces:** `${foo({a: {b: 1}})}` — brace depth is tracked, so the closing `}` is matched correctly.
+*   **Multi-line in block scalars:** Expressions spanning multiple lines in `|` (literal) or `>` (folded) scalars are fully recognized:
+
+```concord
+flows:
+  main:
+    - set:
+        message: |
+          ${hasVariable('snapshotVersion') ?
+            "Deployment successful" :
+            "Deployment pending"}
+```
+
+*   **Escaped expressions:** `\${notAnExpression}` is treated as plain text, not highlighted.
+
+<figure className="docFigure docFigure--sm">
+    <img src={require('@site/static/img/expression-highlighting.png').default} alt="Expression Highlighting Example" />
+    <figcaption>
+        EL expression highlighting in Concord YAML files.
+    </figcaption>
+</figure>
+
+:::note
+Unclosed expressions (e.g., `"${missing_brace"`) are highlighted and reported as parser errors with a "missing `}`" message.
+:::
 
 ### 5. Flow Documentation
 Structured flow documentation blocks are recognized and highlighted as documentation, with specific colors for <span className="tokenBadge" data-kind="doc-section">in</span>/<span className="tokenBadge" data-kind="doc-section">out</span> parameters, description text.

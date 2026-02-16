@@ -32,6 +32,16 @@ abstract class YAMLBlockScalarImpl(node: ASTNode) : YAMLScalarImpl(node) {
             if (start <= end)
                 TextRange.create(start, end)
             else null
+        }.flatMap { range ->
+            // Handle collapsed multi-line nodes (e.g., EL_EXPR spanning lines).
+            // Only split if there's an embedded \n (not just trailing SCALAR_EOL at end).
+            val rangeText = range.substring(text)
+            val firstNl = rangeText.indexOf('\n')
+            if (firstNl >= 0 && firstNl < rangeText.length - 1) {
+                splitRangeByNewlines(rangeText, range.startOffset, indent).asSequence()
+            } else {
+                sequenceOf(range)
+            }
         }.fold(SmartList<TextRange>()) { list, range ->
             list.apply {
                 if (size > 1 && last().endOffset == range.startOffset)
@@ -164,4 +174,32 @@ private const val IMPLICIT_INDENT = -1
 fun isEol(node: ASTNode?): Boolean = when (node) {
     null -> false
     else -> YAMLElementTypes.EOL_ELEMENTS.contains(node.elementType)
+}
+
+/**
+ * Splits a text range containing newlines into per-line sub-ranges,
+ * stripping [indent] spaces from the beginning of each subsequent line.
+ */
+private fun splitRangeByNewlines(text: String, startOffset: Int, indent: Int): List<TextRange> {
+    val result = SmartList<TextRange>()
+    var pos = 0
+    var nl = text.indexOf('\n')
+
+    while (nl >= 0) {
+        // Current line: from pos to nl
+        result.add(TextRange.create(startOffset + pos, startOffset + nl))
+        // Next line: skip indent
+        pos = nl + 1
+        var indentSkip = 0
+        while (pos + indentSkip < text.length && indentSkip < indent && text[pos + indentSkip] == ' ') {
+            indentSkip++
+        }
+        pos += indentSkip
+        nl = text.indexOf('\n', pos)
+    }
+    // Last segment after final newline (skip if empty, e.g., trailing \n from SCALAR_EOL)
+    if (pos < text.length) {
+        result.add(TextRange.create(startOffset + pos, startOffset + text.length))
+    }
+    return result
 }
