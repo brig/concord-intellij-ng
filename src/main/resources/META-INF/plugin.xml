@@ -101,6 +101,8 @@
                                 order="first"/>
         <completion.contributor language="Concord"
                                 implementationClass="brig.concord.completion.FlowDocCompletionContributor"/>
+        <completion.contributor language="concord-el"
+                                implementationClass="brig.concord.completion.ElCompletionContributor"/>
 
         <multiHostInjector implementation="brig.concord.injection.ConcordLanguageInjector"/>
 
