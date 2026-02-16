@@ -13,6 +13,8 @@
 
 ### Changed
 
+- restart daemon on external VFS changes to fix stale highlighting
+([#122](https://github.com/brig/concord-intellij-ng/pull/122))
 - `TaskRegistry` now checks `VirtualFile` validity before access to prevent potential `InvalidVirtualFileAccessException`
 ([#116](https://github.com/brig/concord-intellij-ng/pull/116))
 
