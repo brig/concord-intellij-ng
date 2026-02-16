@@ -4,6 +4,8 @@
 
 ### Added
 
+- variable completion support inside EL (Expression Language) expressions in Concord YAML files
+([#123](https://github.com/brig/concord-intellij-ng/pull/123)) 
 - lexer-level highlighting and parsing for EL (Expression Language) expressions in Concord YAML files
 ([#121](https://github.com/brig/concord-intellij-ng/pull/121)) 
 - variables provider with argument tracking and built-in variables
