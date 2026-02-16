@@ -20,9 +20,6 @@ jobs:
         !contains(github.event.pull_request.labels.*.name, 'release') &&
         !contains(github.event.pull_request.labels.*.name, 'internal-docs-freeze')
       )
-    outputs:
-      version: ${{ steps.properties.outputs.version }}
-      changelog: ${{ steps.properties.outputs.changelog }}
     steps:
       - name: Maximize Build Space
         run: |
