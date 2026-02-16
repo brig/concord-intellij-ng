@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Suppresses the default (raw) error highlighting for EL parser errors.
- * The {@link ConcordHighlightingAnnotator} re-annotates them with simplified messages.
+ * The {@link ElErrorAnnotator} re-annotates them with simplified messages.
  */
 public class ElHighlightErrorFilter extends HighlightErrorFilter {
 

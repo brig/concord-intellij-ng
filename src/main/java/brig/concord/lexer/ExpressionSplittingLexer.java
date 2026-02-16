@@ -230,8 +230,12 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
 
         int tokenStart = delegate.getTokenStart();
         int tokenEnd = delegate.getTokenEnd();
-        var tokenText = buffer.subSequence(tokenStart, tokenEnd).toString();
 
+        if (!containsDollarBrace(buffer, tokenStart, tokenEnd)) {
+            return;
+        }
+
+        var tokenText = buffer.subSequence(tokenStart, tokenEnd).toString();
         var segs = buildSegments(type, tokenStart, tokenText);
         if (segs == null || segs.isEmpty()) {
             return;
@@ -431,6 +435,18 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         braceDepth = 0;
         inSingleQuote = false;
         inDoubleQuote = false;
+    }
+
+    /**
+     * Quick check for "${" presence in the buffer range without allocating a String.
+     */
+    private static boolean containsDollarBrace(@NotNull CharSequence buf, int from, int to) {
+        for (int i = from; i < to - 1; i++) {
+            if (buf.charAt(i) == '$' && buf.charAt(i + 1) == '{') {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
