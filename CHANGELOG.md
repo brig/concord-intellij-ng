@@ -4,14 +4,16 @@
 
 ### Added
 
-- add variables provider with arguments tracking and built-in vars 
+- lexer-level highlighting and parsing for EL (Expression Language) expressions in Concord YAML files
+([#121](https://github.com/brig/concord-intellij-ng/pull/121)) 
+- variables provider with argument tracking and built-in variables
 ([#119](https://github.com/brig/concord-intellij-ng/pull/119))
-- adds autocompletion support for output variables in the out field of call steps
+- autocompletion for output variables in the `out` field of `call` steps
 ([#118](https://github.com/brig/concord-intellij-ng/pull/118))
 
 ### Changed
 
-- fixes potential InvalidVirtualFileAccessException errors in the TaskRegistry by adding validity checks before accessing VirtualFile instances
+- `TaskRegistry` now checks `VirtualFile` validity before access to prevent potential `InvalidVirtualFileAccessException`
 ([#116](https://github.com/brig/concord-intellij-ng/pull/116))
 
 ## 0.19.0 - 2026-02-14
