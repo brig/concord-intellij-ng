@@ -1,5 +1,6 @@
 package brig.concord.lexer;
 
+import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerBase;
 import com.intellij.lexer.RestartableLexer;
 import com.intellij.lexer.TokenIterator;
@@ -50,7 +51,7 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
             TEXT, SCALAR_LIST, SCALAR_TEXT
     );
 
-    private final ConcordYAMLFlexLexer delegate;
+    private final Lexer delegate;
 
     private CharSequence buffer;
     private int bufferEnd;
@@ -65,7 +66,7 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
     private boolean inSingleQuote;
     private boolean inDoubleQuote;
 
-    public ExpressionSplittingLexer(@NotNull ConcordYAMLFlexLexer delegate) {
+    public ExpressionSplittingLexer(@NotNull Lexer delegate) {
         this.delegate = delegate;
     }
 
@@ -75,7 +76,8 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         this.bufferEnd = endOffset;
 
         // Decode state: bits 0-7 = delegate state, bit 8 = inExpression,
-        // bits 9-12 = braceDepth, bit 13 = inSingleQuote, bit 14 = inDoubleQuote
+        // bits 9-12 = braceDepth, bit 13 = inSingleQuote, bit 14 = inDoubleQuote,
+        // bit 15 = mid-split (not decoded — only used by isRestartableState)
         int delegateState = initialState & 0xFF;
         inExpression = (initialState & (1 << 8)) != 0;
         braceDepth = (initialState >> 9) & 0xF;
@@ -102,6 +104,13 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         }
         if (inDoubleQuote) {
             state |= (1 << 14);
+        }
+        // Mark in-split: when emitting segments from a split delegate token, the
+        // highlighter must not restart at any segment offset because (a) the delegate
+        // cannot be restarted mid-token, and (b) for continuation splits,
+        // resetContinuation() has already cleared inExpression before segments are emitted.
+        if (segments != null) {
+            state |= (1 << 15);
         }
         return state;
     }
@@ -163,11 +172,21 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         return 0;
     }
 
+    // Delegate states at or above this threshold depend on internal JFlex variables
+    // (myBlockScalarType, myPrevElementIndent, myFlowDocSectionIndent, etc.) that are
+    // destroyed by cleanMyState() on restart.  States below this (YYINITIAL through
+    // KEY_MODE) survive cleanMyState() well enough to produce contiguous tokens.
+    private static final int DELEGATE_STATE_RESTARTABLE_LIMIT = 16; // BS_HEADER_TAIL_STATE
+
     @Override
     public boolean isRestartableState(int state) {
-        // Restartable when not inside a multi-line expression continuation.
-        // During continuation, the lexer needs to have seen the opening ${ on a previous line.
-        return (state & (1 << 8)) == 0;
+        int delegateState = state & 0xFF;
+        // Not restartable when:
+        //  - inside a multi-line expression continuation (bit 8), or
+        //  - emitting split segments (bit 15) — delegate can't restart mid-token, or
+        //  - delegate is in block-scalar / flow-doc state that needs internal vars
+        return (state & ((1 << 8) | (1 << 15))) == 0
+                && delegateState < DELEGATE_STATE_RESTARTABLE_LIMIT;
     }
 
     @Override
@@ -244,8 +263,6 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                 result = new ArrayList<>();
             }
 
-            int resultSizeBefore = result.size();
-
             // Text before ${
             if (exprStart > pos) {
                 result.add(new Segment(scalarType, tokenStart + pos, tokenStart + exprStart));
@@ -264,6 +281,11 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
             boolean found = false;
             while (j < n) {
                 char c = tokenText.charAt(j);
+
+                if ((sq || dq) && c == '\\' && j + 1 < n) {
+                    j += 2;
+                    continue;
+                }
 
                 if (!dq && c == '\'') {
                     sq = !sq;
@@ -308,11 +330,11 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                     inDoubleQuote = dq;
                     pos = n;
                 } else {
-                    // Quoted string: unclosed expression, revert segments and treat ${ as regular text.
-                    // Restore pos so the "Text after" block covers the unclosed ${ text.
-                    while (result.size() > resultSizeBefore) {
-                        result.remove(result.size() - 1);
+                    // Quoted string: unclosed expression — keep EL_EXPR_START + body so parser reports the error
+                    if (j > bodyStart) {
+                        result.add(new Segment(EL_EXPR_BODY, tokenStart + bodyStart, tokenStart + j));
                     }
+                    pos = n;
                 }
                 break;
             }
@@ -337,10 +359,14 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         int n = tokenText.length();
 
         int j = 0;
-        boolean found = false;
 
         while (j < n) {
             char c = tokenText.charAt(j);
+
+            if ((inSingleQuote || inDoubleQuote) && c == '\\' && j + 1 < n) {
+                j += 2;
+                continue;
+            }
 
             if (!inDoubleQuote && c == '\'') {
                 inSingleQuote = !inSingleQuote;
@@ -360,8 +386,6 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                     braceDepth--;
                     if (braceDepth == 0) {
                         // Found closing } — end continuation
-                        found = true;
-
                         var result = new ArrayList<Segment>();
 
                         // Body fragment before }
@@ -395,13 +419,11 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
             j++;
         }
 
-        if (!found) {
-            // Still unclosed — entire token is EL_EXPR_BODY continuation
-            var result = new ArrayList<Segment>();
-            result.add(new Segment(EL_EXPR_BODY, tokenStart, tokenEnd));
-            segments = result;
-            segmentIndex = 0;
-        }
+        // Still unclosed — entire token is EL_EXPR_BODY continuation
+        var result = new ArrayList<Segment>();
+        result.add(new Segment(EL_EXPR_BODY, tokenStart, tokenEnd));
+        segments = result;
+        segmentIndex = 0;
     }
 
     private void resetContinuation() {

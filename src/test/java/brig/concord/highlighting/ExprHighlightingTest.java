@@ -284,9 +284,9 @@ class ExprHighlightingTest extends HighlightingTestBase {
         highlight(value("/flows/main[0]/log").substring("${expr}"))
                 .is(ConcordHighlightingColors.EXPRESSION);
 
-        // The unclosed ${ should NOT produce expression highlighting
+        // The unclosed ${ should still produce expression highlighting (error is reported by parser)
         highlight(value("/flows/main[0]/log").substring("${unclosed"))
-                .isNot(ConcordHighlightingColors.EXPRESSION);
+                .is(ConcordHighlightingColors.EXPRESSION);
     }
 
     // --- Edge cases: broken/malformed expressions ---

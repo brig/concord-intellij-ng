@@ -4,7 +4,6 @@ import brig.concord.el.ElLanguage;
 import brig.concord.el.ElLexerAdapter;
 import brig.concord.el.parser.ElParser;
 import com.intellij.lang.ASTNode;
-import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilderFactory;
 import com.intellij.psi.impl.source.tree.LazyParseableElement;
 import com.intellij.psi.tree.ILazyParseableElementType;
@@ -33,7 +32,7 @@ public class ConcordElExpressionElementType extends ILazyParseableElementType {
         var project = psi.getProject();
         var text = chameleon.getChars();
 
-        PsiBuilder builder = PsiBuilderFactory.getInstance().createBuilder(
+        var builder = PsiBuilderFactory.getInstance().createBuilder(
                 project,
                 chameleon,
                 new ElLexerAdapter(),

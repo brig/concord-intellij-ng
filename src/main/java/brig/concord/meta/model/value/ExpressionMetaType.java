@@ -1,7 +1,6 @@
 package brig.concord.meta.model.value;
 
 import brig.concord.ConcordBundle;
-import brig.concord.lexer.ConcordElTokenTypes;
 import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.yaml.meta.model.YamlScalarType;
 import brig.concord.yaml.psi.YAMLScalar;
@@ -29,15 +28,6 @@ public class ExpressionMetaType extends YamlScalarType {
 
     public static ExpressionMetaType getInstance() {
         return INSTANCE;
-    }
-
-    /**
-     * Checks whether the scalar's AST contains an EL expression (${...}).
-     * Uses the lexer-produced AST tokens rather than string matching,
-     * so escaped \${} and unclosed ${ in quoted strings are correctly excluded.
-     */
-    public static boolean containsExpression(@NotNull YAMLScalar scalar) {
-        return scalar.getNode().findChildByType(ConcordElTokenTypes.EL_EXPR_START) != null;
     }
 
     @Override

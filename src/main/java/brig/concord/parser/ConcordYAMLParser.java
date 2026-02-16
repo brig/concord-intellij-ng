@@ -478,6 +478,9 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
 
         if (getTokenType() == EL_EXPR_END) {
             advanceLexer();
+        } else {
+            PsiBuilder.Marker err = myBuilder.mark();
+            err.error(ConcordBundle.message("YAMLParser.unclosed.expression"));
         }
     }
 
