@@ -59,6 +59,17 @@
         <lang.parserDefinition language="Concord"
                                implementationClass="brig.concord.parser.ConcordYAMLParserDefinition"/>
 
+        <!-- EL (Expression Language) support -->
+        <fileType name="concord-el"
+                  implementationClass="brig.concord.el.ElFileType"
+                  fieldName="INSTANCE"
+                  language="concord-el"
+                  extensions="el"/>
+        <lang.parserDefinition language="concord-el"
+                               implementationClass="brig.concord.el.ElParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="concord-el"
+                                       implementationClass="brig.concord.el.ElSyntaxHighlighterFactory"/>
+
         <fileType name="Concord File"
                   implementationClass="brig.concord.ConcordFileType"
                   fieldName="INSTANCE"

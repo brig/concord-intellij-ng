@@ -173,9 +173,8 @@ public final class FlowCallFinder {
             if (CALL_KEY.equals(keyText)) {
                 var value = kv.getValue();
                 if (value instanceof YAMLScalar scalar) {
-                    var callTarget = scalar.getTextValue();
-                    var isDynamic = YamlPsiUtils.isDynamicExpression(callTarget);
-                    result.add(new CallSite(kv, callTarget, isDynamic));
+                    var isDynamic = YamlPsiUtils.isDynamicExpression(scalar);
+                    result.add(new CallSite(kv, scalar.getTextValue(), isDynamic));
                 }
             } else if (NESTED_STEP_KEYS.contains(keyText)) {
                 var nestedValue = kv.getValue();

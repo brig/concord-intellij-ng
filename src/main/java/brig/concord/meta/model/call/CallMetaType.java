@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static brig.concord.meta.model.value.ExpressionMetaType.containsExpression;
+import static brig.concord.psi.YamlPsiUtils.isDynamicExpression;
 import static brig.concord.yaml.meta.model.TypeProps.descKey;
 
 public class CallMetaType extends StringMetaType implements HighlightProvider {
@@ -61,8 +61,7 @@ public class CallMetaType extends StringMetaType implements HighlightProvider {
     protected void validateScalarValue(@NotNull YAMLScalar value, @NotNull ProblemsHolder holder) {
         super.validateScalarValue(value, holder);
 
-        var maybeFlowName = value.getTextValue();
-        if (containsExpression(maybeFlowName)) {
+        if (isDynamicExpression(value)) {
             return;
         }
 
