@@ -18,6 +18,8 @@ can Find Usages across common Concord variable sources (args, flow doc params, s
 
 ### Changed
 
+- nested object properties support in task schemas
+([#125](https://github.com/brig/concord-intellij-ng/pull/125))
 - restart daemon on external VFS changes to fix stale highlighting
 ([#122](https://github.com/brig/concord-intellij-ng/pull/122))
 - `TaskRegistry` now checks `VirtualFile` validity before access to prevent potential `InvalidVirtualFileAccessException`
