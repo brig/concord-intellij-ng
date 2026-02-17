@@ -38,10 +38,6 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
 
     @Override
     public @Nullable Field findFeatureByName(@NotNull String name) {
-        if (hasSchema) {
-            // Let the composite type delegate to TaskSchemaMetaType subtype
-            return super.findFeatureByName(name);
-        }
         return AnyMapMetaType.getInstance().findFeatureByName(name);
     }
 

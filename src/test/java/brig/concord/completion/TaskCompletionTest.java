@@ -120,4 +120,37 @@ class TaskCompletionTest extends ConcordYamlTestBaseJunit5 {
         assertThat(lookupElementStrings).contains("http", "slack");
         assertThat(lookupElementStrings).doesNotContain("unexpected1");
     }
+
+    @Test
+    void testTaskOutWithSchemaCompletionForScalarResult() {
+        var file = configureFromText("""
+                flows:
+                  main:
+                    - task: concord
+                      out: <caret>
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookupElementStrings = myFixture.getLookupElementStrings();
+        Assertions.assertNotNull(lookupElementStrings);
+        assertThat(lookupElementStrings).isEmpty();
+    }
+
+    @Test
+    void testTaskOutWithSchemaCompletionForObjectResult() {
+        var file = configureFromText("""
+                flows:
+                  main:
+                    - task: concord
+                      out:
+                        <caret>
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookupElementStrings = myFixture.getLookupElementStrings();
+        Assertions.assertNotNull(lookupElementStrings);
+        assertThat(lookupElementStrings).isEmpty();
+    }
 }
