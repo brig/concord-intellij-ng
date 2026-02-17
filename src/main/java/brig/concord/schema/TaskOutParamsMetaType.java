@@ -3,9 +3,11 @@ package brig.concord.schema;
 import brig.concord.meta.DynamicMetaType;
 import brig.concord.meta.model.OutVarMetaType;
 import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.psi.YamlPsiUtils;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLMapping;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +45,8 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
 
     @Override
     public YamlMetaType resolve(PsiElement element) {
-        var schema = TaskInParamsMetaType.findTaskSchema(element);
+        var outMapping = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, true);
+        var schema = TaskInParamsMetaType.findTaskSchema(outMapping);
         if (schema == null) {
             return INSTANCE;
         }
@@ -53,8 +56,9 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
             return INSTANCE;
         }
 
-        var metaType = new TaskSchemaMetaType(outSection, Collections.emptySet());
-        return new TaskOutParamsMetaType(metaType, true);
+//        var metaType = new TaskSchemaMetaType(outSection, Collections.emptySet());
+//        return new TaskOutParamsMetaType(metaType, true);
+        return INSTANCE;
     }
 
 }

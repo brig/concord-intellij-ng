@@ -17,7 +17,8 @@ final class YamlMappingPropertySubProvider implements ElPropertySubProvider {
     @Override
     public boolean supports(@NotNull Variable variable) {
         return variable.source() == VariableSource.SET_STEP
-                || variable.source() == VariableSource.ARGUMENT;
+                || variable.source() == VariableSource.ARGUMENT
+                || variable.source() == VariableSource.STEP_OUT;
     }
 
     @Override
@@ -83,6 +84,7 @@ final class YamlMappingPropertySubProvider implements ElPropertySubProvider {
         return switch (source) {
             case SET_STEP -> "set";
             case ARGUMENT -> "argument";
+            case STEP_OUT -> "out";
             default -> source.name();
         };
     }

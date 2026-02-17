@@ -2,12 +2,15 @@ package brig.concord.psi;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.el.psi.ElMemberName;
+import brig.concord.yaml.psi.YAMLKeyValue;
+import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ElAccessChainExtractorTest extends ConcordYamlTestBaseJunit5 {
@@ -142,5 +145,68 @@ class ElAccessChainExtractorTest extends ConcordYamlTestBaseJunit5 {
                 """);
 
         assertThat(extractChain()).isEqualTo(List.of("obj"));
+    }
+
+    // --- extractFullChain tests ---
+
+    @Test
+    void testExtractFullChainSimple() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    myUser: "${initiator}"
+                flows:
+                  main:
+                    - log: "${myUser.<caret>x}"
+                """);
+
+        var scalar = value("/configuration/arguments/myUser").element();
+
+        assertThat(ElAccessChainExtractor.extractFullChain(scalar)).isEqualTo(List.of("initiator"));
+    }
+
+    @Test
+    void testExtractFullChainDotAccess() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    x: "${obj.inner}"
+                flows:
+                  main:
+                    - log: "${x.<caret>y}"
+                """);
+
+        var scalar = value("/configuration/arguments/x").element();
+        assertThat(ElAccessChainExtractor.extractFullChain(scalar)).isEqualTo(List.of("obj", "inner"));
+    }
+
+    @Test
+    void testExtractFullChainMixedContent() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    x: "prefix ${initiator}"
+                flows:
+                  main:
+                    - log: "${x.<caret>y}"
+                """);
+
+        var scalar = value("/configuration/arguments/x").element();
+        assertThat(ElAccessChainExtractor.extractFullChain(scalar)).isNull();
+    }
+
+    @Test
+    void testExtractFullChainPlainScalar() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    x: "hello"
+                flows:
+                  main:
+                    - log: "${x.<caret>y}"
+                """);
+
+        var scalar = value("/configuration/arguments/x").element();
+        assertThat(ElAccessChainExtractor.extractFullChain(scalar)).isNull();
     }
 }

@@ -118,4 +118,45 @@ class ElPropertyRefsTest extends ConcordYamlTestBaseJunit5 {
         assertTrue(refs.length > 0);
         assertNull(refs[0].resolve(), "Property on scalar should not resolve");
     }
+
+    @Test
+    void testTransitiveSetStepPropertyResolves() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        obj:
+                          a: 1
+                    - set:
+                        ref: "${obj}"
+                    - log: "${ref.<caret>a}"
+                """);
+
+        var resolved = resolveElProperty();
+        assertInstanceOf(YAMLKeyValue.class, resolved);
+        assertEquals("a", ((YAMLKeyValue) resolved).getKeyText());
+    }
+
+    @Test
+    void testTransitiveBuiltInPropertyDoesNotResolve() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    u: "${initiator}"
+                flows:
+                  main:
+                    - log: "${u.<caret>displayName}"
+                """);
+
+        var offset = myFixture.getCaretOffset();
+        var leaf = myFixture.getFile().findElementAt(offset);
+        assertNotNull(leaf);
+
+        var memberName = PsiTreeUtil.getParentOfType(leaf, ElMemberName.class, false);
+        assertNotNull(memberName);
+
+        var refs = memberName.getReferences();
+        assertTrue(refs.length > 0);
+        assertNull(refs[0].resolve(), "Transitive built-in property should not resolve to PSI element");
+    }
 }

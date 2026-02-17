@@ -1,6 +1,9 @@
 package brig.concord.psi;
 
 import brig.concord.completion.provider.FlowCallParamsProvider;
+import brig.concord.meta.ConcordMetaTypeProvider;
+import brig.concord.schema.TaskInParamsMetaType;
+import brig.concord.schema.TaskOutParamsMetaType;
 import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -17,7 +20,7 @@ public final class VariablesProvider {
     public record Variable(@NotNull String name, @NotNull VariableSource source, @Nullable PsiElement declaration) {}
 
     public enum VariableSource {
-        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT
+        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT, TASK_RESULT
     }
 
     private VariablesProvider() {}
@@ -34,6 +37,8 @@ public final class VariablesProvider {
             collectFlowDocParams(flowKv, result);
             collectFromSteps(element, result);
         }
+
+//        collectTaskResult(element, result);
 
         return new ArrayList<>(result.values());
     }

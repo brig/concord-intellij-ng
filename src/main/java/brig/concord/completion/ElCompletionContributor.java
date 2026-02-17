@@ -122,6 +122,7 @@ public class ElCompletionContributor extends CompletionContributor {
                 case FLOW_PARAMETER -> "flow in";
                 case SET_STEP -> "set";
                 case STEP_OUT -> "step out";
+                case TASK_RESULT -> "task result";
             };
         }
     }

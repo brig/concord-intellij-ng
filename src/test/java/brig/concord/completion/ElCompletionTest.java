@@ -200,6 +200,42 @@ class ElCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testTaskOutSchemaProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: concord
+                      out: concordResult
+                    - log: "${concordResult.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("ok", "id", "ids");
+    }
+
+    @Test
+    void testCallOutMappingProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: inner
+                      out:
+                        key:
+                          key2: value
+                    - log: "${key.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("key2");
+    }
+
+    @Test
     void testBuiltInObjectProperties() {
         configureFromText("""
                 flows:
@@ -260,5 +296,103 @@ class ElCompletionTest extends ConcordYamlTestBaseJunit5 {
         var lookups = myFixture.getLookupElementStrings();
         assertNotNull(lookups);
         assertThat(lookups).contains("x");
+    }
+
+    @Test
+    void testTransitiveBuiltInProperties() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    myUser: "${initiator}"
+                flows:
+                  main:
+                    - log: "${myUser.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("displayName", "email");
+    }
+
+    @Test
+    void testTransitiveSetStepProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        obj:
+                          a: 1
+                          b: 2
+                    - set:
+                        ref: "${obj}"
+                    - log: "${ref.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("a", "b");
+    }
+
+    @Test
+    void testTransitiveWithChain() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        obj:
+                          inner:
+                            a: 1
+                    - set:
+                        x: "${obj.inner}"
+                    - log: "${x.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("a");
+    }
+
+    @Test
+    void testTransitiveScalarNoProperties() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    name: "${txId}"
+                flows:
+                  main:
+                    - log: "${name.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        if (lookups != null) {
+            assertThat(lookups).isEmpty();
+        }
+    }
+
+    @Test
+    void testNonElScalarNoProperties() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    name: "hello"
+                flows:
+                  main:
+                    - log: "${name.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        if (lookups != null) {
+            assertThat(lookups).isEmpty();
+        }
     }
 }

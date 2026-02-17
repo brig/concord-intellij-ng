@@ -6,6 +6,7 @@ import brig.concord.meta.model.value.ExpressionMetaType;
 import brig.concord.psi.YamlPsiUtils;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLScalar;
 import com.intellij.psi.PsiElement;
@@ -35,7 +36,8 @@ public class TaskInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
 
     @Override
     public YamlMetaType resolve(PsiElement element) {
-        var schema = findTaskSchema(element);
+        var inMapping = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, true);
+        var schema = findTaskSchema(inMapping);
         if (schema == null) {
             return INSTANCE;
         }
@@ -61,16 +63,20 @@ public class TaskInParamsMetaType extends YamlAnyOfType implements DynamicMetaTy
         return TaskSchemaRegistry.getInstance(element.getProject()).getSchema(taskName);
     }
 
+    /**
+     * Extracts the task name from the enclosing task step.
+     * Must only be called on elements that are values of {@code in:} or {@code out:}
+     * keys inside a task step (i.e. elements whose resolved meta type is
+     * {@link TaskInParamsMetaType} or {@link TaskOutParamsMetaType}).
+     */
     static @Nullable String findTaskName(@NotNull PsiElement element) {
-        var mapping = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, false);
-        if (mapping == null) {
+        // element is the value of in:/out: key -> parent is the KV -> parentMapping is the step mapping
+        var parentKv = YamlPsiUtils.getParentOfType(element, YAMLKeyValue.class, false);
+        if (parentKv == null) {
             return null;
         }
 
-        // element may be inside the in: mapping; step mapping is one level up
-        var stepMapping = mapping.getKeyValueByKey("task") != null
-                ? mapping
-                : YamlPsiUtils.getParentOfType(mapping, YAMLMapping.class, false);
+        var stepMapping = parentKv.getParentMapping();
         if (stepMapping == null) {
             return null;
         }
