@@ -5,6 +5,8 @@ import brig.concord.el.psi.ElIdentifierExpr;
 import brig.concord.el.psi.ElMemberName;
 import brig.concord.el.psi.ElTypes;
 import brig.concord.psi.ConcordBuiltInVars;
+import brig.concord.psi.ElAccessChainExtractor;
+import brig.concord.psi.ElPropertyProvider;
 import brig.concord.psi.VariablesProvider;
 import brig.concord.psi.VariablesProvider.VariableSource;
 import brig.concord.yaml.psi.YAMLValue;
@@ -24,6 +26,46 @@ public class ElCompletionContributor extends CompletionContributor {
         extend(CompletionType.BASIC,
                 PlatformPatterns.psiElement(ElTypes.IDENTIFIER),
                 new ElVariableCompletionProvider());
+
+        extend(CompletionType.BASIC,
+                PlatformPatterns.psiElement(ElTypes.IDENTIFIER)
+                        .withParent(ElMemberName.class),
+                new ElPropertyCompletionProvider());
+    }
+
+    private static class ElPropertyCompletionProvider extends CompletionProvider<CompletionParameters> {
+
+        @Override
+        protected void addCompletions(@NotNull CompletionParameters parameters,
+                                      @NotNull ProcessingContext context,
+                                      @NotNull CompletionResultSet result) {
+            var position = parameters.getPosition();
+            var parent = position.getParent();
+            if (!(parent instanceof ElMemberName memberName)) {
+                return;
+            }
+
+            var yamlElement = PsiTreeUtil.getParentOfType(position, YAMLValue.class);
+            if (yamlElement == null) {
+                return;
+            }
+
+            var segments = ElAccessChainExtractor.extractChainSegments(memberName);
+            if (segments.isEmpty()) {
+                return;
+            }
+
+            var provider = ElPropertyProvider.getInstance(yamlElement.getProject());
+            var properties = provider.getProperties(segments, yamlElement);
+            for (var prop : properties) {
+                var builder = LookupElementBuilder.create(prop.name())
+                        .withTypeText(prop.source());
+                if (prop.description() != null) {
+                    builder = builder.withTailText("  " + prop.description(), true);
+                }
+                result.addElement(builder);
+            }
+        }
     }
 
     private static class ElVariableCompletionProvider extends CompletionProvider<CompletionParameters> {

@@ -69,6 +69,83 @@ class ElCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testSetStepObjectProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        obj:
+                          a: 1
+                          b: 2
+                    - log: "${obj.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("a", "b");
+    }
+
+    @Test
+    void testSetStepNestedProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        obj:
+                          inner:
+                            x: 1
+                            y: 2
+                    - log: "${obj.inner.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("x", "y");
+    }
+
+    @Test
+    void testArgumentsObjectProperties() {
+        configureFromText("""
+                configuration:
+                  arguments:
+                    config:
+                      url: "http://example.com"
+                      timeout: 10
+                flows:
+                  main:
+                    - log: "${config.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("url", "timeout");
+    }
+
+    @Test
+    void testNoPropertiesForScalarSet() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        x: "hello"
+                    - log: "${x.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        if (lookups != null) {
+            assertThat(lookups).isEmpty();
+        }
+    }
+
+    @Test
     void testNoCompletionAfterDot() {
         configureFromText("""
                 flows:

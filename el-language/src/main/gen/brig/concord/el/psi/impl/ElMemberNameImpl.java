@@ -8,12 +8,11 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import brig.concord.el.psi.*;
 
-public class ElMemberNameImpl extends ASTWrapperPsiElement implements ElMemberName {
+public class ElMemberNameImpl extends ElMemberNameMixin implements ElMemberName {
 
-  public ElMemberNameImpl(@NotNull ASTNode node) {
+  public ElMemberNameImpl(ASTNode node) {
     super(node);
   }
 

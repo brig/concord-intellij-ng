@@ -38,6 +38,8 @@
         <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliSettings"/>
 
         <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
+        <projectService serviceInterface="brig.concord.psi.ElPropertyProvider"
+                        serviceImplementation="brig.concord.psi.ElPropertyProviderImpl"/>
 
         <!-- Syntax highlighting / colors -->
         <lang.syntaxHighlighterFactory
