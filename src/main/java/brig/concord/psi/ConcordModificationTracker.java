@@ -500,7 +500,9 @@ public final class ConcordModificationTracker implements Disposable {
         private @Nullable VirtualFile resolveFile(@NotNull VFileEvent event) {
             if (event instanceof VFileCreateEvent createEvent) {
                 var parent = createEvent.getParent();
-                return parent.findChild(createEvent.getChildName());
+                if (parent.isValid()) {
+                    return parent.findChild(createEvent.getChildName());
+                }
             }
             return null;
         }
