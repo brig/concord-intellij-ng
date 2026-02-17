@@ -4,6 +4,9 @@
 
 ### Added
 
+- EL variable navigation support so ${var} identifiers can Go to Declaration and variable declarations
+can Find Usages across common Concord variable sources (args, flow doc params, set, and step out)
+([#124](https://github.com/brig/concord-intellij-ng/pull/124)) 
 - variable completion support inside EL (Expression Language) expressions in Concord YAML files
 ([#123](https://github.com/brig/concord-intellij-ng/pull/123)) 
 - lexer-level highlighting and parsing for EL (Expression Language) expressions in Concord YAML files
