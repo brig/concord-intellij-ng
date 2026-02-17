@@ -269,6 +269,10 @@ public class TaskSchemaParser {
             return new SchemaType.Array(getArrayItemType(root, obj));
         }
 
+        if ("object".equals(type) && obj.has("properties")) {
+            return new SchemaType.Object(parseSectionDirect(root, obj));
+        }
+
         return new SchemaType.Scalar(type);
     }
 

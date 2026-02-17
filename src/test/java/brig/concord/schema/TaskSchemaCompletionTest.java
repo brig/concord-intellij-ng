@@ -3,11 +3,24 @@ package brig.concord.schema;
 import brig.concord.ConcordYamlTestBaseJunit5;
 import com.intellij.codeInsight.completion.CompletionType;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
+
+    @Override
+    @BeforeEach
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        var registry = TaskSchemaRegistry.getInstance(getProject());
+        registry.setProvider(taskName -> {
+            var path = "/taskSchema/" + taskName + ".schema.json";
+            return TaskSchemaCompletionTest.class.getResourceAsStream(path);
+        });
+    }
 
     @Test
     void testInParamsCompletion() {
@@ -194,5 +207,46 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
         Assertions.assertNotNull(lookupElements);
         // Should have start params + external-specific
         assertThat(lookupElements).contains("project", "baseUrl", "apiKey");
+    }
+
+    // --- nested object completion tests ---
+
+    @Test
+    void testNestedObjectCompletion() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: nestedObject
+                      in:
+                        url: "http://example.com"
+                        auth:
+                          <caret>
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookupElements = myFixture.getLookupElementStrings();
+        Assertions.assertNotNull(lookupElements);
+        assertThat(lookupElements).contains("basic", "token");
+    }
+
+    @Test
+    void testDeepNestedObjectCompletion() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: nestedObject
+                      in:
+                        url: "http://example.com"
+                        auth:
+                          basic:
+                            <caret>
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookupElements = myFixture.getLookupElementStrings();
+        Assertions.assertNotNull(lookupElements);
+        assertThat(lookupElements).contains("username", "password");
     }
 }

@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Nested Object Schema (test only)",
+  "description": "A task with nested object properties",
+  "in": {
+    "type": "object",
+    "properties": {
+      "auth": {
+        "type": "object",
+        "description": "Authentication configuration",
+        "properties": {
+          "basic": {
+            "type": "object",
+            "description": "Basic authentication",
+            "properties": {
+              "username": {
+                "type": "string",
+                "description": "Username"
+              },
+              "password": {
+                "type": "string",
+                "description": "Password"
+              }
+            },
+            "required": ["username", "password"],
+            "additionalProperties": false
+          },
+          "token": {
+            "type": "string",
+            "description": "Token authentication"
+          }
+        },
+        "additionalProperties": false
+      },
+      "freeFormObject": {
+        "type": "object",
+        "description": "A free-form object without defined properties"
+      },
+      "url": {
+        "type": "string",
+        "description": "Target URL"
+      }
+    },
+    "required": ["url"],
+    "additionalProperties": false
+  },
+  "out": {
+    "type": "object",
+    "properties": {
+      "ok": {
+        "type": "boolean",
+        "description": "Whether the operation succeeded"
+      }
+    },
+    "required": ["ok"],
+    "additionalProperties": false
+  }
+}
