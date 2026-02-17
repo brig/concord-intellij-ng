@@ -14,6 +14,12 @@ import java.util.*;
 
 public class TaskSchemaParser {
 
+    public @NotNull TaskSchemaSection parseSection(@NotNull InputStream json) {
+        var root = JsonParser.parseReader(new InputStreamReader(json, StandardCharsets.UTF_8))
+                .getAsJsonObject();
+        return parseSectionObject(root, root);
+    }
+
     public @NotNull TaskSchema parse(@NotNull String taskName, @NotNull InputStream json) {
         var root = JsonParser.parseReader(new InputStreamReader(json, StandardCharsets.UTF_8)).getAsJsonObject();
         var description = getString(root, "description");

@@ -1,0 +1,4 @@
+{
+  "type": "string",
+  "description": "Path to the working directory"
+}

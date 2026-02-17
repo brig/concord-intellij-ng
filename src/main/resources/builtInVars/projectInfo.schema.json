@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "description": "Project data",
+  "properties": {
+    "orgId": { "type": "string", "description": "Organization identifier" },
+    "orgName": { "type": "string", "description": "Organization name" },
+    "projectId": { "type": "string", "description": "Project identifier" },
+    "projectName": { "type": "string", "description": "Project name" },
+    "repoId": { "type": "string", "description": "Repository identifier" },
+    "repoName": { "type": "string", "description": "Repository name" },
+    "repoUrl": { "type": "string", "description": "Repository URL" },
+    "repoBranch": { "type": "string", "description": "Repository branch name" },
+    "repoPath": { "type": "string", "description": "Configured repository path" },
+    "repoCommitId": { "type": "string", "description": "Last commit hash" },
+    "repoCommitAuthor": { "type": "string", "description": "Commit author name" },
+    "repoCommitMessage": { "type": "string", "description": "Commit message text" }
+  }
+}

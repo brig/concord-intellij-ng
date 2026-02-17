@@ -200,6 +200,52 @@ class ElCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testBuiltInObjectProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - log: "${initiator.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("displayName", "email", "username", "groups", "attributes");
+    }
+
+    @Test
+    void testBuiltInProjectInfoProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - log: "${projectInfo.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("orgName", "projectName", "repoUrl");
+    }
+
+    @Test
+    void testBuiltInScalarNoProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - log: "${txId.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        if (lookups != null) {
+            assertThat(lookups).isEmpty();
+        }
+    }
+
+    @Test
     void testPlainTextExpression() {
         configureFromText("""
                 flows:

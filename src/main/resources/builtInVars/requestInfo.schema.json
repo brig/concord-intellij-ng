@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "description": "Additional request data",
+  "properties": {
+    "requestId": { "type": "string", "description": "Request identifier" },
+    "query": { "type": "object", "description": "Query parameters" },
+    "ip": { "type": "string", "description": "Client IP address" },
+    "headers": { "type": "object", "description": "HTTP headers" }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "description": "Current process information",
+  "properties": {
+    "activeProfiles": { "type": "array", "items": { "type": "string" }, "description": "List of enabled profiles" },
+    "sessionToken": { "type": "string", "description": "Session token for API calls" }
+  }
+}

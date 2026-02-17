@@ -13,7 +13,8 @@ import java.util.List;
 public final class ElPropertyProviderImpl implements ElPropertyProvider {
 
     private static final List<ElPropertySubProvider> SUB_PROVIDERS = List.of(
-            new YamlMappingPropertySubProvider()
+            new YamlMappingPropertySubProvider(),
+            new BuiltInPropertySubProvider()
     );
 
     @Override

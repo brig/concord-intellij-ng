@@ -78,6 +78,26 @@ class ElPropertyRefsTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testBuiltInPropertyDoesNotResolve() {
+        configureFromText("""
+                flows:
+                  main:
+                    - log: "${initiator.<caret>displayName}"
+                """);
+
+        var offset = myFixture.getCaretOffset();
+        var leaf = myFixture.getFile().findElementAt(offset);
+        assertNotNull(leaf);
+
+        var memberName = PsiTreeUtil.getParentOfType(leaf, ElMemberName.class, false);
+        assertNotNull(memberName);
+
+        var refs = memberName.getReferences();
+        assertTrue(refs.length > 0);
+        assertNull(refs[0].resolve(), "Built-in property should not resolve to PSI element");
+    }
+
+    @Test
     void testScalarPropertyDoesNotResolve() {
         configureFromText("""
                 flows:

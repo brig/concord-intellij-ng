@@ -1,0 +1,4 @@
+{
+  "type": "string",
+  "description": "Unique identifier of the current process"
+}

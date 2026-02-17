@@ -1,0 +1,12 @@
+{
+  "type": "object",
+  "description": "Information about the current user",
+  "properties": {
+    "username": { "type": "string", "description": "Login identifier" },
+    "displayName": { "type": "string", "description": "Printable name" },
+    "email": { "type": "string", "description": "Email address" },
+    "userDomain": { "type": "string", "description": "User domain" },
+    "groups": { "type": "array", "items": { "type": "string" }, "description": "Group memberships" },
+    "attributes": { "type": "object", "description": "LDAP attributes" }
+  }
+}
