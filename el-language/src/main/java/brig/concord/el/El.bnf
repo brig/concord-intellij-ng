@@ -129,7 +129,7 @@ primaryExpr ::= literal
   | functionExpr
   | identifierExpr
 
-identifierExpr ::= IDENTIFIER
+identifierExpr ::= IDENTIFIER {mixin="brig.concord.el.psi.impl.ElIdentifierExprMixin"}
 
 // Namespace function call: ns:func(args)
 // Uses external lookahead to avoid COLON ambiguity with ternary/map

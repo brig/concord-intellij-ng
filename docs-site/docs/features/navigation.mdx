@@ -18,6 +18,29 @@ The most common way to navigate is jumping from a <span className="tokenBadge" d
 
 This works even if the flow is defined in a different file or module, as long as it's within the same [Scope](./scopes.md).
 
+### Expression Variables
+
+<Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> + **Click** on a variable name inside a `${...}` expression to jump to where it was declared. This works for all variable sources:
+
+*   **Arguments** — jumps to the key in `configuration.arguments`
+*   **Flow parameters** — jumps to the parameter in the flow's [Documentation Block](./flow-docs)
+*   **Set variables** — jumps to the key in the <span className="tokenBadge" data-kind="step">set</span> step
+*   **Step out variables** — jumps to the `out` field of <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">expr</span>, <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">script</span>, <span className="tokenBadge" data-kind="step">try</span>, <span className="tokenBadge" data-kind="step">block</span>, and <span className="tokenBadge" data-kind="step">parallel</span> steps
+
+```concord
+configuration:
+  arguments:
+    appName: "my-app"
+
+flows:
+  main:
+    - task: concord
+      out: result
+    - log: "${appName}            ${result}"
+    #         ^ Cmd+Click jumps    ^ Cmd+Click jumps
+    #         to arguments           to out: result
+```
+
 ## Go to Symbol
 
 Quickly find and jump to any flow, form, or trigger by name across your entire project.

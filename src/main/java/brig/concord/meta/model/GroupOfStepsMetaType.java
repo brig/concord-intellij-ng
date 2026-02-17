@@ -14,12 +14,6 @@ public abstract class GroupOfStepsMetaType extends IdentityMetaType {
 
     private final Map<String, YamlMetaType> features;
 
-    protected GroupOfStepsMetaType(String name, @NotNull String identityKeyDescriptionKey) {
-        super(name);
-
-        this.features = createFeatures(name, identityKeyDescriptionKey);
-    }
-
     protected GroupOfStepsMetaType(String name, @NotNull String identityKeyDescriptionKey, @NotNull TypeProps props) {
         super(name, props);
 

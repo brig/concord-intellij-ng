@@ -5,6 +5,7 @@ import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 public final class VariablesProvider {
 
-    public record Variable(@NotNull String name, @NotNull VariableSource source) {}
+    public record Variable(@NotNull String name, @NotNull VariableSource source, @Nullable PsiElement declaration) {}
 
     public enum VariableSource {
         BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT
@@ -39,14 +40,17 @@ public final class VariablesProvider {
 
     private static void collectBuiltInVars(Map<String, Variable> result) {
         for (var v : ConcordBuiltInVars.VARS) {
-            result.put(v.name(), new Variable(v.name(), VariableSource.BUILT_IN));
+            result.put(v.name(), new Variable(v.name(), VariableSource.BUILT_IN, null));
         }
     }
 
     private static void collectArguments(PsiElement context, Map<String, Variable> result) {
         var args = ArgumentsCollector.getInstance(context.getProject()).getArguments(context);
-        for (var name : args.keySet()) {
-            result.put(name, new Variable(name, VariableSource.ARGUMENT));
+        for (var entry : args.entrySet()) {
+            var name = entry.getKey();
+            var value = entry.getValue();
+            PsiElement declaration = value != null ? value.getParent() : null;
+            result.put(name, new Variable(name, VariableSource.ARGUMENT, declaration));
         }
     }
 
@@ -58,7 +62,7 @@ public final class VariablesProvider {
 
         for (var param : doc.getInputParameters()) {
             var name = param.getName();
-            result.put(name, new Variable(name, VariableSource.FLOW_PARAMETER));
+            result.put(name, new Variable(name, VariableSource.FLOW_PARAMETER, param));
         }
     }
 
@@ -103,7 +107,7 @@ public final class VariablesProvider {
                     for (var entry : m.getKeyValues()) {
                         var name = entry.getKeyText().trim();
                         if (!name.isEmpty()) {
-                            result.put(name, new Variable(name, VariableSource.SET_STEP));
+                            result.put(name, new Variable(name, VariableSource.SET_STEP, entry));
                         }
                     }
                 }
@@ -117,7 +121,7 @@ public final class VariablesProvider {
         if (value instanceof YAMLScalar s) {
             var name = s.getTextValue().trim();
             if (!name.isEmpty()) {
-                result.put(name, new Variable(name, VariableSource.STEP_OUT));
+                result.put(name, new Variable(name, VariableSource.STEP_OUT, s));
             }
         } else if (value instanceof YAMLSequence seq) {
             for (var item : seq.getItems()) {
@@ -125,7 +129,7 @@ public final class VariablesProvider {
                 if (itemValue instanceof YAMLScalar s) {
                     var name = s.getTextValue().trim();
                     if (!name.isEmpty()) {
-                        result.put(name, new Variable(name, VariableSource.STEP_OUT));
+                        result.put(name, new Variable(name, VariableSource.STEP_OUT, s));
                     }
                 }
             }
@@ -133,7 +137,7 @@ public final class VariablesProvider {
             for (var kv : m.getKeyValues()) {
                 var name = kv.getKeyText().trim();
                 if (!name.isEmpty()) {
-                    result.put(name, new Variable(name, VariableSource.STEP_OUT));
+                    result.put(name, new Variable(name, VariableSource.STEP_OUT, kv));
                 }
             }
         }

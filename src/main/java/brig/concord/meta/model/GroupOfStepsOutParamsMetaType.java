@@ -1,7 +1,5 @@
 package brig.concord.meta.model;
 
-import brig.concord.meta.model.value.StringArrayMetaType;
-import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 
 import java.util.List;
@@ -17,7 +15,7 @@ public class GroupOfStepsOutParamsMetaType extends YamlAnyOfType {
     }
 
     private GroupOfStepsOutParamsMetaType() {
-        super(List.of(StringMetaType.getInstance(), StringArrayMetaType.getInstance()),
+        super(List.of(OutVarMetaType.getInstance(), OutVarArrayMetaType.getInstance()),
                 descKey("doc.step.feature.out.description"));
     }
 }

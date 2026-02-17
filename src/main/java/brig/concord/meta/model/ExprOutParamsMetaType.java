@@ -1,7 +1,6 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.AnyMapMetaType;
-import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +19,7 @@ public class ExprOutParamsMetaType extends YamlAnyOfType {
     }
 
     private ExprOutParamsMetaType() {
-        super(List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance()),
+        super(List.of(OutVarMetaType.getInstance(), AnyMapMetaType.getInstance()),
                 descKey("doc.step.feature.out.description"));
     }
 
