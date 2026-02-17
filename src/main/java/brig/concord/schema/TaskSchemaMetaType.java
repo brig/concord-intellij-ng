@@ -124,6 +124,10 @@ public class TaskSchemaMetaType extends ConcordMetaType {
                         .toArray(YamlMetaType[]::new);
                 yield withProps(AnyOfType.anyOf(metaTypes), props);
             }
+            case SchemaType.Object o -> {
+                var nestedMetaType = new TaskSchemaMetaType(o.section(), Set.of());
+                yield withProps(AnyOfType.anyOf(nestedMetaType, ExpressionMetaType.getInstance()), props);
+            }
             case SchemaType.Any a -> props != null ? new AnythingMetaType(props) : AnythingMetaType.getInstance();
         };
     }

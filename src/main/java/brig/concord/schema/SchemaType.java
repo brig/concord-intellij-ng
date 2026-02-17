@@ -19,5 +19,7 @@ public sealed interface SchemaType {
 
     record Composite(@NotNull List<SchemaType> alternatives) implements SchemaType {}
 
+    record Object(@NotNull TaskSchemaSection section) implements SchemaType {}
+
     record Any() implements SchemaType {}
 }

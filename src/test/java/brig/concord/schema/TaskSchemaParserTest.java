@@ -14,6 +14,7 @@ class TaskSchemaParserTest {
     private TaskSchema multiKeySchema;
     private TaskSchema refCompositeSchema;
     private TaskSchema strictSchema;
+    private TaskSchema nestedObjectSchema;
 
     @BeforeEach
     void setUp() {
@@ -33,6 +34,10 @@ class TaskSchemaParserTest {
         var strictStream = getClass().getResourceAsStream("/taskSchema/strictTask.schema.json");
         assertNotNull(strictStream, "strictTask.schema.json not found");
         strictSchema = parser.parse("strictTask", strictStream);
+
+        var nestedObjectStream = getClass().getResourceAsStream("/taskSchema/nestedObject.schema.json");
+        assertNotNull(nestedObjectStream, "nestedObject.schema.json not found");
+        nestedObjectSchema = parser.parse("nestedObject", nestedObjectStream);
     }
 
     @Test
@@ -425,5 +430,96 @@ class TaskSchemaParserTest {
         var debugProp = base.properties().get("debug");
         assertNotNull(debugProp);
         assertFalse(debugProp.required());
+    }
+
+    // --- nested object tests ---
+
+    @Test
+    void testNestedObjectType() {
+        var base = nestedObjectSchema.getBaseInSection();
+        var authProp = base.properties().get("auth");
+        assertNotNull(authProp);
+        assertInstanceOf(SchemaType.Object.class, authProp.schemaType());
+
+        var authObj = (SchemaType.Object) authProp.schemaType();
+        var authSection = authObj.section();
+        assertTrue(authSection.properties().containsKey("basic"));
+        assertTrue(authSection.properties().containsKey("token"));
+        assertFalse(authSection.additionalProperties());
+    }
+
+    @Test
+    void testDeepNestedObjectType() {
+        var base = nestedObjectSchema.getBaseInSection();
+        var authObj = (SchemaType.Object) base.properties().get("auth").schemaType();
+        var basicProp = authObj.section().properties().get("basic");
+        assertNotNull(basicProp);
+        assertInstanceOf(SchemaType.Object.class, basicProp.schemaType());
+
+        var basicObj = (SchemaType.Object) basicProp.schemaType();
+        var basicSection = basicObj.section();
+        assertTrue(basicSection.properties().containsKey("username"));
+        assertTrue(basicSection.properties().containsKey("password"));
+        assertTrue(basicSection.requiredFields().contains("username"));
+        assertTrue(basicSection.requiredFields().contains("password"));
+        assertFalse(basicSection.additionalProperties());
+    }
+
+    @Test
+    void testFreeFormObjectRemainsScalar() {
+        var base = nestedObjectSchema.getBaseInSection();
+        var freeFormProp = base.properties().get("freeFormObject");
+        assertNotNull(freeFormProp);
+        assertEquals(new SchemaType.Scalar("object"), freeFormProp.schemaType());
+    }
+
+    @Test
+    void testNestedObjectViaRef() {
+        var base = nestedObjectSchema.getBaseInSection();
+        var proxyProp = base.properties().get("proxy");
+        assertNotNull(proxyProp);
+        assertInstanceOf(SchemaType.Object.class, proxyProp.schemaType());
+
+        var proxyObj = (SchemaType.Object) proxyProp.schemaType();
+        var proxySection = proxyObj.section();
+        assertTrue(proxySection.properties().containsKey("host"));
+        assertTrue(proxySection.properties().containsKey("port"));
+        assertTrue(proxySection.requiredFields().contains("host"));
+        assertFalse(proxySection.additionalProperties());
+
+        var hostProp = proxySection.properties().get("host");
+        assertEquals(new SchemaType.Scalar("string"), hostProp.schemaType());
+        var portProp = proxySection.properties().get("port");
+        assertEquals(new SchemaType.Scalar("integer"), portProp.schemaType());
+    }
+
+    @Test
+    void testNestedObjectInOneOf() {
+        var base = nestedObjectSchema.getBaseInSection();
+        var credsProp = base.properties().get("credentials");
+        assertNotNull(credsProp);
+        assertInstanceOf(SchemaType.Composite.class, credsProp.schemaType());
+
+        var composite = (SchemaType.Composite) credsProp.schemaType();
+        assertEquals(2, composite.alternatives().size());
+        assertEquals(new SchemaType.Scalar("string"), composite.alternatives().get(0));
+
+        var objAlt = composite.alternatives().get(1);
+        assertInstanceOf(SchemaType.Object.class, objAlt);
+        var objSection = ((SchemaType.Object) objAlt).section();
+        assertTrue(objSection.properties().containsKey("user"));
+        assertTrue(objSection.properties().containsKey("pass"));
+        assertTrue(objSection.requiredFields().contains("user"));
+        assertTrue(objSection.requiredFields().contains("pass"));
+        assertFalse(objSection.additionalProperties());
+    }
+
+    @Test
+    void testExistingArgumentsStillScalarObject() {
+        // arguments in concord schema has no nested properties -> stays Scalar("object")
+        var section = schema.resolveInSection(Map.of("action", "start"));
+        var argumentsProp = section.properties().get("arguments");
+        assertNotNull(argumentsProp);
+        assertEquals(new SchemaType.Scalar("object"), argumentsProp.schemaType());
     }
 }

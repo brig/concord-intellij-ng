@@ -275,6 +275,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
             case SchemaType.Composite c -> c.alternatives().stream()
                     .map(TaskDocumentationTarget::schemaTypeDisplayName)
                     .collect(Collectors.joining("|"));
+            case SchemaType.Object o -> "object";
             case SchemaType.Any a -> "any";
         };
     }
