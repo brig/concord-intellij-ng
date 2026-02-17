@@ -152,6 +152,13 @@ public class TaskSchemaParser {
     private @NotNull TaskSchemaSection mergeAllOf(@NotNull JsonObject root,
                                                   @NotNull JsonArray allOf,
                                                   @NotNull JsonObject context) {
+        return mergeAllOf(root, allOf, context, 0);
+    }
+
+    private @NotNull TaskSchemaSection mergeAllOf(@NotNull JsonObject root,
+                                                  @NotNull JsonArray allOf,
+                                                  @NotNull JsonObject context,
+                                                  int depth) {
         var result = TaskSchemaSection.empty();
 
         for (var element : allOf) {
@@ -163,13 +170,13 @@ public class TaskSchemaParser {
             if (obj.has("anyOf") && !obj.has("properties") && !obj.has("allOf")) continue;
             if (obj.has("if") && obj.has("then")) continue;
 
-            var section = parseSectionObject(root, obj);
+            var section = parseSectionObject(root, obj, depth);
             result = result.merge(section);
         }
 
         // Also check for properties/required directly on the context
         if (context.has("properties") || context.has("required")) {
-            var contextSection = parseSectionDirect(root, context);
+            var contextSection = parseSectionDirect(root, context, depth);
             result = result.merge(contextSection);
         }
 
@@ -178,21 +185,22 @@ public class TaskSchemaParser {
 
     private @NotNull TaskSchemaSection parseSectionObject(@NotNull JsonObject root,
                                                           @NotNull JsonObject obj) {
+        return parseSectionObject(root, obj, 0);
+    }
+
+    private @NotNull TaskSchemaSection parseSectionObject(@NotNull JsonObject root,
+                                                          @NotNull JsonObject obj,
+                                                          int depth) {
         // If this object has allOf, recursively merge
         var nestedAllOf = obj.getAsJsonArray("allOf");
         if (nestedAllOf != null) {
-            var allOfResult = mergeAllOf(root, nestedAllOf, obj);
+            var allOfResult = mergeAllOf(root, nestedAllOf, obj, depth);
             // Also merge direct properties/required from this object
-            var directSection = parseSectionDirect(root, obj);
+            var directSection = parseSectionDirect(root, obj, depth);
             return allOfResult.merge(directSection);
         }
 
-        return parseSectionDirect(root, obj);
-    }
-
-    private @NotNull TaskSchemaSection parseSectionDirect(@NotNull JsonObject root,
-                                                          @NotNull JsonObject obj) {
-        return parseSectionDirect(root, obj, 0);
+        return parseSectionDirect(root, obj, depth);
     }
 
     private @NotNull TaskSchemaSection parseSectionDirect(@NotNull JsonObject root,
@@ -243,10 +251,6 @@ public class TaskSchemaParser {
         return new TaskSchemaProperty(name, schemaType, description, false);
     }
 
-    private @NotNull SchemaType parseSchemaType(@NotNull JsonObject root, @NotNull JsonObject obj) {
-        return parseSchemaType(root, obj, 0);
-    }
-
     private @NotNull SchemaType parseSchemaType(@NotNull JsonObject root, @NotNull JsonObject obj, int depth) {
         if (depth >= MAX_PARSE_DEPTH) {
             return new SchemaType.Any();
@@ -291,8 +295,8 @@ public class TaskSchemaParser {
             return new SchemaType.Array(getArrayItemType(root, obj));
         }
 
-        if ("object".equals(type) && obj.has("properties")) {
-            return new SchemaType.Object(parseSectionDirect(root, obj, depth + 1));
+        if ("object".equals(type) && (obj.has("properties") || obj.has("allOf"))) {
+            return new SchemaType.Object(parseSectionObject(root, obj, depth + 1));
         }
 
         return new SchemaType.Scalar(type);
