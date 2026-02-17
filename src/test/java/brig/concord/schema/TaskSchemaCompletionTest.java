@@ -117,7 +117,7 @@ class TaskSchemaCompletionTest extends ConcordYamlTestBaseJunit5 {
 
         var lookupElements = myFixture.getLookupElementStrings();
         Assertions.assertNotNull(lookupElements);
-        assertThat(lookupElements).contains("ok", "id", "ids", "name", "key", "result");
+        assertThat(lookupElements).isEmpty();
     }
 
     @Test

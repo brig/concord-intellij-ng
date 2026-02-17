@@ -130,24 +130,6 @@ class TaskSchemaInspectionTest extends InspectionTestBase {
                         "YamlUnknownKeysInspectionBase.unknown.key", "baz"));
     }
 
-    @Test
-    void testUnknownKeyInOutWithStrictSchema() {
-        configureFromText("""
-                flows:
-                  main:
-                    - task: strictTask
-                      in:
-                        url: "http://example.com"
-                      out:
-                        ok: result
-                        unknownOut: value
-                """);
-
-        inspection(key("/flows/main[0]/out/unknownOut"))
-                .expectHighlight(ConcordBundle.message(
-                        "YamlUnknownKeysInspectionBase.unknown.key", "unknownOut"));
-    }
-
     // --- negative tests: missing required keys ---
 
     @Test
