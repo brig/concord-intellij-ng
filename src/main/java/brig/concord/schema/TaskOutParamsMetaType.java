@@ -3,7 +3,6 @@ package brig.concord.schema;
 import brig.concord.meta.DynamicMetaType;
 import brig.concord.meta.model.OutVarMetaType;
 import brig.concord.meta.model.value.AnyMapMetaType;
-import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlMetaType;
