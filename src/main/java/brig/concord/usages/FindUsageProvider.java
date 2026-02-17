@@ -1,6 +1,7 @@
 package brig.concord.usages;
 
 import brig.concord.psi.ConcordFile;
+import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.impl.yaml.YAMLConcordKeyValueImpl;
 import brig.concord.psi.impl.yaml.YAMLConcordPlainTextImpl;
 import brig.concord.psi.impl.yaml.YAMLConcordQuotedTextImpl;
@@ -35,7 +36,8 @@ public class FindUsageProvider extends YAMLFindUsagesProvider implements FindUsa
 
         return psiElement instanceof YAMLConcordPlainTextImpl
                 || psiElement instanceof YAMLConcordQuotedTextImpl
-                || psiElement instanceof YAMLConcordKeyValueImpl;
+                || psiElement instanceof YAMLConcordKeyValueImpl
+                || psiElement instanceof FlowDocParameter;
     }
 
     @Override
@@ -45,7 +47,8 @@ public class FindUsageProvider extends YAMLFindUsagesProvider implements FindUsa
 
     @Override
     public @Nls @NotNull String getType(@NotNull PsiElement element) {
-        return "Flow";
+        // TODO: resolve type and show label for flow or for variable
+        return " ";
     }
 
     @Override

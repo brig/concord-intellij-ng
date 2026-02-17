@@ -96,6 +96,8 @@
 
         <!-- References / completion / structure view -->
         <psi.referenceContributor language="Concord" implementation="brig.concord.ConcordYamlReferenceContributor"/>
+        <psi.referenceContributor language="concord-el" implementation="brig.concord.ElReferenceContributor"/>
+
         <completion.contributor language="Concord"
                                 implementationClass="brig.concord.completion.ConcordCompletions"
                                 order="first"/>

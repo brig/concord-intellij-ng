@@ -1,6 +1,7 @@
 package brig.concord.meta.model.call;
 
 import brig.concord.completion.provider.FlowCallParamsProvider;
+import brig.concord.meta.model.OutVarContainerMetaType;
 import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.yaml.meta.model.CompletionContext;
 import brig.concord.yaml.psi.YAMLScalar;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CallOutValueMetaType extends StringMetaType {
+public class CallOutValueMetaType extends StringMetaType implements OutVarContainerMetaType {
 
     public record OutParameterLookup(@NotNull String name, @NotNull String type, boolean mandatory,
                                      @Nullable String description) {

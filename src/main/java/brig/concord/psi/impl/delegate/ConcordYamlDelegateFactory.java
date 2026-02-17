@@ -2,6 +2,7 @@ package brig.concord.psi.impl.delegate;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.LoopArrayItemMetaType;
+import brig.concord.meta.model.OutVarContainerMetaType;
 import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.meta.model.call.CallInParamsMetaType;
 import brig.concord.meta.model.call.CallMetaType;
@@ -75,6 +76,9 @@ public class ConcordYamlDelegateFactory {
         if (metaType instanceof CallMetaType || metaType instanceof LoopArrayItemMetaType) {
             return new YamlPlainTextFlowCallDelegate(yamlPlainText);
         }
+        if (metaType instanceof OutVarContainerMetaType) {
+            return new YamlOutVarDelegate(yamlPlainText.getNode(), yamlPlainText);
+        }
         return null;
     }
 
@@ -83,6 +87,9 @@ public class ConcordYamlDelegateFactory {
         YamlMetaType metaType = instance.getResolvedMetaType(quotedText);
         if (metaType instanceof CallMetaType || metaType instanceof LoopArrayItemMetaType) {
             return new YamlQuoteTextFlowCallDelegate(quotedText);
+        }
+        if (metaType instanceof OutVarContainerMetaType) {
+            return new YamlOutVarDelegate(quotedText.getNode(), quotedText);
         }
         return null;
     }

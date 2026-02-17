@@ -7,6 +7,7 @@ package brig.concord.yaml.meta.model;
 import org.jetbrains.annotations.NotNull;
 
 public class YamlStringType extends YamlScalarType {
+
     private static final YamlStringType SHARED_INSTANCE = new YamlStringType();
 
     public static YamlStringType getInstance() {

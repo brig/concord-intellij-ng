@@ -10,13 +10,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static brig.concord.el.psi.ElTypes.*;
 import brig.concord.el.psi.*;
 
-public class ElIdentifierExprImpl extends ElExpressionImpl implements ElIdentifierExpr {
+public class ElIdentifierExprImpl extends ElIdentifierExprMixin implements ElIdentifierExpr {
 
   public ElIdentifierExprImpl(@NotNull ASTNode node) {
     super(node);
   }
 
-  @Override
   public void accept(@NotNull ElVisitor visitor) {
     visitor.visitIdentifierExpr(this);
   }

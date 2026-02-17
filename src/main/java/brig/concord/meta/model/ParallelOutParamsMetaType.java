@@ -1,8 +1,6 @@
 package brig.concord.meta.model;
 
 import brig.concord.meta.model.value.AnyMapMetaType;
-import brig.concord.meta.model.value.StringArrayMetaType;
-import brig.concord.meta.model.value.StringMetaType;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +19,7 @@ public class ParallelOutParamsMetaType extends YamlAnyOfType {
     }
 
     private ParallelOutParamsMetaType() {
-        super(List.of(StringMetaType.getInstance(), AnyMapMetaType.getInstance(), StringArrayMetaType.getInstance()),
+        super(List.of(OutVarMetaType.getInstance(), AnyMapMetaType.getInstance(), OutVarArrayMetaType.getInstance()),
                 descKey("doc.step.feature.out.description"));
     }
 
