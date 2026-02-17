@@ -2,6 +2,24 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Nested Object Schema (test only)",
   "description": "A task with nested object properties",
+  "definitions": {
+    "proxyConfig": {
+      "type": "object",
+      "description": "Proxy configuration",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "Proxy host"
+        },
+        "port": {
+          "type": "integer",
+          "description": "Proxy port"
+        }
+      },
+      "required": ["host"],
+      "additionalProperties": false
+    }
+  },
   "in": {
     "type": "object",
     "properties": {
@@ -39,6 +57,32 @@
       "url": {
         "type": "string",
         "description": "Target URL"
+      },
+      "proxy": {
+        "$ref": "#/definitions/proxyConfig"
+      },
+      "credentials": {
+        "description": "Credentials: either a string token or an object with user/pass",
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "string",
+                "description": "Username"
+              },
+              "pass": {
+                "type": "string",
+                "description": "Password"
+              }
+            },
+            "required": ["user", "pass"],
+            "additionalProperties": false
+          }
+        ]
       }
     },
     "required": ["url"],

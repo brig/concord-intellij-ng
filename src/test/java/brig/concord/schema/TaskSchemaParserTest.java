@@ -474,6 +474,47 @@ class TaskSchemaParserTest {
     }
 
     @Test
+    void testNestedObjectViaRef() {
+        var base = nestedObjectSchema.getBaseInSection();
+        var proxyProp = base.properties().get("proxy");
+        assertNotNull(proxyProp);
+        assertInstanceOf(SchemaType.Object.class, proxyProp.schemaType());
+
+        var proxyObj = (SchemaType.Object) proxyProp.schemaType();
+        var proxySection = proxyObj.section();
+        assertTrue(proxySection.properties().containsKey("host"));
+        assertTrue(proxySection.properties().containsKey("port"));
+        assertTrue(proxySection.requiredFields().contains("host"));
+        assertFalse(proxySection.additionalProperties());
+
+        var hostProp = proxySection.properties().get("host");
+        assertEquals(new SchemaType.Scalar("string"), hostProp.schemaType());
+        var portProp = proxySection.properties().get("port");
+        assertEquals(new SchemaType.Scalar("integer"), portProp.schemaType());
+    }
+
+    @Test
+    void testNestedObjectInOneOf() {
+        var base = nestedObjectSchema.getBaseInSection();
+        var credsProp = base.properties().get("credentials");
+        assertNotNull(credsProp);
+        assertInstanceOf(SchemaType.Composite.class, credsProp.schemaType());
+
+        var composite = (SchemaType.Composite) credsProp.schemaType();
+        assertEquals(2, composite.alternatives().size());
+        assertEquals(new SchemaType.Scalar("string"), composite.alternatives().get(0));
+
+        var objAlt = composite.alternatives().get(1);
+        assertInstanceOf(SchemaType.Object.class, objAlt);
+        var objSection = ((SchemaType.Object) objAlt).section();
+        assertTrue(objSection.properties().containsKey("user"));
+        assertTrue(objSection.properties().containsKey("pass"));
+        assertTrue(objSection.requiredFields().contains("user"));
+        assertTrue(objSection.requiredFields().contains("pass"));
+        assertFalse(objSection.additionalProperties());
+    }
+
+    @Test
     void testExistingArgumentsStillScalarObject() {
         // arguments in concord schema has no nested properties -> stays Scalar("object")
         var section = schema.resolveInSection(Map.of("action", "start"));

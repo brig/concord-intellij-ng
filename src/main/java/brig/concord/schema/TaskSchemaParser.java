@@ -22,7 +22,8 @@ public class TaskSchemaParser {
         return new TaskSchema(taskName, description, inSection.base, inSection.conditionals, outSection);
     }
 
-    private record InSectionResult(TaskSchemaSection base, List<TaskSchemaConditional> conditionals) {}
+    private record InSectionResult(TaskSchemaSection base, List<TaskSchemaConditional> conditionals) {
+    }
 
     private @NotNull InSectionResult parseInSection(@NotNull JsonObject root) {
         var inObj = root.getAsJsonObject("in");
@@ -85,8 +86,8 @@ public class TaskSchemaParser {
     }
 
     private @Nullable TaskSchemaConditional parseConditional(@NotNull JsonObject root,
-                                                              @NotNull JsonObject ifBlock,
-                                                              @NotNull JsonElement thenElement) {
+                                                             @NotNull JsonObject ifBlock,
+                                                             @NotNull JsonElement thenElement) {
         // Extract discriminator from if.properties
         var ifProps = ifBlock.getAsJsonObject("properties");
         if (ifProps == null || ifProps.entrySet().isEmpty()) {
@@ -130,7 +131,7 @@ public class TaskSchemaParser {
     }
 
     private @NotNull TaskSchemaSection parseThenSection(@NotNull JsonObject root,
-                                                         @NotNull JsonElement thenElement) {
+                                                        @NotNull JsonElement thenElement) {
         var resolved = resolveRef(root, thenElement);
         if (!resolved.isJsonObject()) {
             return TaskSchemaSection.empty();
@@ -149,8 +150,8 @@ public class TaskSchemaParser {
     }
 
     private @NotNull TaskSchemaSection mergeAllOf(@NotNull JsonObject root,
-                                                    @NotNull JsonArray allOf,
-                                                    @NotNull JsonObject context) {
+                                                  @NotNull JsonArray allOf,
+                                                  @NotNull JsonObject context) {
         var result = TaskSchemaSection.empty();
 
         for (var element : allOf) {
@@ -176,7 +177,7 @@ public class TaskSchemaParser {
     }
 
     private @NotNull TaskSchemaSection parseSectionObject(@NotNull JsonObject root,
-                                                           @NotNull JsonObject obj) {
+                                                          @NotNull JsonObject obj) {
         // If this object has allOf, recursively merge
         var nestedAllOf = obj.getAsJsonArray("allOf");
         if (nestedAllOf != null) {
@@ -190,8 +191,14 @@ public class TaskSchemaParser {
     }
 
     private @NotNull TaskSchemaSection parseSectionDirect(@NotNull JsonObject root,
-                                                            @NotNull JsonObject obj) {
-        var properties = parseProperties(root, obj);
+                                                          @NotNull JsonObject obj) {
+        return parseSectionDirect(root, obj, 0);
+    }
+
+    private @NotNull TaskSchemaSection parseSectionDirect(@NotNull JsonObject root,
+                                                          @NotNull JsonObject obj,
+                                                          int depth) {
+        var properties = parseProperties(root, obj, depth);
         var required = parseRequiredArray(obj);
         var additionalProps = getAdditionalProperties(obj);
         var finalProps = applyRequired(properties, required);
@@ -204,7 +211,13 @@ public class TaskSchemaParser {
     }
 
     private @NotNull Map<String, TaskSchemaProperty> parseProperties(@NotNull JsonObject root,
-                                                                       @NotNull JsonObject obj) {
+                                                                     @NotNull JsonObject obj) {
+        return parseProperties(root, obj, 0);
+    }
+
+    private @NotNull Map<String, TaskSchemaProperty> parseProperties(@NotNull JsonObject root,
+                                                                     @NotNull JsonObject obj,
+                                                                     int depth) {
         var propsObj = obj.getAsJsonObject("properties");
         if (propsObj == null) {
             return Collections.emptyMap();
@@ -216,20 +229,29 @@ public class TaskSchemaParser {
             var propElement = resolveRef(root, entry.getValue());
             if (!propElement.isJsonObject()) continue;
             var propObj = propElement.getAsJsonObject();
-            result.put(name, parseProperty(root, name, propObj));
+            result.put(name, parseProperty(root, name, propObj, depth));
         }
         return result;
     }
 
     private @NotNull TaskSchemaProperty parseProperty(@NotNull JsonObject root,
-                                                        @NotNull String name,
-                                                        @NotNull JsonObject propObj) {
+                                                      @NotNull String name,
+                                                      @NotNull JsonObject propObj,
+                                                      int depth) {
         var description = getString(propObj, "description");
-        var schemaType = parseSchemaType(root, propObj);
+        var schemaType = parseSchemaType(root, propObj, depth);
         return new TaskSchemaProperty(name, schemaType, description, false);
     }
 
     private @NotNull SchemaType parseSchemaType(@NotNull JsonObject root, @NotNull JsonObject obj) {
+        return parseSchemaType(root, obj, 0);
+    }
+
+    private @NotNull SchemaType parseSchemaType(@NotNull JsonObject root, @NotNull JsonObject obj, int depth) {
+        if (depth >= MAX_PARSE_DEPTH) {
+            return new SchemaType.Any();
+        }
+
         // 1. Check oneOf for const-enum pattern: oneOf: [{const: "a", description: "..."}, ...]
         var constEnum = parseConstEnum(root, obj);
         if (constEnum != null) {
@@ -237,9 +259,9 @@ public class TaskSchemaParser {
         }
 
         // 2. Handle oneOf / anyOf → Composite (or unwrap if single alternative)
-        var compositeAlternatives = parseCompositeAlternatives(root, obj, "oneOf");
+        var compositeAlternatives = parseCompositeAlternatives(root, obj, "oneOf", depth);
         if (compositeAlternatives == null) {
-            compositeAlternatives = parseCompositeAlternatives(root, obj, "anyOf");
+            compositeAlternatives = parseCompositeAlternatives(root, obj, "anyOf", depth);
         }
         if (compositeAlternatives != null) {
             return compositeAlternatives.size() == 1
@@ -259,7 +281,7 @@ public class TaskSchemaParser {
             return new SchemaType.Enum(List.copyOf(enumValues));
         }
 
-        // 3. Check type
+        // 4. Check type
         var type = getString(obj, "type");
         if (type == null) {
             return new SchemaType.Any();
@@ -270,15 +292,16 @@ public class TaskSchemaParser {
         }
 
         if ("object".equals(type) && obj.has("properties")) {
-            return new SchemaType.Object(parseSectionDirect(root, obj));
+            return new SchemaType.Object(parseSectionDirect(root, obj, depth + 1));
         }
 
         return new SchemaType.Scalar(type);
     }
 
     private @Nullable List<SchemaType> parseCompositeAlternatives(@NotNull JsonObject root,
-                                                                     @NotNull JsonObject obj,
-                                                                     @NotNull String keyword) {
+                                                                  @NotNull JsonObject obj,
+                                                                  @NotNull String keyword,
+                                                                  int depth) {
         var arr = obj.getAsJsonArray(keyword);
         if (arr == null) {
             return null;
@@ -288,7 +311,7 @@ public class TaskSchemaParser {
         for (var element : arr) {
             var resolved = resolveRef(root, element);
             if (resolved.isJsonObject()) {
-                alternatives.add(parseSchemaType(root, resolved.getAsJsonObject()));
+                alternatives.add(parseSchemaType(root, resolved.getAsJsonObject(), depth));
             }
         }
         return alternatives.isEmpty() ? null : List.copyOf(alternatives);
@@ -306,6 +329,7 @@ public class TaskSchemaParser {
         return null;
     }
 
+    private static final int MAX_PARSE_DEPTH = 10;
     private static final int MAX_REF_DEPTH = 10;
 
     private @NotNull JsonElement resolveRef(@NotNull JsonObject root, @NotNull JsonElement element) {
