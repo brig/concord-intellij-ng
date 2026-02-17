@@ -1,3 +1,8 @@
+<!--
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~ Copyright 2026 Concord Plugin Authors
+  -->
+
 <idea-plugin>
     <!-- Extensions that require Maven plugin -->
 </idea-plugin>

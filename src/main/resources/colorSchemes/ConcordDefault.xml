@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~ Copyright 2026 Concord Plugin Authors
+  -->
+
 <list>
     <!-- Top-Level Sections -->
     <option name="CONCORD_DSL_SECTION">

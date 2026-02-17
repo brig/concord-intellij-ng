@@ -11,6 +11,17 @@ plugins {
     alias(libs.plugins.changelog)
     alias(libs.plugins.qodana)
     alias(libs.plugins.grammarkit)
+    alias(libs.plugins.spotless) apply false
+}
+
+allprojects {
+    apply(plugin = "com.diffplug.spotless")
+    configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+        java {
+            licenseHeaderFile(rootProject.file("gradle/license-header.txt"))
+            targetExclude("src/main/gen/**")
+        }
+    }
 }
 
 group = properties("pluginGroup")

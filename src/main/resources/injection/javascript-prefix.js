@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright 2026 Concord Plugin Authors
+ */
+
 const context = {
     /** @param {string} name */
     getVariable: function(name) {},

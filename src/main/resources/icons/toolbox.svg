@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  - SPDX-License-Identifier: Apache-2.0
+  - Copyright 2026 Concord Plugin Authors
+  -->
+
 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fill-rule="evenodd" clip-rule="evenodd"
           d="M 3.505 1.532 C 0.811 1.532 -0.873 4.449 0.474 6.782 C 1.099 7.865 2.255 8.532 3.505 8.532 C 6.199 8.532 7.883 5.615 6.536 3.282 C 5.911 2.199 4.755 1.532 3.505 1.532 Z M 3.505 3.032 C 1.965 3.032 1.003 4.699 1.773 6.032 C 2.13 6.651 2.79 7.032 3.505 7.032 C 5.045 7.032 6.007 5.365 5.237 4.032 C 4.88 3.413 4.22 3.032 3.505 3.032 Z"
