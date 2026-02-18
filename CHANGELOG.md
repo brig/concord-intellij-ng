@@ -4,6 +4,8 @@
 
 ### Added
 
+- ability to select a specific JDK for running the Concord CLI
+([#128](https://github.com/brig/concord-intellij-ng/pull/128)) 
 - EL variable navigation support so ${var} identifiers can Go to Declaration and variable declarations
 can Find Usages across common Concord variable sources (args, flow doc params, set, and step out)
 ([#124](https://github.com/brig/concord-intellij-ng/pull/124)) 
