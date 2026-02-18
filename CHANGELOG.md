@@ -20,6 +20,8 @@ can Find Usages across common Concord variable sources (args, flow doc params, s
 
 ### Changed
 
+- improved Concord variable completion to better reflect step scoping and Concord-specific variables (loop variables, task results)
+([#129](https://github.com/brig/concord-intellij-ng/pull/129))  
 - nested object properties support in task schemas
 ([#125](https://github.com/brig/concord-intellij-ng/pull/125))
 - restart daemon on external VFS changes to fix stale highlighting
