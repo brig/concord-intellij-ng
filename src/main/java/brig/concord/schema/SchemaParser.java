@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-public class TaskSchemaParser {
+public class SchemaParser {
 
     public @NotNull TaskSchema parse(@NotNull String taskName, @NotNull InputStream json) {
         var root = JsonParser.parseReader(new InputStreamReader(json, StandardCharsets.UTF_8)).getAsJsonObject();
@@ -22,13 +22,18 @@ public class TaskSchemaParser {
         return new TaskSchema(taskName, description, inSection.base, inSection.conditionals, outSection);
     }
 
-    private record InSectionResult(TaskSchemaSection base, List<TaskSchemaConditional> conditionals) {
+    public @NotNull ObjectSchema parseObject(@NotNull InputStream json) {
+        var root = JsonParser.parseReader(new InputStreamReader(json, StandardCharsets.UTF_8)).getAsJsonObject();
+        return parseSectionObject(root, root);
+    }
+
+    private record InSectionResult(ObjectSchema base, List<SchemaConditional> conditionals) {
     }
 
     private @NotNull InSectionResult parseInSection(@NotNull JsonObject root) {
         var inObj = root.getAsJsonObject("in");
         if (inObj == null) {
-            return new InSectionResult(TaskSchemaSection.empty(), Collections.emptyList());
+            return new InSectionResult(ObjectSchema.empty(), Collections.emptyList());
         }
 
         // Parse base properties (top-level properties)
@@ -37,11 +42,13 @@ public class TaskSchemaParser {
         var additionalProps = getAdditionalProperties(inObj);
 
         // Parse allOf for conditionals
-        var conditionals = new ArrayList<TaskSchemaConditional>();
+        var conditionals = new ArrayList<SchemaConditional>();
         var allOf = inObj.getAsJsonArray("allOf");
         if (allOf != null) {
             for (var element : allOf) {
-                if (!element.isJsonObject()) continue;
+                if (!element.isJsonObject()) {
+                    continue;
+                }
                 var obj = element.getAsJsonObject();
 
                 var ifBlock = obj.getAsJsonObject("if");
@@ -58,7 +65,7 @@ public class TaskSchemaParser {
         // Mark required properties
         var finalProps = applyRequired(baseProperties, baseRequired);
 
-        var base = new TaskSchemaSection(
+        var base = new ObjectSchema(
                 Collections.unmodifiableMap(finalProps),
                 Collections.unmodifiableSet(baseRequired),
                 additionalProps
@@ -67,10 +74,10 @@ public class TaskSchemaParser {
         return new InSectionResult(base, conditionals);
     }
 
-    private @NotNull TaskSchemaSection parseOutSection(@NotNull JsonObject root) {
+    private @NotNull ObjectSchema parseOutSection(@NotNull JsonObject root) {
         var outObj = root.getAsJsonObject("out");
         if (outObj == null) {
-            return TaskSchemaSection.empty();
+            return ObjectSchema.empty();
         }
 
         var properties = parseProperties(root, outObj);
@@ -78,14 +85,14 @@ public class TaskSchemaParser {
         var additionalProps = getAdditionalProperties(outObj);
         var finalProps = applyRequired(properties, required);
 
-        return new TaskSchemaSection(
+        return new ObjectSchema(
                 Collections.unmodifiableMap(finalProps),
                 Collections.unmodifiableSet(required),
                 additionalProps
         );
     }
 
-    private @Nullable TaskSchemaConditional parseConditional(@NotNull JsonObject root,
+    private @Nullable SchemaConditional parseConditional(@NotNull JsonObject root,
                                                              @NotNull JsonObject ifBlock,
                                                              @NotNull JsonElement thenElement) {
         // Extract discriminator from if.properties
@@ -97,7 +104,9 @@ public class TaskSchemaParser {
         // Collect discriminator values from all properties in the if block
         var discriminators = new LinkedHashMap<String, List<String>>();
         for (var entry : ifProps.entrySet()) {
-            if (!entry.getValue().isJsonObject()) continue;
+            if (!entry.getValue().isJsonObject()) {
+                continue;
+            }
             var propSchema = entry.getValue().getAsJsonObject();
 
             var values = new ArrayList<String>();
@@ -127,14 +136,14 @@ public class TaskSchemaParser {
         // Parse then section
         var thenSection = parseThenSection(root, thenElement);
 
-        return new TaskSchemaConditional(Collections.unmodifiableMap(discriminators), thenSection);
+        return new SchemaConditional(Collections.unmodifiableMap(discriminators), thenSection);
     }
 
-    private @NotNull TaskSchemaSection parseThenSection(@NotNull JsonObject root,
+    private @NotNull ObjectSchema parseThenSection(@NotNull JsonObject root,
                                                         @NotNull JsonElement thenElement) {
         var resolved = resolveRef(root, thenElement);
         if (!resolved.isJsonObject()) {
-            return TaskSchemaSection.empty();
+            return ObjectSchema.empty();
         }
 
         var thenObj = resolved.getAsJsonObject();
@@ -149,26 +158,32 @@ public class TaskSchemaParser {
         return parseSectionObject(root, thenObj);
     }
 
-    private @NotNull TaskSchemaSection mergeAllOf(@NotNull JsonObject root,
+    private @NotNull ObjectSchema mergeAllOf(@NotNull JsonObject root,
                                                   @NotNull JsonArray allOf,
                                                   @NotNull JsonObject context) {
         return mergeAllOf(root, allOf, context, 0);
     }
 
-    private @NotNull TaskSchemaSection mergeAllOf(@NotNull JsonObject root,
+    private @NotNull ObjectSchema mergeAllOf(@NotNull JsonObject root,
                                                   @NotNull JsonArray allOf,
                                                   @NotNull JsonObject context,
                                                   int depth) {
-        var result = TaskSchemaSection.empty();
+        var result = ObjectSchema.empty();
 
         for (var element : allOf) {
             var resolved = resolveRef(root, element);
-            if (!resolved.isJsonObject()) continue;
+            if (!resolved.isJsonObject()) {
+                continue;
+            }
             var obj = resolved.getAsJsonObject();
 
             // Skip anyOf (alternative required groups) and if/then blocks within allOf
-            if (obj.has("anyOf") && !obj.has("properties") && !obj.has("allOf")) continue;
-            if (obj.has("if") && obj.has("then")) continue;
+            if (obj.has("anyOf") && !obj.has("properties") && !obj.has("allOf")) {
+                continue;
+            }
+            if (obj.has("if") && obj.has("then")) {
+                continue;
+            }
 
             var section = parseSectionObject(root, obj, depth);
             result = result.merge(section);
@@ -183,12 +198,12 @@ public class TaskSchemaParser {
         return result;
     }
 
-    private @NotNull TaskSchemaSection parseSectionObject(@NotNull JsonObject root,
+    private @NotNull ObjectSchema parseSectionObject(@NotNull JsonObject root,
                                                           @NotNull JsonObject obj) {
         return parseSectionObject(root, obj, 0);
     }
 
-    private @NotNull TaskSchemaSection parseSectionObject(@NotNull JsonObject root,
+    private @NotNull ObjectSchema parseSectionObject(@NotNull JsonObject root,
                                                           @NotNull JsonObject obj,
                                                           int depth) {
         // If this object has allOf, recursively merge
@@ -203,7 +218,7 @@ public class TaskSchemaParser {
         return parseSectionDirect(root, obj, depth);
     }
 
-    private @NotNull TaskSchemaSection parseSectionDirect(@NotNull JsonObject root,
+    private @NotNull ObjectSchema parseSectionDirect(@NotNull JsonObject root,
                                                           @NotNull JsonObject obj,
                                                           int depth) {
         var properties = parseProperties(root, obj, depth);
@@ -211,19 +226,19 @@ public class TaskSchemaParser {
         var additionalProps = getAdditionalProperties(obj);
         var finalProps = applyRequired(properties, required);
 
-        return new TaskSchemaSection(
+        return new ObjectSchema(
                 Collections.unmodifiableMap(finalProps),
                 Collections.unmodifiableSet(required),
                 additionalProps
         );
     }
 
-    private @NotNull Map<String, TaskSchemaProperty> parseProperties(@NotNull JsonObject root,
+    private @NotNull Map<String, SchemaProperty> parseProperties(@NotNull JsonObject root,
                                                                      @NotNull JsonObject obj) {
         return parseProperties(root, obj, 0);
     }
 
-    private @NotNull Map<String, TaskSchemaProperty> parseProperties(@NotNull JsonObject root,
+    private @NotNull Map<String, SchemaProperty> parseProperties(@NotNull JsonObject root,
                                                                      @NotNull JsonObject obj,
                                                                      int depth) {
         var propsObj = obj.getAsJsonObject("properties");
@@ -231,24 +246,26 @@ public class TaskSchemaParser {
             return Collections.emptyMap();
         }
 
-        var result = new LinkedHashMap<String, TaskSchemaProperty>();
+        var result = new LinkedHashMap<String, SchemaProperty>();
         for (var entry : propsObj.entrySet()) {
             var name = entry.getKey();
             var propElement = resolveRef(root, entry.getValue());
-            if (!propElement.isJsonObject()) continue;
+            if (!propElement.isJsonObject()) {
+                continue;
+            }
             var propObj = propElement.getAsJsonObject();
             result.put(name, parseProperty(root, name, propObj, depth));
         }
         return result;
     }
 
-    private @NotNull TaskSchemaProperty parseProperty(@NotNull JsonObject root,
+    private @NotNull SchemaProperty parseProperty(@NotNull JsonObject root,
                                                       @NotNull String name,
                                                       @NotNull JsonObject propObj,
                                                       int depth) {
         var description = getString(propObj, "description");
         var schemaType = parseSchemaType(root, propObj, depth);
-        return new TaskSchemaProperty(name, schemaType, description, false);
+        return new SchemaProperty(name, schemaType, description, false);
     }
 
     private @NotNull SchemaType parseSchemaType(@NotNull JsonObject root, @NotNull JsonObject obj, int depth) {
@@ -452,13 +469,13 @@ public class TaskSchemaParser {
         return null;
     }
 
-    private static @NotNull Map<String, TaskSchemaProperty> applyRequired(
-            @NotNull Map<String, TaskSchemaProperty> properties,
+    private static @NotNull Map<String, SchemaProperty> applyRequired(
+            @NotNull Map<String, SchemaProperty> properties,
             @NotNull Set<String> required) {
         if (required.isEmpty()) {
             return properties;
         }
-        var result = new LinkedHashMap<String, TaskSchemaProperty>();
+        var result = new LinkedHashMap<String, SchemaProperty>();
         for (var entry : properties.entrySet()) {
             var prop = entry.getValue();
             if (required.contains(entry.getKey()) && !prop.required()) {

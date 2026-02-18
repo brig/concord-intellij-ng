@@ -4,17 +4,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public record TaskSchemaSection(
-        @NotNull Map<String, TaskSchemaProperty> properties,
+public record ObjectSchema(
+        @NotNull Map<String, SchemaProperty> properties,
         @NotNull Set<String> requiredFields,
         boolean additionalProperties
 ) {
 
-    public static TaskSchemaSection empty() {
-        return new TaskSchemaSection(Collections.emptyMap(), Collections.emptySet(), true);
+    public static ObjectSchema empty() {
+        return new ObjectSchema(Collections.emptyMap(), Collections.emptySet(), true);
     }
 
-    public TaskSchemaSection merge(TaskSchemaSection other) {
+    public ObjectSchema merge(ObjectSchema other) {
         var mergedProps = new LinkedHashMap<>(this.properties);
         mergedProps.putAll(other.properties);
 
@@ -24,7 +24,7 @@ public record TaskSchemaSection(
         boolean mergedAdditional = this.additionalProperties && other.additionalProperties;
 
         // Update required flag on properties
-        var finalProps = new LinkedHashMap<String, TaskSchemaProperty>();
+        var finalProps = new LinkedHashMap<String, SchemaProperty>();
         for (var entry : mergedProps.entrySet()) {
             var prop = entry.getValue();
             if (mergedRequired.contains(entry.getKey()) && !prop.required()) {
@@ -34,7 +34,7 @@ public record TaskSchemaSection(
             }
         }
 
-        return new TaskSchemaSection(
+        return new ObjectSchema(
                 Collections.unmodifiableMap(finalProps),
                 Collections.unmodifiableSet(mergedRequired),
                 mergedAdditional

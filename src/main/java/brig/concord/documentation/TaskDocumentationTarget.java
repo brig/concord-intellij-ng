@@ -2,8 +2,8 @@ package brig.concord.documentation;
 
 import brig.concord.schema.SchemaType;
 import brig.concord.schema.TaskSchema;
-import brig.concord.schema.TaskSchemaProperty;
-import brig.concord.schema.TaskSchemaSection;
+import brig.concord.schema.SchemaProperty;
+import brig.concord.schema.ObjectSchema;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.model.Pointer;
 import com.intellij.openapi.util.text.StringUtil;
@@ -234,16 +234,16 @@ public class TaskDocumentationTarget implements DocumentationTarget {
                 .collect(Collectors.joining(", "));
     }
 
-    private static List<ParamInfo> toParamInfos(@NotNull TaskSchemaSection section) {
+    private static List<ParamInfo> toParamInfos(@NotNull ObjectSchema section) {
         return section.properties().values().stream()
                 .map(TaskDocumentationTarget::toParamInfo)
                 .toList();
     }
 
-    private static ParamInfo toParamInfo(@NotNull TaskSchemaProperty prop) {
+    private static ParamInfo toParamInfo(@NotNull SchemaProperty prop) {
         return new ParamInfo(
                 prop.name(),
-                schemaTypeDisplayName(prop.schemaType()),
+                SchemaType.displayName(prop.schemaType()),
                 prop.required(),
                 prop.description(),
                 extractEnumValues(prop.schemaType())
@@ -260,22 +260,6 @@ public class TaskDocumentationTarget implements DocumentationTarget {
             result.add(new EnumValueInfo(values.get(i), desc != null && !desc.isEmpty() ? desc : null));
         }
         return List.copyOf(result);
-    }
-
-    private static @NotNull String schemaTypeDisplayName(@NotNull SchemaType schemaType) {
-        return switch (schemaType) {
-            case SchemaType.Scalar s -> s.typeName();
-            case SchemaType.Array a -> {
-                var itemType = a.itemType();
-                yield (itemType != null ? itemType : "any") + "[]";
-            }
-            case SchemaType.Enum e -> "enum";
-            case SchemaType.Composite c -> c.alternatives().stream()
-                    .map(TaskDocumentationTarget::schemaTypeDisplayName)
-                    .collect(Collectors.joining("|"));
-            case SchemaType.Object o -> "object";
-            case SchemaType.Any a -> "any";
-        };
     }
 
     private record ConditionalGroup(@NotNull String header, @NotNull List<ParamInfo> params) {}

@@ -15,7 +15,7 @@ class TaskSchemaResolveTest {
                 Set.of("url"),
                 true
         );
-        var schema = new TaskSchema("test", null, base, List.of(), TaskSchemaSection.empty());
+        var schema = new TaskSchema("test", null, base, List.of(), ObjectSchema.empty());
 
         var resolved = schema.resolveInSection(Map.of("url", "http://example.com"));
         assertEquals(base.properties().size(), resolved.properties().size());
@@ -34,11 +34,11 @@ class TaskSchemaResolveTest {
                 Set.of("project"),
                 true
         );
-        var conditional = new TaskSchemaConditional(
+        var conditional = new SchemaConditional(
                 Map.of("action", List.of("start")),
                 thenSection
         );
-        var schema = new TaskSchema("test", null, base, List.of(conditional), TaskSchemaSection.empty());
+        var schema = new TaskSchema("test", null, base, List.of(conditional), ObjectSchema.empty());
 
         var resolved = schema.resolveInSection(Map.of("action", "start"));
         assertTrue(resolved.properties().containsKey("action"));
@@ -58,11 +58,11 @@ class TaskSchemaResolveTest {
                 Set.of(),
                 true
         );
-        var conditional = new TaskSchemaConditional(
+        var conditional = new SchemaConditional(
                 Map.of("action", List.of("start")),
                 thenSection
         );
-        var schema = new TaskSchema("test", null, base, List.of(conditional), TaskSchemaSection.empty());
+        var schema = new TaskSchema("test", null, base, List.of(conditional), ObjectSchema.empty());
 
         var resolved = schema.resolveInSection(Map.of("action", "kill"));
         assertTrue(resolved.properties().containsKey("action"));
@@ -87,9 +87,9 @@ class TaskSchemaResolveTest {
                 true
         );
         var schema = new TaskSchema("test", null, base, List.of(
-                new TaskSchemaConditional(Map.of("action", List.of("start")), startThen),
-                new TaskSchemaConditional(Map.of("action", List.of("kill")), killThen)
-        ), TaskSchemaSection.empty());
+                new SchemaConditional(Map.of("action", List.of("start")), startThen),
+                new SchemaConditional(Map.of("action", List.of("kill")), killThen)
+        ), ObjectSchema.empty());
 
         var resolved = schema.resolveInSection(Map.of("action", "kill"));
         assertTrue(resolved.properties().containsKey("action"));
@@ -117,9 +117,9 @@ class TaskSchemaResolveTest {
                 true
         );
         var schema = new TaskSchema("test", null, base, List.of(
-                new TaskSchemaConditional(Map.of("action", List.of("start")), first),
-                new TaskSchemaConditional(Map.of("action", List.of("start")), second)
-        ), TaskSchemaSection.empty());
+                new SchemaConditional(Map.of("action", List.of("start")), first),
+                new SchemaConditional(Map.of("action", List.of("start")), second)
+        ), ObjectSchema.empty());
 
         var resolved = schema.resolveInSection(Map.of("action", "start"));
         assertTrue(resolved.properties().containsKey("action"));
@@ -142,11 +142,11 @@ class TaskSchemaResolveTest {
                 Set.of(),
                 true
         );
-        var conditional = new TaskSchemaConditional(
+        var conditional = new SchemaConditional(
                 Map.of("action", List.of("process"), "mode", List.of("sync")),
                 thenSection
         );
-        var schema = new TaskSchema("test", null, base, List.of(conditional), TaskSchemaSection.empty());
+        var schema = new TaskSchema("test", null, base, List.of(conditional), ObjectSchema.empty());
 
         var resolved = schema.resolveInSection(Map.of("action", "process", "mode", "sync"));
         assertTrue(resolved.properties().containsKey("timeout"));
@@ -167,11 +167,11 @@ class TaskSchemaResolveTest {
                 Set.of(),
                 true
         );
-        var conditional = new TaskSchemaConditional(
+        var conditional = new SchemaConditional(
                 Map.of("action", List.of("process"), "mode", List.of("sync")),
                 thenSection
         );
-        var schema = new TaskSchema("test", null, base, List.of(conditional), TaskSchemaSection.empty());
+        var schema = new TaskSchema("test", null, base, List.of(conditional), ObjectSchema.empty());
 
         // Only action matches, mode is missing -> no match
         var resolved = schema.resolveInSection(Map.of("action", "process"));
@@ -191,11 +191,11 @@ class TaskSchemaResolveTest {
                 true
         );
         // Discriminator accepts multiple values (enum-style)
-        var conditional = new TaskSchemaConditional(
+        var conditional = new SchemaConditional(
                 Map.of("action", List.of("create", "update", "upsert")),
                 thenSection
         );
-        var schema = new TaskSchema("test", null, base, List.of(conditional), TaskSchemaSection.empty());
+        var schema = new TaskSchema("test", null, base, List.of(conditional), ObjectSchema.empty());
 
         assertTrue(schema.resolveInSection(Map.of("action", "create")).properties().containsKey("target"));
         assertTrue(schema.resolveInSection(Map.of("action", "update")).properties().containsKey("target"));
@@ -205,12 +205,12 @@ class TaskSchemaResolveTest {
 
     @Test
     void testGetDiscriminatorKeysDeduped() {
-        var base = TaskSchemaSection.empty();
+        var base = ObjectSchema.empty();
         var schema = new TaskSchema("test", null, base, List.of(
-                new TaskSchemaConditional(Map.of("action", List.of("a"), "mode", List.of("x")), TaskSchemaSection.empty()),
-                new TaskSchemaConditional(Map.of("action", List.of("b"), "level", List.of("high")), TaskSchemaSection.empty()),
-                new TaskSchemaConditional(Map.of("mode", List.of("y")), TaskSchemaSection.empty())
-        ), TaskSchemaSection.empty());
+                new SchemaConditional(Map.of("action", List.of("a"), "mode", List.of("x")), ObjectSchema.empty()),
+                new SchemaConditional(Map.of("action", List.of("b"), "level", List.of("high")), ObjectSchema.empty()),
+                new SchemaConditional(Map.of("mode", List.of("y")), ObjectSchema.empty())
+        ), ObjectSchema.empty());
 
         var keys = schema.getDiscriminatorKeys();
         // "action" appears in two conditionals, "mode" in two – should be deduped
@@ -220,14 +220,14 @@ class TaskSchemaResolveTest {
 
     // -- helpers --
 
-    private static TaskSchemaProperty prop(String name, String type) {
-        return new TaskSchemaProperty(name, new SchemaType.Scalar(type), null, false);
+    private static SchemaProperty prop(String name, String type) {
+        return new SchemaProperty(name, new SchemaType.Scalar(type), null, false);
     }
 
-    private static TaskSchemaSection section(Map<String, TaskSchemaProperty> props,
+    private static ObjectSchema section(Map<String, SchemaProperty> props,
                                              Set<String> required,
                                              boolean additionalProperties) {
-        return new TaskSchemaSection(
+        return new ObjectSchema(
                 new LinkedHashMap<>(props),
                 new LinkedHashSet<>(required),
                 additionalProperties

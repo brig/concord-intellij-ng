@@ -19,11 +19,11 @@ import java.util.stream.Stream;
 
 public class TaskSchemaMetaType extends ConcordMetaType {
 
-    private final TaskSchemaSection section;
+    private final ObjectSchema section;
     private final Set<String> discriminatorKeys;
     private volatile Map<String, YamlMetaType> features;
 
-    public TaskSchemaMetaType(@NotNull TaskSchemaSection section,
+    public TaskSchemaMetaType(@NotNull ObjectSchema section,
                               @NotNull Set<String> discriminatorKeys) {
         this.section = section;
         this.discriminatorKeys = discriminatorKeys;
@@ -94,7 +94,7 @@ public class TaskSchemaMetaType extends ConcordMetaType {
                 .collect(Collectors.toList());
     }
 
-    private static YamlMetaType toMetaType(@NotNull TaskSchemaProperty property) {
+    private static YamlMetaType toMetaType(@NotNull SchemaProperty property) {
         var description = property.description();
         var props = (description != null || property.required())
                 ? TypeProps.desc(description).andRequired(property.required())

@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public sealed interface SchemaType {
 
@@ -19,7 +20,23 @@ public sealed interface SchemaType {
 
     record Composite(@NotNull List<SchemaType> alternatives) implements SchemaType {}
 
-    record Object(@NotNull TaskSchemaSection section) implements SchemaType {}
+    record Object(@NotNull ObjectSchema section) implements SchemaType {}
 
     record Any() implements SchemaType {}
+
+    static @NotNull String displayName(@NotNull SchemaType schemaType) {
+        return switch (schemaType) {
+            case Scalar s -> s.typeName();
+            case Array a -> {
+                var itemType = a.itemType();
+                yield (itemType != null ? itemType : "any") + "[]";
+            }
+            case Enum e -> "enum";
+            case Composite c -> c.alternatives().stream()
+                    .map(SchemaType::displayName)
+                    .collect(Collectors.joining("|"));
+            case Object o -> "object";
+            case Any a -> "any";
+        };
+    }
 }

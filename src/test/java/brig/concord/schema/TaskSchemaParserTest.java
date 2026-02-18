@@ -18,7 +18,7 @@ class TaskSchemaParserTest {
 
     @BeforeEach
     void setUp() {
-        var parser = new TaskSchemaParser();
+        var parser = new SchemaParser();
         var stream = getClass().getResourceAsStream("/taskSchema/concord.schema.json");
         assertNotNull(stream, "concord.schema.json not found");
         schema = parser.parse("concord", stream);

@@ -9,11 +9,11 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskSchemaSectionTest {
+class ObjectSchemaTest {
 
     @Test
     void testEmptySection() {
-        var empty = TaskSchemaSection.empty();
+        var empty = ObjectSchema.empty();
         assertTrue(empty.properties().isEmpty());
         assertTrue(empty.requiredFields().isEmpty());
         assertTrue(empty.additionalProperties());
@@ -121,13 +121,13 @@ class TaskSchemaSectionTest {
                 false
         );
 
-        var mergedRight = original.merge(TaskSchemaSection.empty());
+        var mergedRight = original.merge(ObjectSchema.empty());
         assertEquals(original.properties().size(), mergedRight.properties().size());
         assertEquals(original.requiredFields(), mergedRight.requiredFields());
         // empty has additionalProperties=true, AND semantics: false && true = false
         assertFalse(mergedRight.additionalProperties());
 
-        var mergedLeft = TaskSchemaSection.empty().merge(original);
+        var mergedLeft = ObjectSchema.empty().merge(original);
         assertEquals(original.properties().size(), mergedLeft.properties().size());
         assertEquals(original.requiredFields(), mergedLeft.requiredFields());
         assertFalse(mergedLeft.additionalProperties());
@@ -155,14 +155,14 @@ class TaskSchemaSectionTest {
 
     // -- helpers --
 
-    private static TaskSchemaProperty prop(String name, String type) {
-        return new TaskSchemaProperty(name, new SchemaType.Scalar(type), null, false);
+    private static SchemaProperty prop(String name, String type) {
+        return new SchemaProperty(name, new SchemaType.Scalar(type), null, false);
     }
 
-    private static TaskSchemaSection section(Map<String, TaskSchemaProperty> props,
+    private static ObjectSchema section(Map<String, SchemaProperty> props,
                                              Set<String> required,
                                              boolean additionalProperties) {
-        return new TaskSchemaSection(
+        return new ObjectSchema(
                 new LinkedHashMap<>(props),
                 new LinkedHashSet<>(required),
                 additionalProperties
