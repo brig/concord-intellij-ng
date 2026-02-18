@@ -35,28 +35,28 @@ public class TaskDocumentationTarget implements DocumentationTarget {
 
     public TaskDocumentationTarget(@NotNull YAMLKeyValue taskKv, @NotNull TaskSchema schema) {
         this.taskPointer = SmartPointerManager.createPointer(taskKv);
-        this.taskName = schema.getTaskName();
-        this.description = schema.getDescription();
+        this.taskName = schema.taskName();
+        this.description = schema.description();
 
         var inputResult = buildInputParams(schema);
         this.inputParams = inputResult.params;
         this.inputFooter = inputResult.footer;
         this.inputGroups = inputResult.groups;
 
-        this.outputParams = toParamInfos(schema.getOutSection());
+        this.outputParams = toParamInfos(schema.outSection());
     }
 
     public TaskDocumentationTarget(@NotNull TaskSchema schema) {
         this.taskPointer = null;
-        this.taskName = schema.getTaskName();
-        this.description = schema.getDescription();
+        this.taskName = schema.taskName();
+        this.description = schema.description();
 
         var inputResult = buildInputParams(schema);
         this.inputParams = inputResult.params;
         this.inputFooter = inputResult.footer;
         this.inputGroups = inputResult.groups;
 
-        this.outputParams = toParamInfos(schema.getOutSection());
+        this.outputParams = toParamInfos(schema.outSection());
     }
 
     private TaskDocumentationTarget(@Nullable SmartPsiElementPointer<YAMLKeyValue> taskPointer,
@@ -174,13 +174,13 @@ public class TaskDocumentationTarget implements DocumentationTarget {
     }
 
     private static InputResult buildInputParams(@NotNull TaskSchema schema) {
-        var conditionals = schema.getInConditionals();
+        var conditionals = schema.inConditionals();
         if (conditionals.isEmpty()) {
-            return new InputResult(toParamInfos(schema.getBaseInSection()), null, List.of());
+            return new InputResult(toParamInfos(schema.baseInSection()), null, List.of());
         }
 
         // Count total unique input params across base + all conditionals
-        var allParamNames = new LinkedHashSet<>(schema.getBaseInSection().properties().keySet());
+        var allParamNames = new LinkedHashSet<>(schema.baseInSection().properties().keySet());
         for (var conditional : conditionals) {
             allParamNames.addAll(conditional.thenSection().properties().keySet());
         }
@@ -189,7 +189,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
             // Show only discriminator parameters from the base section
             var discriminatorKeys = schema.getDiscriminatorKeys();
             var discriminatorParams = new ArrayList<ParamInfo>();
-            var baseProps = schema.getBaseInSection().properties();
+            var baseProps = schema.baseInSection().properties();
             for (var key : discriminatorKeys) {
                 var prop = baseProps.get(key);
                 if (prop != null) {
@@ -203,8 +203,8 @@ public class TaskDocumentationTarget implements DocumentationTarget {
         }
 
         // Under threshold: show base params, then group conditional params
-        var baseParams = toParamInfos(schema.getBaseInSection());
-        var baseParamNames = schema.getBaseInSection().properties().keySet();
+        var baseParams = toParamInfos(schema.baseInSection());
+        var baseParamNames = schema.baseInSection().properties().keySet();
 
         var groups = new ArrayList<ConditionalGroup>();
         for (var conditional : conditionals) {
@@ -251,11 +251,9 @@ public class TaskDocumentationTarget implements DocumentationTarget {
     }
 
     private static @NotNull List<EnumValueInfo> extractEnumValues(@NotNull SchemaType schemaType) {
-        if (!(schemaType instanceof SchemaType.Enum e)) {
+        if (!(schemaType instanceof SchemaType.Enum(List<String> values, List<String> descriptions))) {
             return List.of();
         }
-        var values = e.values();
-        var descriptions = e.descriptions();
         var result = new ArrayList<EnumValueInfo>(values.size());
         for (int i = 0; i < values.size(); i++) {
             var desc = i < descriptions.size() ? descriptions.get(i) : null;

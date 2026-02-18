@@ -2,7 +2,7 @@ package brig.concord.run;
 
 import brig.concord.ConcordBundle;
 import brig.concord.run.cli.ConcordCliManager;
-import com.intellij.execution.ExecutionException;
+import brig.concord.run.cli.ConcordCliSettings;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.*;
 import com.intellij.execution.runners.ExecutionEnvironment;
@@ -70,20 +70,20 @@ public class ConcordRunConfiguration extends RunConfigurationBase<ConcordRunConf
             throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.entry.point.empty"));
         }
 
-        ConcordCliManager cliManager = ConcordCliManager.getInstance();
+        var cliManager = ConcordCliManager.getInstance();
         if (!cliManager.isCliAvailable()) {
-            String cliPath = cliManager.getConfiguredCliPath();
-            if (cliPath == null) {
-                throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.cli.not.configured"));
-            } else {
-                throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.cli.invalid"));
-            }
+            throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.cli.not.configured"));
+        }
+
+        var jdkName = ConcordCliSettings.getInstance().getJdkName();
+        if (jdkName != null && cliManager.resolveJdk(jdkName) == null) {
+            throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.jdk.not.found", jdkName));
         }
     }
 
     @Override
     public @Nullable RunProfileState getState(@NotNull Executor executor,
-                                              @NotNull ExecutionEnvironment environment) throws ExecutionException {
+                                              @NotNull ExecutionEnvironment environment) {
         return new ConcordCommandLineState(environment, this);
     }
 }

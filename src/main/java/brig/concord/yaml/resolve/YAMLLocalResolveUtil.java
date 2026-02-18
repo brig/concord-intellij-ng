@@ -60,13 +60,11 @@ public final class YAMLLocalResolveUtil {
         });
     }
 
-    private static class YAMLAliasResolveResult {
-        final @NotNull Map<YAMLAlias, YAMLAnchor> myResolveMap;
-        final @NotNull Set<YAMLAnchor> myFirstDefs;
-
-        YAMLAliasResolveResult(@NotNull Map<YAMLAlias, YAMLAnchor> map, @NotNull Set<YAMLAnchor> firstDefs) {
-            myResolveMap = Collections.unmodifiableMap(map);
-            myFirstDefs = Collections.unmodifiableSet(firstDefs);
+    private record YAMLAliasResolveResult(@NotNull Map<YAMLAlias, YAMLAnchor> myResolveMap,
+                                          @NotNull Set<YAMLAnchor> myFirstDefs) {
+            private YAMLAliasResolveResult(@NotNull Map<YAMLAlias, YAMLAnchor> myResolveMap, @NotNull Set<YAMLAnchor> myFirstDefs) {
+                this.myResolveMap = Collections.unmodifiableMap(myResolveMap);
+                this.myFirstDefs = Collections.unmodifiableSet(myFirstDefs);
+            }
         }
-    }
 }

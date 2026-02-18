@@ -40,7 +40,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
      *                  at the beginning of a line
      * l is of the form l = 2*k, k a non negative integer
      */
-    private static final int ZZ_LEXSTATE[] = {
+    private static final int[] ZZ_LEXSTATE = {
             0,  0,  0,  0,  1,  1,  2,  2,  3,  3,  4,  4,  5,  5,  6,  6,
             7,  7,  8, 8
     };
@@ -551,7 +551,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
     }
 
     /** the input device */
-    private java.io.Reader zzReader;
+    private final java.io.Reader zzReader;
 
     /** the current state of the DFA */
     private int zzState;
@@ -1177,7 +1177,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
                             zzInput = Character.codePointBefore(zzBufferL, zzFPos);
                             zzFPos -= Character.charCount(zzInput);
                             zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMap(zzInput) ];
-                        };
+                        }
                         zzMarkedPos = zzFPos;
                     }
                     { return processScalarKey();
@@ -1211,7 +1211,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
                             zzInput = Character.codePointBefore(zzBufferL, zzFPos);
                             zzFPos -= Character.charCount(zzInput);
                             zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMap(zzInput) ];
-                        };
+                        }
                         zzMarkedPos = zzFPos;
                     }
                     { return TAG;
@@ -1284,7 +1284,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
                             zzInput = Character.codePointBefore(zzBufferL, zzFPos);
                             zzFPos -= Character.charCount(zzInput);
                             zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMap(zzInput) ];
-                        };
+                        }
                         zzMarkedPos = zzFPos;
                     }
                     { return processScalarKey();
@@ -1318,7 +1318,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
                             zzInput = Character.codePointBefore(zzBufferL, zzFPos);
                             zzFPos -= Character.charCount(zzInput);
                             zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMap(zzInput) ];
-                        };
+                        }
                         zzMarkedPos = zzFPos;
                     }
                     { return processScalarKey(BLOCK_STATE);
@@ -1378,7 +1378,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
                             zzInput = Character.codePointBefore(zzBufferL, zzFPos);
                             zzFPos -= Character.charCount(zzInput);
                             zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMap(zzInput) ];
-                        };
+                        }
                         zzMarkedPos = zzFPos;
                     }
                     { return processScalarKey();
@@ -1412,7 +1412,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
                             zzInput = Character.codePointBefore(zzBufferL, zzFPos);
                             zzFPos -= Character.charCount(zzInput);
                             zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMap(zzInput) ];
-                        };
+                        }
                         zzMarkedPos = zzFPos;
                     }
                     { return TEXT;
@@ -1446,7 +1446,7 @@ public class _YAMLLexer implements FlexLexer, YAMLTokenTypes {
                             zzInput = Character.codePointBefore(zzBufferL, zzFPos);
                             zzFPos -= Character.charCount(zzInput);
                             zzFState = zzTransL[ zzRowMapL[zzFState] + zzCMap(zzInput) ];
-                        };
+                        }
                         zzMarkedPos = zzFPos;
                     }
                     { return processScalarKey(BLOCK_STATE);

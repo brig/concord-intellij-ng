@@ -10,7 +10,6 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.List;
 
 import static brig.concord.yaml.meta.model.TypeProps.descKey;
@@ -48,7 +47,7 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
             return INSTANCE;
         }
 
-        var outSection = schema.getOutSection();
+        var outSection = schema.outSection();
         if (outSection.properties().isEmpty()) {
             return INSTANCE;
         }
