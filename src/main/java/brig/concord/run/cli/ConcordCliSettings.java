@@ -19,6 +19,7 @@ public final class ConcordCliSettings implements PersistentStateComponent<Concor
 
     private String myCliPath;
     private String myCliVersion;
+    private String myJdkName;
 
     @Override
     public @NotNull ConcordCliSettings getState() {
@@ -51,6 +52,15 @@ public final class ConcordCliSettings implements PersistentStateComponent<Concor
 
     public void setCliVersion(@Nullable String cliVersion) {
         myCliVersion = cliVersion;
+    }
+
+    @Tag("jdkName")
+    public @Nullable String getJdkName() {
+        return myJdkName;
+    }
+
+    public void setJdkName(@Nullable String jdkName) {
+        myJdkName = jdkName;
     }
 
     public boolean isCliConfigured() {

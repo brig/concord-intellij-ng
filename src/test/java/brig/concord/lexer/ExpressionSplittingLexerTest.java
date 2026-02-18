@@ -237,7 +237,7 @@ class ExpressionSplittingLexerTest {
 
         for (int i = 0; i < tokens.size(); i++) {
             var token = tokens.get(i);
-            if (!((RestartableLexer) lexer).isRestartableState(token.state())) {
+            if (!lexer.isRestartableState(token.state())) {
                 continue;
             }
 

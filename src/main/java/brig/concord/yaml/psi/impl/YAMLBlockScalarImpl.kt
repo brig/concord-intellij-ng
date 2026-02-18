@@ -1,4 +1,4 @@
-package brig.concord.yaml.psi.impl;
+package brig.concord.yaml.psi.impl
 
 import com.intellij.codeInsight.intention.impl.reuseFragmentEditorIndent
 import com.intellij.lang.ASTNode

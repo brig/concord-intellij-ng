@@ -5,12 +5,14 @@ import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.util.io.HttpRequests;
 import com.intellij.util.text.VersionComparatorUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.xml.sax.InputSource;
+
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
@@ -32,8 +34,37 @@ public final class ConcordCliManager {
     private static final String ARTIFACT_ID = "concord-cli";
     private static final String METADATA_URL = MAVEN_CENTRAL_BASE + "/" + GROUP_PATH + "/" + ARTIFACT_ID + "/maven-metadata.xml";
 
+    public record JdkInfo(@NotNull String javaPath, @NotNull String homePath) {}
+
     public static @NotNull ConcordCliManager getInstance() {
         return ApplicationManager.getApplication().getService(ConcordCliManager.class);
+    }
+
+    public @Nullable JdkInfo resolveJdk(@Nullable String jdkName) {
+        if (jdkName == null) {
+            return null;
+        }
+
+        var jdk = ProjectJdkTable.getInstance().findJdk(jdkName);
+        if (jdk == null) {
+            LOG.warn("Configured JDK '" + jdkName + "' not found, falling back to default");
+            return null;
+        }
+
+        var homePath = jdk.getHomePath();
+        if (homePath == null) {
+            LOG.warn("JDK '" + jdkName + "' has no home path, falling back to default");
+            return null;
+        }
+
+        var javaExe = SystemInfo.isWindows ? "java.exe" : "java";
+        var javaPath = Path.of(homePath, "bin", javaExe);
+        if (!Files.isRegularFile(javaPath)) {
+            LOG.warn("Java executable not found at " + javaPath + ", falling back to default");
+            return null;
+        }
+
+        return new JdkInfo(javaPath.toString(), homePath);
     }
 
     public @NotNull List<String> fetchAvailableVersions() throws IOException {
@@ -85,19 +116,34 @@ public final class ConcordCliManager {
         settings.setCliVersion(version);
     }
 
-    public boolean validateCliPath(@Nullable String path) {
+    public boolean validateCliPath(@Nullable String path, @Nullable String jdkName) {
         if (path == null || path.isBlank()) {
             return false;
         }
 
         var p = Path.of(path);
-        return Files.isRegularFile(p) && Files.isExecutable(p);
+        if (!Files.isRegularFile(p)) {
+            return false;
+        }
+
+        // When a JDK is configured and resolves, the CLI runs via "java -jar" so it only needs to be a regular file
+        if (jdkName != null && resolveJdk(jdkName) != null) {
+            return true;
+        }
+
+        return Files.isExecutable(p);
     }
 
-    public @Nullable String detectCliVersion(@NotNull String cliPath) {
+    public @Nullable String detectCliVersion(@NotNull String cliPath, @Nullable JdkInfo jdkInfo) {
         Process process = null;
         try {
-            var pb = new ProcessBuilder(cliPath, "--version");
+            ProcessBuilder pb;
+            if (jdkInfo != null) {
+                pb = new ProcessBuilder(jdkInfo.javaPath(), "-jar", cliPath, "--version");
+                pb.environment().put("JAVA_HOME", jdkInfo.homePath());
+            } else {
+                pb = new ProcessBuilder(cliPath, "--version");
+            }
             pb.redirectErrorStream(true);
             process = pb.start();
 
@@ -125,13 +171,13 @@ public final class ConcordCliManager {
 
     public boolean isCliAvailable() {
         var settings = ConcordCliSettings.getInstance();
-        return validateCliPath(settings.getCliPath());
+        return validateCliPath(settings.getCliPath(), settings.getJdkName());
     }
 
     public @Nullable String getConfiguredCliPath() {
         var settings = ConcordCliSettings.getInstance();
         var path = settings.getCliPath();
-        return validateCliPath(path) ? path : null;
+        return validateCliPath(path, settings.getJdkName()) ? path : null;
     }
 
     private @NotNull Path getCliPathForVersion(@NotNull String version) {

@@ -37,8 +37,9 @@ interface Context {
 }
 
 class ScriptResult {
-    public void set(String key, String value) {}
-    public void set(String key, Object value) {}
+    void set(String key, String value) {}
+
+    void set(String key, Object value) {}
 }
 
 interface TaskAccessor {
@@ -63,8 +64,8 @@ interface Logger {
     void warn(String format, Throwable arguments);
 }
 
-Context context = null;
-TaskAccessor tasks = null;
-Logger log = null;
-boolean isDryRun = false;
-ScriptResult result = null;
+Context context = null
+TaskAccessor tasks = null
+Logger log = null
+boolean isDryRun = false
+ScriptResult result = null
