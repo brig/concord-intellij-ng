@@ -1,6 +1,8 @@
 package brig.concord.psi;
 
 import brig.concord.completion.provider.FlowCallParamsProvider;
+import brig.concord.meta.ConcordMetaTypeProvider;
+import brig.concord.meta.model.StepElementMetaType;
 import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -14,10 +16,12 @@ import java.util.Map;
 
 public final class VariablesProvider {
 
+    private static final String TASK_RESULT_VAR = "result";
+
     public record Variable(@NotNull String name, @NotNull VariableSource source, @Nullable PsiElement declaration) {}
 
     public enum VariableSource {
-        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT
+        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT, LOOP, TASK_RESULT
     }
 
     private VariablesProvider() {}
@@ -25,12 +29,11 @@ public final class VariablesProvider {
     public static @NotNull List<Variable> getVariables(@NotNull PsiElement element) {
         Map<String, Variable> result = new LinkedHashMap<>();
 
-        var flowKv = ProcessDefinition.findEnclosingFlowDefinition(element);
-
         collectBuiltInVars(result);
+        collectArguments(element, result);
 
+        var flowKv = ProcessDefinition.findEnclosingFlowDefinition(element);
         if (flowKv != null) {
-            collectArguments(element, result);
             collectFlowDocParams(flowKv, result);
             collectFromSteps(element, result);
         }
@@ -44,12 +47,18 @@ public final class VariablesProvider {
         }
     }
 
+    private static void collectLoopVars(Map<String, Variable> result, PsiElement declaration) {
+        for (var v : ConcordLoopVars.VARS) {
+            result.put(v.name(), new Variable(v.name(), VariableSource.LOOP, declaration));
+        }
+    }
+
     private static void collectArguments(PsiElement context, Map<String, Variable> result) {
         var args = ArgumentsCollector.getInstance(context.getProject()).getArguments(context);
         for (var entry : args.entrySet()) {
             var name = entry.getKey();
             var value = entry.getValue();
-            PsiElement declaration = value != null ? value.getParent() : null;
+            var declaration = value != null ? value.getParent() : null;
             result.put(name, new Variable(name, VariableSource.ARGUMENT, declaration));
         }
     }
@@ -67,8 +76,9 @@ public final class VariablesProvider {
     }
 
     private static void collectFromSteps(PsiElement element, Map<String, Variable> result) {
+        var metaProvider = ConcordMetaTypeProvider.getInstance(element.getProject());
         var current = element;
-        while (current != null) {
+        while (true) {
             var sequenceItem = PsiTreeUtil.getParentOfType(current, YAMLSequenceItem.class);
             if (sequenceItem == null) {
                 break;
@@ -79,13 +89,27 @@ public final class VariablesProvider {
                 break;
             }
 
-            for (var item : sequence.getItems()) {
-                if (item == sequenceItem) {
-                    break;
+            var metaType = metaProvider.getResolvedMetaType(sequenceItem);
+            if (metaType instanceof StepElementMetaType) {
+                if (sequenceItem.getValue() instanceof YAMLMapping m) {
+                    var loopKv = m.getKeyValueByKey("loop");
+                    if (loopKv != null) {
+                        collectLoopVars(result, loopKv);
+                    }
+                    var outKv = m.getKeyValueByKey("out");
+                    if (m.getKeyValueByKey("task") != null
+                            && PsiTreeUtil.isAncestor(outKv, element, false)) {
+                        result.put(TASK_RESULT_VAR, new Variable(TASK_RESULT_VAR, VariableSource.TASK_RESULT, outKv));
+                    }
                 }
-                var value = item.getValue();
-                if (value instanceof YAMLMapping mapping) {
-                    collectFromStep(mapping, result);
+                for (var item : sequence.getItems()) {
+                    if (item == sequenceItem) {
+                        break;
+                    }
+                    var value = item.getValue();
+                    if (value instanceof YAMLMapping mapping) {
+                        collectFromStep(mapping, result);
+                    }
                 }
             }
 
@@ -99,20 +123,49 @@ public final class VariablesProvider {
     }
 
     private static void collectFromStep(YAMLMapping stepMapping, Map<String, Variable> result) {
+        if (stepMapping.getKeyValueByKey("switch") != null) {
+            collectFromSwitchStep(stepMapping, result);
+            return;
+        }
+
         for (var kv : stepMapping.getKeyValues()) {
-            var key = kv.getKeyText();
-            if ("set".equals(key)) {
-                var value = kv.getValue();
-                if (value instanceof YAMLMapping m) {
-                    for (var entry : m.getKeyValues()) {
-                        var name = entry.getKeyText().trim();
-                        if (!name.isEmpty()) {
-                            result.put(name, new Variable(name, VariableSource.SET_STEP, entry));
-                        }
-                    }
-                }
-            } else if ("out".equals(key)) {
-                extractOutVars(kv.getValue(), result);
+            switch (kv.getKeyText()) {
+                case "set" -> collectSetVars(kv.getValue(), result);
+                case "out" -> extractOutVars(kv.getValue(), result);
+                case "then", "else", "try", "error", "block" -> collectFromBranch(kv.getValue(), result);
+            }
+        }
+    }
+
+    private static void collectFromSwitchStep(YAMLMapping stepMapping, Map<String, Variable> result) {
+        for (var kv : stepMapping.getKeyValues()) {
+            if (!"switch".equals(kv.getKeyText())) {
+                collectFromBranch(kv.getValue(), result);
+            }
+        }
+    }
+
+    private static void collectSetVars(YAMLValue value, Map<String, Variable> result) {
+        if (!(value instanceof YAMLMapping m)) {
+            return;
+        }
+
+        for (var entry : m.getKeyValues()) {
+            var name = entry.getKeyText().trim();
+            if (!name.isEmpty()) {
+                result.put(name, new Variable(name, VariableSource.SET_STEP, entry));
+            }
+        }
+    }
+
+    private static void collectFromBranch(YAMLValue branchValue, Map<String, Variable> result) {
+        if (!(branchValue instanceof YAMLSequence sequence)) {
+            return;
+        }
+        for (var item : sequence.getItems()) {
+            var value = item.getValue();
+            if (value instanceof YAMLMapping mapping) {
+                collectFromStep(mapping, result);
             }
         }
     }
