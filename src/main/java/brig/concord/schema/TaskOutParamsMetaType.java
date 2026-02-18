@@ -53,8 +53,8 @@ public class TaskOutParamsMetaType extends YamlAnyOfType implements DynamicMetaT
             return INSTANCE;
         }
 
-        var metaType = new TaskSchemaMetaType(outSection, Collections.emptySet());
-        return new TaskOutParamsMetaType(metaType, true);
+//        var metaType = new TaskSchemaMetaType(outSection, Collections.emptySet());
+//        return new TaskOutParamsMetaType(metaType, true);
+        return INSTANCE;
     }
-
 }
