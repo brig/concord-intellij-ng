@@ -144,11 +144,11 @@ public final class ConcordCliConfigurable implements Configurable {
         ApplicationManager.getApplication().executeOnPooledThread(() -> {
             var version = manager.detectCliVersion(path, jdkInfo);
             ApplicationManager.getApplication().invokeLater(() -> {
-                if (generation == myVersionDetectionGeneration) {
+                if (generation == myVersionDetectionGeneration && myVersionLabel.isShowing()) {
                     myDetectedVersion = version;
                     myVersionLabel.setText(version != null ? version : ConcordBundle.message("cli.settings.version.not.detected"));
                 }
-            });
+            }, ModalityState.stateForComponent(myVersionLabel));
         });
     }
 

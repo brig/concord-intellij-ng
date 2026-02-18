@@ -13,10 +13,12 @@ import brig.concord.yaml.psi.YamlRecursivePsiElementVisitor;
 import java.util.*;
 
 public final class YAMLLocalResolveUtil {
-    private YAMLLocalResolveUtil() {}
+    private YAMLLocalResolveUtil() {
+    }
 
     /**
      * Calculates reference map for a file.
+     *
      * @return A map: alias → referenced anchor.
      */
     public static @NotNull Map<YAMLAlias, YAMLAnchor> getResolveAliasMap(@NotNull PsiFile file) {
@@ -45,6 +47,7 @@ public final class YAMLLocalResolveUtil {
                     defMap.put(anchor.getName(), anchor);
                     firstDefMap.putIfAbsent(anchor.getName(), anchor);
                 }
+
                 @Override
                 public void visitAlias(@NotNull YAMLAlias alias) {
                     String name = alias.getAliasName();
@@ -62,9 +65,8 @@ public final class YAMLLocalResolveUtil {
 
     private record YAMLAliasResolveResult(@NotNull Map<YAMLAlias, YAMLAnchor> myResolveMap,
                                           @NotNull Set<YAMLAnchor> myFirstDefs) {
-            private YAMLAliasResolveResult(@NotNull Map<YAMLAlias, YAMLAnchor> myResolveMap, @NotNull Set<YAMLAnchor> myFirstDefs) {
-                this.myResolveMap = Collections.unmodifiableMap(myResolveMap);
-                this.myFirstDefs = Collections.unmodifiableSet(myFirstDefs);
-            }
+        private YAMLAliasResolveResult(@NotNull Map<YAMLAlias, YAMLAnchor> myResolveMap, @NotNull Set<YAMLAnchor> myFirstDefs) {
+            this.myResolveMap = Collections.unmodifiableMap(myResolveMap);
+            this.myFirstDefs = Collections.unmodifiableSet(myFirstDefs);
         }
-}
+    }

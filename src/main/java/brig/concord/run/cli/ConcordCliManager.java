@@ -126,8 +126,8 @@ public final class ConcordCliManager {
             return false;
         }
 
-        // When a JDK is configured, the CLI runs via "java -jar" so it only needs to be a regular file
-        if (jdkName != null) {
+        // When a JDK is configured and resolves, the CLI runs via "java -jar" so it only needs to be a regular file
+        if (jdkName != null && resolveJdk(jdkName) != null) {
             return true;
         }
 

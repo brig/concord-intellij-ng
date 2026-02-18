@@ -70,12 +70,18 @@ public class ConcordRunConfiguration extends RunConfigurationBase<ConcordRunConf
             throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.entry.point.empty"));
         }
 
-        var cliManager = ConcordCliManager.getInstance();
-        if (!cliManager.isCliAvailable()) {
+        var cliSettings = ConcordCliSettings.getInstance();
+        var cliPath = cliSettings.getCliPath();
+        if (cliPath == null || cliPath.isBlank()) {
             throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.cli.not.configured"));
         }
 
-        var jdkName = ConcordCliSettings.getInstance().getJdkName();
+        var cliManager = ConcordCliManager.getInstance();
+        if (!cliManager.validateCliPath(cliPath, cliSettings.getJdkName())) {
+            throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.cli.invalid"));
+        }
+
+        var jdkName = cliSettings.getJdkName();
         if (jdkName != null && cliManager.resolveJdk(jdkName) == null) {
             throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.jdk.not.found", jdkName));
         }

@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public record TaskSchema(String taskName, @Nullable String description, TaskSchemaSection baseInSection,
-                         List<TaskSchemaConditional> inConditionals, TaskSchemaSection outSection) {
+public record TaskSchema(@NotNull String taskName, @Nullable String description, @NotNull TaskSchemaSection baseInSection,
+                         @NotNull List<TaskSchemaConditional> inConditionals, @NotNull TaskSchemaSection outSection) {
 
     public TaskSchema(@NotNull String taskName,
                       @Nullable String description,
