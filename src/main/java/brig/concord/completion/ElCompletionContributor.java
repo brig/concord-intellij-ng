@@ -93,6 +93,7 @@ public class ElCompletionContributor extends CompletionContributor {
                 case SET_STEP -> "set";
                 case STEP_OUT -> "step out";
                 case LOOP -> "loop";
+                case TASK_RESULT -> "task result";
             };
         }
     }

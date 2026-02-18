@@ -19,7 +19,7 @@ public final class VariablesProvider {
     public record Variable(@NotNull String name, @NotNull VariableSource source, @Nullable PsiElement declaration) {}
 
     public enum VariableSource {
-        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT, LOOP
+        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT, LOOP, TASK_RESULT
     }
 
     private VariablesProvider() {}
@@ -89,9 +89,16 @@ public final class VariablesProvider {
 
             var metaType = metaProvider.getResolvedMetaType(sequenceItem);
             if (metaType instanceof StepElementMetaType) {
-                if (sequenceItem.getValue() instanceof YAMLMapping m && m.getKeyValueByKey("loop") != null) {
-                    var loopDeclaration = m.getKeyValueByKey("loop");
-                    collectLoopVars(result, loopDeclaration);
+                if (sequenceItem.getValue() instanceof YAMLMapping m) {
+                    var loopKv = m.getKeyValueByKey("loop");
+                    if (loopKv != null) {
+                        collectLoopVars(result, loopKv);
+                    }
+                    var outKv = m.getKeyValueByKey("out");
+                    if (m.getKeyValueByKey("task") != null
+                            && PsiTreeUtil.isAncestor(outKv, element, false)) {
+                        result.put("result", new Variable("result", VariableSource.TASK_RESULT, outKv));
+                    }
                 }
                 for (var item : sequence.getItems()) {
                     if (item == sequenceItem) {

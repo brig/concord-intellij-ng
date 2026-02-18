@@ -122,8 +122,8 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 flows:
                   main:
                     - task: myTask
-                      out: result
-                    - log: "${result}"
+                      out: res
+                    - log: "${res}"
                 """);
 
         var target = element("/flows/main/[1]");
@@ -134,7 +134,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .map(Variable::name)
                 .collect(Collectors.toSet());
 
-        assertEquals(Set.of("result"), outVars);
+        assertEquals(Set.of("res"), outVars);
     }
 
     @Test
@@ -698,5 +698,29 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .collect(Collectors.toSet());
 
         assertEquals(Set.of("x"), allNonBuiltIn);
+    }
+
+    @Test
+    void testTaskResultInsideOut() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        myVar: "42"
+
+                    - task: myTask
+                      out:
+                        k1: "${result.data}"
+                """);
+
+        var target = element("/flows/main/[1]/out/k1");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("myVar", "result"), allNonBuiltIn);
     }
 }
