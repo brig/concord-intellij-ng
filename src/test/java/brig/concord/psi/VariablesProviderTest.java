@@ -3,6 +3,7 @@ package brig.concord.psi;
 import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.psi.VariablesProvider.Variable;
 import brig.concord.psi.VariablesProvider.VariableSource;
+import brig.concord.schema.BuiltInVarsSchema;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -23,9 +24,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
         var target = element("/flows/main/[0]");
         var vars = VariablesProvider.getVariables(target);
 
-        var builtInNames = ConcordBuiltInVars.VARS.stream()
-                .map(ConcordBuiltInVars.BuiltInVar::name)
-                .collect(Collectors.toSet());
+        var builtInNames = BuiltInVarsSchema.getInstance().getBuiltInVars().properties().keySet();
 
         var actualBuiltIn = vars.stream()
                 .filter(v -> v.source() == VariableSource.BUILT_IN)
@@ -539,8 +538,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .map(Variable::name)
                 .collect(Collectors.toSet());
 
-        assertEquals(ConcordLoopVars.VARS.stream().map(ConcordLoopVars.LoopVar::name).collect(Collectors.toSet()),
-                allNonBuiltIn);
+        assertEquals(BuiltInVarsSchema.getInstance().getLoopVars().properties().keySet(), allNonBuiltIn);
     }
 
     @Test
@@ -620,8 +618,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .map(Variable::name)
                 .collect(Collectors.toSet());
 
-        assertEquals(ConcordLoopVars.VARS.stream().map(ConcordLoopVars.LoopVar::name).collect(Collectors.toSet()),
-                allNonBuiltIn);
+        assertEquals(BuiltInVarsSchema.getInstance().getLoopVars().properties().keySet(), allNonBuiltIn);
     }
 
     @Test

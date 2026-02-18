@@ -21,7 +21,7 @@ public record ObjectSchema(
         var mergedRequired = new LinkedHashSet<>(this.requiredFields);
         mergedRequired.addAll(other.requiredFields);
 
-        boolean mergedAdditional = this.additionalProperties && other.additionalProperties;
+        var mergedAdditional = this.additionalProperties && other.additionalProperties;
 
         // Update required flag on properties
         var finalProps = new LinkedHashMap<String, SchemaProperty>();

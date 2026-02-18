@@ -1,6 +1,7 @@
 package brig.concord.documentation;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
+import brig.concord.completion.ElCompletionContributor.VariableLookup;
 import brig.concord.dependency.TaskRegistry;
 import brig.concord.meta.model.TaskStepMetaType.TaskNameLookup;
 import brig.concord.schema.TaskSchemaRegistry;
@@ -220,6 +221,34 @@ class LookupDocumentationTest extends ConcordYamlTestBaseJunit5 {
                 assertNull(target, "Should return null for non-Concord files");
             }
         }
+    }
+
+    @Test
+    void testScalarVariableDocumentation() {
+        configureFromText("""
+                flows:
+                  main:
+                    - log: "${<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var target = findLookupTarget("txId", VariableLookup.class);
+        assertLookupDoc(target, "/documentation/lookup/variable-txId.html");
+    }
+
+    @Test
+    void testObjectVariableDocumentation() {
+        configureFromText("""
+                flows:
+                  main:
+                    - log: "${<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var target = findLookupTarget("initiator", VariableLookup.class);
+        assertLookupDoc(target, "/documentation/lookup/variable-initiator.html");
     }
 
     private @NotNull DocumentationTarget findLookupTarget(String name, Class<?> objectType) {

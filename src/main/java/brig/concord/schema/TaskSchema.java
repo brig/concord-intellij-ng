@@ -51,7 +51,7 @@ public record TaskSchema(@NotNull String taskName, @Nullable String description,
     public @NotNull ObjectSchema resolveInSection(@NotNull Map<String, String> currentValues) {
         var result = baseInSection;
         for (var conditional : inConditionals) {
-            boolean allMatch = true;
+            var allMatch = true;
             for (var entry : conditional.discriminators().entrySet()) {
                 var currentValue = currentValues.get(entry.getKey());
                 if (currentValue == null || !entry.getValue().contains(currentValue)) {

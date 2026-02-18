@@ -4,22 +4,25 @@ import brig.concord.el.psi.ElFunctionExpr;
 import brig.concord.el.psi.ElIdentifierExpr;
 import brig.concord.el.psi.ElMemberName;
 import brig.concord.el.psi.ElTypes;
-import brig.concord.psi.ConcordBuiltInVars;
-import brig.concord.psi.ConcordLoopVars;
 import brig.concord.psi.VariablesProvider;
 import brig.concord.psi.VariablesProvider.VariableSource;
+import brig.concord.schema.SchemaProperty;
+import brig.concord.schema.SchemaType;
 import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
+import com.intellij.icons.AllIcons;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.jetbrains.annotations.Nullable;
 
 public class ElCompletionContributor extends CompletionContributor {
+
+    public record VariableLookup(@NotNull String name, @NotNull VariableSource source,
+                                 @Nullable SchemaProperty schema) {
+    }
 
     public ElCompletionContributor() {
         extend(CompletionType.BASIC,
@@ -28,16 +31,6 @@ public class ElCompletionContributor extends CompletionContributor {
     }
 
     private static class ElVariableCompletionProvider extends CompletionProvider<CompletionParameters> {
-
-        private static final Map<String, String> BUILT_IN_DESCRIPTIONS =
-                ConcordBuiltInVars.VARS.stream()
-                        .collect(Collectors.toMap(
-                                ConcordBuiltInVars.BuiltInVar::name,
-                                ConcordBuiltInVars.BuiltInVar::description));
-
-        private static final Map<String, String> LOOP_VARS_DESCRIPTIONS =
-                ConcordLoopVars.VARS.stream()
-                        .collect(Collectors.toMap(ConcordLoopVars.LoopVar::name, ConcordLoopVars.LoopVar::description));
 
         @Override
         protected void addCompletions(@NotNull CompletionParameters parameters,
@@ -64,35 +57,18 @@ public class ElCompletionContributor extends CompletionContributor {
 
             var variables = VariablesProvider.getVariables(yamlElement);
             for (var variable : variables) {
-                var builder = LookupElementBuilder.create(variable.name())
-                        .withTypeText(sourceLabel(variable.source()));
+                var schema = variable.schema();
+                var lookup = new VariableLookup(variable.name(), variable.source(), schema);
+                var builder = LookupElementBuilder.create(lookup, variable.name())
+                        .withIcon(AllIcons.Nodes.Variable)
+                        .withTailText("  " + variable.source().shortLabel(), true);
 
-                var descriptions = switch (variable.source()) {
-                    case BUILT_IN -> BUILT_IN_DESCRIPTIONS;
-                    case LOOP -> LOOP_VARS_DESCRIPTIONS;
-                    default -> null;
-                };
-                if (descriptions != null) {
-                    var description = descriptions.get(variable.name());
-                    if (description != null) {
-                        builder = builder.withTailText("  " + description, true);
-                    }
+                if (schema != null) {
+                    builder = builder.withTypeText(SchemaType.displayName(schema.schemaType()));
                 }
 
                 result.addElement(builder);
             }
-        }
-
-        private static @NotNull String sourceLabel(@NotNull VariableSource source) {
-            return switch (source) {
-                case BUILT_IN -> "built-in";
-                case ARGUMENT -> "argument";
-                case FLOW_PARAMETER -> "flow in";
-                case SET_STEP -> "set";
-                case STEP_OUT -> "step out";
-                case LOOP -> "loop";
-                case TASK_RESULT -> "task result";
-            };
         }
     }
 }
