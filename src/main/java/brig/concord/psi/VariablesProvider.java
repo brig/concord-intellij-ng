@@ -50,7 +50,7 @@ public final class VariablesProvider {
         for (var entry : args.entrySet()) {
             var name = entry.getKey();
             var value = entry.getValue();
-            PsiElement declaration = value != null ? value.getParent() : null;
+            var declaration = value != null ? value.getParent() : null;
             result.put(name, new Variable(name, VariableSource.ARGUMENT, declaration));
         }
     }
@@ -104,20 +104,49 @@ public final class VariablesProvider {
     }
 
     private static void collectFromStep(YAMLMapping stepMapping, Map<String, Variable> result) {
+        if (stepMapping.getKeyValueByKey("switch") != null) {
+            collectFromSwitchStep(stepMapping, result);
+            return;
+        }
+
         for (var kv : stepMapping.getKeyValues()) {
-            var key = kv.getKeyText();
-            if ("set".equals(key)) {
-                var value = kv.getValue();
-                if (value instanceof YAMLMapping m) {
-                    for (var entry : m.getKeyValues()) {
-                        var name = entry.getKeyText().trim();
-                        if (!name.isEmpty()) {
-                            result.put(name, new Variable(name, VariableSource.SET_STEP, entry));
-                        }
-                    }
-                }
-            } else if ("out".equals(key)) {
-                extractOutVars(kv.getValue(), result);
+            switch (kv.getKeyText()) {
+                case "set" -> collectSetVars(kv.getValue(), result);
+                case "out" -> extractOutVars(kv.getValue(), result);
+                case "then", "else" -> collectFromBranch(kv.getValue(), result);
+            }
+        }
+    }
+
+    private static void collectFromSwitchStep(YAMLMapping stepMapping, Map<String, Variable> result) {
+        for (var kv : stepMapping.getKeyValues()) {
+            if (!"switch".equals(kv.getKeyText())) {
+                collectFromBranch(kv.getValue(), result);
+            }
+        }
+    }
+
+    private static void collectSetVars(YAMLValue value, Map<String, Variable> result) {
+        if (!(value instanceof YAMLMapping m)) {
+            return;
+        }
+        
+        for (var entry : m.getKeyValues()) {
+            var name = entry.getKeyText().trim();
+            if (!name.isEmpty()) {
+                result.put(name, new Variable(name, VariableSource.SET_STEP, entry));
+            }
+        }
+    }
+
+    private static void collectFromBranch(YAMLValue branchValue, Map<String, Variable> result) {
+        if (!(branchValue instanceof YAMLSequence sequence)) {
+            return;
+        }
+        for (var item : sequence.getItems()) {
+            var value = item.getValue();
+            if (value instanceof YAMLMapping mapping) {
+                collectFromStep(mapping, result);
             }
         }
     }

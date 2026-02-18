@@ -442,6 +442,76 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .map(Variable::name)
                 .collect(Collectors.toSet());
 
-        assertEquals(Set.of("var1"), allNonBuiltIn);
+        assertEquals(Set.of("var1", "var2"), allNonBuiltIn);
+    }
+
+    @Test
+    void testCollectFromIfStep2() {
+        configureFromText("""
+                flows:
+                  main:
+                    - if: ${true}
+                      then:
+                        - set:
+                            var1: value1
+                        - call: inner
+                          out: innerVar
+                      else:
+                        - set:
+                            var2: value1
+                        - call: inner
+                          out: innerVar
+                    - log: "${var1}"
+                    - log: "${var1}, ${var2}, ${innerVar}"
+                
+                  inner:
+                    - set:
+                        innerVar: "OGO"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("var1", "var2", "innerVar"), allNonBuiltIn);
+    }
+
+    @Test
+    void testCollectFromSwitchStep() {
+        configureFromText("""
+                flows:
+                  main:
+                    - switch: ${'label1'}
+                      label1:
+                        - set:
+                            var1: value1
+                        - call: inner
+                          out: innerVar
+                      label2:
+                        - set:
+                            var2: value1
+                        - call: inner
+                          out: innerVar
+                    - log: "${var1}"
+                    - log: "${innerVar}"
+                
+                  inner:
+                    - set:
+                        innerVar: "OGO"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("var1", "var2", "innerVar"), allNonBuiltIn);
     }
 }
