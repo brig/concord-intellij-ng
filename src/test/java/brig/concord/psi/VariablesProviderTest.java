@@ -424,7 +424,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
         configureFromText("""
                 flows:
                   main:
-                    - if ${true}:
+                    - if: ${true}:
                       then:
                         - set:
                             var1: value1
@@ -554,7 +554,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                       loop:
                         items: [1, 2, 3]
 
-                     - log: "${noItemHere}"
+                    - log: "${noItemHere}"
                   inner:
                     - set:
                         innerVar: "OGO"
