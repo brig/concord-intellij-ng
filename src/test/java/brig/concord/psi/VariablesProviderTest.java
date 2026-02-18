@@ -5,7 +5,6 @@ import brig.concord.psi.VariablesProvider.Variable;
 import brig.concord.psi.VariablesProvider.VariableSource;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,7 +47,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                     - log: "hi"
                 """);
 
-        var file = configureFromText("""
+        configureFromText("""
                 configuration:
                   arguments:
                     myVar: "hello"
@@ -340,5 +339,109 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .collect(Collectors.toSet());
 
         assertEquals(Set.of("exprResult"), outVars);
+    }
+
+    @Test
+    void testCollectFromStepEdgeCases() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: myTask
+                      in:
+                        key:
+                          - set:
+                              notAset1: notAvariable1
+                          - set:
+                              notAset2: notAvariable2
+                    - log: "test"
+                """);
+
+        var target = element("/flows/main/[0]/in/key[1]/set");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of(), allNonBuiltIn);
+    }
+
+    @Test
+    void testDeeplyNestedBlocks() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        outerVar: "hello"
+                    - block:
+                        - set:
+                            midVar: "world"
+                        - block:
+                            - set:
+                                innerVar: "!"
+                            - log: "${outerVar} ${midVar} ${innerVar}"
+                        - set:
+                            midVar2: "world2"
+                """);
+
+        var target = element("/flows/main/[1]/block/[1]/block/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var setVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.SET_STEP)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("outerVar", "midVar", "innerVar"), setVars);
+    }
+
+    @Test
+    void testCollectFromStepAndAfterSteps() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        var1: value1
+                    - log: "test"
+                    - set:
+                        var2: value2
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("var1"), allNonBuiltIn);
+    }
+
+    @Test
+    void testCollectFromIfStep() {
+        configureFromText("""
+                flows:
+                  main:
+                    - if ${true}:
+                      then:
+                        - set:
+                            var1: value1
+                      else:
+                        - set:
+                            var2: value1
+                    - log: "var1"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("var1"), allNonBuiltIn);
     }
 }

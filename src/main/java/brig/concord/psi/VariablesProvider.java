@@ -1,6 +1,8 @@
 package brig.concord.psi;
 
 import brig.concord.completion.provider.FlowCallParamsProvider;
+import brig.concord.meta.ConcordMetaTypeProvider;
+import brig.concord.meta.model.StepElementMetaType;
 import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -25,12 +27,11 @@ public final class VariablesProvider {
     public static @NotNull List<Variable> getVariables(@NotNull PsiElement element) {
         Map<String, Variable> result = new LinkedHashMap<>();
 
-        var flowKv = ProcessDefinition.findEnclosingFlowDefinition(element);
-
         collectBuiltInVars(result);
+        collectArguments(element, result);
 
+        var flowKv = ProcessDefinition.findEnclosingFlowDefinition(element);
         if (flowKv != null) {
-            collectArguments(element, result);
             collectFlowDocParams(flowKv, result);
             collectFromSteps(element, result);
         }
@@ -67,8 +68,9 @@ public final class VariablesProvider {
     }
 
     private static void collectFromSteps(PsiElement element, Map<String, Variable> result) {
+        var metaProvider = ConcordMetaTypeProvider.getInstance(element.getProject());
         var current = element;
-        while (current != null) {
+        while (true) {
             var sequenceItem = PsiTreeUtil.getParentOfType(current, YAMLSequenceItem.class);
             if (sequenceItem == null) {
                 break;
@@ -79,13 +81,16 @@ public final class VariablesProvider {
                 break;
             }
 
-            for (var item : sequence.getItems()) {
-                if (item == sequenceItem) {
-                    break;
-                }
-                var value = item.getValue();
-                if (value instanceof YAMLMapping mapping) {
-                    collectFromStep(mapping, result);
+            var metaType = metaProvider.getResolvedMetaType(sequenceItem);
+            if (metaType instanceof StepElementMetaType) {
+                for (var item : sequence.getItems()) {
+                    if (item == sequenceItem) {
+                        break;
+                    }
+                    var value = item.getValue();
+                    if (value instanceof YAMLMapping mapping) {
+                        collectFromStep(mapping, result);
+                    }
                 }
             }
 
