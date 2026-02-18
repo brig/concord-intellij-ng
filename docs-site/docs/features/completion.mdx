@@ -110,6 +110,8 @@ Each suggestion shows its **source** on the right side, so you know where the va
 *   **flow in** — Input parameters defined in the flow's [Documentation Block](./flow-docs).
 *   **set** — Variables assigned by <span className="tokenBadge" data-kind="step">set</span> steps earlier in the flow.
 *   **step out** — Variables captured by `out` fields of preceding steps.
+*   **loop** — Loop iteration variables (`item`, `items`, `itemIndex`) available inside <span className="tokenBadge" data-kind="step">loop</span> steps. Loop variables also show a short description.
+*   **task result** — The implicit `result` variable available inside the `out` block of a <span className="tokenBadge" data-kind="step">task</span> step.
 
 ```concord
 configuration:
