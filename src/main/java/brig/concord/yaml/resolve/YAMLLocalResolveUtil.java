@@ -70,3 +70,4 @@ public final class YAMLLocalResolveUtil {
             this.myFirstDefs = Collections.unmodifiableSet(myFirstDefs);
         }
     }
+}
