@@ -571,7 +571,6 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
         assertEquals(Set.of(), allNonBuiltIn);
     }
 
-
     @Test
     void testCollectFromStepOutsideLoop2() {
         configureFromText("""
@@ -583,9 +582,9 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                       loop:
                         items: [1, 2, 3]
 
-                     - log:
-                         - loop:
-                             items: not a loop
+                    - log:
+                        - loop:
+                            items: not a loop
                   inner:
                     - set:
                         innerVar: "OGO"

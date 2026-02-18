@@ -16,6 +16,8 @@ import java.util.Map;
 
 public final class VariablesProvider {
 
+    private static final String TASK_RESULT_VAR = "result";
+
     public record Variable(@NotNull String name, @NotNull VariableSource source, @Nullable PsiElement declaration) {}
 
     public enum VariableSource {
@@ -97,7 +99,7 @@ public final class VariablesProvider {
                     var outKv = m.getKeyValueByKey("out");
                     if (m.getKeyValueByKey("task") != null
                             && PsiTreeUtil.isAncestor(outKv, element, false)) {
-                        result.put("result", new Variable("result", VariableSource.TASK_RESULT, outKv));
+                        result.put(TASK_RESULT_VAR, new Variable(TASK_RESULT_VAR, VariableSource.TASK_RESULT, outKv));
                     }
                 }
                 for (var item : sequence.getItems()) {

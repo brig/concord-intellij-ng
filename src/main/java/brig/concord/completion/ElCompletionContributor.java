@@ -67,15 +67,13 @@ public class ElCompletionContributor extends CompletionContributor {
                 var builder = LookupElementBuilder.create(variable.name())
                         .withTypeText(sourceLabel(variable.source()));
 
-                if (variable.source() == VariableSource.BUILT_IN) {
-                    var description = BUILT_IN_DESCRIPTIONS.get(variable.name());
-                    if (description != null) {
-                        builder = builder.withTailText("  " + description, true);
-                    }
-                }
-
-                if (variable.source() == VariableSource.LOOP) {
-                    var description = LOOP_VARS_DESCRIPTIONS.get(variable.name());
+                var descriptions = switch (variable.source()) {
+                    case BUILT_IN -> BUILT_IN_DESCRIPTIONS;
+                    case LOOP -> LOOP_VARS_DESCRIPTIONS;
+                    default -> null;
+                };
+                if (descriptions != null) {
+                    var description = descriptions.get(variable.name());
                     if (description != null) {
                         builder = builder.withTailText("  " + description, true);
                     }
