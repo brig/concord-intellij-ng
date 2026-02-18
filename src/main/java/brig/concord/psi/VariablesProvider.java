@@ -19,7 +19,7 @@ public final class VariablesProvider {
     public record Variable(@NotNull String name, @NotNull VariableSource source, @Nullable PsiElement declaration) {}
 
     public enum VariableSource {
-        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT
+        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT, LOOP
     }
 
     private VariablesProvider() {}
@@ -42,6 +42,12 @@ public final class VariablesProvider {
     private static void collectBuiltInVars(Map<String, Variable> result) {
         for (var v : ConcordBuiltInVars.VARS) {
             result.put(v.name(), new Variable(v.name(), VariableSource.BUILT_IN, null));
+        }
+    }
+
+    private static void collectLoopVars(Map<String, Variable> result, PsiElement declaration) {
+        for (var v : ConcordLoopVars.VARS) {
+            result.put(v.name(), new Variable(v.name(), VariableSource.LOOP, declaration));
         }
     }
 
@@ -83,6 +89,10 @@ public final class VariablesProvider {
 
             var metaType = metaProvider.getResolvedMetaType(sequenceItem);
             if (metaType instanceof StepElementMetaType) {
+                if (sequenceItem.getValue() instanceof YAMLMapping m && m.getKeyValueByKey("loop") != null) {
+                    var loopDeclaration = m.getKeyValueByKey("loop");
+                    collectLoopVars(result, loopDeclaration);
+                }
                 for (var item : sequence.getItems()) {
                     if (item == sequenceItem) {
                         break;
@@ -113,7 +123,7 @@ public final class VariablesProvider {
             switch (kv.getKeyText()) {
                 case "set" -> collectSetVars(kv.getValue(), result);
                 case "out" -> extractOutVars(kv.getValue(), result);
-                case "then", "else" -> collectFromBranch(kv.getValue(), result);
+                case "then", "else", "try", "error", "block" -> collectFromBranch(kv.getValue(), result);
             }
         }
     }
@@ -130,7 +140,7 @@ public final class VariablesProvider {
         if (!(value instanceof YAMLMapping m)) {
             return;
         }
-        
+
         for (var entry : m.getKeyValues()) {
             var name = entry.getKeyText().trim();
             if (!name.isEmpty()) {

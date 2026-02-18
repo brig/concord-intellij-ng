@@ -5,6 +5,7 @@ import brig.concord.el.psi.ElIdentifierExpr;
 import brig.concord.el.psi.ElMemberName;
 import brig.concord.el.psi.ElTypes;
 import brig.concord.psi.ConcordBuiltInVars;
+import brig.concord.psi.ConcordLoopVars;
 import brig.concord.psi.VariablesProvider;
 import brig.concord.psi.VariablesProvider.VariableSource;
 import brig.concord.yaml.psi.YAMLValue;
@@ -33,6 +34,10 @@ public class ElCompletionContributor extends CompletionContributor {
                         .collect(Collectors.toMap(
                                 ConcordBuiltInVars.BuiltInVar::name,
                                 ConcordBuiltInVars.BuiltInVar::description));
+
+        private static final Map<String, String> LOOP_VARS_DESCRIPTIONS =
+                ConcordLoopVars.VARS.stream()
+                        .collect(Collectors.toMap(ConcordLoopVars.LoopVar::name, ConcordLoopVars.LoopVar::description));
 
         @Override
         protected void addCompletions(@NotNull CompletionParameters parameters,
@@ -69,6 +74,13 @@ public class ElCompletionContributor extends CompletionContributor {
                     }
                 }
 
+                if (variable.source() == VariableSource.LOOP) {
+                    var description = LOOP_VARS_DESCRIPTIONS.get(variable.name());
+                    if (description != null) {
+                        builder = builder.withTailText("  " + description, true);
+                    }
+                }
+
                 result.addElement(builder);
             }
         }
@@ -80,6 +92,7 @@ public class ElCompletionContributor extends CompletionContributor {
                 case FLOW_PARAMETER -> "flow in";
                 case SET_STEP -> "set";
                 case STEP_OUT -> "step out";
+                case LOOP -> "loop";
             };
         }
     }

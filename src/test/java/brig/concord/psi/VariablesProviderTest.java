@@ -514,4 +514,189 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
 
         assertEquals(Set.of("var1", "var2", "innerVar"), allNonBuiltIn);
     }
+
+    @Test
+    void testCollectFromLoop() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: inner
+                      in:
+                        key: "${<caret>}"
+                      loop:
+                        items: [1, 2, 3]
+                
+                  inner:
+                    - set:
+                        innerVar: "OGO"
+                """);
+
+        var target = element("/flows/main/[0]/in/key");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(ConcordLoopVars.VARS.stream().map(ConcordLoopVars.LoopVar::name).collect(Collectors.toSet()),
+                allNonBuiltIn);
+    }
+
+    @Test
+    void testCollectFromStepOutsideLoop() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: inner
+                      in:
+                        key: "${item}"
+                      loop:
+                        items: [1, 2, 3]
+
+                     - log: "${noItemHere}"
+                  inner:
+                    - set:
+                        innerVar: "OGO"
+                """);
+
+        var target = element("/flows/main/[1]/log");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of(), allNonBuiltIn);
+    }
+
+
+    @Test
+    void testCollectFromStepOutsideLoop2() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: inner
+                      in:
+                        key: "${item}"
+                      loop:
+                        items: [1, 2, 3]
+
+                     - log:
+                         - loop:
+                             items: not a loop
+                  inner:
+                    - set:
+                        innerVar: "OGO"
+                """);
+
+        var target = element("/flows/main/[1]/log[0]/loop/items");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of(), allNonBuiltIn);
+    }
+
+    @Test
+    void testLoopInsideBlock() {
+        configureFromText("""
+                flows:
+                  main:
+                    - block:
+                        - log: "${item}"
+                      loop:
+                        items: [1, 2]
+                """);
+
+        var target = element("/flows/main/[0]/block/[0]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(ConcordLoopVars.VARS.stream().map(ConcordLoopVars.LoopVar::name).collect(Collectors.toSet()),
+                allNonBuiltIn);
+    }
+
+    @Test
+    void testPrecedingSetAndLoop() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        x: 1
+                    - call: inner
+                      in:
+                        key: "${x} ${item}"
+                      loop:
+                        items: [1, 2]
+
+                  inner:
+                    - log: "hi"
+                """);
+
+        var target = element("/flows/main/[1]/in/key");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("x", "item", "items", "itemIndex"), allNonBuiltIn);
+    }
+
+    @Test
+    void testCollectFromTryError() {
+        configureFromText("""
+                flows:
+                  main:
+                    - try:
+                        - set:
+                            x: 1
+                      error:
+                        - set:
+                            errVar: "oops"
+                    - log: "${x} ${errVar}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("x", "errVar"), allNonBuiltIn);
+    }
+
+    @Test
+    void testCollectFromPrecedingBlock() {
+        configureFromText("""
+                flows:
+                  main:
+                    - block:
+                        - set:
+                            x: 1
+                    - log: "${x}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var allNonBuiltIn = vars.stream()
+                .filter(v -> v.source() != VariableSource.BUILT_IN && v.source() != VariableSource.ARGUMENT)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of("x"), allNonBuiltIn);
+    }
 }
