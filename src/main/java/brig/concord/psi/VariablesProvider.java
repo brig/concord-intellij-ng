@@ -109,10 +109,10 @@ public final class VariablesProvider {
             var base = type.substring(0, type.length() - 2);
             return new SchemaType.Array(base.isEmpty() ? null : base);
         }
-        return switch (type) {
-            case "any" -> new SchemaType.Any();
-            default -> new SchemaType.Scalar(type);
-        };
+        if (type.equals("any")) {
+            return new SchemaType.Any();
+        }
+        return new SchemaType.Scalar(type);
     }
 
     private static void collectFromSteps(PsiElement element, Map<String, Variable> result) {
@@ -215,7 +215,7 @@ public final class VariablesProvider {
                 return new SchemaType.Scalar("string");
             }
             var text = scalar.getTextValue().trim();
-            if (isBooleanLiteral(text)) {
+            if (YAMLUtil.isBooleanValue(text)) {
                 return new SchemaType.Scalar("boolean");
             }
             if (YAMLUtil.isNumberValue(text)) {
@@ -245,15 +245,6 @@ public final class VariablesProvider {
         }
 
         return new SchemaType.Any();
-    }
-
-    private static boolean isBooleanLiteral(@NotNull String text) {
-        return "true".equalsIgnoreCase(text)
-                || "false".equalsIgnoreCase(text)
-                || "yes".equalsIgnoreCase(text)
-                || "no".equalsIgnoreCase(text)
-                || "on".equalsIgnoreCase(text)
-                || "off".equalsIgnoreCase(text);
     }
 
     private static void collectFromBranch(YAMLValue branchValue, Map<String, Variable> result) {
