@@ -3,15 +3,14 @@ package brig.concord.psi;
 import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.StepElementMetaType;
-import brig.concord.schema.BuiltInVarsSchema;
-import brig.concord.schema.SchemaInference;
-import brig.concord.schema.SchemaProperty;
+import brig.concord.schema.*;
 import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Function;
 
 public final class VariablesProvider {
 
@@ -97,8 +96,11 @@ public final class VariablesProvider {
         }
 
         var outKv = m.getKeyValueByKey("out");
-        if (m.getKeyValueByKey("task") != null && PsiTreeUtil.isAncestor(outKv, cursorElement, false)) {
-            result.put("result", new Variable("result", VariableSource.TASK_RESULT, outKv, null));
+        var taskKv = m.getKeyValueByKey("task");
+        if (taskKv != null && PsiTreeUtil.isAncestor(outKv, cursorElement, false)) {
+            var taskOutType = resolveTaskOutType(taskKv);
+            var schema = taskResultSchema("result", taskOutType);
+            result.put("result", new Variable("result", VariableSource.TASK_RESULT, outKv, schema));
         }
     }
 
@@ -122,16 +124,30 @@ public final class VariablesProvider {
         }
 
         var callKv = stepMapping.getKeyValueByKey("call");
-        Map<String, SchemaProperty> callOutTypes = (callKv != null) ? resolveCallOutTypes(callKv) : Map.of();
+        var taskKv = stepMapping.getKeyValueByKey("task");
+
+        Function<String, SchemaProperty> outResolver = createOutResolver(callKv, taskKv);
 
         for (var kv : stepMapping.getKeyValues()) {
             var value = kv.getValue();
             switch (kv.getKeyText()) {
                 case "set" -> collectSetVars(value, result);
-                case "out" -> extractOutVars(value, result, callOutTypes);
+                case "out" -> extractOutVars(value, result, outResolver);
                 case "then", "else", "try", "error", "block" -> collectFromBranch(value, result);
             }
         }
+    }
+
+    private static @NotNull Function<String, SchemaProperty> createOutResolver(YAMLKeyValue callKv, YAMLKeyValue taskKv) {
+        if (callKv != null) {
+            var types = resolveCallOutTypes(callKv);
+            return name -> types.getOrDefault(name, SchemaProperty.any(name));
+        } else if (taskKv != null) {
+            var taskProps = resolveTaskOutType(taskKv);
+            return name -> taskResultSchema(name, taskProps);
+        }
+
+        return SchemaProperty::any;
     }
 
     private static void collectSetVars(YAMLValue value, Map<String, Variable> result) {
@@ -162,43 +178,56 @@ public final class VariablesProvider {
 
     private static @NotNull Map<String, SchemaProperty> resolveCallOutTypes(@NotNull YAMLKeyValue callKv) {
         var doc = FlowCallParamsProvider.findFlowDocumentation(callKv);
-        if (doc == null) {
-            return Map.of();
-        }
-
-        var outParams = doc.getOutputParameters();
-        if (outParams.isEmpty()) {
+        if (doc == null || doc.getOutputParameters().isEmpty()) {
             return Map.of();
         }
 
         var types = new HashMap<String, SchemaProperty>();
-        for (var param : outParams) {
-            var name = param.getName();
-            types.put(name, SchemaInference.fromFlowDocParameter(param));
+        for (var param : doc.getOutputParameters()) {
+            types.put(param.getName(), SchemaInference.fromFlowDocParameter(param));
         }
         return types;
     }
 
-    private static void extractOutVars(YAMLValue value, Map<String, Variable> result, @NotNull Map<String, SchemaProperty> knownTypes) {
+    private static @NotNull Map<String, SchemaProperty> resolveTaskOutType(@NotNull YAMLKeyValue taskKv) {
+        var taskName = taskKv.getValueText();
+        if (taskName.isBlank()) {
+            return Map.of();
+        }
+
+        var schema = TaskSchemaRegistry.getInstance(taskKv.getProject()).getSchema(taskName);
+        if (schema == null) return Map.of();
+
+        return schema.outSection().properties();
+    }
+
+    private static SchemaProperty taskResultSchema(String name, Map<String, SchemaProperty> properties) {
+        if (properties.isEmpty()) {
+            return SchemaProperty.any(name);
+        }
+        return new SchemaProperty(name, new SchemaType.Object(new ObjectSchema(properties, Set.of(), false)), "task result", false);
+    }
+
+    private static void extractOutVars(YAMLValue value, Map<String, Variable> result, Function<String, SchemaProperty> schemaResolver) {
         if (value instanceof YAMLScalar s) {
-            addOutVar(s.getTextValue(), s, result, knownTypes);
+            addOutVar(s.getTextValue(), s, result, schemaResolver);
         } else if (value instanceof YAMLSequence seq) {
             for (var item : seq.getItems()) {
                 if (item.getValue() instanceof YAMLScalar s) {
-                    addOutVar(s.getTextValue(), s, result, knownTypes);
+                    addOutVar(s.getTextValue(), s, result, schemaResolver);
                 }
             }
         } else if (value instanceof YAMLMapping m) {
             for (var kv : m.getKeyValues()) {
-                addOutVar(kv.getKeyText(), kv, result, Map.of());
+                addOutVar(kv.getKeyText(), kv, result, SchemaProperty::any);
             }
         }
     }
 
-    private static void addOutVar(String name, PsiElement element, Map<String, Variable> result, Map<String, SchemaProperty> knownTypes) {
+    private static void addOutVar(String name, PsiElement element, Map<String, Variable> result, Function<String, SchemaProperty> schemaResolver) {
         name = name.trim();
         if (!name.isEmpty()) {
-            var schema = knownTypes.getOrDefault(name, SchemaProperty.any(name));
+            var schema = schemaResolver.apply(name);
             result.put(name, new Variable(name, VariableSource.STEP_OUT, element, schema));
         }
     }
