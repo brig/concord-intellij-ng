@@ -125,10 +125,14 @@ public class FlowCallParamsProvider {
         while (element != null && element != prev) {
             prev = element;
             var callMapping = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, false);
-            if (callMapping == null) return null;
+            if (callMapping == null) {
+                return null;
+            }
 
             var callKv = callMapping.getKeyValueByKey("call");
-            if (callKv != null) return callKv;
+            if (callKv != null) {
+                return callKv;
+            }
 
             element = callMapping;
         }
