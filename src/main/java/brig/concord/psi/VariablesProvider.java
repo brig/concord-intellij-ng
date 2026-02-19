@@ -86,7 +86,7 @@ public final class VariablesProvider {
             var name = entry.getKey();
             var value = entry.getValue();
             var declaration = value != null ? value.getParent() : null;
-            result.put(name, new Variable(name, VariableSource.ARGUMENT, declaration, null));
+            result.put(name, new Variable(name, VariableSource.ARGUMENT, declaration, inferSchema(name, value)));
         }
     }
 
@@ -193,13 +193,13 @@ public final class VariablesProvider {
         for (var entry : m.getKeyValues()) {
             var name = entry.getKeyText().trim();
             if (!name.isEmpty()) {
-                result.put(name, new Variable(name, VariableSource.SET_STEP, entry, inferSchema(name, entry)));
+                result.put(name, new Variable(name, VariableSource.SET_STEP, entry, inferSchema(name, entry.getValue())));
             }
         }
     }
 
-    static @NotNull SchemaProperty inferSchema(@NotNull String name, @NotNull YAMLKeyValue kv) {
-        return new SchemaProperty(name, inferType(kv.getValue()), null, false);
+    static @NotNull SchemaProperty inferSchema(@NotNull String name, @Nullable YAMLValue value) {
+        return new SchemaProperty(name, inferType(value), null, false);
     }
 
     private static @NotNull SchemaType inferType(@Nullable YAMLValue value) {
@@ -229,7 +229,7 @@ public final class VariablesProvider {
             for (var child : mapping.getKeyValues()) {
                 var childName = child.getKeyText().trim();
                 if (!childName.isEmpty()) {
-                    props.put(childName, inferSchema(childName, child));
+                    props.put(childName, inferSchema(childName, child.getValue()));
                 }
             }
             var objectSchema = new ObjectSchema(
