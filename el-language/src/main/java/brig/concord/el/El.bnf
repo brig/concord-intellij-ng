@@ -167,3 +167,4 @@ memberName ::= IDENTIFIER
   | DIV_KEYWORD | MOD_KEYWORD | EQ_KEYWORD | NE_KEYWORD
   | LT_KEYWORD | GT_KEYWORD | LE_KEYWORD | GE_KEYWORD
   | INSTANCEOF_KEYWORD
+{mixin="brig.concord.el.psi.impl.ElMemberNameMixin"}

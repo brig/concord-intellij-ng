@@ -1,5 +1,6 @@
 package brig.concord.documentation;
 
+import brig.concord.completion.ElCompletionContributor.PropertyLookup;
 import brig.concord.completion.ElCompletionContributor.VariableLookup;
 import brig.concord.meta.model.TaskStepMetaType.TaskNameLookup;
 import brig.concord.meta.model.call.CallOutValueMetaType.OutParameterLookup;
@@ -43,6 +44,10 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
 
         if (obj instanceof VariableLookup varLookup) {
             return resolveVariableDocumentation(varLookup);
+        }
+
+        if (obj instanceof PropertyLookup propLookup) {
+            return resolvePropertyDocumentation(propLookup);
         }
 
         return null;
@@ -104,6 +109,26 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
             @Override
             public @NotNull String getDocumentationFooter() {
                 return "<p><b>source</b>: " + lookup.source().description() + "</p>";
+            }
+        };
+
+        return new ConcordDocumentationTarget(lookup.name(), documented, typeText);
+    }
+
+    private static @NotNull DocumentationTarget resolvePropertyDocumentation(@NotNull PropertyLookup lookup) {
+        var schema = lookup.schema();
+        var typeText = SchemaType.displayName(schema.schemaType());
+
+        var documented = new Documented() {
+
+            @Override
+            public @Nullable String getDescription() {
+                return schema.description();
+            }
+
+            @Override
+            public @NotNull List<DocumentedField> getDocumentationFields() {
+                return objectFields(schema.schemaType());
             }
         };
 
