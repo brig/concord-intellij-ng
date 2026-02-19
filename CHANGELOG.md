@@ -4,6 +4,8 @@
 
 ### Added
 
+- schema type inference for variables declared in set steps within Concord flow definitions
+([#131](https://github.com/brig/concord-intellij-ng/pull/131)) 
 - ability to select a specific JDK for running the Concord CLI
 ([#128](https://github.com/brig/concord-intellij-ng/pull/128)) 
 - EL variable navigation support so ${var} identifiers can Go to Declaration and variable declarations
