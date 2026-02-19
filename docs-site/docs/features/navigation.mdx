@@ -41,6 +41,25 @@ flows:
     #         to arguments           to out: result
 ```
 
+### Expression Properties
+
+<Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> + **Click** on a property name in a dot-access chain (e.g., `host` in `${config.db.host}`) to jump to the corresponding YAML key in the source mapping. The plugin walks the property chain from the base variable's declaration through each nested mapping to find the target key.
+
+This works for variables declared in <span className="tokenBadge" data-kind="step">set</span> steps and `configuration.arguments` -- any source where the variable's value is a YAML mapping with named keys.
+
+```concord
+flows:
+  main:
+    - set:
+        config:
+          db:
+            host: "localhost"
+            port: 5432
+    - log: "${config.db.host}"
+    #                   ^ Cmd+Click jumps to the
+    #                     "host" key in the set step
+```
+
 ## Go to Symbol
 
 Quickly find and jump to any flow, form, or trigger by name across your entire project.
