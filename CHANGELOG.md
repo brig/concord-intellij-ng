@@ -4,13 +4,15 @@
 
 ### Added
 
+-schema type inference for variables declared in `out` section of call step
+([#133](https://github.com/brig/concord-intellij-ng/pull/133))   
 - extends variable schema inference to `configuration.arguments`
 ([#132](https://github.com/brig/concord-intellij-ng/pull/132)) 
-- schema type inference for variables declared in set steps within Concord flow definitions
+- schema type inference for variables declared in `set` steps within Concord flow definitions
 ([#131](https://github.com/brig/concord-intellij-ng/pull/131)) 
 - ability to select a specific JDK for running the Concord CLI
 ([#128](https://github.com/brig/concord-intellij-ng/pull/128)) 
-- EL variable navigation support so ${var} identifiers can Go to Declaration and variable declarations
+- EL variable navigation support so `${var}` identifiers can Go to Declaration and variable declarations
 can Find Usages across common Concord variable sources (args, flow doc params, set, and step out)
 ([#124](https://github.com/brig/concord-intellij-ng/pull/124)) 
 - variable completion support inside EL (Expression Language) expressions in Concord YAML files
