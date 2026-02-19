@@ -4,18 +4,17 @@ import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.StepElementMetaType;
 import brig.concord.schema.BuiltInVarsSchema;
+import brig.concord.schema.ObjectSchema;
 import brig.concord.schema.SchemaProperty;
 import brig.concord.schema.SchemaType;
+import brig.concord.yaml.YAMLUtil;
 import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class VariablesProvider {
 
@@ -110,10 +109,10 @@ public final class VariablesProvider {
             var base = type.substring(0, type.length() - 2);
             return new SchemaType.Array(base.isEmpty() ? null : base);
         }
-        return switch (type) {
-            case "any" -> new SchemaType.Any();
-            default -> new SchemaType.Scalar(type);
-        };
+        if (type.equals("any")) {
+            return new SchemaType.Any();
+        }
+        return new SchemaType.Scalar(type);
     }
 
     private static void collectFromSteps(PsiElement element, Map<String, Variable> result) {
@@ -194,9 +193,58 @@ public final class VariablesProvider {
         for (var entry : m.getKeyValues()) {
             var name = entry.getKeyText().trim();
             if (!name.isEmpty()) {
-                result.put(name, new Variable(name, VariableSource.SET_STEP, entry, null));
+                result.put(name, new Variable(name, VariableSource.SET_STEP, entry, inferSchema(name, entry)));
             }
         }
+    }
+
+    static @NotNull SchemaProperty inferSchema(@NotNull String name, @NotNull YAMLKeyValue kv) {
+        return new SchemaProperty(name, inferType(kv.getValue()), null, false);
+    }
+
+    private static @NotNull SchemaType inferType(@Nullable YAMLValue value) {
+        if (value == null) {
+            return new SchemaType.Any();
+        }
+
+        if (value instanceof YAMLScalar scalar) {
+            if (YamlPsiUtils.isDynamicExpression(scalar)) {
+                return new SchemaType.Any();
+            }
+            if (value instanceof YAMLQuotedText) {
+                return new SchemaType.Scalar("string");
+            }
+            var text = scalar.getTextValue().trim();
+            if (YAMLUtil.isBooleanValue(text)) {
+                return new SchemaType.Scalar("boolean");
+            }
+            if (YAMLUtil.isNumberValue(text)) {
+                return new SchemaType.Scalar("integer");
+            }
+            return new SchemaType.Scalar("string");
+        }
+
+        if (value instanceof YAMLMapping mapping) {
+            var props = new LinkedHashMap<String, SchemaProperty>();
+            for (var child : mapping.getKeyValues()) {
+                var childName = child.getKeyText().trim();
+                if (!childName.isEmpty()) {
+                    props.put(childName, inferSchema(childName, child));
+                }
+            }
+            var objectSchema = new ObjectSchema(
+                    Collections.unmodifiableMap(props),
+                    Collections.emptySet(),
+                    true
+            );
+            return new SchemaType.Object(objectSchema);
+        }
+
+        if (value instanceof YAMLSequence) {
+            return new SchemaType.Array(null);
+        }
+
+        return new SchemaType.Any();
     }
 
     private static void collectFromBranch(YAMLValue branchValue, Map<String, Variable> result) {

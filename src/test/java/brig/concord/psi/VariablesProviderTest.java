@@ -4,6 +4,7 @@ import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.psi.VariablesProvider.Variable;
 import brig.concord.psi.VariablesProvider.VariableSource;
 import brig.concord.schema.BuiltInVarsSchema;
+import brig.concord.schema.SchemaType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -113,6 +114,68 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .collect(Collectors.toSet());
 
         assertEquals(Set.of("x", "y"), setVars);
+    }
+
+    @Test
+    void testSetStepSchemaInference() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        strVar: "hello"
+                        intVar: 42
+                        boolVar: true
+                        objVar:
+                          nested: "value"
+                          count: 10
+                        arrVar:
+                          - one
+                          - two
+                        exprVar: "${myExpression}"
+                        plainStr: hello
+                        boolYes: yes
+                        boolOff: off
+                        nullVar:
+                    - log: "test"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var setVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.SET_STEP)
+                .collect(Collectors.toMap(Variable::name, v -> v.schema().schemaType()));
+
+        assertInstanceOf(SchemaType.Scalar.class, setVars.get("strVar"));
+        assertEquals("string", ((SchemaType.Scalar) setVars.get("strVar")).typeName());
+
+        assertInstanceOf(SchemaType.Scalar.class, setVars.get("intVar"));
+        assertEquals("integer", ((SchemaType.Scalar) setVars.get("intVar")).typeName());
+
+        assertInstanceOf(SchemaType.Scalar.class, setVars.get("boolVar"));
+        assertEquals("boolean", ((SchemaType.Scalar) setVars.get("boolVar")).typeName());
+
+        assertInstanceOf(SchemaType.Object.class, setVars.get("objVar"));
+        var objType = (SchemaType.Object) setVars.get("objVar");
+        var nestedProps = objType.section().properties();
+        assertEquals(Set.of("nested", "count"), nestedProps.keySet());
+        assertEquals("string", ((SchemaType.Scalar) nestedProps.get("nested").schemaType()).typeName());
+        assertEquals("integer", ((SchemaType.Scalar) nestedProps.get("count").schemaType()).typeName());
+
+        assertInstanceOf(SchemaType.Array.class, setVars.get("arrVar"));
+
+        assertInstanceOf(SchemaType.Any.class, setVars.get("exprVar"));
+
+        assertInstanceOf(SchemaType.Scalar.class, setVars.get("plainStr"));
+        assertEquals("string", ((SchemaType.Scalar) setVars.get("plainStr")).typeName());
+
+        assertInstanceOf(SchemaType.Scalar.class, setVars.get("boolYes"));
+        assertEquals("boolean", ((SchemaType.Scalar) setVars.get("boolYes")).typeName());
+
+        assertInstanceOf(SchemaType.Scalar.class, setVars.get("boolOff"));
+        assertEquals("boolean", ((SchemaType.Scalar) setVars.get("boolOff")).typeName());
+
+        assertInstanceOf(SchemaType.Any.class, setVars.get("nullVar"));
     }
 
     @Test

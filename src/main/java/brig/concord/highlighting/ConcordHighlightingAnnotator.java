@@ -5,6 +5,7 @@ import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.HighlightProvider;
 import brig.concord.psi.YamlPsiUtils;
+import brig.concord.yaml.YAMLUtil;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLQuotedText;
 import brig.concord.yaml.psi.YAMLScalar;
@@ -112,7 +113,7 @@ public class ConcordHighlightingAnnotator implements Annotator {
             return;
         }
 
-        if (isBooleanValue(text)) {
+        if (YAMLUtil.isBooleanValue(text)) {
             highlight(holder, scalar.getTextRange(), ConcordHighlightingColors.BOOLEAN);
         } else if (isNullValue(text)) {
             highlight(holder, scalar.getTextRange(), ConcordHighlightingColors.NULL);
@@ -144,10 +145,6 @@ public class ConcordHighlightingAnnotator implements Annotator {
                 .range(range)
                 .textAttributes(key)
                 .create();
-    }
-
-    private static boolean isBooleanValue(String v) {
-        return "true".equalsIgnoreCase(v) || "false".equalsIgnoreCase(v);
     }
 
     private static boolean isNullValue(String v) {
