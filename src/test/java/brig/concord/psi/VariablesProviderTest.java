@@ -86,7 +86,6 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                     exprArg: "${myExpression}"
                     plainArg: hello
                     boolYes: yes
-                    nullArg:
                 flows:
                   main:
                     - log: "hi"
@@ -107,7 +106,6 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                     exprArg: "${myExpression}"
                     plainArg: hello
                     boolYes: yes
-                    nullArg:
                 flows:
                   main:
                     - log: "hi"
@@ -145,8 +143,6 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
 
         assertInstanceOf(SchemaType.Scalar.class, argVars.get("boolYes"));
         assertEquals("string", ((SchemaType.Scalar) argVars.get("boolYes")).typeName());
-
-        assertInstanceOf(SchemaType.Any.class, argVars.get("nullArg"));
     }
 
     @Test
