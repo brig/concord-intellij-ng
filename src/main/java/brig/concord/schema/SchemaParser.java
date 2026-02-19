@@ -1,5 +1,6 @@
 package brig.concord.schema;
 
+import brig.concord.ConcordType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -316,7 +317,11 @@ public class SchemaParser {
             return new SchemaType.Object(parseSectionObject(root, obj, depth + 1));
         }
 
-        return new SchemaType.Scalar(type);
+        var concordType = ConcordType.fromString(type);
+        if (concordType == null) {
+            return new SchemaType.Any();
+        }
+        return new SchemaType.Scalar(concordType);
     }
 
     private @Nullable List<SchemaType> parseCompositeAlternatives(@NotNull JsonObject root,
@@ -338,16 +343,22 @@ public class SchemaParser {
         return alternatives.isEmpty() ? null : List.copyOf(alternatives);
     }
 
-    private @Nullable String getArrayItemType(@NotNull JsonObject root, @NotNull JsonObject obj) {
+    private @NotNull ConcordType getArrayItemType(@NotNull JsonObject root, @NotNull JsonObject obj) {
         var itemsElement = obj.get("items");
         if (itemsElement == null) {
-            return null;
+            return ConcordType.WellKnown.ANY;
         }
         var resolved = resolveRef(root, itemsElement);
         if (resolved.isJsonObject()) {
-            return getString(resolved.getAsJsonObject(), "type");
+            var typeName = getString(resolved.getAsJsonObject(), "type");
+            if (typeName != null) {
+                var concordType = ConcordType.fromString(typeName);
+                if (concordType != null) {
+                    return concordType;
+                }
+            }
         }
-        return null;
+        return ConcordType.WellKnown.ANY;
     }
 
     private static final int MAX_PARSE_DEPTH = 10;

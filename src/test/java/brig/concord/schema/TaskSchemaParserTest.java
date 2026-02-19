@@ -1,5 +1,6 @@
 package brig.concord.schema;
 
+import brig.concord.ConcordType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -181,10 +182,10 @@ class TaskSchemaParserTest {
         assertTrue(out.requiredFields().contains("ok"));
 
         var okProp = out.properties().get("ok");
-        assertEquals(new SchemaType.Scalar("boolean"), okProp.schemaType());
+        assertEquals(SchemaType.Scalar.BOOLEAN, okProp.schemaType());
 
         var idsProp = out.properties().get("ids");
-        assertEquals(new SchemaType.Array("string"), idsProp.schemaType());
+        assertEquals(new SchemaType.Array(ConcordType.WellKnown.STRING), idsProp.schemaType());
     }
 
     @Test
@@ -193,15 +194,15 @@ class TaskSchemaParserTest {
 
         var syncProp = section.properties().get("sync");
         assertNotNull(syncProp);
-        assertEquals(new SchemaType.Scalar("boolean"), syncProp.schemaType());
+        assertEquals(SchemaType.Scalar.BOOLEAN, syncProp.schemaType());
 
         var activeProfilesProp = section.properties().get("activeProfiles");
         assertNotNull(activeProfilesProp);
-        assertEquals(new SchemaType.Array("string"), activeProfilesProp.schemaType());
+        assertEquals(new SchemaType.Array(ConcordType.WellKnown.STRING), activeProfilesProp.schemaType());
 
         var argumentsProp = section.properties().get("arguments");
         assertNotNull(argumentsProp);
-        assertEquals(new SchemaType.Scalar("object"), argumentsProp.schemaType());
+        assertEquals(SchemaType.Scalar.OBJECT, argumentsProp.schemaType());
     }
 
     @Test
@@ -212,8 +213,8 @@ class TaskSchemaParserTest {
         assertNotNull(instanceIdProp);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Array("string")
+                        SchemaType.Scalar.STRING,
+                        new SchemaType.Array(ConcordType.WellKnown.STRING)
                 )),
                 instanceIdProp.schemaType()
         );
@@ -260,8 +261,8 @@ class TaskSchemaParserTest {
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Array("string")
+                        SchemaType.Scalar.STRING,
+                        new SchemaType.Array(ConcordType.WellKnown.STRING)
                 )),
                 prop.schemaType()
         );
@@ -274,8 +275,8 @@ class TaskSchemaParserTest {
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Scalar("integer")
+                        SchemaType.Scalar.STRING,
+                        SchemaType.Scalar.INTEGER
                 )),
                 prop.schemaType()
         );
@@ -286,7 +287,7 @@ class TaskSchemaParserTest {
         var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("arrayWithRefItems");
         assertNotNull(prop);
-        assertEquals(new SchemaType.Array("string"), prop.schemaType());
+        assertEquals(new SchemaType.Array(ConcordType.WellKnown.STRING), prop.schemaType());
     }
 
     @Test
@@ -297,7 +298,7 @@ class TaskSchemaParserTest {
         assertEquals(
                 new SchemaType.Composite(List.of(
                         new SchemaType.Enum(List.of("active", "inactive")),
-                        new SchemaType.Scalar("boolean")
+                        SchemaType.Scalar.BOOLEAN
                 )),
                 prop.schemaType()
         );
@@ -311,8 +312,8 @@ class TaskSchemaParserTest {
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Scalar("integer")
+                        SchemaType.Scalar.STRING,
+                        SchemaType.Scalar.INTEGER
                 )),
                 prop.schemaType()
         );
@@ -367,8 +368,8 @@ class TaskSchemaParserTest {
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Scalar("integer")
+                        SchemaType.Scalar.STRING,
+                        SchemaType.Scalar.INTEGER
                 )),
                 prop.schemaType()
         );
@@ -470,7 +471,7 @@ class TaskSchemaParserTest {
         var base = nestedObjectSchema.baseInSection();
         var freeFormProp = base.properties().get("freeFormObject");
         assertNotNull(freeFormProp);
-        assertEquals(new SchemaType.Scalar("object"), freeFormProp.schemaType());
+        assertEquals(SchemaType.Scalar.OBJECT, freeFormProp.schemaType());
     }
 
     @Test
@@ -488,9 +489,9 @@ class TaskSchemaParserTest {
         assertFalse(proxySection.additionalProperties());
 
         var hostProp = proxySection.properties().get("host");
-        assertEquals(new SchemaType.Scalar("string"), hostProp.schemaType());
+        assertEquals(SchemaType.Scalar.STRING, hostProp.schemaType());
         var portProp = proxySection.properties().get("port");
-        assertEquals(new SchemaType.Scalar("integer"), portProp.schemaType());
+        assertEquals(SchemaType.Scalar.INTEGER, portProp.schemaType());
     }
 
     @Test
@@ -502,7 +503,7 @@ class TaskSchemaParserTest {
 
         var composite = (SchemaType.Composite) credsProp.schemaType();
         assertEquals(2, composite.alternatives().size());
-        assertEquals(new SchemaType.Scalar("string"), composite.alternatives().get(0));
+        assertEquals(SchemaType.Scalar.STRING, composite.alternatives().get(0));
 
         var objAlt = composite.alternatives().get(1);
         assertInstanceOf(SchemaType.Object.class, objAlt);
@@ -520,6 +521,6 @@ class TaskSchemaParserTest {
         var section = schema.resolveInSection(Map.of("action", "start"));
         var argumentsProp = section.properties().get("arguments");
         assertNotNull(argumentsProp);
-        assertEquals(new SchemaType.Scalar("object"), argumentsProp.schemaType());
+        assertEquals(SchemaType.Scalar.OBJECT, argumentsProp.schemaType());
     }
 }

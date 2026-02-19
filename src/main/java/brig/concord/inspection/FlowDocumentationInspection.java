@@ -1,6 +1,7 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
+import brig.concord.ConcordType;
 import brig.concord.inspection.fix.ReplaceFlowDocKeywordQuickFix;
 import brig.concord.inspection.fix.ReplaceFlowDocTypeQuickFix;
 import brig.concord.lexer.FlowDocTokenTypes;
@@ -20,10 +21,6 @@ import java.util.*;
 
 public class FlowDocumentationInspection extends ConcordInspectionTool {
 
-    private static final Set<String> VALID_TYPES = Set.of(
-            "string", "boolean", "int", "integer", "number", "object", "any",
-            "string[]", "boolean[]", "int[]", "integer[]", "number[]", "object[]", "any[]"
-    );
 
     @Override
     public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
@@ -77,16 +74,18 @@ public class FlowDocumentationInspection extends ConcordInspectionTool {
             }
 
             // Check for unknown types
-            var type = param.getType();
-            if (!type.isBlank() && !VALID_TYPES.contains(type)) {
+            var baseType = param.getBaseType();
+            if (!baseType.isBlank() && ConcordType.fromString(baseType) == null) {
+                var isArray = param.isArrayType();
                 var fixes = new ArrayList<LocalQuickFix>();
-                for (var suggestion : getSuggestions(type)) {
-                    fixes.add(new ReplaceFlowDocTypeQuickFix(suggestion));
+                for (var suggestion : getSuggestions(baseType)) {
+                    var fixType = isArray && !suggestion.endsWith("[]") ? suggestion + "[]" : suggestion;
+                    fixes.add(new ReplaceFlowDocTypeQuickFix(fixType));
                 }
 
                 holder.registerProblem(
                         param,
-                        ConcordBundle.message("inspection.flow.doc.unknown.type", type),
+                        ConcordBundle.message("inspection.flow.doc.unknown.type", param.getType()),
                         ProblemHighlightType.WARNING,
                         fixes.toArray(LocalQuickFix.EMPTY_ARRAY)
                 );
@@ -133,10 +132,10 @@ public class FlowDocumentationInspection extends ConcordInspectionTool {
             suggestions.add("number");
         }
 
-        // 2. Case insensitive match
-        for (var valid : VALID_TYPES) {
-            if (valid.equalsIgnoreCase(invalidType)) {
-                suggestions.add(valid);
+        // 2. Case insensitive match against known aliases
+        for (var alias : ConcordType.ALIASES.keySet()) {
+            if (alias.equalsIgnoreCase(invalidType)) {
+                suggestions.add(alias);
             }
         }
 
