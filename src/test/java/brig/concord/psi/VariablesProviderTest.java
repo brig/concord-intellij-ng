@@ -416,6 +416,43 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testCallOutMappingWithFlowDoc() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: helper
+                      out:
+                        localCount: "${processed}"
+                        localMsg: "${failed}"
+                    - log: "${localCount}"
+                  ##
+                  # Helper flow
+                  # out:
+                  #   processed: int, optional, Files processed count
+                  #   failed: string, optional, Error message
+                  ##
+                  helper:
+                    - log: "hi"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var outVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.STEP_OUT)
+                .collect(Collectors.toMap(Variable::name, v -> v));
+
+        assertEquals(Set.of("localCount", "localMsg"), outVars.keySet());
+
+        // mapping form: keys are local variable names, schema is any
+        assertNotNull(outVars.get("localCount").schema());
+        assertInstanceOf(SchemaType.Any.class, outVars.get("localCount").schema().schemaType());
+
+        assertNotNull(outVars.get("localMsg").schema());
+        assertInstanceOf(SchemaType.Any.class, outVars.get("localMsg").schema().schemaType());
+    }
+
+    @Test
     void testCallOutWithoutFlowDoc() {
         configureFromText("""
                 flows:
