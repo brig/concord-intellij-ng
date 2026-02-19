@@ -3,6 +3,8 @@ package brig.concord.psi;
 import brig.concord.ConcordYamlTestBaseJunit5;
 import brig.concord.schema.BuiltInVarsSchema;
 import brig.concord.schema.SchemaType;
+import brig.concord.schema.TaskSchemaRegistry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -11,6 +13,18 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
+
+    @Override
+    @BeforeEach
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        var registry = TaskSchemaRegistry.getInstance(getProject());
+        registry.setProvider(taskName -> {
+            var path = "/taskSchema/" + taskName + ".schema.json";
+            return VariablesProviderTest.class.getResourceAsStream(path);
+        });
+    }
 
     @Test
     void testBuiltInVarsAlwaysPresent() {
@@ -960,6 +974,74 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .collect(Collectors.toSet());
 
         assertEquals(Set.of("myVar", "result"), allNonBuiltIn);
+    }
+
+    @Test
+    void testTaskOutScalarWithSchema() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: strictTask
+                      out: res
+                    - log: "${res}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var resVar = vars.stream()
+                .filter(v -> v.source() == VariableSource.STEP_OUT && "res".equals(v.name()))
+                .findFirst().orElseThrow();
+
+        assertObjectType(resVar.schema().schemaType(), "ok", "body");
+        assertEquals("task result", resVar.schema().description());
+
+        var props = ((SchemaType.Object) resVar.schema().schemaType()).section().properties();
+        assertScalarType("boolean", props.get("ok").schemaType());
+        assertScalarType("string", props.get("body").schemaType());
+    }
+
+    @Test
+    void testTaskOutWithoutSchema() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: unknownTask
+                      out: res
+                    - log: "${res}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var resVar = vars.stream()
+                .filter(v -> v.source() == VariableSource.STEP_OUT && "res".equals(v.name()))
+                .findFirst().orElseThrow();
+
+        assertInstanceOf(SchemaType.Any.class, resVar.schema().schemaType());
+    }
+
+    @Test
+    void testTaskResultInsideOutWithSchema() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        myVar: "42"
+
+                    - task: strictTask
+                      out:
+                        k1: "${result.ok}"
+                """);
+
+        var target = element("/flows/main/[1]/out/k1");
+        var vars = VariablesProvider.getVariables(target);
+
+        var resultVar = vars.stream()
+                .filter(v -> v.source() == VariableSource.TASK_RESULT && "result".equals(v.name()))
+                .findFirst().orElseThrow();
+
+        assertObjectType(resultVar.schema().schemaType(), "ok", "body");
     }
 
     private static void assertScalarType(String expectedTypeName, SchemaType actual) {
