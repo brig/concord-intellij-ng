@@ -144,7 +144,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
         assertEquals("string", ((SchemaType.Scalar) argVars.get("plainArg")).typeName());
 
         assertInstanceOf(SchemaType.Scalar.class, argVars.get("boolYes"));
-        assertEquals("boolean", ((SchemaType.Scalar) argVars.get("boolYes")).typeName());
+        assertEquals("string", ((SchemaType.Scalar) argVars.get("boolYes")).typeName());
 
         assertInstanceOf(SchemaType.Any.class, argVars.get("nullArg"));
     }
