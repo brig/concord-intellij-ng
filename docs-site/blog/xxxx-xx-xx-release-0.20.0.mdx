@@ -1,7 +1,106 @@
 ---
 slug: whats-new-0.20.0
-title: What’s New in Concord IntelliJ 0.20.0
+title: What's New in Concord IntelliJ 0.20.0
 authors: [brig]
-tags: [release]
+tags: [release, features]
 ---
 
+import Keystroke from '@site/src/components/Keystroke';
+
+The `0.20.0` release is all about **Expression Language support** — bringing
+**[EL Highlighting](/docs/features/highlighting#4-expressions)** with lexer-level coloring,
+**[Variable Completion](/docs/features/completion#expression-variable-completion)** and **[Property Completion](/docs/features/completion#expression-property-completion)** inside `${...}` expressions,
+**[Go to Declaration](/docs/features/navigation#expression-variables)** and **[Find Usages](/docs/features/find-usages#variable-usages)** for variables,
+**[Variable Schema Inference](/docs/features/completion#expression-variable-completion)** across flow steps,
+and **[JDK Selection](/docs/features/run-configurations)** for the Concord CLI.
+
+<!--truncate-->
+
+## Expression Language Support
+
+Concord `${...}` expressions are now first-class citizens in the editor, with full IDE support from highlighting through navigation.
+
+### EL Highlighting
+
+Expression delimiters `${` and `}` are highlighted at the lexer level, providing accurate, real-time coloring as you type — including inline strings, multiple expressions, and nested braces.
+
+<figure className="docFigure docFigure--sm2">
+    <img src={require('@site/static/img/expression-highlighting.png').default} alt="EL Expression Highlighting" />
+    <figcaption>
+        EL expression highlighting in Concord YAML files.
+    </figcaption>
+</figure>
+
+### Variable Completion
+
+Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> inside a `${...}` expression to see all variables in scope. Each suggestion shows the variable name, its source (e.g. `built-in`, `set`, `flow in`, `step out`), and its type when known. Completion is context-aware — only variables visible at the current step are suggested.
+
+<figure className="docFigure docFigure--sm4">
+    <img src={require('@site/static/img/completion-el-vars.png').default} alt="Expression Variable Completion" />
+    <figcaption>
+        Variable completion inside an EL expression, showing variable icons, source labels, and types.
+    </figcaption>
+</figure>
+
+### Property Completion
+
+After typing a dot in an expression (e.g. `${initiator.}`), the plugin suggests available sub-properties based on the variable's schema. This works for built-in variables, task output, and any variable whose structure can be inferred from the YAML.
+
+<figure className="docFigure docFigure--sm5">
+    <img src={require('@site/static/img/completion-el-props.png').default} alt="Expression Property Completion" />
+    <figcaption>
+        Property completion after a dot in an EL expression, showing available sub-fields with types.
+    </figcaption>
+</figure>
+
+### Go to Declaration & Find Usages
+
+<Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> + **Click** on a variable in a `${...}` expression to jump to its declaration — whether it's a key in `configuration.arguments`, a parameter in a flow doc block, a <span className="tokenBadge" data-kind="step">set</span> step, or an `out` field of a task/call step. The same works in reverse: place the caret on a variable declaration and press <Keystroke mac={[{icon: "⌥", label: "Alt"}, {label: "F7"}]} win={[{label: "Alt"}, {label: "F7"}]} /> to find every expression that references it.
+
+Navigation also works for **nested properties** — clicking `host` in `${config.db.host}` walks the property chain to the corresponding YAML key.
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/find-usages-variable.png').default} alt="Find Usages for a variable" />
+    <figcaption>
+        Find Usages showing all expression references to a variable declared in a set step.
+    </figcaption>
+</figure>
+
+## Variable Schema Inference
+
+The plugin now infers variable types from multiple sources across your flow, enabling typed completion and property suggestions for `${...}` expressions:
+
+*   **`set` steps** — Variables assigned in <span className="tokenBadge" data-kind="step">set</span> steps have their structure inferred from the YAML mapping values.
+*   **`configuration.arguments`** — Arguments declared at the top level are tracked with their types.
+*   **`call` step `out`** — Output variables from a <span className="tokenBadge" data-kind="step">call</span> step are inferred from the target flow's documentation block.
+*   **`task` step `out`** — Output variables from a <span className="tokenBadge" data-kind="step">task</span> step are inferred from the task's JSON schema.
+
+<figure className="docFigure docFigure--sm4">
+    <img src={require('@site/static/img/0.20.0/auto-task-out-var.png').default} alt="Task output variable schema inference" />
+    <figcaption>
+        Property completion for a task output variable, with types inferred from the task's JSON schema.
+    </figcaption>
+</figure>
+
+## Call Output Parameter Completion
+
+When writing the <span className="tokenBadge" data-kind="step">out</span> field of a <span className="tokenBadge" data-kind="step">call</span> step,
+the plugin now suggests output parameter names from the target flow's [Documentation Block](/docs/features/flow-docs).
+This works for both scalar and sequence forms of the `out` field.
+
+<figure className="docFigure docFigure--sm4">
+    <img src={require('@site/static/img/completion-call-out.png').default} alt="Call Output Parameter Completion" />
+    <figcaption>
+        Completion popup suggesting output parameter names from the target flow's documentation block.
+    </figcaption>
+</figure>
+
+## JDK Selection for Concord CLI
+
+You can now select a specific JDK for running the Concord CLI, independent of the project SDK. This is useful when your project targets a different Java version than what Concord requires.
+
+Configure it in **Settings** > **Tools** > **Concord** > **CLI**.
+
+## Other Improvements
+
+*   **Stale Highlighting Fix:** The analysis daemon now restarts on external VFS changes, preventing stale highlighting after files are modified outside the IDE.
