@@ -1,8 +1,6 @@
 package brig.concord.psi;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
-import brig.concord.psi.VariablesProvider.Variable;
-import brig.concord.psi.VariablesProvider.VariableSource;
 import brig.concord.schema.BuiltInVarsSchema;
 import brig.concord.schema.SchemaType;
 import org.junit.jupiter.api.Test;
@@ -118,31 +116,20 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .filter(v -> v.source() == VariableSource.ARGUMENT)
                 .collect(Collectors.toMap(Variable::name, v -> v.schema().schemaType()));
 
-        assertInstanceOf(SchemaType.Scalar.class, argVars.get("strArg"));
-        assertEquals("string", ((SchemaType.Scalar) argVars.get("strArg")).typeName());
+        assertScalarType("string", argVars.get("strArg"));
+        assertScalarType("integer", argVars.get("intArg"));
+        assertScalarType("boolean", argVars.get("boolArg"));
 
-        assertInstanceOf(SchemaType.Scalar.class, argVars.get("intArg"));
-        assertEquals("integer", ((SchemaType.Scalar) argVars.get("intArg")).typeName());
-
-        assertInstanceOf(SchemaType.Scalar.class, argVars.get("boolArg"));
-        assertEquals("boolean", ((SchemaType.Scalar) argVars.get("boolArg")).typeName());
-
-        assertInstanceOf(SchemaType.Object.class, argVars.get("objArg"));
-        var objType = (SchemaType.Object) argVars.get("objArg");
-        var nestedProps = objType.section().properties();
-        assertEquals(Set.of("nested", "count"), nestedProps.keySet());
-        assertEquals("string", ((SchemaType.Scalar) nestedProps.get("nested").schemaType()).typeName());
-        assertEquals("integer", ((SchemaType.Scalar) nestedProps.get("count").schemaType()).typeName());
+        assertObjectType(argVars.get("objArg"), "nested", "count");
+        var objProps = ((SchemaType.Object) argVars.get("objArg")).section().properties();
+        assertScalarType("string", objProps.get("nested").schemaType());
+        assertScalarType("integer", objProps.get("count").schemaType());
 
         assertInstanceOf(SchemaType.Array.class, argVars.get("arrArg"));
-
         assertInstanceOf(SchemaType.Any.class, argVars.get("exprArg"));
 
-        assertInstanceOf(SchemaType.Scalar.class, argVars.get("plainArg"));
-        assertEquals("string", ((SchemaType.Scalar) argVars.get("plainArg")).typeName());
-
-        assertInstanceOf(SchemaType.Scalar.class, argVars.get("boolYes"));
-        assertEquals("string", ((SchemaType.Scalar) argVars.get("boolYes")).typeName());
+        assertScalarType("string", argVars.get("plainArg"));
+        assertScalarType("string", argVars.get("boolYes"));
     }
 
     @Test
@@ -222,34 +209,21 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .filter(v -> v.source() == VariableSource.SET_STEP)
                 .collect(Collectors.toMap(Variable::name, v -> v.schema().schemaType()));
 
-        assertInstanceOf(SchemaType.Scalar.class, setVars.get("strVar"));
-        assertEquals("string", ((SchemaType.Scalar) setVars.get("strVar")).typeName());
+        assertScalarType("string", setVars.get("strVar"));
+        assertScalarType("integer", setVars.get("intVar"));
+        assertScalarType("boolean", setVars.get("boolVar"));
 
-        assertInstanceOf(SchemaType.Scalar.class, setVars.get("intVar"));
-        assertEquals("integer", ((SchemaType.Scalar) setVars.get("intVar")).typeName());
-
-        assertInstanceOf(SchemaType.Scalar.class, setVars.get("boolVar"));
-        assertEquals("boolean", ((SchemaType.Scalar) setVars.get("boolVar")).typeName());
-
-        assertInstanceOf(SchemaType.Object.class, setVars.get("objVar"));
-        var objType = (SchemaType.Object) setVars.get("objVar");
-        var nestedProps = objType.section().properties();
-        assertEquals(Set.of("nested", "count"), nestedProps.keySet());
-        assertEquals("string", ((SchemaType.Scalar) nestedProps.get("nested").schemaType()).typeName());
-        assertEquals("integer", ((SchemaType.Scalar) nestedProps.get("count").schemaType()).typeName());
+        assertObjectType(setVars.get("objVar"), "nested", "count");
+        var objProps = ((SchemaType.Object) setVars.get("objVar")).section().properties();
+        assertScalarType("string", objProps.get("nested").schemaType());
+        assertScalarType("integer", objProps.get("count").schemaType());
 
         assertInstanceOf(SchemaType.Array.class, setVars.get("arrVar"));
-
         assertInstanceOf(SchemaType.Any.class, setVars.get("exprVar"));
 
-        assertInstanceOf(SchemaType.Scalar.class, setVars.get("plainStr"));
-        assertEquals("string", ((SchemaType.Scalar) setVars.get("plainStr")).typeName());
-
-        assertInstanceOf(SchemaType.Scalar.class, setVars.get("boolYes"));
-        assertEquals("string", ((SchemaType.Scalar) setVars.get("boolYes")).typeName());
-
-        assertInstanceOf(SchemaType.Scalar.class, setVars.get("boolOff"));
-        assertEquals("string", ((SchemaType.Scalar) setVars.get("boolOff")).typeName());
+        assertScalarType("string", setVars.get("plainStr"));
+        assertScalarType("string", setVars.get("boolYes"));
+        assertScalarType("string", setVars.get("boolOff"));
 
         assertInstanceOf(SchemaType.Any.class, setVars.get("nullVar"));
     }
@@ -374,8 +348,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .findFirst().orElseThrow();
 
         assertNotNull(processedVar.schema());
-        assertInstanceOf(SchemaType.Scalar.class, processedVar.schema().schemaType());
-        assertEquals("integer", ((SchemaType.Scalar) processedVar.schema().schemaType()).typeName());
+        assertScalarType("integer", processedVar.schema().schemaType());
         assertEquals("Files processed count", processedVar.schema().description());
     }
 
@@ -409,10 +382,10 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
         assertEquals(Set.of("processed", "failed"), outVars.keySet());
 
         assertNotNull(outVars.get("processed").schema());
-        assertEquals("integer", ((SchemaType.Scalar) outVars.get("processed").schema().schemaType()).typeName());
+        assertScalarType("integer", outVars.get("processed").schema().schemaType());
 
         assertNotNull(outVars.get("failed").schema());
-        assertEquals("string", ((SchemaType.Scalar) outVars.get("failed").schema().schemaType()).typeName());
+        assertScalarType("string", outVars.get("failed").schema().schemaType());
     }
 
     @Test
@@ -467,11 +440,15 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
         var target = element("/flows/main/[1]");
         var vars = VariablesProvider.getVariables(target);
 
-        var resVar = vars.stream()
-                .filter(v -> v.source() == VariableSource.STEP_OUT && "res".equals(v.name()))
-                .findFirst().orElseThrow();
+        var stepOutVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.STEP_OUT)
+                .toList();
 
-        assertNull(resVar.schema());
+        assertEquals(1, stepOutVars.size());
+        var schema = stepOutVars.getFirst();
+        assertEquals("res", schema.name());
+        assertNotNull(schema.schema());
+        assertEquals(SchemaType.ANY, schema.schema().schemaType());
     }
 
     @Test
@@ -983,5 +960,16 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
                 .collect(Collectors.toSet());
 
         assertEquals(Set.of("myVar", "result"), allNonBuiltIn);
+    }
+
+    private static void assertScalarType(String expectedTypeName, SchemaType actual) {
+        assertInstanceOf(SchemaType.Scalar.class, actual);
+        assertEquals(expectedTypeName, ((SchemaType.Scalar) actual).typeName());
+    }
+
+    private static void assertObjectType(SchemaType actual, String... expectedKeys) {
+        assertInstanceOf(SchemaType.Object.class, actual);
+        var objType = (SchemaType.Object) actual;
+        assertEquals(Set.of(expectedKeys), objType.section().properties().keySet());
     }
 }

@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 public sealed interface SchemaType {
 
+    Any ANY = new Any();
+
     record Scalar(@NotNull ConcordType concordType) implements SchemaType {
         public static final Scalar STRING = new Scalar(ConcordType.WellKnown.STRING);
         public static final Scalar BOOLEAN = new Scalar(ConcordType.WellKnown.BOOLEAN);
@@ -29,11 +31,14 @@ public sealed interface SchemaType {
         }
     }
 
-    record Composite(@NotNull List<SchemaType> alternatives) implements SchemaType {}
+    record Composite(@NotNull List<SchemaType> alternatives) implements SchemaType {
+    }
 
-    record Object(@NotNull ObjectSchema section) implements SchemaType {}
+    record Object(@NotNull ObjectSchema section) implements SchemaType {
+    }
 
-    record Any() implements SchemaType {}
+    record Any() implements SchemaType {
+    }
 
     static @NotNull String displayName(@NotNull SchemaType schemaType) {
         return switch (schemaType) {

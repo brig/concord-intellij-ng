@@ -1,54 +1,19 @@
 package brig.concord.psi;
 
-import brig.concord.ConcordType;
 import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.StepElementMetaType;
 import brig.concord.schema.BuiltInVarsSchema;
-import brig.concord.schema.ObjectSchema;
+import brig.concord.schema.SchemaInference;
 import brig.concord.schema.SchemaProperty;
-import brig.concord.schema.SchemaType;
-import brig.concord.yaml.YAMLUtil;
 import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public final class VariablesProvider {
-
-    private static final String TASK_RESULT_VAR = "result";
-
-    public record Variable(@NotNull String name, @NotNull VariableSource source,
-                           @Nullable PsiElement declaration, @Nullable SchemaProperty schema) {}
-
-    public enum VariableSource {
-        BUILT_IN("built-in", "built-in variable"),
-        ARGUMENT("argument", "process argument"),
-        FLOW_PARAMETER("flow in", "flow input parameter"),
-        SET_STEP("set", "set step variable"),
-        STEP_OUT("step out", "step output variable"),
-        LOOP("loop", "loop variable"),
-        TASK_RESULT("task result", "task result variable");
-
-        private final String shortLabel;
-        private final String description;
-
-        VariableSource(String shortLabel, String description) {
-            this.shortLabel = shortLabel;
-            this.description = description;
-        }
-
-        public @NotNull String shortLabel() {
-            return shortLabel;
-        }
-
-        public @NotNull String description() {
-            return description;
-        }
-    }
 
     private VariablesProvider() {}
 
@@ -60,8 +25,8 @@ public final class VariablesProvider {
 
         var flowKv = ProcessDefinition.findEnclosingFlowDefinition(element);
         if (flowKv != null) {
-            collectFlowDocParams(flowKv, result);
-            collectFromSteps(element, result);
+            collectFlowInputParams(flowKv, result);
+            collectVariablesFromScope(element, result);
         }
 
         return new ArrayList<>(result.values());
@@ -86,11 +51,11 @@ public final class VariablesProvider {
         for (var entry : args.entrySet()) {
             var name = entry.getKey();
             var kv = entry.getValue();
-            result.put(name, new Variable(name, VariableSource.ARGUMENT, kv, inferSchema(name, kv.getValue())));
+            result.put(name, new Variable(name, VariableSource.ARGUMENT, kv, SchemaInference.inferSchema(name, kv.getValue())));
         }
     }
 
-    private static void collectFlowDocParams(YAMLKeyValue flowKv, Map<String, Variable> result) {
+    private static void collectFlowInputParams(YAMLKeyValue flowKv, Map<String, Variable> result) {
         var doc = FlowCallParamsProvider.findFlowDocumentationBefore(flowKv);
         if (doc == null) {
             return;
@@ -98,92 +63,73 @@ public final class VariablesProvider {
 
         for (var param : doc.getInputParameters()) {
             var name = param.getName();
-            var schemaType = flowDocTypeToSchemaType(param);
-            var schemaProp = new SchemaProperty(name, schemaType, param.getDescription(), param.isMandatory());
+            var schemaProp = SchemaInference.fromFlowDocParameter(param);
             result.put(name, new Variable(name, VariableSource.FLOW_PARAMETER, param, schemaProp));
         }
     }
 
-    private static @NotNull SchemaType flowDocTypeToSchemaType(@NotNull FlowDocParameter param) {
-        var concordType = ConcordType.resolve(param.getBaseType(), ConcordType.YamlBaseType.ANY);
-        if (param.isArrayType()) {
-            return new SchemaType.Array(concordType);
-        }
-        if (concordType == ConcordType.WellKnown.ANY) {
-            return new SchemaType.Any();
-        }
-        return new SchemaType.Scalar(concordType);
-    }
-
-    private static void collectFromSteps(PsiElement element, Map<String, Variable> result) {
+    private static void collectVariablesFromScope(PsiElement element, Map<String, Variable> result) {
         var metaProvider = ConcordMetaTypeProvider.getInstance(element.getProject());
         var current = element;
         while (true) {
             var sequenceItem = PsiTreeUtil.getParentOfType(current, YAMLSequenceItem.class);
-            if (sequenceItem == null) {
+            if (sequenceItem == null || !(sequenceItem.getParent() instanceof YAMLSequence sequence)) {
                 break;
             }
 
-            var parent = sequenceItem.getParent();
-            if (!(parent instanceof YAMLSequence sequence)) {
-                break;
-            }
-
-            var metaType = metaProvider.getResolvedMetaType(sequenceItem);
-            if (metaType instanceof StepElementMetaType) {
-                if (sequenceItem.getValue() instanceof YAMLMapping m) {
-                    var loopKv = m.getKeyValueByKey("loop");
-                    if (loopKv != null) {
-                        collectLoopVars(result, loopKv);
-                    }
-                    var outKv = m.getKeyValueByKey("out");
-                    if (m.getKeyValueByKey("task") != null
-                            && PsiTreeUtil.isAncestor(outKv, element, false)) {
-                        result.put(TASK_RESULT_VAR, new Variable(TASK_RESULT_VAR, VariableSource.TASK_RESULT, outKv, null));
-                    }
-                }
-                for (var item : sequence.getItems()) {
-                    if (item == sequenceItem) {
-                        break;
-                    }
-                    var value = item.getValue();
-                    if (value instanceof YAMLMapping mapping) {
-                        collectFromStep(mapping, result);
-                    }
-                }
-            }
-
-            var seqParent = sequence.getParent();
-            if (seqParent instanceof YAMLKeyValue kv && ProcessDefinition.isFlowDefinition(kv)) {
-                break;
+            if (metaProvider.getResolvedMetaType(sequenceItem) instanceof StepElementMetaType) {
+                collectLocalStepVariables(sequenceItem, element, result);
+                collectPreviousSiblingsVariables(sequence, sequenceItem, result);
             }
 
             current = sequence;
         }
     }
 
-    private static void collectFromStep(YAMLMapping stepMapping, Map<String, Variable> result) {
-        if (stepMapping.getKeyValueByKey("switch") != null) {
-            collectFromSwitchStep(stepMapping, result);
+    private static void collectLocalStepVariables(YAMLSequenceItem stepItem, PsiElement cursorElement, Map<String, Variable> result) {
+        if (!(stepItem.getValue() instanceof YAMLMapping m)) {
             return;
         }
 
-        var callKv = stepMapping.getKeyValueByKey("call");
+        var loopKv = m.getKeyValueByKey("loop");
+        if (loopKv != null) {
+            collectLoopVars(result, loopKv);
+        }
 
-        for (var kv : stepMapping.getKeyValues()) {
-            switch (kv.getKeyText()) {
-                case "set" -> collectSetVars(kv.getValue(), result);
-                case "out" -> extractOutVars(kv.getValue(), result,
-                        callKv != null ? resolveCallOutTypes(callKv) : Map.of());
-                case "then", "else", "try", "error", "block" -> collectFromBranch(kv.getValue(), result);
+        var outKv = m.getKeyValueByKey("out");
+        if (m.getKeyValueByKey("task") != null && PsiTreeUtil.isAncestor(outKv, cursorElement, false)) {
+            result.put("result", new Variable("result", VariableSource.TASK_RESULT, outKv, null));
+        }
+    }
+
+    private static void collectPreviousSiblingsVariables(YAMLSequence sequence, YAMLSequenceItem currentItem, Map<String, Variable> result) {
+        for (var item : sequence.getItems()) {
+            if (item == currentItem) {
+                break;
+            }
+            if (item.getValue() instanceof YAMLMapping mapping) {
+                collectFromStep(mapping, result);
             }
         }
     }
 
-    private static void collectFromSwitchStep(YAMLMapping stepMapping, Map<String, Variable> result) {
+    private static void collectFromStep(YAMLMapping stepMapping, Map<String, Variable> result) {
+        if (stepMapping.getKeyValueByKey("switch") != null) {
+            stepMapping.getKeyValues().stream()
+                    .filter(kv -> !"switch".equals(kv.getKeyText()))
+                    .forEach(kv -> collectFromBranch(kv.getValue(), result));
+            return;
+        }
+
+        var callKv = stepMapping.getKeyValueByKey("call");
+        Map<String, SchemaProperty> callOutTypes = (callKv != null) ? resolveCallOutTypes(callKv) : Map.of();
+
         for (var kv : stepMapping.getKeyValues()) {
-            if (!"switch".equals(kv.getKeyText())) {
-                collectFromBranch(kv.getValue(), result);
+            var value = kv.getValue();
+            switch (kv.getKeyText()) {
+                case "set" -> collectSetVars(value, result);
+                case "out" -> extractOutVars(value, result, callOutTypes);
+                case "then", "else", "try", "error", "block" -> collectFromBranch(value, result);
             }
         }
     }
@@ -196,64 +142,16 @@ public final class VariablesProvider {
         for (var entry : m.getKeyValues()) {
             var name = entry.getKeyText().trim();
             if (!name.isEmpty()) {
-                result.put(name, new Variable(name, VariableSource.SET_STEP, entry, inferSchema(name, entry.getValue())));
+                result.put(name, new Variable(name, VariableSource.SET_STEP, entry, SchemaInference.inferSchema(name, entry.getValue())));
             }
         }
-    }
-
-    static @NotNull SchemaProperty inferSchema(@NotNull String name, @Nullable YAMLValue value) {
-        return new SchemaProperty(name, inferType(value), null, false);
-    }
-
-    private static @NotNull SchemaType inferType(@Nullable YAMLValue value) {
-        if (value == null) {
-            return new SchemaType.Any();
-        }
-
-        if (value instanceof YAMLScalar scalar) {
-            if (YamlPsiUtils.isDynamicExpression(scalar)) {
-                return new SchemaType.Any();
-            }
-            if (value instanceof YAMLQuotedText) {
-                return SchemaType.Scalar.STRING;
-            }
-            var text = scalar.getTextValue().trim();
-            if (YAMLUtil.isBooleanValue(text)) {
-                return SchemaType.Scalar.BOOLEAN;
-            }
-            if (YAMLUtil.isNumberValue(text)) {
-                return SchemaType.Scalar.INTEGER;
-            }
-            return SchemaType.Scalar.STRING;
-        }
-
-        if (value instanceof YAMLMapping mapping) {
-            var props = new LinkedHashMap<String, SchemaProperty>();
-            for (var child : mapping.getKeyValues()) {
-                var childName = child.getKeyText().trim();
-                if (!childName.isEmpty()) {
-                    props.put(childName, inferSchema(childName, child.getValue()));
-                }
-            }
-            var objectSchema = new ObjectSchema(
-                    Collections.unmodifiableMap(props),
-                    Collections.emptySet(),
-                    true
-            );
-            return new SchemaType.Object(objectSchema);
-        }
-
-        if (value instanceof YAMLSequence) {
-            return SchemaType.Array.ANY;
-        }
-
-        return new SchemaType.Any();
     }
 
     private static void collectFromBranch(YAMLValue branchValue, Map<String, Variable> result) {
         if (!(branchValue instanceof YAMLSequence sequence)) {
             return;
         }
+
         for (var item : sequence.getItems()) {
             var value = item.getValue();
             if (value instanceof YAMLMapping mapping) {
@@ -276,36 +174,32 @@ public final class VariablesProvider {
         var types = new HashMap<String, SchemaProperty>();
         for (var param : outParams) {
             var name = param.getName();
-            var schemaType = flowDocTypeToSchemaType(param);
-            types.put(name, new SchemaProperty(name, schemaType, param.getDescription(), param.isMandatory()));
+            types.put(name, SchemaInference.fromFlowDocParameter(param));
         }
         return types;
     }
 
-    private static void extractOutVars(YAMLValue value, Map<String, Variable> result,
-                                       @NotNull Map<String, SchemaProperty> outParamTypes) {
+    private static void extractOutVars(YAMLValue value, Map<String, Variable> result, @NotNull Map<String, SchemaProperty> knownTypes) {
         if (value instanceof YAMLScalar s) {
-            var name = s.getTextValue().trim();
-            if (!name.isEmpty()) {
-                result.put(name, new Variable(name, VariableSource.STEP_OUT, s, outParamTypes.get(name)));
-            }
+            addOutVar(s.getTextValue(), s, result, knownTypes);
         } else if (value instanceof YAMLSequence seq) {
             for (var item : seq.getItems()) {
-                var itemValue = item.getValue();
-                if (itemValue instanceof YAMLScalar s) {
-                    var name = s.getTextValue().trim();
-                    if (!name.isEmpty()) {
-                        result.put(name, new Variable(name, VariableSource.STEP_OUT, s, outParamTypes.get(name)));
-                    }
+                if (item.getValue() instanceof YAMLScalar s) {
+                    addOutVar(s.getTextValue(), s, result, knownTypes);
                 }
             }
         } else if (value instanceof YAMLMapping m) {
             for (var kv : m.getKeyValues()) {
-                var name = kv.getKeyText().trim();
-                if (!name.isEmpty()) {
-                    result.put(name, new Variable(name, VariableSource.STEP_OUT, kv, SchemaProperty.any(name, null, false)));
-                }
+                addOutVar(kv.getKeyText(), kv, result, Map.of());
             }
+        }
+    }
+
+    private static void addOutVar(String name, PsiElement element, Map<String, Variable> result, Map<String, SchemaProperty> knownTypes) {
+        name = name.trim();
+        if (!name.isEmpty()) {
+            var schema = knownTypes.getOrDefault(name, SchemaProperty.any(name));
+            result.put(name, new Variable(name, VariableSource.STEP_OUT, element, schema));
         }
     }
 }
