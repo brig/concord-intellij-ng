@@ -1,6 +1,8 @@
 package brig.concord.run;
 
+import brig.concord.ConcordBundle;
 import brig.concord.run.cli.ConcordCliManager;
+import brig.concord.run.cli.ConcordCliSettings;
 import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
 import com.intellij.execution.configurations.CommandLineState;
@@ -52,13 +54,27 @@ public class ConcordCommandLineState extends CommandLineState {
         var cliManager = ConcordCliManager.getInstance();
         var cliPath = cliManager.getConfiguredCliPath();
         if (cliPath == null) {
-            throw new ExecutionException("Concord CLI is not configured");
+            throw new ExecutionException(ConcordBundle.message("run.configuration.cli.not.configured"));
         }
 
         var project = getEnvironment().getProject();
         var commandLine = new PtyCommandLine();
         commandLine.setCharset(StandardCharsets.UTF_8);
-        commandLine.setExePath(cliPath);
+
+        var jdkName = ConcordCliSettings.getInstance().getJdkName();
+        if (jdkName != null) {
+            var jdkInfo = cliManager.resolveJdk(jdkName);
+            if (jdkInfo == null) {
+                throw new ExecutionException(ConcordBundle.message("run.configuration.jdk.not.found", jdkName));
+            }
+            commandLine.setExePath(jdkInfo.javaPath());
+            commandLine.addParameter("-jar");
+            commandLine.addParameter(cliPath);
+            commandLine.withEnvironment("JAVA_HOME", jdkInfo.homePath());
+        } else {
+            commandLine.setExePath(cliPath);
+        }
+
         commandLine.addParameter("run");
 
         var runModeSettings = ConcordRunModeSettings.getInstance(project);

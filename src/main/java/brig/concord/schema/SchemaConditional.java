@@ -5,8 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
-public record TaskSchemaConditional(
+public record SchemaConditional(
         @NotNull Map<String, List<String>> discriminators,
-        @NotNull TaskSchemaSection thenSection
+        @NotNull ObjectSchema thenSection
 ) {
 }

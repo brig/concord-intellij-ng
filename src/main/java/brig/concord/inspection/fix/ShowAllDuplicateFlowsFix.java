@@ -62,10 +62,6 @@ public class ShowAllDuplicateFlowsFix implements LocalQuickFix {
             }
 
             var process = ProcessDefinitionProvider.getInstance().get(element);
-            if (process == null) {
-                return null;
-            }
-
             var usages = new ArrayList<Usage>();
             for (var flowDef : process.flows(flowName)) {
                 if (flowDef == null || !flowDef.isValid()) {

@@ -20,9 +20,6 @@ jobs:
         !contains(github.event.pull_request.labels.*.name, 'release') &&
         !contains(github.event.pull_request.labels.*.name, 'internal-docs-freeze')
       )
-    outputs:
-      version: ${{ steps.properties.outputs.version }}
-      changelog: ${{ steps.properties.outputs.changelog }}
     steps:
       - name: Maximize Build Space
         run: |
@@ -43,6 +40,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          gradle-home-cache-excludes: |
+            caches/transforms-*
 
       - name: Gradle Wrapper Validation
         uses: gradle/actions/wrapper-validation@v5

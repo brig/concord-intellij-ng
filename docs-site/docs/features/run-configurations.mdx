@@ -16,11 +16,16 @@ Before running flows, you need to configure the Concord CLI.
     *   **Download:** Click "Download..." to fetch the CLI directly from Maven Central. The plugin will download and configure it automatically.
     *   **Manual path:** If you already have the CLI installed, specify the path to the executable.
 3.  The plugin validates the path and displays the detected version.
+4.  Optionally, select a **Java runtime** to use for running the CLI. By default, the CLI uses `java` from the system PATH. You can choose any JDK registered in IntelliJ to run the CLI via `java -jar` instead.
 
 <figure className="docFigure docFigure--lg">
     <img src={require('@site/static/img/concord-cli-settings.png').default} alt="Concord CLI Settings" />
     <figcaption>Concord CLI Settings</figcaption>
 </figure>
+
+:::tip Custom JDK
+Selecting a specific Java runtime is useful when the Concord CLI requires a different JDK version than your system default, or when `java` is not on the system PATH.
+:::
 
 ## Running a Flow
 

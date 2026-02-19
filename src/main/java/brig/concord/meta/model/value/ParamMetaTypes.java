@@ -16,4 +16,7 @@ public final class ParamMetaTypes {
     public static final AnyOfType OBJECT_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(ObjectArrayMetaType.getInstance(), ExpressionMetaType.getInstance());
     public static final AnyOfType NUMBER_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(IntegerArrayMetaType.getInstance(), ExpressionMetaType.getInstance());
     public static final AnyOfType ARRAY_OR_EXPRESSION = AnyOfType.anyOf(AnyArrayMetaType.getInstance(), ExpressionMetaType.getInstance());
+
+    public static final AnyOfType REGEXP_OR_EXPRESSION = AnyOfType.anyOf(RegexpMetaType.getInstance(), ExpressionMetaType.getInstance());
+    public static final AnyOfType REGEXP_ARRAY_OR_EXPRESSION = AnyOfType.anyOf(RegexpArrayMetaType.getInstance(), ExpressionMetaType.getInstance());
 }

@@ -17,7 +17,7 @@ public final class TaskSchemaRegistry {
 
     private volatile TaskSchemaProvider provider = new ResourceTaskSchemaProvider();
     private final ConcurrentHashMap<String, Optional<TaskSchema>> cache = new ConcurrentHashMap<>();
-    private final TaskSchemaParser parser = new TaskSchemaParser();
+    private final SchemaParser parser = new SchemaParser();
 
     public static TaskSchemaRegistry getInstance(@NotNull Project project) {
         return project.getService(TaskSchemaRegistry.class);

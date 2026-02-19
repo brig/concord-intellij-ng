@@ -5,19 +5,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class TaskSchema {
-
-    private final String taskName;
-    private final @Nullable String description;
-    private final TaskSchemaSection baseInSection;
-    private final List<TaskSchemaConditional> inConditionals;
-    private final TaskSchemaSection outSection;
+public record TaskSchema(@NotNull String taskName, @Nullable String description, @NotNull ObjectSchema baseInSection,
+                         @NotNull List<SchemaConditional> inConditionals, @NotNull ObjectSchema outSection) {
 
     public TaskSchema(@NotNull String taskName,
                       @Nullable String description,
-                      @NotNull TaskSchemaSection baseInSection,
-                      @NotNull List<TaskSchemaConditional> inConditionals,
-                      @NotNull TaskSchemaSection outSection) {
+                      @NotNull ObjectSchema baseInSection,
+                      @NotNull List<SchemaConditional> inConditionals,
+                      @NotNull ObjectSchema outSection) {
         this.taskName = taskName;
         this.description = description;
         this.baseInSection = baseInSection;
@@ -25,23 +20,23 @@ public class TaskSchema {
         this.outSection = outSection;
     }
 
-    public @NotNull String getTaskName() {
+    @Override
+    public @NotNull String taskName() {
         return taskName;
     }
 
-    public @Nullable String getDescription() {
-        return description;
-    }
-
-    public @NotNull TaskSchemaSection getBaseInSection() {
+    @Override
+    public @NotNull ObjectSchema baseInSection() {
         return baseInSection;
     }
 
-    public @NotNull List<TaskSchemaConditional> getInConditionals() {
+    @Override
+    public @NotNull List<SchemaConditional> inConditionals() {
         return inConditionals;
     }
 
-    public @NotNull TaskSchemaSection getOutSection() {
+    @Override
+    public @NotNull ObjectSchema outSection() {
         return outSection;
     }
 
@@ -53,10 +48,10 @@ public class TaskSchema {
         return Collections.unmodifiableSet(keys);
     }
 
-    public @NotNull TaskSchemaSection resolveInSection(@NotNull Map<String, String> currentValues) {
+    public @NotNull ObjectSchema resolveInSection(@NotNull Map<String, String> currentValues) {
         var result = baseInSection;
         for (var conditional : inConditionals) {
-            boolean allMatch = true;
+            var allMatch = true;
             for (var entry : conditional.discriminators().entrySet()) {
                 var currentValue = currentValues.get(entry.getKey());
                 if (currentValue == null || !entry.getValue().contains(currentValue)) {

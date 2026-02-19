@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "item": {
+      "description": "Current item of the loop iteration"
+    },
+    "items": {
+      "type": "array",
+      "description": "Collection of items being iterated"
+    },
+    "itemIndex": {
+      "type": "integer",
+      "description": "Zero-based index of the current iteration"
+    }
+  }
+}

@@ -1,26 +1,33 @@
 package brig.concord.completion.provider;
 
+import brig.concord.ConcordType;
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.model.value.*;
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.AnythingMetaType;
 import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
+import brig.concord.psi.ProcessDefinitionProvider;
 import brig.concord.psi.YamlPsiUtils;
-import brig.concord.psi.ref.FlowDefinitionReference;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.CachedValue;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiModificationTracker;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlMetaType;
+import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
+import brig.concord.yaml.psi.YAMLPsiElement;
+import brig.concord.yaml.psi.YAMLScalar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -118,10 +125,14 @@ public class FlowCallParamsProvider {
         while (element != null && element != prev) {
             prev = element;
             var callMapping = YamlPsiUtils.getParentOfType(element, YAMLMapping.class, false);
-            if (callMapping == null) return null;
+            if (callMapping == null) {
+                return null;
+            }
 
             var callKv = callMapping.getKeyValueByKey("call");
-            if (callKv != null) return callKv;
+            if (callKv != null) {
+                return callKv;
+            }
 
             element = callMapping;
         }
@@ -133,33 +144,13 @@ public class FlowCallParamsProvider {
             return AnythingMetaType.getInstance();
         }
 
-        AnyOfType baseType;
+        var concordType = ConcordType.resolve(parameter.getBaseType(), ConcordType.YamlBaseType.ANY);
+        var props = TypeProps.desc(parameter.getDescription()).andRequired(parameter.isMandatory());
+
         if (parameter.isArrayType()) {
-            baseType = switch (parameter.getBaseType().toLowerCase()) {
-                case "string" -> ParamMetaTypes.STRING_ARRAY_OR_EXPRESSION;
-                case "boolean" -> ParamMetaTypes.BOOLEAN_ARRAY_OR_EXPRESSION;
-                case "object" -> ParamMetaTypes.OBJECT_ARRAY_OR_EXPRESSION;
-                case "number", "int", "integer" -> ParamMetaTypes.NUMBER_ARRAY_OR_EXPRESSION;
-                default -> ParamMetaTypes.ARRAY_OR_EXPRESSION;
-            };
-        } else {
-            baseType = switch (parameter.getBaseType().toLowerCase()) {
-                case "string" -> ParamMetaTypes.STRING_OR_EXPRESSION;
-                case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
-                case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
-                case "number", "int", "integer" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
-                default -> null;
-            };
+            return concordType.arrayMetaType(props);
         }
-
-        if (baseType == null) {
-            return AnythingMetaType.getInstance();
-        }
-
-        var description = parameter.getDescription();
-        var mandatory = parameter.isMandatory();
-
-        return baseType.withProps(TypeProps.desc(description).andRequired(mandatory));
+        return concordType.scalarMetaType(props);
     }
 
     public static @Nullable FlowDocumentation findFlowDocumentation(PsiElement element) {
@@ -176,27 +167,70 @@ public class FlowCallParamsProvider {
 
     @Nullable
     private static FlowDocumentation doFindFlowDocumentation(YAMLKeyValue callKv) {
-        var flowName = callKv.getValue();
-        if (flowName == null) {
+        var flowNameValue = callKv.getValue();
+        if (!(flowNameValue instanceof YAMLScalar scalar)) {
             return null;
         }
 
-        for (var ref : flowName.getReferences()) {
-            if (ref instanceof FlowDefinitionReference fdr) {
-                var definition = fdr.resolve();
-                if (definition != null) {
-                    return CachedValuesManager.getCachedValue(definition, FLOW_DOC_CACHE, () -> {
-                        var doc = findFlowDocumentationBefore(definition);
-                        var file = definition.getContainingFile();
-                        return CachedValueProvider.Result.create(doc, file != null ? file : definition);
-                    });
-                }
+        var flowName = scalar.getTextValue();
+        if (flowName.isBlank()) {
+            return null;
+        }
+
+        var process = ProcessDefinitionProvider.getInstance().get(callKv);
+        var definition = process.flow(flowName);
+        if (definition == null) {
+            return null;
+        }
+
+        var doc = findFlowDocCached(definition);
+        if (doc != null) {
+            return doc;
+        }
+
+        // In a completion copy the original file's PSI may be broken
+        // (e.g., an empty sequence item `- ` causes the parser to absorb
+        // the `##` flow-doc block into the preceding key-value).
+        // The completion copy itself has valid PSI (the dummy identifier fills
+        // the empty slot), so look for the flow definition there.
+        var file = callKv.getContainingFile();
+        if (file != null && file != file.getOriginalFile()) {
+            var localDef = findFlowDefinitionInFile(file, flowName);
+            if (localDef != null) {
+                return findFlowDocCached(localDef);
             }
         }
+
         return null;
     }
 
-    private static @Nullable FlowDocumentation findFlowDocumentationBefore(PsiElement flowDefinition) {
+    private static @Nullable FlowDocumentation findFlowDocCached(PsiElement definition) {
+        return CachedValuesManager.getCachedValue(definition, FLOW_DOC_CACHE, () -> {
+            var doc = findFlowDocumentationBefore(definition);
+            var file = definition.getContainingFile();
+            return CachedValueProvider.Result.create(doc, file != null ? file : definition);
+        });
+    }
+
+    /**
+     * Finds a flow definition directly in the given file by PSI navigation,
+     * without using the file-based index.
+     */
+    private static @Nullable PsiElement findFlowDefinitionInFile(PsiFile file, String flowName) {
+        var doc = PsiTreeUtil.getChildOfType(file, YAMLDocument.class);
+        if (doc == null) {
+            return null;
+        }
+
+        var flowKey = YamlPsiUtils.get(doc, YAMLPsiElement.class, "flows", flowName);
+        if (flowKey == null) {
+            return null;
+        }
+
+        return flowKey.getParent();
+    }
+
+    public static @Nullable FlowDocumentation findFlowDocumentationBefore(PsiElement flowDefinition) {
         var sibling = flowDefinition.getPrevSibling();
         while (sibling != null) {
             if (sibling instanceof FlowDocumentation doc) {

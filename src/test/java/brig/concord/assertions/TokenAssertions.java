@@ -1,6 +1,8 @@
 package brig.concord.assertions;
 
 import brig.concord.lexer.ConcordYAMLFlexLexer;
+import brig.concord.lexer.ExpressionSplittingLexer;
+import com.intellij.lexer.Lexer;
 import com.intellij.psi.tree.IElementType;
 
 import java.util.ArrayList;
@@ -15,7 +17,15 @@ public class TokenAssertions {
     }
 
     public static TokenAssertions assertTokens(String yaml, int maxTokens) {
-        return new TokenAssertions(yaml, maxTokens);
+        return new TokenAssertions(yaml, new ConcordYAMLFlexLexer(), maxTokens);
+    }
+
+    public static TokenAssertions assertTokensWithExprSplitting(String yaml) {
+        return assertTokensWithExprSplitting(yaml, 200);
+    }
+
+    public static TokenAssertions assertTokensWithExprSplitting(String yaml, int maxTokens) {
+        return new TokenAssertions(yaml, new ExpressionSplittingLexer(new ConcordYAMLFlexLexer()), maxTokens);
     }
 
     public record TokenInfo(IElementType type, int state, int start, int end, String text) {
@@ -33,9 +43,9 @@ public class TokenAssertions {
     private final List<TokenInfo> tokens;
     private final String yaml;
 
-    private TokenAssertions(String yaml, int maxTokens) {
+    private TokenAssertions(String yaml, Lexer lexer, int maxTokens) {
         this.yaml = yaml;
-        this.tokens = tokenize(yaml, maxTokens);
+        this.tokens = tokenize(yaml, lexer, maxTokens);
     }
 
     public TokenAssertions hasCount(String tokenName, int expected) {
@@ -99,8 +109,7 @@ public class TokenAssertions {
                 .count();
     }
 
-    private static List<TokenInfo> tokenize(String yaml, int maxTokens) {
-        var lexer = new ConcordYAMLFlexLexer();
+    private static List<TokenInfo> tokenize(String yaml, Lexer lexer, int maxTokens) {
         lexer.start(yaml, 0, yaml.length(), 0);
 
         var tokens = new ArrayList<TokenInfo>();

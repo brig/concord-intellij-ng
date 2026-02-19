@@ -48,6 +48,10 @@
                 language="Concord"
                 implementationClass="brig.concord.highlighting.ConcordHighlightingAnnotator"/>
 
+        <annotator
+                language="concord-el"
+                implementationClass="brig.concord.highlighting.ElErrorAnnotator"/>
+
         <colorSettingsPage
                 implementation="brig.concord.highlighting.ConcordColorSettingsPage"/>
 
@@ -58,6 +62,16 @@
         <!-- Language / file type -->
         <lang.parserDefinition language="Concord"
                                implementationClass="brig.concord.parser.ConcordYAMLParserDefinition"/>
+
+        <!-- EL (Expression Language) support -->
+        <fileType name="concord-el"
+                  implementationClass="brig.concord.el.ElFileType"
+                  fieldName="INSTANCE"
+                  language="concord-el"/>
+        <lang.parserDefinition language="concord-el"
+                               implementationClass="brig.concord.el.ElParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="concord-el"
+                                       implementationClass="brig.concord.el.ElSyntaxHighlighterFactory"/>
 
         <fileType name="Concord File"
                   implementationClass="brig.concord.ConcordFileType"
@@ -82,11 +96,15 @@
 
         <!-- References / completion / structure view -->
         <psi.referenceContributor language="Concord" implementation="brig.concord.ConcordYamlReferenceContributor"/>
+        <psi.referenceContributor language="concord-el" implementation="brig.concord.ElReferenceContributor"/>
+
         <completion.contributor language="Concord"
                                 implementationClass="brig.concord.completion.ConcordCompletions"
                                 order="first"/>
         <completion.contributor language="Concord"
                                 implementationClass="brig.concord.completion.FlowDocCompletionContributor"/>
+        <completion.contributor language="concord-el"
+                                implementationClass="brig.concord.completion.ElCompletionContributor"/>
 
         <multiHostInjector implementation="brig.concord.injection.ConcordLanguageInjector"/>
 
@@ -239,6 +257,9 @@
         <backgroundPostStartupActivity implementation="brig.concord.dependency.ConcordDependenciesStartupActivity"/>
 
         <problemFileHighlightFilter implementation="brig.concord.ConcordProblemFileHighlightFilter"/>
+
+        <!-- Suppress raw EL parser errors; annotator shows simplified messages -->
+        <highlightErrorFilter implementation="brig.concord.highlighting.ElHighlightErrorFilter"/>
     </extensions>
 
     <actions>

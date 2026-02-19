@@ -15,11 +15,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import static brig.concord.lexer.ConcordElTokenTypes.*;
 import static brig.concord.lexer.FlowDocTokenTypes.*;
 
 public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTypes {
     public static final TokenSet HASH_STOP_TOKENS = TokenSet.create(RBRACE, COMMA);
     public static final TokenSet ARRAY_STOP_TOKENS = TokenSet.create(RBRACKET, COMMA);
+    private static final TokenSet EL_TOKENS = TokenSet.create(EL_EXPR_START, EL_EXPR_BODY, EL_EXPR_END);
     private PsiBuilder myBuilder;
     private boolean eolSeen = false;
     private int myIndent;
@@ -238,7 +240,7 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
         else if (tokenType == SCALAR_KEY) {
             nodeType = parseScalarKeyValue(indent);
         }
-        else if (YAMLElementTypes.SCALAR_VALUES.contains(getTokenType())) {
+        else if (YAMLElementTypes.SCALAR_VALUES.contains(getTokenType()) || tokenType == EL_EXPR_START) {
             nodeType = parseScalarValue(minIndent);
         }
         else if (tokenType == STAR) {
@@ -332,11 +334,11 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
 
     private @Nullable IElementType parseScalarValue(int indent) {
         final IElementType tokenType = getTokenType();
-        assert YAMLElementTypes.SCALAR_VALUES.contains(tokenType) : "Scalar value expected!";
+        assert YAMLElementTypes.SCALAR_VALUES.contains(tokenType) || EL_TOKENS.contains(tokenType) : "Scalar value expected!";
         if (tokenType == SCALAR_LIST || tokenType == SCALAR_TEXT) {
             return parseMultiLineScalar(tokenType);
         }
-        else if (tokenType == TEXT) {
+        else if (tokenType == TEXT || tokenType == EL_EXPR_START) {
             return parseMultiLinePlainScalar(indent);
         }
         else if (tokenType == SCALAR_DSTRING || tokenType == SCALAR_STRING) {
@@ -350,6 +352,15 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
 
     private @NotNull IElementType parseQuotedString() {
         advanceLexer();
+        // Consume additional segments from expression splitting
+        while (getTokenType() == EL_EXPR_START
+                || getTokenType() == SCALAR_DSTRING || getTokenType() == SCALAR_STRING) {
+            if (getTokenType() == EL_EXPR_START) {
+                consumeElExpression();
+            } else {
+                advanceLexer();
+            }
+        }
         return YAMLElementTypes.SCALAR_QUOTED_STRING;
     }
 
@@ -373,9 +384,14 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
         IElementType type = getTokenType();
         // Lexer ensures such input token structure: ( ( INDENT tokenType? )? SCALAR_EOL )*
         // endOfValue marker is needed to exclude INDENT after last SCALAR_EOL
-        while (type == tokenType || type == INDENT || type == SCALAR_EOL) {
-            advanceLexer();
-            if (type == tokenType) {
+        while (type == tokenType || type == INDENT || type == SCALAR_EOL
+                || type == EL_EXPR_START) {
+            if (type == EL_EXPR_START) {
+                consumeElExpression();
+            } else {
+                advanceLexer();
+            }
+            if (type == tokenType || type == EL_EXPR_START) {
                 if (endOfValue != null) {
                     // this 'if' should be always true because of input token structure
                     endOfValue.drop();
@@ -400,19 +416,29 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
 
     private @NotNull IElementType parseMultiLinePlainScalar(final int indent) {
         PsiBuilder.Marker lastTextEnd = null;
+        boolean hadEolSinceLastContent = false;
 
         IElementType type = getTokenType();
-        while (type == TEXT || type == INDENT || type == EOL) {
-            advanceLexer();
+        while (type == TEXT || type == INDENT || type == EOL
+                || type == EL_EXPR_START) {
+            if (type == EL_EXPR_START) {
+                consumeElExpression();
+            } else {
+                advanceLexer();
+            }
 
-            if (type == TEXT) {
-                if (lastTextEnd != null && myIndent < indent) {
+            if (type == TEXT || type == EL_EXPR_START) {
+                if (lastTextEnd != null && hadEolSinceLastContent && myIndent < indent) {
                     break;
                 }
                 if (lastTextEnd != null) {
                     lastTextEnd.drop();
                 }
                 lastTextEnd = mark();
+                hadEolSinceLastContent = false;
+            }
+            else if (type == EOL) {
+                hadEolSinceLastContent = true;
             }
             type = getTokenType();
         }
@@ -421,6 +447,41 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
         assert lastTextEnd != null;
         lastTextEnd.rollbackTo();
         return YAMLElementTypes.SCALAR_PLAIN_VALUE;
+    }
+
+    private static final TokenSet EL_BODY_PASSTHROUGH = TokenSet.create(EL_EXPR_BODY, SCALAR_EOL, INDENT);
+
+    /**
+     * Consumes an EL expression: EL_EXPR_START, then all body tokens (EL_EXPR_BODY, SCALAR_EOL, INDENT)
+     * collapsed into a single EL_EXPR chameleon node, then EL_EXPR_END.
+     * <p>
+     * Stops consuming if an unexpected token is encountered (e.g. unclosed expression).
+     */
+    private void consumeElExpression() {
+        assert getTokenType() == EL_EXPR_START;
+        advanceLexer(); // consume EL_EXPR_START
+
+        PsiBuilder.Marker bodyMarker = myBuilder.mark();
+        boolean hasBody = false;
+        while (getTokenType() != null && getTokenType() != EL_EXPR_END) {
+            if (!EL_BODY_PASSTHROUGH.contains(getTokenType())) {
+                break;
+            }
+            myBuilder.advanceLexer(); // use raw advance to avoid eol tracking for internal tokens
+            hasBody = true;
+        }
+        if (hasBody) {
+            bodyMarker.collapse(EL_EXPR);
+        } else {
+            bodyMarker.drop();
+        }
+
+        if (getTokenType() == EL_EXPR_END) {
+            advanceLexer();
+        } else {
+            PsiBuilder.Marker err = myBuilder.mark();
+            err.error(ConcordBundle.message("YAMLParser.unclosed.expression"));
+        }
     }
 
     private @NotNull IElementType parseExplicitKeyValue(int indent) {

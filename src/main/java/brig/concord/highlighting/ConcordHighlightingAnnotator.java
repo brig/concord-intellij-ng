@@ -4,8 +4,8 @@ import brig.concord.inspection.fix.InsertClosingMarkerFix;
 import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.HighlightProvider;
-import brig.concord.meta.model.value.ExpressionMetaType;
-import brig.concord.psi.ConcordExpressionInDocRanges;
+import brig.concord.psi.YamlPsiUtils;
+import brig.concord.yaml.YAMLUtil;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLQuotedText;
 import brig.concord.yaml.psi.YAMLScalar;
@@ -14,7 +14,6 @@ import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import org.jetbrains.annotations.NotNull;
@@ -101,14 +100,7 @@ public class ConcordHighlightingAnnotator implements Annotator {
 
         var highlightedByMeta = highlightByMeta(text, scalar, holder);
 
-        if (ExpressionMetaType.containsExpression(text)) {
-            var doc = PsiDocumentManager.getInstance(scalar.getProject()).getDocument(scalar.getContainingFile());
-            if (doc != null) {
-                var ranges = ConcordExpressionInDocRanges.findInScalarText(doc, scalar);
-                for (var r : ranges) {
-                    highlight(holder, r, ConcordHighlightingColors.EXPRESSION);
-                }
-            }
+        if (YamlPsiUtils.isDynamicExpression(scalar)) {
             return;
         }
 
@@ -121,7 +113,7 @@ public class ConcordHighlightingAnnotator implements Annotator {
             return;
         }
 
-        if (isBooleanValue(text)) {
+        if (YAMLUtil.isBooleanValue(text)) {
             highlight(holder, scalar.getTextRange(), ConcordHighlightingColors.BOOLEAN);
         } else if (isNullValue(text)) {
             highlight(holder, scalar.getTextRange(), ConcordHighlightingColors.NULL);
@@ -153,10 +145,6 @@ public class ConcordHighlightingAnnotator implements Annotator {
                 .range(range)
                 .textAttributes(key)
                 .create();
-    }
-
-    private static boolean isBooleanValue(String v) {
-        return "true".equalsIgnoreCase(v) || "false".equalsIgnoreCase(v);
     }
 
     private static boolean isNullValue(String v) {

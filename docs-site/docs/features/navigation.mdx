@@ -18,6 +18,48 @@ The most common way to navigate is jumping from a <span className="tokenBadge" d
 
 This works even if the flow is defined in a different file or module, as long as it's within the same [Scope](./scopes.md).
 
+### Expression Variables
+
+<Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> + **Click** on a variable name inside a `${...}` expression to jump to where it was declared. This works for all variable sources:
+
+*   **Arguments** — jumps to the key in `configuration.arguments`
+*   **Flow parameters** — jumps to the parameter in the flow's [Documentation Block](./flow-docs)
+*   **Set variables** — jumps to the key in the <span className="tokenBadge" data-kind="step">set</span> step
+*   **Step out variables** — jumps to the `out` field of <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">expr</span>, <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">script</span>, <span className="tokenBadge" data-kind="step">try</span>, <span className="tokenBadge" data-kind="step">block</span>, and <span className="tokenBadge" data-kind="step">parallel</span> steps
+
+```concord
+configuration:
+  arguments:
+    appName: "my-app"
+
+flows:
+  main:
+    - task: concord
+      out: result
+    - log: "${appName}            ${result}"
+    #         ^ Cmd+Click jumps    ^ Cmd+Click jumps
+    #         to arguments           to out: result
+```
+
+### Expression Properties
+
+<Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> + **Click** on a property name in a dot-access chain (e.g., `host` in `${config.db.host}`) to jump to the corresponding YAML key in the source mapping. The plugin walks the property chain from the base variable's declaration through each nested mapping to find the target key.
+
+This works for variables declared in <span className="tokenBadge" data-kind="step">set</span> steps and `configuration.arguments` -- any source where the variable's value is a YAML mapping with named keys.
+
+```concord
+flows:
+  main:
+    - set:
+        config:
+          db:
+            host: "localhost"
+            port: 5432
+    - log: "${config.db.host}"
+    #                   ^ Cmd+Click jumps to the
+    #                     "host" key in the set step
+```
+
 ## Go to Symbol
 
 Quickly find and jump to any flow, form, or trigger by name across your entire project.

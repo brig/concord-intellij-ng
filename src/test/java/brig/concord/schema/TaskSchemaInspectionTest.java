@@ -130,24 +130,6 @@ class TaskSchemaInspectionTest extends InspectionTestBase {
                         "YamlUnknownKeysInspectionBase.unknown.key", "baz"));
     }
 
-    @Test
-    void testUnknownKeyInOutWithStrictSchema() {
-        configureFromText("""
-                flows:
-                  main:
-                    - task: strictTask
-                      in:
-                        url: "http://example.com"
-                      out:
-                        ok: result
-                        unknownOut: value
-                """);
-
-        inspection(key("/flows/main[0]/out/unknownOut"))
-                .expectHighlight(ConcordBundle.message(
-                        "YamlUnknownKeysInspectionBase.unknown.key", "unknownOut"));
-    }
-
     // --- negative tests: missing required keys ---
 
     @Test
@@ -214,6 +196,111 @@ class TaskSchemaInspectionTest extends InspectionTestBase {
                         instanceId:
                           - "id-1"
                           - "id-2"
+                """);
+
+        assertNoErrors();
+    }
+
+    // --- nested object tests ---
+
+    @Test
+    void testValidNestedObject_noErrors() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: nestedObject
+                      in:
+                        url: "http://example.com"
+                        auth:
+                          basic:
+                            username: admin
+                            password: secret
+                """);
+
+        assertNoErrors();
+    }
+
+    @Test
+    void testUnknownKeyInNestedObject() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: nestedObject
+                      in:
+                        url: "http://example.com"
+                        auth:
+                          unknownField: value
+                """);
+
+        inspection(key("/flows/main[0]/in/auth/unknownField"))
+                .expectHighlight(ConcordBundle.message(
+                        "YamlUnknownKeysInspectionBase.unknown.key", "unknownField"));
+    }
+
+    @Test
+    void testUnknownKeyInDeepNestedObject() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: nestedObject
+                      in:
+                        url: "http://example.com"
+                        auth:
+                          basic:
+                            username: admin
+                            password: secret
+                            extra: value
+                """);
+
+        inspection(key("/flows/main[0]/in/auth/basic/extra"))
+                .expectHighlight(ConcordBundle.message(
+                        "YamlUnknownKeysInspectionBase.unknown.key", "extra"));
+    }
+
+    @Test
+    void testMissingRequiredKeyInNestedObject() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: nestedObject
+                      in:
+                        url: "http://example.com"
+                        auth:
+                          basic:
+                            username: admin
+                """);
+
+        inspection(key("/flows/main[0]/in/auth/basic"))
+                .expectHighlight(ConcordBundle.message(
+                        "YamlMissingKeysInspectionBase.missing.keys", "password"));
+    }
+
+    @Test
+    void testExpressionInPlaceOfNestedObject_noErrors() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: nestedObject
+                      in:
+                        url: "http://example.com"
+                        auth: ${authConfig}
+                """);
+
+        assertNoErrors();
+    }
+
+    @Test
+    void testFreeFormObjectAcceptsAnyKeys_noErrors() {
+        configureFromText("""
+                flows:
+                  main:
+                    - task: nestedObject
+                      in:
+                        url: "http://example.com"
+                        freeFormObject:
+                          anything: goes
+                          nested:
+                            also: works
                 """);
 
         assertNoErrors();

@@ -11,6 +11,8 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.projectRoots.JavaSdkType;
+import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -24,11 +26,17 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Objects;
 
 public final class ConcordCliConfigurable implements Configurable {
 
     private TextFieldWithBrowseButton myCliPathField;
     private JBLabel myVersionLabel;
+    private ComboBox<String> myJdkComboBox;
+    private boolean myListenersActive;
+    private int myVersionDetectionGeneration;
+    private @Nullable String myDetectedVersion;
+    private @Nullable String myNotFoundJdkName;
 
     @Override
     public @NlsContexts.ConfigurableName String getDisplayName() {
@@ -67,27 +75,81 @@ public final class ConcordCliConfigurable implements Configurable {
         pathPanel.add(myCliPathField, BorderLayout.CENTER);
         pathPanel.add(downloadButton, BorderLayout.EAST);
 
+        myJdkComboBox = new ComboBox<>();
+        myJdkComboBox.addActionListener(e -> updateVersionLabel());
+        populateJdkComboBox();
+        myListenersActive = true;
+
         return FormBuilder.createFormBuilder()
+                .addLabeledComponent(ConcordBundle.message("cli.settings.jdk.label"), myJdkComboBox)
                 .addLabeledComponent(ConcordBundle.message("cli.settings.path.label"), pathPanel)
                 .addLabeledComponent(ConcordBundle.message("cli.settings.version.label"), myVersionLabel)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
     }
 
+    private void populateJdkComboBox() {
+        myJdkComboBox.removeAllItems();
+        myJdkComboBox.addItem(ConcordBundle.message("cli.settings.jdk.default"));
+
+        for (var jdk : ProjectJdkTable.getInstance().getAllJdks()) {
+            if (jdk.getSdkType() instanceof JavaSdkType && jdk.getHomePath() != null) {
+                myJdkComboBox.addItem(jdk.getName());
+            }
+        }
+    }
+
+    private @Nullable String getSelectedJdkName() {
+        if (myJdkComboBox.getSelectedIndex() <= 0) {
+            return null;
+        }
+        if (myNotFoundJdkName != null) {
+            var selected = (String) myJdkComboBox.getSelectedItem();
+            if (Objects.equals(selected, ConcordBundle.message("cli.settings.jdk.not.found", myNotFoundJdkName))) {
+                return myNotFoundJdkName;
+            }
+        }
+        return (String) myJdkComboBox.getSelectedItem();
+    }
+
+    private @Nullable ConcordCliManager.JdkInfo resolveSelectedJdk() {
+        return ConcordCliManager.getInstance().resolveJdk(getSelectedJdkName());
+    }
+
     private void updateVersionLabel() {
+        if (!myListenersActive) {
+            return;
+        }
+
         var path = myCliPathField.getText();
         if (path.isBlank()) {
+            myDetectedVersion = null;
             myVersionLabel.setText(ConcordBundle.message("cli.settings.version.not.detected"));
             return;
         }
 
         var manager = ConcordCliManager.getInstance();
-        if (manager.validateCliPath(path)) {
-            var version = manager.detectCliVersion(path);
-            myVersionLabel.setText(version != null ? version : ConcordBundle.message("cli.settings.version.not.detected"));
-        } else {
+        var jdkName = getSelectedJdkName();
+        if (!manager.validateCliPath(path, jdkName)) {
+            myDetectedVersion = null;
             myVersionLabel.setText(ConcordBundle.message("cli.settings.invalid.path"));
+            return;
         }
+
+        var generation = ++myVersionDetectionGeneration;
+        myDetectedVersion = null;
+        myVersionLabel.setText(ConcordBundle.message("cli.settings.version.detecting"));
+
+        var jdkInfo = resolveSelectedJdk();
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            var version = manager.detectCliVersion(path, jdkInfo);
+            ApplicationManager.getApplication().invokeLater(() -> {
+                if (generation == myVersionDetectionGeneration && myVersionLabel.isShowing()) {
+                    myDetectedVersion = version;
+                    myVersionLabel.setText(version != null ? version : ConcordBundle.message("cli.settings.version.not.detected"));
+                }
+            }, ModalityState.stateForComponent(myVersionLabel));
+        });
     }
 
     private void showDownloadDialog() {
@@ -145,36 +207,58 @@ public final class ConcordCliConfigurable implements Configurable {
         var fieldPath = myCliPathField.getText();
 
         if (currentPath == null) {
-            return !fieldPath.isBlank();
+            if (!fieldPath.isBlank()) {
+                return true;
+            }
+        } else if (!currentPath.equals(fieldPath)) {
+            return true;
         }
-        return !currentPath.equals(fieldPath);
+
+        return !Objects.equals(settings.getJdkName(), getSelectedJdkName());
     }
 
     @Override
     public void apply() throws ConfigurationException {
+        var settings = ConcordCliSettings.getInstance();
         var path = myCliPathField.getText();
         if (!path.isBlank()) {
-            var manager = ConcordCliManager.getInstance();
-            if (!manager.validateCliPath(path)) {
+            if (!ConcordCliManager.getInstance().validateCliPath(path, getSelectedJdkName())) {
                 throw new ConfigurationException(ConcordBundle.message("cli.settings.invalid.path"));
             }
 
-            var version = manager.detectCliVersion(path);
-            var settings = ConcordCliSettings.getInstance();
             settings.setCliPath(path);
-            settings.setCliVersion(version);
+            settings.setCliVersion(myDetectedVersion);
         } else {
-            var settings = ConcordCliSettings.getInstance();
             settings.setCliPath(null);
             settings.setCliVersion(null);
         }
+
+        settings.setJdkName(getSelectedJdkName());
     }
 
     @Override
     public void reset() {
-        var settings = ConcordCliSettings.getInstance();
-        var cliPath = settings.getCliPath();
-        myCliPathField.setText(cliPath != null ? cliPath : "");
+        myListenersActive = false;
+        try {
+            var settings = ConcordCliSettings.getInstance();
+            var cliPath = settings.getCliPath();
+            myCliPathField.setText(cliPath != null ? cliPath : "");
+
+            populateJdkComboBox();
+            myNotFoundJdkName = null;
+            var jdkName = settings.getJdkName();
+            if (jdkName != null) {
+                myJdkComboBox.setSelectedItem(jdkName);
+                if (!jdkName.equals(myJdkComboBox.getSelectedItem())) {
+                    myNotFoundJdkName = jdkName;
+                    var notFoundLabel = ConcordBundle.message("cli.settings.jdk.not.found", jdkName);
+                    myJdkComboBox.addItem(notFoundLabel);
+                    myJdkComboBox.setSelectedItem(notFoundLabel);
+                }
+            }
+        } finally {
+            myListenersActive = true;
+        }
         updateVersionLabel();
     }
 

@@ -1,5 +1,6 @@
 package brig.concord.schema;
 
+import brig.concord.ConcordType;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -9,11 +10,11 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskSchemaSectionTest {
+class ObjectSchemaTest {
 
     @Test
     void testEmptySection() {
-        var empty = TaskSchemaSection.empty();
+        var empty = ObjectSchema.empty();
         assertTrue(empty.properties().isEmpty());
         assertTrue(empty.requiredFields().isEmpty());
         assertTrue(empty.additionalProperties());
@@ -22,12 +23,12 @@ class TaskSchemaSectionTest {
     @Test
     void testMergeUnionOfProperties() {
         var a = section(
-                Map.of("url", prop("url", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         var b = section(
-                Map.of("method", prop("method", "string")),
+                Map.of("method", prop("method", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
@@ -41,12 +42,12 @@ class TaskSchemaSectionTest {
     @Test
     void testMergeUnionOfRequiredFields() {
         var a = section(
-                Map.of("url", prop("url", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING)),
                 Set.of("url"),
                 true
         );
         var b = section(
-                Map.of("method", prop("method", "string")),
+                Map.of("method", prop("method", ConcordType.WellKnown.STRING)),
                 Set.of("method"),
                 true
         );
@@ -78,19 +79,19 @@ class TaskSchemaSectionTest {
     @Test
     void testMergeOverlappingPropertySecondWins() {
         var a = section(
-                Map.of("action", prop("action", "string")),
+                Map.of("action", prop("action", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         var b = section(
-                Map.of("action", prop("action", "boolean")),
+                Map.of("action", prop("action", ConcordType.WellKnown.BOOLEAN)),
                 Set.of(),
                 true
         );
 
         var merged = a.merge(b);
         assertEquals(1, merged.properties().size());
-        assertEquals(new SchemaType.Scalar("boolean"), merged.properties().get("action").schemaType());
+        assertEquals(SchemaType.Scalar.BOOLEAN, merged.properties().get("action").schemaType());
     }
 
     @Test
@@ -98,7 +99,7 @@ class TaskSchemaSectionTest {
         // Property exists in first section as not-required.
         // Second section's requiredFields marks it required.
         var a = section(
-                Map.of("url", prop("url", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
@@ -116,18 +117,18 @@ class TaskSchemaSectionTest {
     @Test
     void testMergeWithEmptyIsIdentity() {
         var original = section(
-                Map.of("url", prop("url", "string"), "method", prop("method", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING), "method", prop("method", ConcordType.WellKnown.STRING)),
                 Set.of("url"),
                 false
         );
 
-        var mergedRight = original.merge(TaskSchemaSection.empty());
+        var mergedRight = original.merge(ObjectSchema.empty());
         assertEquals(original.properties().size(), mergedRight.properties().size());
         assertEquals(original.requiredFields(), mergedRight.requiredFields());
         // empty has additionalProperties=true, AND semantics: false && true = false
         assertFalse(mergedRight.additionalProperties());
 
-        var mergedLeft = TaskSchemaSection.empty().merge(original);
+        var mergedLeft = ObjectSchema.empty().merge(original);
         assertEquals(original.properties().size(), mergedLeft.properties().size());
         assertEquals(original.requiredFields(), mergedLeft.requiredFields());
         assertFalse(mergedLeft.additionalProperties());
@@ -136,12 +137,12 @@ class TaskSchemaSectionTest {
     @Test
     void testMergePropertyFromFirstBecomeRequiredViaSecondRequiredFields() {
         var a = section(
-                Map.of("timeout", prop("timeout", "integer")),
+                Map.of("timeout", prop("timeout", ConcordType.WellKnown.INTEGER)),
                 Set.of(),
                 true
         );
         var b = section(
-                Map.of("retries", prop("retries", "integer")),
+                Map.of("retries", prop("retries", ConcordType.WellKnown.INTEGER)),
                 Set.of("timeout"),
                 true
         );
@@ -155,14 +156,14 @@ class TaskSchemaSectionTest {
 
     // -- helpers --
 
-    private static TaskSchemaProperty prop(String name, String type) {
-        return new TaskSchemaProperty(name, new SchemaType.Scalar(type), null, false);
+    private static SchemaProperty prop(String name, ConcordType type) {
+        return new SchemaProperty(name, new SchemaType.Scalar(type), null, false);
     }
 
-    private static TaskSchemaSection section(Map<String, TaskSchemaProperty> props,
+    private static ObjectSchema section(Map<String, SchemaProperty> props,
                                              Set<String> required,
                                              boolean additionalProperties) {
-        return new TaskSchemaSection(
+        return new ObjectSchema(
                 new LinkedHashMap<>(props),
                 new LinkedHashSet<>(required),
                 additionalProperties

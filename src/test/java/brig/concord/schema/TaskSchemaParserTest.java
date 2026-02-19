@@ -1,5 +1,6 @@
 package brig.concord.schema;
 
+import brig.concord.ConcordType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,10 +15,11 @@ class TaskSchemaParserTest {
     private TaskSchema multiKeySchema;
     private TaskSchema refCompositeSchema;
     private TaskSchema strictSchema;
+    private TaskSchema nestedObjectSchema;
 
     @BeforeEach
     void setUp() {
-        var parser = new TaskSchemaParser();
+        var parser = new SchemaParser();
         var stream = getClass().getResourceAsStream("/taskSchema/concord.schema.json");
         assertNotNull(stream, "concord.schema.json not found");
         schema = parser.parse("concord", stream);
@@ -33,19 +35,23 @@ class TaskSchemaParserTest {
         var strictStream = getClass().getResourceAsStream("/taskSchema/strictTask.schema.json");
         assertNotNull(strictStream, "strictTask.schema.json not found");
         strictSchema = parser.parse("strictTask", strictStream);
+
+        var nestedObjectStream = getClass().getResourceAsStream("/taskSchema/nestedObject.schema.json");
+        assertNotNull(nestedObjectStream, "nestedObject.schema.json not found");
+        nestedObjectSchema = parser.parse("nestedObject", nestedObjectStream);
     }
 
     @Test
     void testBasicParsing() {
-        assertEquals("concord", schema.getTaskName());
-        assertNotNull(schema.getBaseInSection());
-        assertNotNull(schema.getOutSection());
-        assertFalse(schema.getInConditionals().isEmpty());
+        assertEquals("concord", schema.taskName());
+        assertNotNull(schema.baseInSection());
+        assertNotNull(schema.outSection());
+        assertFalse(schema.inConditionals().isEmpty());
     }
 
     @Test
     void testBaseInProperties() {
-        var base = schema.getBaseInSection();
+        var base = schema.baseInSection();
         assertTrue(base.properties().containsKey("action"));
         assertTrue(base.requiredFields().contains("action"));
 
@@ -60,7 +66,7 @@ class TaskSchemaParserTest {
 
     @Test
     void testEnumDescriptions() {
-        var base = schema.getBaseInSection();
+        var base = schema.baseInSection();
         var actionProp = base.properties().get("action");
         var enumType = (SchemaType.Enum) actionProp.schemaType();
         assertEquals(6, enumType.descriptions().size());
@@ -71,7 +77,7 @@ class TaskSchemaParserTest {
     @Test
     void testEnumDescriptionsMissing() {
         // strictTask method uses plain enum (no oneOf+const), so no descriptions
-        var base = strictSchema.getBaseInSection();
+        var base = strictSchema.baseInSection();
         var methodProp = base.properties().get("method");
         var enumType = (SchemaType.Enum) methodProp.schemaType();
         assertFalse(enumType.values().isEmpty());
@@ -160,12 +166,12 @@ class TaskSchemaParserTest {
     void testEmptyValues() {
         var section = schema.resolveInSection(Map.of());
         // Only base properties
-        assertEquals(schema.getBaseInSection().properties().size(), section.properties().size());
+        assertEquals(schema.baseInSection().properties().size(), section.properties().size());
     }
 
     @Test
     void testOutSection() {
-        var out = schema.getOutSection();
+        var out = schema.outSection();
         assertFalse(out.properties().isEmpty());
         assertTrue(out.properties().containsKey("ok"));
         assertTrue(out.properties().containsKey("id"));
@@ -176,10 +182,10 @@ class TaskSchemaParserTest {
         assertTrue(out.requiredFields().contains("ok"));
 
         var okProp = out.properties().get("ok");
-        assertEquals(new SchemaType.Scalar("boolean"), okProp.schemaType());
+        assertEquals(SchemaType.Scalar.BOOLEAN, okProp.schemaType());
 
         var idsProp = out.properties().get("ids");
-        assertEquals(new SchemaType.Array("string"), idsProp.schemaType());
+        assertEquals(new SchemaType.Array(ConcordType.WellKnown.STRING), idsProp.schemaType());
     }
 
     @Test
@@ -188,15 +194,15 @@ class TaskSchemaParserTest {
 
         var syncProp = section.properties().get("sync");
         assertNotNull(syncProp);
-        assertEquals(new SchemaType.Scalar("boolean"), syncProp.schemaType());
+        assertEquals(SchemaType.Scalar.BOOLEAN, syncProp.schemaType());
 
         var activeProfilesProp = section.properties().get("activeProfiles");
         assertNotNull(activeProfilesProp);
-        assertEquals(new SchemaType.Array("string"), activeProfilesProp.schemaType());
+        assertEquals(new SchemaType.Array(ConcordType.WellKnown.STRING), activeProfilesProp.schemaType());
 
         var argumentsProp = section.properties().get("arguments");
         assertNotNull(argumentsProp);
-        assertEquals(new SchemaType.Scalar("object"), argumentsProp.schemaType());
+        assertEquals(SchemaType.Scalar.OBJECT, argumentsProp.schemaType());
     }
 
     @Test
@@ -207,8 +213,8 @@ class TaskSchemaParserTest {
         assertNotNull(instanceIdProp);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Array("string")
+                        SchemaType.Scalar.STRING,
+                        new SchemaType.Array(ConcordType.WellKnown.STRING)
                 )),
                 instanceIdProp.schemaType()
         );
@@ -216,8 +222,8 @@ class TaskSchemaParserTest {
 
     @Test
     void testAdditionalProperties() {
-        assertTrue(schema.getBaseInSection().additionalProperties());
-        assertTrue(schema.getOutSection().additionalProperties());
+        assertTrue(schema.baseInSection().additionalProperties());
+        assertTrue(schema.outSection().additionalProperties());
     }
 
     @Test
@@ -229,34 +235,34 @@ class TaskSchemaParserTest {
 
     @Test
     void testMultiKeyConditional_allKeysMatch() {
-        // Both action=process AND mode=sync → timeout should be present
+        // Both action=process AND mode=sync -> timeout should be present
         var section = multiKeySchema.resolveInSection(Map.of("action", "process", "mode", "sync"));
         assertTrue(section.properties().containsKey("timeout"));
     }
 
     @Test
     void testMultiKeyConditional_partialMatch() {
-        // Only action=process without mode → timeout should NOT be present (AND semantics)
+        // Only action=process without mode -> timeout should NOT be present (AND semantics)
         var section = multiKeySchema.resolveInSection(Map.of("action", "process"));
         assertFalse(section.properties().containsKey("timeout"));
     }
 
     @Test
     void testMultiKeyConditional_singleKeyConditional() {
-        // action=upload → destination should be present (single-key conditional still works)
+        // action=upload -> destination should be present (single-key conditional still works)
         var section = multiKeySchema.resolveInSection(Map.of("action", "upload"));
         assertTrue(section.properties().containsKey("destination"));
     }
 
     @Test
     void testOneOfWithRefAlternatives() {
-        var section = refCompositeSchema.getBaseInSection();
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("oneOfWithRef");
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Array("string")
+                        SchemaType.Scalar.STRING,
+                        new SchemaType.Array(ConcordType.WellKnown.STRING)
                 )),
                 prop.schemaType()
         );
@@ -264,13 +270,13 @@ class TaskSchemaParserTest {
 
     @Test
     void testAnyOfWithRefAlternatives() {
-        var section = refCompositeSchema.getBaseInSection();
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("anyOfWithRef");
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Scalar("integer")
+                        SchemaType.Scalar.STRING,
+                        SchemaType.Scalar.INTEGER
                 )),
                 prop.schemaType()
         );
@@ -278,21 +284,21 @@ class TaskSchemaParserTest {
 
     @Test
     void testArrayItemsWithRef() {
-        var section = refCompositeSchema.getBaseInSection();
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("arrayWithRefItems");
         assertNotNull(prop);
-        assertEquals(new SchemaType.Array("string"), prop.schemaType());
+        assertEquals(new SchemaType.Array(ConcordType.WellKnown.STRING), prop.schemaType());
     }
 
     @Test
     void testOneOfMixedRefAndInline() {
-        var section = refCompositeSchema.getBaseInSection();
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("oneOfMixed");
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
                         new SchemaType.Enum(List.of("active", "inactive")),
-                        new SchemaType.Scalar("boolean")
+                        SchemaType.Scalar.BOOLEAN
                 )),
                 prop.schemaType()
         );
@@ -300,14 +306,14 @@ class TaskSchemaParserTest {
 
     @Test
     void testOneOfWithChainedRef() {
-        // nestedRef → $ref → stringType, should resolve through the chain
-        var section = refCompositeSchema.getBaseInSection();
+        // nestedRef -> $ref -> stringType, should resolve through the chain
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("oneOfNestedRef");
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Scalar("integer")
+                        SchemaType.Scalar.STRING,
+                        SchemaType.Scalar.INTEGER
                 )),
                 prop.schemaType()
         );
@@ -315,7 +321,7 @@ class TaskSchemaParserTest {
 
     @Test
     void testConstEnumWithDescriptions() {
-        var section = refCompositeSchema.getBaseInSection();
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("constEnumWithDesc");
         assertNotNull(prop);
         assertInstanceOf(SchemaType.Enum.class, prop.schemaType());
@@ -326,7 +332,7 @@ class TaskSchemaParserTest {
 
     @Test
     void testConstEnumWithoutDescriptions() {
-        var section = refCompositeSchema.getBaseInSection();
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("constEnumNoDesc");
         assertNotNull(prop);
         assertInstanceOf(SchemaType.Enum.class, prop.schemaType());
@@ -337,7 +343,7 @@ class TaskSchemaParserTest {
 
     @Test
     void testConstEnumPartialDescriptions() {
-        var section = refCompositeSchema.getBaseInSection();
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("constEnumMixedDesc");
         assertNotNull(prop);
         assertInstanceOf(SchemaType.Enum.class, prop.schemaType());
@@ -349,7 +355,7 @@ class TaskSchemaParserTest {
     @Test
     void testOneOfMixedConstAndType_notEnum() {
         // oneOf with const + type is NOT a const-enum, should be Composite
-        var section = refCompositeSchema.getBaseInSection();
+        var section = refCompositeSchema.baseInSection();
         var prop = section.properties().get("oneOfMixedConstAndType");
         assertNotNull(prop);
         assertInstanceOf(SchemaType.Composite.class, prop.schemaType());
@@ -357,13 +363,13 @@ class TaskSchemaParserTest {
 
     @Test
     void testOutSectionOneOfWithRef() {
-        var out = refCompositeSchema.getOutSection();
+        var out = refCompositeSchema.outSection();
         var prop = out.properties().get("result");
         assertNotNull(prop);
         assertEquals(
                 new SchemaType.Composite(List.of(
-                        new SchemaType.Scalar("string"),
-                        new SchemaType.Scalar("integer")
+                        SchemaType.Scalar.STRING,
+                        SchemaType.Scalar.INTEGER
                 )),
                 prop.schemaType()
         );
@@ -371,17 +377,17 @@ class TaskSchemaParserTest {
 
     @Test
     void testTaskDescription() {
-        assertEquals("Schema for the concord task - start/fork processes, manage API keys", schema.getDescription());
+        assertEquals("Schema for the concord task - start/fork processes, manage API keys", schema.description());
     }
 
     @Test
     void testStrictTaskDescription() {
-        assertEquals("An HTTP client task for making web requests", strictSchema.getDescription());
+        assertEquals("An HTTP client task for making web requests", strictSchema.description());
     }
 
     @Test
     void testPropertyDescription() {
-        var base = schema.getBaseInSection();
+        var base = schema.baseInSection();
         var actionProp = base.properties().get("action");
         assertNotNull(actionProp);
         assertEquals("The action to perform", actionProp.description());
@@ -389,7 +395,7 @@ class TaskSchemaParserTest {
 
     @Test
     void testPropertyWithoutType() {
-        // "meta" in concord.schema.json has description but no type → SchemaType.Any
+        // "meta" in concord.schema.json has description but no type -> SchemaType.Any
         var section = schema.resolveInSection(Map.of("action", "start"));
         var metaProp = section.properties().get("meta");
         assertNotNull(metaProp);
@@ -399,13 +405,13 @@ class TaskSchemaParserTest {
 
     @Test
     void testStrictAdditionalProperties() {
-        assertFalse(strictSchema.getBaseInSection().additionalProperties());
-        assertFalse(strictSchema.getOutSection().additionalProperties());
+        assertFalse(strictSchema.baseInSection().additionalProperties());
+        assertFalse(strictSchema.outSection().additionalProperties());
     }
 
     @Test
     void testStrictRequiredProperties() {
-        var base = strictSchema.getBaseInSection();
+        var base = strictSchema.baseInSection();
         assertTrue(base.requiredFields().contains("url"));
         assertFalse(base.requiredFields().contains("method"));
         assertFalse(base.requiredFields().contains("debug"));
@@ -413,7 +419,7 @@ class TaskSchemaParserTest {
 
     @Test
     void testPropertyRequiredFlag() {
-        var base = strictSchema.getBaseInSection();
+        var base = strictSchema.baseInSection();
         var urlProp = base.properties().get("url");
         assertNotNull(urlProp);
         assertTrue(urlProp.required());
@@ -425,5 +431,96 @@ class TaskSchemaParserTest {
         var debugProp = base.properties().get("debug");
         assertNotNull(debugProp);
         assertFalse(debugProp.required());
+    }
+
+    // --- nested object tests ---
+
+    @Test
+    void testNestedObjectType() {
+        var base = nestedObjectSchema.baseInSection();
+        var authProp = base.properties().get("auth");
+        assertNotNull(authProp);
+        assertInstanceOf(SchemaType.Object.class, authProp.schemaType());
+
+        var authObj = (SchemaType.Object) authProp.schemaType();
+        var authSection = authObj.section();
+        assertTrue(authSection.properties().containsKey("basic"));
+        assertTrue(authSection.properties().containsKey("token"));
+        assertFalse(authSection.additionalProperties());
+    }
+
+    @Test
+    void testDeepNestedObjectType() {
+        var base = nestedObjectSchema.baseInSection();
+        var authObj = (SchemaType.Object) base.properties().get("auth").schemaType();
+        var basicProp = authObj.section().properties().get("basic");
+        assertNotNull(basicProp);
+        assertInstanceOf(SchemaType.Object.class, basicProp.schemaType());
+
+        var basicObj = (SchemaType.Object) basicProp.schemaType();
+        var basicSection = basicObj.section();
+        assertTrue(basicSection.properties().containsKey("username"));
+        assertTrue(basicSection.properties().containsKey("password"));
+        assertTrue(basicSection.requiredFields().contains("username"));
+        assertTrue(basicSection.requiredFields().contains("password"));
+        assertFalse(basicSection.additionalProperties());
+    }
+
+    @Test
+    void testFreeFormObjectRemainsScalar() {
+        var base = nestedObjectSchema.baseInSection();
+        var freeFormProp = base.properties().get("freeFormObject");
+        assertNotNull(freeFormProp);
+        assertEquals(SchemaType.Scalar.OBJECT, freeFormProp.schemaType());
+    }
+
+    @Test
+    void testNestedObjectViaRef() {
+        var base = nestedObjectSchema.baseInSection();
+        var proxyProp = base.properties().get("proxy");
+        assertNotNull(proxyProp);
+        assertInstanceOf(SchemaType.Object.class, proxyProp.schemaType());
+
+        var proxyObj = (SchemaType.Object) proxyProp.schemaType();
+        var proxySection = proxyObj.section();
+        assertTrue(proxySection.properties().containsKey("host"));
+        assertTrue(proxySection.properties().containsKey("port"));
+        assertTrue(proxySection.requiredFields().contains("host"));
+        assertFalse(proxySection.additionalProperties());
+
+        var hostProp = proxySection.properties().get("host");
+        assertEquals(SchemaType.Scalar.STRING, hostProp.schemaType());
+        var portProp = proxySection.properties().get("port");
+        assertEquals(SchemaType.Scalar.INTEGER, portProp.schemaType());
+    }
+
+    @Test
+    void testNestedObjectInOneOf() {
+        var base = nestedObjectSchema.baseInSection();
+        var credsProp = base.properties().get("credentials");
+        assertNotNull(credsProp);
+        assertInstanceOf(SchemaType.Composite.class, credsProp.schemaType());
+
+        var composite = (SchemaType.Composite) credsProp.schemaType();
+        assertEquals(2, composite.alternatives().size());
+        assertEquals(SchemaType.Scalar.STRING, composite.alternatives().get(0));
+
+        var objAlt = composite.alternatives().get(1);
+        assertInstanceOf(SchemaType.Object.class, objAlt);
+        var objSection = ((SchemaType.Object) objAlt).section();
+        assertTrue(objSection.properties().containsKey("user"));
+        assertTrue(objSection.properties().containsKey("pass"));
+        assertTrue(objSection.requiredFields().contains("user"));
+        assertTrue(objSection.requiredFields().contains("pass"));
+        assertFalse(objSection.additionalProperties());
+    }
+
+    @Test
+    void testExistingArgumentsStillScalarObject() {
+        // arguments in concord schema has no nested properties -> stays Scalar("object")
+        var section = schema.resolveInSection(Map.of("action", "start"));
+        var argumentsProp = section.properties().get("arguments");
+        assertNotNull(argumentsProp);
+        assertEquals(SchemaType.Scalar.OBJECT, argumentsProp.schemaType());
     }
 }

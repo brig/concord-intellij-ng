@@ -159,17 +159,13 @@ public class FlowCallHierarchyProvider implements HierarchyProvider {
      * Resolve a call target to its flow definition.
      */
     private static @Nullable YAMLKeyValue resolveCallTarget(@NotNull YAMLScalar callTarget) {
-        var value = callTarget.getTextValue();
-        if (YamlPsiUtils.isDynamicExpression(value)) {
+        if (YamlPsiUtils.isDynamicExpression(callTarget)) {
             // Dynamic expression - can't resolve
             return null;
         }
 
+        var value = callTarget.getTextValue();
         var process = ProcessDefinitionProvider.getInstance().get(callTarget);
-        if (process == null) {
-            return null;
-        }
-
         var flowElement = process.flow(value);
         if (flowElement instanceof YAMLKeyValue flowKv) {
             return flowKv;

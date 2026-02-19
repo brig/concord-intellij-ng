@@ -549,6 +549,165 @@ class ConcordModificationTrackerTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testArgumentsIncrementOnNewFileWithArguments() {
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        awaitProcessing();
+        long initialArgs = tracker.arguments().getModificationCount();
+
+        myFixture.addFileToProject("concord.yaml", """
+                configuration:
+                  arguments:
+                    myVar: "hello"
+                """);
+
+        waitForIncrement(tracker.arguments()::getModificationCount, initialArgs,
+                "Arguments count should increment when a new file with arguments is created");
+    }
+
+    @Test
+    void testArgumentsIncrementOnArgumentsChange() {
+        var file = myFixture.addFileToProject("concord.yaml", """
+                configuration:
+                  arguments:
+                    myVar: "hello"
+                """);
+
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        awaitProcessing();
+        long initialArgs = tracker.arguments().getModificationCount();
+
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                file.getVirtualFile().setBinaryContent("""
+                        configuration:
+                          arguments:
+                            myVar: "world"
+                        """.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        waitForIncrement(tracker.arguments()::getModificationCount, initialArgs,
+                "Arguments count should increment on arguments value change");
+    }
+
+    @Test
+    void testArgumentsIncrementOnArgumentsAdded() {
+        var file = myFixture.addFileToProject("concord.yaml", """
+                configuration:
+                  runtime: concord-v2
+                """);
+
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        awaitProcessing();
+        long initialArgs = tracker.arguments().getModificationCount();
+
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                file.getVirtualFile().setBinaryContent("""
+                        configuration:
+                          runtime: concord-v2
+                          arguments:
+                            newVar: true
+                        """.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        waitForIncrement(tracker.arguments()::getModificationCount, initialArgs,
+                "Arguments count should increment when arguments section is added");
+    }
+
+    @Test
+    void testArgumentsIncrementOnFileDeletion() {
+        var file = myFixture.addFileToProject("delete-args.concord.yaml", """
+                configuration:
+                  arguments:
+                    myVar: "hello"
+                """);
+
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        awaitProcessing();
+        long initialArgs = tracker.arguments().getModificationCount();
+
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                file.getVirtualFile().delete(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        waitForIncrement(tracker.arguments()::getModificationCount, initialArgs,
+                "Arguments count should increment on file deletion when file had arguments");
+    }
+
+    @Test
+    void testArgumentsDoNotIncrementOnFlowsChange() {
+        var file = myFixture.addFileToProject("concord.yaml", """
+                configuration:
+                  arguments:
+                    myVar: "hello"
+                flows:
+                  main:
+                    - log: "hi"
+                """);
+
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        awaitProcessing();
+        long initialArgs = tracker.arguments().getModificationCount();
+
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                file.getVirtualFile().setBinaryContent("""
+                        configuration:
+                          arguments:
+                            myVar: "hello"
+                        flows:
+                          main:
+                            - log: "changed"
+                        """.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        awaitProcessing();
+        Assertions.assertEquals(initialArgs, tracker.arguments().getModificationCount(),
+                "Arguments count should NOT increment when only flows section changes");
+    }
+
+    @Test
+    void testArgumentsIncrementOnNonRootFileArgumentsChange() {
+        var file = myFixture.addFileToProject("other.concord.yaml", """
+                configuration:
+                  arguments:
+                    someVar: 1
+                """);
+
+        ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());
+        awaitProcessing();
+        long initialArgs = tracker.arguments().getModificationCount();
+
+        WriteCommandAction.runWriteCommandAction(getProject(), () -> {
+            try {
+                file.getVirtualFile().setBinaryContent("""
+                        configuration:
+                          arguments:
+                            someVar: 2
+                        """.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        waitForIncrement(tracker.arguments()::getModificationCount, initialArgs,
+                "Arguments count should increment on non-root concord file arguments change");
+    }
+
+    @Test
     void testStructureDoesNotIncrementOnNonRootResourcesChange() {
         var file = myFixture.addFileToProject("non-root.concord.yaml", "flows: {}");
         ConcordModificationTracker tracker = ConcordModificationTracker.getInstance(getProject());

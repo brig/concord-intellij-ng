@@ -2,8 +2,8 @@ package brig.concord.documentation;
 
 import brig.concord.schema.SchemaType;
 import brig.concord.schema.TaskSchema;
-import brig.concord.schema.TaskSchemaProperty;
-import brig.concord.schema.TaskSchemaSection;
+import brig.concord.schema.SchemaProperty;
+import brig.concord.schema.ObjectSchema;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import com.intellij.model.Pointer;
 import com.intellij.openapi.util.text.StringUtil;
@@ -35,28 +35,28 @@ public class TaskDocumentationTarget implements DocumentationTarget {
 
     public TaskDocumentationTarget(@NotNull YAMLKeyValue taskKv, @NotNull TaskSchema schema) {
         this.taskPointer = SmartPointerManager.createPointer(taskKv);
-        this.taskName = schema.getTaskName();
-        this.description = schema.getDescription();
+        this.taskName = schema.taskName();
+        this.description = schema.description();
 
         var inputResult = buildInputParams(schema);
         this.inputParams = inputResult.params;
         this.inputFooter = inputResult.footer;
         this.inputGroups = inputResult.groups;
 
-        this.outputParams = toParamInfos(schema.getOutSection());
+        this.outputParams = toParamInfos(schema.outSection());
     }
 
     public TaskDocumentationTarget(@NotNull TaskSchema schema) {
         this.taskPointer = null;
-        this.taskName = schema.getTaskName();
-        this.description = schema.getDescription();
+        this.taskName = schema.taskName();
+        this.description = schema.description();
 
         var inputResult = buildInputParams(schema);
         this.inputParams = inputResult.params;
         this.inputFooter = inputResult.footer;
         this.inputGroups = inputResult.groups;
 
-        this.outputParams = toParamInfos(schema.getOutSection());
+        this.outputParams = toParamInfos(schema.outSection());
     }
 
     private TaskDocumentationTarget(@Nullable SmartPsiElementPointer<YAMLKeyValue> taskPointer,
@@ -174,13 +174,13 @@ public class TaskDocumentationTarget implements DocumentationTarget {
     }
 
     private static InputResult buildInputParams(@NotNull TaskSchema schema) {
-        var conditionals = schema.getInConditionals();
+        var conditionals = schema.inConditionals();
         if (conditionals.isEmpty()) {
-            return new InputResult(toParamInfos(schema.getBaseInSection()), null, List.of());
+            return new InputResult(toParamInfos(schema.baseInSection()), null, List.of());
         }
 
         // Count total unique input params across base + all conditionals
-        var allParamNames = new LinkedHashSet<>(schema.getBaseInSection().properties().keySet());
+        var allParamNames = new LinkedHashSet<>(schema.baseInSection().properties().keySet());
         for (var conditional : conditionals) {
             allParamNames.addAll(conditional.thenSection().properties().keySet());
         }
@@ -189,7 +189,7 @@ public class TaskDocumentationTarget implements DocumentationTarget {
             // Show only discriminator parameters from the base section
             var discriminatorKeys = schema.getDiscriminatorKeys();
             var discriminatorParams = new ArrayList<ParamInfo>();
-            var baseProps = schema.getBaseInSection().properties();
+            var baseProps = schema.baseInSection().properties();
             for (var key : discriminatorKeys) {
                 var prop = baseProps.get(key);
                 if (prop != null) {
@@ -203,8 +203,8 @@ public class TaskDocumentationTarget implements DocumentationTarget {
         }
 
         // Under threshold: show base params, then group conditional params
-        var baseParams = toParamInfos(schema.getBaseInSection());
-        var baseParamNames = schema.getBaseInSection().properties().keySet();
+        var baseParams = toParamInfos(schema.baseInSection());
+        var baseParamNames = schema.baseInSection().properties().keySet();
 
         var groups = new ArrayList<ConditionalGroup>();
         for (var conditional : conditionals) {
@@ -234,16 +234,16 @@ public class TaskDocumentationTarget implements DocumentationTarget {
                 .collect(Collectors.joining(", "));
     }
 
-    private static List<ParamInfo> toParamInfos(@NotNull TaskSchemaSection section) {
+    private static List<ParamInfo> toParamInfos(@NotNull ObjectSchema section) {
         return section.properties().values().stream()
                 .map(TaskDocumentationTarget::toParamInfo)
                 .toList();
     }
 
-    private static ParamInfo toParamInfo(@NotNull TaskSchemaProperty prop) {
+    private static ParamInfo toParamInfo(@NotNull SchemaProperty prop) {
         return new ParamInfo(
                 prop.name(),
-                schemaTypeDisplayName(prop.schemaType()),
+                SchemaType.displayName(prop.schemaType()),
                 prop.required(),
                 prop.description(),
                 extractEnumValues(prop.schemaType())
@@ -251,32 +251,15 @@ public class TaskDocumentationTarget implements DocumentationTarget {
     }
 
     private static @NotNull List<EnumValueInfo> extractEnumValues(@NotNull SchemaType schemaType) {
-        if (!(schemaType instanceof SchemaType.Enum e)) {
+        if (!(schemaType instanceof SchemaType.Enum(List<String> values, List<String> descriptions))) {
             return List.of();
         }
-        var values = e.values();
-        var descriptions = e.descriptions();
         var result = new ArrayList<EnumValueInfo>(values.size());
         for (int i = 0; i < values.size(); i++) {
             var desc = i < descriptions.size() ? descriptions.get(i) : null;
             result.add(new EnumValueInfo(values.get(i), desc != null && !desc.isEmpty() ? desc : null));
         }
         return List.copyOf(result);
-    }
-
-    private static @NotNull String schemaTypeDisplayName(@NotNull SchemaType schemaType) {
-        return switch (schemaType) {
-            case SchemaType.Scalar s -> s.typeName();
-            case SchemaType.Array a -> {
-                var itemType = a.itemType();
-                yield (itemType != null ? itemType : "any") + "[]";
-            }
-            case SchemaType.Enum e -> "enum";
-            case SchemaType.Composite c -> c.alternatives().stream()
-                    .map(TaskDocumentationTarget::schemaTypeDisplayName)
-                    .collect(Collectors.joining("|"));
-            case SchemaType.Any a -> "any";
-        };
     }
 
     private record ConditionalGroup(@NotNull String header, @NotNull List<ParamInfo> params) {}

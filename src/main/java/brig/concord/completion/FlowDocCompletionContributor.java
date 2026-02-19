@@ -1,5 +1,6 @@
 package brig.concord.completion;
 
+import brig.concord.ConcordType;
 import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.psi.ConcordFile;
@@ -12,17 +13,21 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FlowDocCompletionContributor extends CompletionContributor {
 
-    private static final List<String> SIMPLE_TYPES = List.of(
-            "string", "boolean", "int", "integer", "number", "object", "any"
-    );
+    private static final List<String> TYPE_NAMES = createTypeNames();
 
-    private static final List<String> ARRAY_TYPES = List.of(
-            "string[]", "boolean[]", "int[]", "integer[]", "number[]", "object[]", "any[]"
-    );
+    private static List<String> createTypeNames() {
+        var names = new ArrayList<String>();
+        for (var type : ConcordType.ALIASES.keySet()) {
+            names.add(type);
+            names.add(type + "[]");
+        }
+        return List.copyOf(names);
+    }
 
     private static final List<String> KEYWORDS = List.of("mandatory", "required", "optional");
 
@@ -89,15 +94,11 @@ public class FlowDocCompletionContributor extends CompletionContributor {
                 }
             }
 
-            for (var type : SIMPLE_TYPES) {
-                result.addElement(LookupElementBuilder.create(type)
-                        .withTypeText("type")
-                        .withBoldness(true));
-            }
-
-            for (var type : ARRAY_TYPES) {
-                result.addElement(LookupElementBuilder.create(type)
-                        .withTypeText("array type"));
+            for (var name : TYPE_NAMES) {
+                var isArray = name.endsWith("[]");
+                result.addElement(LookupElementBuilder.create(name)
+                        .withTypeText(isArray ? "array type" : "type")
+                        .withBoldness(!isArray));
             }
         }
     }

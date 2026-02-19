@@ -44,7 +44,7 @@ class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
     }
 
     @Test
-    void testFixUnknownType_CaseInsensitive() {
+    void testCaseInsensitiveType_noWarning() {
         configureFromText("""
             flows:
               ##
@@ -55,19 +55,9 @@ class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
                 - log: "test"
             """);
 
+        // "String" is valid (case-insensitive match), so no quick fix should be offered
         var intentions = myFixture.filterAvailableIntentions("Change type to 'string'");
-        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
-        myFixture.launchAction(intentions.getFirst());
-
-        myFixture.checkResult("""
-            flows:
-              ##
-              # in:
-              #   param: string, mandatory
-              ##
-              myFlow:
-                - log: "test"
-            """);
+        Assertions.assertTrue(intentions.isEmpty(), "No quick fix expected for valid case-insensitive type");
     }
 
     @Test
@@ -85,6 +75,33 @@ class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
         // "list" triggers array suggestions
         var intentions = myFixture.filterAvailableIntentions("Change type to 'string[]'");
         Assertions.assertFalse(intentions.isEmpty(), "Quick fix should be available");
+        myFixture.launchAction(intentions.getFirst());
+
+        myFixture.checkResult("""
+            flows:
+              ##
+              # in:
+              #   param: string[], mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """);
+    }
+    @Test
+    void testFixUnknownType_ArrayPreservesArraySuffix() {
+        configureFromText("""
+            flows:
+              ##
+              # in:
+              #   param: <caret>strng[], mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """);
+
+        // "strng[]" should suggest "string[]", preserving the array suffix
+        var intentions = myFixture.filterAvailableIntentions("Change type to 'string[]'");
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should suggest 'string[]' for 'strng[]'");
         myFixture.launchAction(intentions.getFirst());
 
         myFixture.checkResult("""

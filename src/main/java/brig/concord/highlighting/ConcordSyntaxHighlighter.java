@@ -1,8 +1,10 @@
 package brig.concord.highlighting;
 
+import brig.concord.lexer.ConcordElTokenTypes;
+import brig.concord.lexer.ConcordYAMLFlexLexer;
+import brig.concord.lexer.ExpressionSplittingLexer;
 import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.yaml.YAMLTokenTypes;
-import brig.concord.lexer.ConcordYAMLFlexLexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
@@ -98,12 +100,18 @@ public final class ConcordSyntaxHighlighter extends SyntaxHighlighterBase {
         m.put(FlowDocTokenTypes.FLOW_DOC_COLON, flowDocPunctuation);
         m.put(FlowDocTokenTypes.FLOW_DOC_COMMA, flowDocPunctuation);
 
+        // EL expressions: delimiters get EXPRESSION color, body is colored per-token
+        // by ChameleonSyntaxHighlightingPass using ElSyntaxHighlighter
+        TextAttributesKey[] expression = {ConcordHighlightingColors.EXPRESSION};
+        m.put(ConcordElTokenTypes.EL_EXPR_START, expression);
+        m.put(ConcordElTokenTypes.EL_EXPR_END, expression);
+
         return Map.copyOf(m);
     }
 
     @Override
     public @NotNull Lexer getHighlightingLexer() {
-        return new ConcordYAMLFlexLexer();
+        return new ExpressionSplittingLexer(new ConcordYAMLFlexLexer());
     }
 
     @Override

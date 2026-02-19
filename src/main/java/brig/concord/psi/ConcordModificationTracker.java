@@ -1,5 +1,6 @@
 package brig.concord.psi;
 
+import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -54,6 +55,7 @@ public final class ConcordModificationTracker implements Disposable {
     private final Project project;
     private final SimpleModificationTracker structureTracker = new SimpleModificationTracker();
     private final SimpleModificationTracker dependenciesTracker = new SimpleModificationTracker();
+    private final SimpleModificationTracker argumentsTracker = new SimpleModificationTracker();
 
     private final AtomicReference<DirtyState> dirtyRef = new AtomicReference<>(DirtyState.empty());
     private final AtomicReference<ProcessingState> state = new AtomicReference<>(ProcessingState.IDLE);
@@ -107,6 +109,10 @@ public final class ConcordModificationTracker implements Disposable {
         return dependenciesTracker;
     }
 
+    public @NotNull ModificationTracker arguments() {
+        return argumentsTracker;
+    }
+
     @TestOnly
     public void setForceSyncInTests(boolean value) {
         this.forceSyncInTests = value;
@@ -131,6 +137,11 @@ public final class ConcordModificationTracker implements Disposable {
         dependenciesTracker.incModificationCount();
     }
 
+    @TestOnly
+    public void invalidateArguments() {
+        argumentsTracker.incModificationCount();
+    }
+
     private void onDirty(@NotNull DirtyState delta) {
         if (delta.isEmpty() || project.isDisposed()) {
             return;
@@ -139,6 +150,10 @@ public final class ConcordModificationTracker implements Disposable {
         if (forceSyncInTests && ApplicationManager.getApplication().isUnitTestMode()) {
             structureTracker.incModificationCount();
             dependenciesTracker.incModificationCount();
+            argumentsTracker.incModificationCount();
+            if (delta.vfsContentChanged() || delta.structureDirty()) {
+                DaemonCodeAnalyzer.getInstance(project).restart("Concord VFS content changed (test)");
+            }
             return;
         }
 
@@ -220,6 +235,7 @@ public final class ConcordModificationTracker implements Disposable {
 
         var structureChanged = batch.structureDirty || batch.gitignoreDirty;
         var dependenciesChanged = false;
+        var argumentsChanged = false;
 
         // Process all dirty files
         for (var vf : batch.dirtyFiles) {
@@ -232,6 +248,9 @@ public final class ConcordModificationTracker implements Disposable {
                     // File was tracked, now invalid or not concord
                     if (oldFp.hasDependencies()) {
                         dependenciesChanged = true;
+                    }
+                    if (!oldFp.argumentsText().isEmpty()) {
+                        argumentsChanged = true;
                     }
                     // If it was a root file and had resources, technically structure changed,
                     // but we usually catch file deletion/rename in VFS listener already setting structureDirty=true.
@@ -248,8 +267,13 @@ public final class ConcordModificationTracker implements Disposable {
             }
             if (!(psiFile instanceof ConcordFile concordFile)) {
                 var oldFp = fileCache.remove(vf);
-                if (oldFp != null && oldFp.hasDependencies()) {
-                    dependenciesChanged = true;
+                if (oldFp != null) {
+                    if (oldFp.hasDependencies()) {
+                        dependenciesChanged = true;
+                    }
+                    if (!oldFp.argumentsText().isEmpty()) {
+                        argumentsChanged = true;
+                    }
                 }
                 continue;
             }
@@ -260,6 +284,9 @@ public final class ConcordModificationTracker implements Disposable {
                 if (old != null) {
                     if (old.hasDependencies()) {
                         dependenciesChanged = true;
+                    }
+                    if (!old.argumentsText().isEmpty()) {
+                        argumentsChanged = true;
                     }
                     if (isRoot && !old.resourcePatterns().isEmpty()) {
                         structureChanged = true;
@@ -274,6 +301,9 @@ public final class ConcordModificationTracker implements Disposable {
                 if (newFp.hasDependencies()) {
                     dependenciesChanged = true;
                 }
+                if (!newFp.argumentsText().isEmpty()) {
+                    argumentsChanged = true;
+                }
                 // If it's a new root file with resources, structure changed.
                 if (isRoot && !newFp.resourcePatterns().isEmpty()) {
                     structureChanged = true;
@@ -286,6 +316,10 @@ public final class ConcordModificationTracker implements Disposable {
 
                 if (!oldFp.dependenciesEquals(newFp)) {
                     dependenciesChanged = true;
+                }
+
+                if (!oldFp.argumentsEquals(newFp)) {
+                    argumentsChanged = true;
                 }
             }
         }
@@ -303,12 +337,15 @@ public final class ConcordModificationTracker implements Disposable {
                     if (fp.hasDependencies()) {
                         dependenciesChanged = true;
                     }
+                    if (!fp.argumentsText().isEmpty()) {
+                        argumentsChanged = true;
+                    }
                     iterator.remove();
                 }
             }
         }
 
-        return new BatchResult(structureChanged, dependenciesChanged);
+        return new BatchResult(structureChanged, dependenciesChanged, argumentsChanged, batch.vfsContentChanged);
     }
 
     private void applyBatchResult(@NotNull BatchResult result) {
@@ -321,10 +358,19 @@ public final class ConcordModificationTracker implements Disposable {
             dependenciesTracker.incModificationCount();
             project.getMessageBus().syncPublisher(ConcordDependenciesListener.TOPIC).dependenciesChanged();
         }
+
+        if (result.argumentsChanged) {
+            argumentsTracker.incModificationCount();
+        }
+
+        if (result.vfsContentChanged || result.structureChanged) {
+            DaemonCodeAnalyzer.getInstance(project).restart("Concord VFS content changed");
+        }
     }
 
-    private record BatchResult(boolean structureChanged, boolean dependenciesChanged) {
-        private static final BatchResult EMPTY = new BatchResult(false, false);
+    private record BatchResult(boolean structureChanged, boolean dependenciesChanged, boolean argumentsChanged,
+                               boolean vfsContentChanged) {
+        private static final BatchResult EMPTY = new BatchResult(false, false, false, false);
 
         private static BatchResult empty() {
             return EMPTY;
@@ -399,6 +445,7 @@ public final class ConcordModificationTracker implements Disposable {
                 if (event instanceof VFileContentChangeEvent) {
                     if (resolvedFile != null && ConcordFile.isConcordFileName(resolvedFile.getName())) {
                         builder.dirtyFiles.add(resolvedFile);
+                        builder.vfsContentChanged = true;
                     }
                     continue;
                 }
@@ -453,7 +500,9 @@ public final class ConcordModificationTracker implements Disposable {
         private @Nullable VirtualFile resolveFile(@NotNull VFileEvent event) {
             if (event instanceof VFileCreateEvent createEvent) {
                 var parent = createEvent.getParent();
-                return parent.findChild(createEvent.getChildName());
+                if (parent.isValid()) {
+                    return parent.findChild(createEvent.getChildName());
+                }
             }
             return null;
         }
@@ -500,10 +549,11 @@ public final class ConcordModificationTracker implements Disposable {
         private boolean structureDirty;
         private boolean gitignoreDirty;
         private boolean cleanupNeeded;
+        private boolean vfsContentChanged;
         private final Set<VirtualFile> dirtyFiles = new HashSet<>();
 
         DirtyState build() {
-            return new DirtyState(structureDirty, gitignoreDirty, cleanupNeeded, dirtyFiles);
+            return new DirtyState(structureDirty, gitignoreDirty, cleanupNeeded, vfsContentChanged, dirtyFiles);
         }
     }
 
@@ -511,22 +561,27 @@ public final class ConcordModificationTracker implements Disposable {
             boolean structureDirty,
             boolean gitignoreDirty,
             boolean cleanupNeeded,
+            boolean vfsContentChanged,
             Set<VirtualFile> dirtyFiles
     ) {
 
-        private DirtyState(boolean structureDirty, boolean gitignoreDirty, boolean cleanupNeeded, Set<VirtualFile> dirtyFiles) {
+        private DirtyState(boolean structureDirty, boolean gitignoreDirty, boolean cleanupNeeded,
+                           boolean vfsContentChanged, Set<VirtualFile> dirtyFiles) {
             this.structureDirty = structureDirty;
             this.gitignoreDirty = gitignoreDirty;
             this.cleanupNeeded = cleanupNeeded;
+            this.vfsContentChanged = vfsContentChanged;
             this.dirtyFiles = Set.copyOf(dirtyFiles);
         }
 
         static DirtyState empty() {
-            return new DirtyState(false, false, false, Set.of());
+            return new DirtyState(false, false, false, false, Set.of());
         }
 
+        /** Document-originated change (editor typing) — no daemon restart needed. */
         static DirtyState create(@NotNull VirtualFile file) {
             return new DirtyState(
+                    false,
                     false,
                     false,
                     false,
@@ -546,9 +601,10 @@ public final class ConcordModificationTracker implements Disposable {
             var sd = structureDirty || other.structureDirty;
             var gd = gitignoreDirty || other.gitignoreDirty;
             var cn = cleanupNeeded || other.cleanupNeeded;
+            var vc = vfsContentChanged || other.vfsContentChanged;
             var files = new HashSet<>(dirtyFiles);
             files.addAll(other.dirtyFiles);
-            return new DirtyState(sd, gd, cn, files);
+            return new DirtyState(sd, gd, cn, vc, files);
         }
     }
 

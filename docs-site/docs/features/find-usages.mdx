@@ -25,6 +25,22 @@ The tool is **scope-aware**, meaning it understands the boundaries of your Conco
 *   **Preview Pane:** See the code context for each usage without switching files.
 *   **Filter Results:** Exclude certain types of usages (e.g., skip comments or documentation).
 
+## Variable Usages
+
+Find Usages also works for **variable declarations**, showing every `${...}` expression that references the variable. Place the caret on any of these and invoke Find Usages:
+
+*   A key in <span className="tokenBadge" data-kind="step">set</span> step
+*   A key in `configuration.arguments`
+*   A parameter in a flow [Documentation Block](./flow-docs)
+*   An `out` field value — scalar (`out: result`), mapping key (`out: {res: ...}`), or array item (`out: [result]`) — on <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">expr</span>, <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">script</span>, <span className="tokenBadge" data-kind="step">try</span>, <span className="tokenBadge" data-kind="step">block</span>, and <span className="tokenBadge" data-kind="step">parallel</span> steps
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/find-usages-variable.png').default} alt="Find Usages for a variable declaration" />
+    <figcaption>
+        Find Usages showing all expression references to a variable declared in a set step.
+    </figcaption>
+</figure>
+
 ## Example
 
 Consider a project with multiple deployment flows that share a common setup step:
