@@ -3,7 +3,9 @@
 ## Unreleased
 
 ### Added
-   
+
+- autocomplete and navigation support for nested properties in EL (Expression Language) expressions within Concord YAML files
+([#136](https://github.com/brig/concord-intellij-ng/pull/136))   
 - schema type inference for variables declared in `out` section of task step
 ([#135](https://github.com/brig/concord-intellij-ng/pull/135))   
 - schema type inference for variables declared in `out` section of call step
