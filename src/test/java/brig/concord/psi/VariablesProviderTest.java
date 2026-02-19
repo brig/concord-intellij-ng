@@ -375,7 +375,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
 
         assertNotNull(processedVar.schema());
         assertInstanceOf(SchemaType.Scalar.class, processedVar.schema().schemaType());
-        assertEquals("int", ((SchemaType.Scalar) processedVar.schema().schemaType()).typeName());
+        assertEquals("integer", ((SchemaType.Scalar) processedVar.schema().schemaType()).typeName());
         assertEquals("Files processed count", processedVar.schema().description());
     }
 
@@ -409,7 +409,7 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
         assertEquals(Set.of("processed", "failed"), outVars.keySet());
 
         assertNotNull(outVars.get("processed").schema());
-        assertEquals("int", ((SchemaType.Scalar) outVars.get("processed").schema().schemaType()).typeName());
+        assertEquals("integer", ((SchemaType.Scalar) outVars.get("processed").schema().schemaType()).typeName());
 
         assertNotNull(outVars.get("failed").schema());
         assertEquals("string", ((SchemaType.Scalar) outVars.get("failed").schema().schemaType()).typeName());

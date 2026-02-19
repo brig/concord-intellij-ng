@@ -1,7 +1,9 @@
 package brig.concord.completion.provider;
 
+import brig.concord.ConcordType;
 import brig.concord.meta.ConcordMetaType;
-import brig.concord.meta.model.value.*;
+import brig.concord.meta.model.value.AnyMapMetaType;
+import brig.concord.meta.model.value.AnythingMetaType;
 import brig.concord.yaml.meta.model.TypeProps;
 import brig.concord.meta.model.call.CallInParamMetaType;
 import brig.concord.psi.FlowDocParameter;
@@ -138,33 +140,13 @@ public class FlowCallParamsProvider {
             return AnythingMetaType.getInstance();
         }
 
-        AnyOfType baseType;
+        var concordType = ConcordType.resolve(parameter.getBaseType(), ConcordType.YamlBaseType.ANY);
+        var props = TypeProps.desc(parameter.getDescription()).andRequired(parameter.isMandatory());
+
         if (parameter.isArrayType()) {
-            baseType = switch (parameter.getBaseType().toLowerCase()) {
-                case "string" -> ParamMetaTypes.STRING_ARRAY_OR_EXPRESSION;
-                case "boolean" -> ParamMetaTypes.BOOLEAN_ARRAY_OR_EXPRESSION;
-                case "object" -> ParamMetaTypes.OBJECT_ARRAY_OR_EXPRESSION;
-                case "number", "int", "integer" -> ParamMetaTypes.NUMBER_ARRAY_OR_EXPRESSION;
-                default -> ParamMetaTypes.ARRAY_OR_EXPRESSION;
-            };
-        } else {
-            baseType = switch (parameter.getBaseType().toLowerCase()) {
-                case "string" -> ParamMetaTypes.STRING_OR_EXPRESSION;
-                case "boolean" -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
-                case "object" -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
-                case "number", "int", "integer" -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
-                default -> null;
-            };
+            return concordType.arrayMetaType(props);
         }
-
-        if (baseType == null) {
-            return AnythingMetaType.getInstance();
-        }
-
-        var description = parameter.getDescription();
-        var mandatory = parameter.isMandatory();
-
-        return baseType.withProps(TypeProps.desc(description).andRequired(mandatory));
+        return concordType.scalarMetaType(props);
     }
 
     public static @Nullable FlowDocumentation findFlowDocumentation(PsiElement element) {

@@ -1,5 +1,6 @@
 package brig.concord.schema;
 
+import brig.concord.ConcordType;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
@@ -22,12 +23,12 @@ class ObjectSchemaTest {
     @Test
     void testMergeUnionOfProperties() {
         var a = section(
-                Map.of("url", prop("url", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         var b = section(
-                Map.of("method", prop("method", "string")),
+                Map.of("method", prop("method", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
@@ -41,12 +42,12 @@ class ObjectSchemaTest {
     @Test
     void testMergeUnionOfRequiredFields() {
         var a = section(
-                Map.of("url", prop("url", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING)),
                 Set.of("url"),
                 true
         );
         var b = section(
-                Map.of("method", prop("method", "string")),
+                Map.of("method", prop("method", ConcordType.WellKnown.STRING)),
                 Set.of("method"),
                 true
         );
@@ -78,19 +79,19 @@ class ObjectSchemaTest {
     @Test
     void testMergeOverlappingPropertySecondWins() {
         var a = section(
-                Map.of("action", prop("action", "string")),
+                Map.of("action", prop("action", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         var b = section(
-                Map.of("action", prop("action", "boolean")),
+                Map.of("action", prop("action", ConcordType.WellKnown.BOOLEAN)),
                 Set.of(),
                 true
         );
 
         var merged = a.merge(b);
         assertEquals(1, merged.properties().size());
-        assertEquals(new SchemaType.Scalar("boolean"), merged.properties().get("action").schemaType());
+        assertEquals(SchemaType.Scalar.BOOLEAN, merged.properties().get("action").schemaType());
     }
 
     @Test
@@ -98,7 +99,7 @@ class ObjectSchemaTest {
         // Property exists in first section as not-required.
         // Second section's requiredFields marks it required.
         var a = section(
-                Map.of("url", prop("url", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
@@ -116,7 +117,7 @@ class ObjectSchemaTest {
     @Test
     void testMergeWithEmptyIsIdentity() {
         var original = section(
-                Map.of("url", prop("url", "string"), "method", prop("method", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING), "method", prop("method", ConcordType.WellKnown.STRING)),
                 Set.of("url"),
                 false
         );
@@ -136,12 +137,12 @@ class ObjectSchemaTest {
     @Test
     void testMergePropertyFromFirstBecomeRequiredViaSecondRequiredFields() {
         var a = section(
-                Map.of("timeout", prop("timeout", "integer")),
+                Map.of("timeout", prop("timeout", ConcordType.WellKnown.INTEGER)),
                 Set.of(),
                 true
         );
         var b = section(
-                Map.of("retries", prop("retries", "integer")),
+                Map.of("retries", prop("retries", ConcordType.WellKnown.INTEGER)),
                 Set.of("timeout"),
                 true
         );
@@ -155,7 +156,7 @@ class ObjectSchemaTest {
 
     // -- helpers --
 
-    private static SchemaProperty prop(String name, String type) {
+    private static SchemaProperty prop(String name, ConcordType type) {
         return new SchemaProperty(name, new SchemaType.Scalar(type), null, false);
     }
 

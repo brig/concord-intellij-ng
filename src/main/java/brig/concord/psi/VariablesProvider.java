@@ -1,5 +1,6 @@
 package brig.concord.psi;
 
+import brig.concord.ConcordType;
 import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.StepElementMetaType;
@@ -104,13 +105,14 @@ public final class VariablesProvider {
     }
 
     private static @NotNull SchemaType flowDocTypeToSchemaType(@NotNull FlowDocParameter param) {
+        var concordType = ConcordType.resolve(param.getBaseType(), ConcordType.YamlBaseType.ANY);
         if (param.isArrayType()) {
-            return new SchemaType.Array(param.getBaseType());
+            return new SchemaType.Array(concordType);
         }
-        if (param.getType().equals("any")) {
+        if (concordType == ConcordType.WellKnown.ANY) {
             return new SchemaType.Any();
         }
-        return new SchemaType.Scalar(param.getType());
+        return new SchemaType.Scalar(concordType);
     }
 
     private static void collectFromSteps(PsiElement element, Map<String, Variable> result) {
@@ -213,16 +215,16 @@ public final class VariablesProvider {
                 return new SchemaType.Any();
             }
             if (value instanceof YAMLQuotedText) {
-                return new SchemaType.Scalar("string");
+                return SchemaType.Scalar.STRING;
             }
             var text = scalar.getTextValue().trim();
             if (YAMLUtil.isBooleanValue(text)) {
-                return new SchemaType.Scalar("boolean");
+                return SchemaType.Scalar.BOOLEAN;
             }
             if (YAMLUtil.isNumberValue(text)) {
-                return new SchemaType.Scalar("integer");
+                return SchemaType.Scalar.INTEGER;
             }
-            return new SchemaType.Scalar("string");
+            return SchemaType.Scalar.STRING;
         }
 
         if (value instanceof YAMLMapping mapping) {
@@ -242,7 +244,7 @@ public final class VariablesProvider {
         }
 
         if (value instanceof YAMLSequence) {
-            return new SchemaType.Array(null);
+            return SchemaType.Array.ANY;
         }
 
         return new SchemaType.Any();

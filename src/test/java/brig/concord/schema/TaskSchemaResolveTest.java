@@ -1,5 +1,6 @@
 package brig.concord.schema;
 
+import brig.concord.ConcordType;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -11,7 +12,7 @@ class TaskSchemaResolveTest {
     @Test
     void testNoConditionals() {
         var base = section(
-                Map.of("url", prop("url", "string")),
+                Map.of("url", prop("url", ConcordType.WellKnown.STRING)),
                 Set.of("url"),
                 true
         );
@@ -25,12 +26,12 @@ class TaskSchemaResolveTest {
     @Test
     void testSingleConditionalMatch() {
         var base = section(
-                Map.of("action", prop("action", "string")),
+                Map.of("action", prop("action", ConcordType.WellKnown.STRING)),
                 Set.of("action"),
                 true
         );
         var thenSection = section(
-                Map.of("project", prop("project", "string")),
+                Map.of("project", prop("project", ConcordType.WellKnown.STRING)),
                 Set.of("project"),
                 true
         );
@@ -49,12 +50,12 @@ class TaskSchemaResolveTest {
     @Test
     void testSingleConditionalNoMatch() {
         var base = section(
-                Map.of("action", prop("action", "string")),
+                Map.of("action", prop("action", ConcordType.WellKnown.STRING)),
                 Set.of("action"),
                 true
         );
         var thenSection = section(
-                Map.of("project", prop("project", "string")),
+                Map.of("project", prop("project", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
@@ -72,17 +73,17 @@ class TaskSchemaResolveTest {
     @Test
     void testMultipleConditionalsOneMatches() {
         var base = section(
-                Map.of("action", prop("action", "string")),
+                Map.of("action", prop("action", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         var startThen = section(
-                Map.of("project", prop("project", "string")),
+                Map.of("project", prop("project", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         var killThen = section(
-                Map.of("instanceId", prop("instanceId", "string")),
+                Map.of("instanceId", prop("instanceId", ConcordType.WellKnown.STRING)),
                 Set.of("instanceId"),
                 true
         );
@@ -101,18 +102,18 @@ class TaskSchemaResolveTest {
     @Test
     void testMultipleConditionalsBothMatch() {
         var base = section(
-                Map.of("action", prop("action", "string")),
+                Map.of("action", prop("action", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         // Both conditionals match "start"
         var first = section(
-                Map.of("project", prop("project", "string")),
+                Map.of("project", prop("project", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         var second = section(
-                Map.of("entryPoint", prop("entryPoint", "string")),
+                Map.of("entryPoint", prop("entryPoint", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
@@ -131,14 +132,14 @@ class TaskSchemaResolveTest {
     void testMultiKeyDiscriminatorAllMatch() {
         var base = section(
                 Map.of(
-                        "action", prop("action", "string"),
-                        "mode", prop("mode", "string")
+                        "action", prop("action", ConcordType.WellKnown.STRING),
+                        "mode", prop("mode", ConcordType.WellKnown.STRING)
                 ),
                 Set.of(),
                 true
         );
         var thenSection = section(
-                Map.of("timeout", prop("timeout", "integer")),
+                Map.of("timeout", prop("timeout", ConcordType.WellKnown.INTEGER)),
                 Set.of(),
                 true
         );
@@ -156,14 +157,14 @@ class TaskSchemaResolveTest {
     void testMultiKeyDiscriminatorPartialMatch() {
         var base = section(
                 Map.of(
-                        "action", prop("action", "string"),
-                        "mode", prop("mode", "string")
+                        "action", prop("action", ConcordType.WellKnown.STRING),
+                        "mode", prop("mode", ConcordType.WellKnown.STRING)
                 ),
                 Set.of(),
                 true
         );
         var thenSection = section(
-                Map.of("timeout", prop("timeout", "integer")),
+                Map.of("timeout", prop("timeout", ConcordType.WellKnown.INTEGER)),
                 Set.of(),
                 true
         );
@@ -181,12 +182,12 @@ class TaskSchemaResolveTest {
     @Test
     void testEnumStyleDiscriminator() {
         var base = section(
-                Map.of("action", prop("action", "string")),
+                Map.of("action", prop("action", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
         var thenSection = section(
-                Map.of("target", prop("target", "string")),
+                Map.of("target", prop("target", ConcordType.WellKnown.STRING)),
                 Set.of(),
                 true
         );
@@ -220,7 +221,7 @@ class TaskSchemaResolveTest {
 
     // -- helpers --
 
-    private static SchemaProperty prop(String name, String type) {
+    private static SchemaProperty prop(String name, ConcordType type) {
         return new SchemaProperty(name, new SchemaType.Scalar(type), null, false);
     }
 
