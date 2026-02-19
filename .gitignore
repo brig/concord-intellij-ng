@@ -6,6 +6,7 @@ build
 .kotlin
 .DS_Store
 src/main/gen/
+el-language/src/main/gen/
 jfr/
 docs-site/node_modules
 docs-site/build

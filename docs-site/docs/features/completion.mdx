@@ -72,27 +72,7 @@ The completion popup shows:
 *   **Parameter name** — the output variable name
 *   **Type** — shown on the right side (e.g. `int`, `string`)
 
-```concord
-flows:
-  main:
-    - call: processS3
-      in:
-        s3Bucket: "my-bucket"
-      out:  # Ctrl+Space suggests: s3Processed, s3Status
-
-  ##
-  # Process S3 files and return the results
-  # in:
-  #   s3Bucket: string, mandatory, S3 bucket name
-  # out:
-  #   s3Processed: int, Files processed count
-  #   s3Status: string, Processing status
-  ##
-  processS3:
-    - task: s3
-```
-
-<figure className="docFigure docFigure--md">
+<figure className="docFigure docFigure--sm4">
     <img src={require('@site/static/img/completion-call-out.png').default} alt="Call Output Parameter Completion" />
     <figcaption>
         Completion popup suggesting output parameter names from the target flow's documentation block.
@@ -120,33 +100,7 @@ The following variable sources are recognized:
 *   **loop** — Loop iteration variables (`item`, `items`, `itemIndex`) available inside <span className="tokenBadge" data-kind="step">loop</span> steps. These show their types (`integer` for `itemIndex`, `array` for `items`).
 *   **task result** — The implicit `result` variable available inside the `out` block of a <span className="tokenBadge" data-kind="step">task</span> step.
 
-```concord
-configuration:
-  arguments:
-    appName: "my-app"
-
-flows:
-  ##
-  # Deploy an application
-  # in:
-  #   env: string, mandatory, Target environment
-  ##
-  deploy:
-    - set:
-        version: "1.0"
-    - task: concord
-      out: result
-    - log: "${}"
-    #         ^ Ctrl+Space here suggests:
-    #           txId          built-in     string
-    #           initiator     built-in     object
-    #           appName       argument
-    #           env           flow in      string
-    #           version       set
-    #           result        step out
-```
-
-Completion is context-aware — it only suggests standalone variable names. It does **not** fire after a dot (property access like `myObj.something`) or inside function names.
+Completion is context-aware — it only suggests standalone variable names at the top level, not inside function names. After a dot, the plugin switches to [property completion](#expression-property-completion) instead.
 
 <figure className="docFigure docFigure--sm4">
     <img src={require('@site/static/img/completion-el-vars.png').default} alt="Expression Variable Completion" />
@@ -154,6 +108,34 @@ Completion is context-aware — it only suggests standalone variable names. It d
         Variable completion inside an EL expression, showing variable icons, source labels, and types.
     </figcaption>
 </figure>
+
+## Expression Property Completion
+
+When you type a dot after a variable name inside a `${...}` expression, the plugin suggests the available properties of that variable. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to trigger completion.
+
+Each suggestion displays:
+
+*   A **property icon** for quick visual identification
+*   The **property name**
+*   The **type** on the right side (e.g. `string`, `integer`, `object`)
+
+Property completion works for any variable whose type is known:
+
+*   **Built-in objects** — variables like `initiator`, `projectInfo`, and `processInfo` have full property schemas. For example, `${initiator.}` suggests `username`, `displayName`, `email`, `groups`, and `attributes`.
+*   **Set step objects** — variables assigned by <span className="tokenBadge" data-kind="step">set</span> steps with nested mappings. For example, after setting `config.host` and `config.port`, `${config.}` suggests `host` and `port`.
+*   **Task result** — the `result` variable inside a task's `out` block. For example, `${result.}` suggests properties defined in the task schema's output section (e.g. `ok`, `body`).
+*   **Deep nesting** — property completion works at any depth. After `${config.db.}`, it suggests the properties of the `db` sub-object.
+
+<figure className="docFigure docFigure--sm5">
+    <img src={require('@site/static/img/completion-el-props.png').default} alt="Expression Property Completion" />
+    <figcaption>
+        Property completion after a dot in an EL expression, showing available sub-fields with types.
+    </figcaption>
+</figure>
+
+:::note
+Property completion does not fire after bracket access (`items[0].`) or method calls (`config.toString().`), since the resulting type cannot be statically determined from the YAML structure.
+:::
 
 ## Flow Documentation Completion
 
@@ -198,14 +180,6 @@ flows:
 
 When completing parameters inside a task's <span className="tokenBadge" data-kind="step">in</span> block, the documentation popup shows the type and description of the selected parameter.
 
-```concord
-flows:
-  main:
-    - task: concord
-      in:
-        # Ctrl+Space, then Ctrl+Q on "url"
-```
-
 <figure className="docFigure docFigure--lg">
     <img src={require('@site/static/img/completion-doc-param.png').default} alt="Task Parameter Documentation in Completion" />
     <figcaption>
@@ -228,6 +202,21 @@ This is especially useful for built-in object variables. For example, selecting 
     <img src={require('@site/static/img/completion-doc-var-object.png').default} alt="Variable Documentation in Completion" />
     <figcaption>
         Quick documentation for a built-in variable showing its type and description.
+    </figcaption>
+</figure>
+
+### Property Documentation
+
+When completing properties after a dot (e.g., `${initiator.}`), the documentation popup shows details about the selected property:
+
+*   **Type** — the property's data type
+*   **Description** — a short explanation of the property's purpose (when available from the schema)
+*   **Sub-fields** — for nested object properties, the popup lists their fields
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/completion-doc-property.png').default} alt="Property Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a property in the completion list, showing its type and description.
     </figcaption>
 </figure>
 
