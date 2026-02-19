@@ -4,6 +4,8 @@
 
 ### Added
 
+- extends variable schema inference to `configuration.arguments`
+([#132](https://github.com/brig/concord-intellij-ng/pull/132)) 
 - schema type inference for variables declared in set steps within Concord flow definitions
 ([#131](https://github.com/brig/concord-intellij-ng/pull/131)) 
 - ability to select a specific JDK for running the Concord CLI
