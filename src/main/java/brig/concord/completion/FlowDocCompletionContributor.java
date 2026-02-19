@@ -13,6 +13,7 @@ import com.intellij.psi.tree.IElementType;
 import com.intellij.util.ProcessingContext;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FlowDocCompletionContributor extends CompletionContributor {
@@ -20,7 +21,7 @@ public class FlowDocCompletionContributor extends CompletionContributor {
     private static final List<String> TYPE_NAMES = createTypeNames();
 
     private static List<String> createTypeNames() {
-        var names = new java.util.ArrayList<String>();
+        var names = new ArrayList<String>();
         for (var type : ConcordType.ALIASES.keySet()) {
             names.add(type);
             names.add(type + "[]");

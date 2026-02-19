@@ -76,9 +76,11 @@ public class FlowDocumentationInspection extends ConcordInspectionTool {
             // Check for unknown types
             var baseType = param.getBaseType();
             if (!baseType.isBlank() && ConcordType.fromString(baseType) == null) {
+                var isArray = param.isArrayType();
                 var fixes = new ArrayList<LocalQuickFix>();
                 for (var suggestion : getSuggestions(baseType)) {
-                    fixes.add(new ReplaceFlowDocTypeQuickFix(suggestion));
+                    var fixType = isArray && !suggestion.endsWith("[]") ? suggestion + "[]" : suggestion;
+                    fixes.add(new ReplaceFlowDocTypeQuickFix(fixType));
                 }
 
                 holder.registerProblem(

@@ -87,6 +87,33 @@ class ReplaceFlowDocTypeQuickFixTest extends InspectionTestBase {
                 - log: "test"
             """);
     }
+    @Test
+    void testFixUnknownType_ArrayPreservesArraySuffix() {
+        configureFromText("""
+            flows:
+              ##
+              # in:
+              #   param: <caret>strng[], mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """);
+
+        // "strng[]" should suggest "string[]", preserving the array suffix
+        var intentions = myFixture.filterAvailableIntentions("Change type to 'string[]'");
+        Assertions.assertFalse(intentions.isEmpty(), "Quick fix should suggest 'string[]' for 'strng[]'");
+        myFixture.launchAction(intentions.getFirst());
+
+        myFixture.checkResult("""
+            flows:
+              ##
+              # in:
+              #   param: string[], mandatory
+              ##
+              myFlow:
+                - log: "test"
+            """);
+    }
 
     @Test
     void testFixUnknownType_Fallback() {
