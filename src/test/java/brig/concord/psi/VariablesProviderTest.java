@@ -70,6 +70,86 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testArgumentSchemaInference() {
+        createFile("concord.yaml", """
+                configuration:
+                  arguments:
+                    strArg: "hello"
+                    intArg: 42
+                    boolArg: true
+                    objArg:
+                      nested: "value"
+                      count: 10
+                    arrArg:
+                      - one
+                      - two
+                    exprArg: "${myExpression}"
+                    plainArg: hello
+                    boolYes: yes
+                    nullArg:
+                flows:
+                  main:
+                    - log: "hi"
+                """);
+
+        configureFromText("""
+                configuration:
+                  arguments:
+                    strArg: "hello"
+                    intArg: 42
+                    boolArg: true
+                    objArg:
+                      nested: "value"
+                      count: 10
+                    arrArg:
+                      - one
+                      - two
+                    exprArg: "${myExpression}"
+                    plainArg: hello
+                    boolYes: yes
+                    nullArg:
+                flows:
+                  main:
+                    - log: "hi"
+                """);
+
+        var target = element("/flows/main/[0]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var argVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.ARGUMENT)
+                .collect(Collectors.toMap(Variable::name, v -> v.schema().schemaType()));
+
+        assertInstanceOf(SchemaType.Scalar.class, argVars.get("strArg"));
+        assertEquals("string", ((SchemaType.Scalar) argVars.get("strArg")).typeName());
+
+        assertInstanceOf(SchemaType.Scalar.class, argVars.get("intArg"));
+        assertEquals("integer", ((SchemaType.Scalar) argVars.get("intArg")).typeName());
+
+        assertInstanceOf(SchemaType.Scalar.class, argVars.get("boolArg"));
+        assertEquals("boolean", ((SchemaType.Scalar) argVars.get("boolArg")).typeName());
+
+        assertInstanceOf(SchemaType.Object.class, argVars.get("objArg"));
+        var objType = (SchemaType.Object) argVars.get("objArg");
+        var nestedProps = objType.section().properties();
+        assertEquals(Set.of("nested", "count"), nestedProps.keySet());
+        assertEquals("string", ((SchemaType.Scalar) nestedProps.get("nested").schemaType()).typeName());
+        assertEquals("integer", ((SchemaType.Scalar) nestedProps.get("count").schemaType()).typeName());
+
+        assertInstanceOf(SchemaType.Array.class, argVars.get("arrArg"));
+
+        assertInstanceOf(SchemaType.Any.class, argVars.get("exprArg"));
+
+        assertInstanceOf(SchemaType.Scalar.class, argVars.get("plainArg"));
+        assertEquals("string", ((SchemaType.Scalar) argVars.get("plainArg")).typeName());
+
+        assertInstanceOf(SchemaType.Scalar.class, argVars.get("boolYes"));
+        assertEquals("boolean", ((SchemaType.Scalar) argVars.get("boolYes")).typeName());
+
+        assertInstanceOf(SchemaType.Any.class, argVars.get("nullArg"));
+    }
+
+    @Test
     void testFlowDocInParams() {
         configureFromText("""
                 flows:
