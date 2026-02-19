@@ -1,7 +1,7 @@
 package brig.concord.completion;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
-import brig.concord.psi.ConcordBuiltInVars;
+import brig.concord.schema.BuiltInVarsSchema;
 import com.intellij.codeInsight.completion.CompletionType;
 import org.junit.jupiter.api.Test;
 
@@ -23,9 +23,7 @@ class ElCompletionTest extends ConcordYamlTestBaseJunit5 {
         var lookups = myFixture.getLookupElementStrings();
         assertNotNull(lookups);
 
-        var builtInNames = ConcordBuiltInVars.VARS.stream()
-                .map(ConcordBuiltInVars.BuiltInVar::name)
-                .toList();
+        var builtInNames = BuiltInVarsSchema.getInstance().getBuiltInVars().properties().keySet();
         assertThat(lookups).containsAll(builtInNames);
     }
 

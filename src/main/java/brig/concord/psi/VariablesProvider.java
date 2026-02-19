@@ -3,6 +3,9 @@ package brig.concord.psi;
 import brig.concord.completion.provider.FlowCallParamsProvider;
 import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.StepElementMetaType;
+import brig.concord.schema.BuiltInVarsSchema;
+import brig.concord.schema.SchemaProperty;
+import brig.concord.schema.SchemaType;
 import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -18,10 +21,33 @@ public final class VariablesProvider {
 
     private static final String TASK_RESULT_VAR = "result";
 
-    public record Variable(@NotNull String name, @NotNull VariableSource source, @Nullable PsiElement declaration) {}
+    public record Variable(@NotNull String name, @NotNull VariableSource source,
+                           @Nullable PsiElement declaration, @Nullable SchemaProperty schema) {}
 
     public enum VariableSource {
-        BUILT_IN, ARGUMENT, FLOW_PARAMETER, SET_STEP, STEP_OUT, LOOP, TASK_RESULT
+        BUILT_IN("built-in", "built-in variable"),
+        ARGUMENT("argument", "process argument"),
+        FLOW_PARAMETER("flow in", "flow input parameter"),
+        SET_STEP("set", "set step variable"),
+        STEP_OUT("step out", "step output variable"),
+        LOOP("loop", "loop variable"),
+        TASK_RESULT("task result", "task result variable");
+
+        private final String shortLabel;
+        private final String description;
+
+        VariableSource(String shortLabel, String description) {
+            this.shortLabel = shortLabel;
+            this.description = description;
+        }
+
+        public @NotNull String shortLabel() {
+            return shortLabel;
+        }
+
+        public @NotNull String description() {
+            return description;
+        }
     }
 
     private VariablesProvider() {}
@@ -42,14 +68,16 @@ public final class VariablesProvider {
     }
 
     private static void collectBuiltInVars(Map<String, Variable> result) {
-        for (var v : ConcordBuiltInVars.VARS) {
-            result.put(v.name(), new Variable(v.name(), VariableSource.BUILT_IN, null));
+        var schema = BuiltInVarsSchema.getInstance();
+        for (var entry : schema.getBuiltInVars().properties().entrySet()) {
+            result.put(entry.getKey(), new Variable(entry.getKey(), VariableSource.BUILT_IN, null, entry.getValue()));
         }
     }
 
     private static void collectLoopVars(Map<String, Variable> result, PsiElement declaration) {
-        for (var v : ConcordLoopVars.VARS) {
-            result.put(v.name(), new Variable(v.name(), VariableSource.LOOP, declaration));
+        var schema = BuiltInVarsSchema.getInstance();
+        for (var entry : schema.getLoopVars().properties().entrySet()) {
+            result.put(entry.getKey(), new Variable(entry.getKey(), VariableSource.LOOP, declaration, entry.getValue()));
         }
     }
 
@@ -59,7 +87,7 @@ public final class VariablesProvider {
             var name = entry.getKey();
             var value = entry.getValue();
             var declaration = value != null ? value.getParent() : null;
-            result.put(name, new Variable(name, VariableSource.ARGUMENT, declaration));
+            result.put(name, new Variable(name, VariableSource.ARGUMENT, declaration, null));
         }
     }
 
@@ -71,8 +99,21 @@ public final class VariablesProvider {
 
         for (var param : doc.getInputParameters()) {
             var name = param.getName();
-            result.put(name, new Variable(name, VariableSource.FLOW_PARAMETER, param));
+            var schemaType = flowDocTypeToSchemaType(param.getType());
+            var schemaProp = new SchemaProperty(name, schemaType, param.getDescription(), param.isMandatory());
+            result.put(name, new Variable(name, VariableSource.FLOW_PARAMETER, param, schemaProp));
         }
+    }
+
+    private static @NotNull SchemaType flowDocTypeToSchemaType(@NotNull String type) {
+        if (type.endsWith("[]")) {
+            var base = type.substring(0, type.length() - 2);
+            return new SchemaType.Array(base.isEmpty() ? null : base);
+        }
+        return switch (type) {
+            case "any" -> new SchemaType.Any();
+            default -> new SchemaType.Scalar(type);
+        };
     }
 
     private static void collectFromSteps(PsiElement element, Map<String, Variable> result) {
@@ -99,7 +140,7 @@ public final class VariablesProvider {
                     var outKv = m.getKeyValueByKey("out");
                     if (m.getKeyValueByKey("task") != null
                             && PsiTreeUtil.isAncestor(outKv, element, false)) {
-                        result.put(TASK_RESULT_VAR, new Variable(TASK_RESULT_VAR, VariableSource.TASK_RESULT, outKv));
+                        result.put(TASK_RESULT_VAR, new Variable(TASK_RESULT_VAR, VariableSource.TASK_RESULT, outKv, null));
                     }
                 }
                 for (var item : sequence.getItems()) {
@@ -153,7 +194,7 @@ public final class VariablesProvider {
         for (var entry : m.getKeyValues()) {
             var name = entry.getKeyText().trim();
             if (!name.isEmpty()) {
-                result.put(name, new Variable(name, VariableSource.SET_STEP, entry));
+                result.put(name, new Variable(name, VariableSource.SET_STEP, entry, null));
             }
         }
     }
@@ -174,7 +215,7 @@ public final class VariablesProvider {
         if (value instanceof YAMLScalar s) {
             var name = s.getTextValue().trim();
             if (!name.isEmpty()) {
-                result.put(name, new Variable(name, VariableSource.STEP_OUT, s));
+                result.put(name, new Variable(name, VariableSource.STEP_OUT, s, null));
             }
         } else if (value instanceof YAMLSequence seq) {
             for (var item : seq.getItems()) {
@@ -182,7 +223,7 @@ public final class VariablesProvider {
                 if (itemValue instanceof YAMLScalar s) {
                     var name = s.getTextValue().trim();
                     if (!name.isEmpty()) {
-                        result.put(name, new Variable(name, VariableSource.STEP_OUT, s));
+                        result.put(name, new Variable(name, VariableSource.STEP_OUT, s, null));
                     }
                 }
             }
@@ -190,7 +231,7 @@ public final class VariablesProvider {
             for (var kv : m.getKeyValues()) {
                 var name = kv.getKeyText().trim();
                 if (!name.isEmpty()) {
-                    result.put(name, new Variable(name, VariableSource.STEP_OUT, kv));
+                    result.put(name, new Variable(name, VariableSource.STEP_OUT, kv, null));
                 }
             }
         }

@@ -103,14 +103,21 @@ flows:
 
 Inside `${...}` expressions, the plugin suggests variable names that are in scope at the current cursor position. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to trigger completion.
 
-Each suggestion shows its **source** on the right side, so you know where the variable comes from:
+Each suggestion displays:
 
-*   **built-in** — Concord runtime variables like `txId`, `workDir`, `initiator`, `processInfo`, etc. Built-in variables also show a short description.
+*   A **variable icon** for quick visual identification
+*   The **variable name**
+*   The **source** label after the name (e.g. `built-in`, `set`, `flow in`), so you know where the variable comes from
+*   The **type** on the right side (e.g. `string`, `object`, `integer`) for variables that have schema information — built-in variables, loop variables, and flow input parameters all show their types
+
+The following variable sources are recognized:
+
+*   **built-in** — Concord runtime variables like `txId`, `workDir`, `initiator`, `processInfo`, etc. These have full type information, including sub-fields for object-type variables.
 *   **argument** — Variables declared in `configuration.arguments`.
-*   **flow in** — Input parameters defined in the flow's [Documentation Block](./flow-docs).
+*   **flow in** — Input parameters defined in the flow's [Documentation Block](./flow-docs). The type from the doc block is shown (e.g. `string`, `int`, `object`).
 *   **set** — Variables assigned by <span className="tokenBadge" data-kind="step">set</span> steps earlier in the flow.
 *   **step out** — Variables captured by `out` fields of preceding steps.
-*   **loop** — Loop iteration variables (`item`, `items`, `itemIndex`) available inside <span className="tokenBadge" data-kind="step">loop</span> steps. Loop variables also show a short description.
+*   **loop** — Loop iteration variables (`item`, `items`, `itemIndex`) available inside <span className="tokenBadge" data-kind="step">loop</span> steps. These show their types (`integer` for `itemIndex`, `array` for `items`).
 *   **task result** — The implicit `result` variable available inside the `out` block of a <span className="tokenBadge" data-kind="step">task</span> step.
 
 ```concord
@@ -131,20 +138,20 @@ flows:
       out: result
     - log: "${}"
     #         ^ Ctrl+Space here suggests:
-    #           txId         built-in
-    #           workDir      built-in
-    #           appName      argument
-    #           env          flow in
-    #           version      set
-    #           result       step out
+    #           txId          built-in     string
+    #           initiator     built-in     object
+    #           appName       argument
+    #           env           flow in      string
+    #           version       set
+    #           result        step out
 ```
 
 Completion is context-aware — it only suggests standalone variable names. It does **not** fire after a dot (property access like `myObj.something`) or inside function names.
 
-<figure className="docFigure docFigure--md">
+<figure className="docFigure docFigure--sm4">
     <img src={require('@site/static/img/completion-el-vars.png').default} alt="Expression Variable Completion" />
     <figcaption>
-        Variable completion inside an EL expression, showing source labels for each suggestion.
+        Variable completion inside an EL expression, showing variable icons, source labels, and types.
     </figcaption>
 </figure>
 
@@ -203,6 +210,24 @@ flows:
     <img src={require('@site/static/img/completion-doc-param.png').default} alt="Task Parameter Documentation in Completion" />
     <figcaption>
         Quick documentation for a task parameter showing its type and description.
+    </figcaption>
+</figure>
+
+### Variable Documentation
+
+When completing variables inside `${...}` expressions, the documentation popup shows details about the selected variable:
+
+*   **Type** — the variable's data type (e.g. `string`, `object`, `integer`)
+*   **Description** — a short explanation of the variable's purpose
+*   **Sub-fields** — for object-type variables (like `initiator`, `projectInfo`, `processInfo`), the popup lists all available fields with their types and descriptions
+*   **Source** — where the variable comes from (e.g. "built-in variable", "flow input parameter", "set step variable")
+
+This is especially useful for built-in object variables. For example, selecting `initiator` in the completion list and pressing <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "J"}]} win={[{label: "Ctrl"}, {label: "Q"}]} /> shows its sub-fields (`username`, `displayName`, `email`, `groups`, `attributes`) with their types and descriptions -- so you can see exactly what properties are available without leaving the editor.
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-var-object.png').default} alt="Variable Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a built-in variable showing its type and description.
     </figcaption>
 </figure>
 

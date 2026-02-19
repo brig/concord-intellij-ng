@@ -1,0 +1,74 @@
+{
+  "type": "object",
+  "properties": {
+    "txId": {
+      "type": "string",
+      "description": "Unique identifier of the current process"
+    },
+    "parentInstanceId": {
+      "type": "string",
+      "description": "Identifier of the parent process"
+    },
+    "workDir": {
+      "type": "string",
+      "description": "Path to the working directory"
+    },
+    "initiator": {
+      "type": "object",
+      "description": "Information about the user who started the process",
+      "properties": {
+        "username": { "type": "string", "description": "Login name" },
+        "displayName": { "type": "string", "description": "Printable name" },
+        "email": { "type": "string", "description": "Email address" },
+        "groups": { "type": "array", "items": { "type": "string" }, "description": "User's groups" },
+        "attributes": { "type": "object", "description": "LDAP attributes" }
+      }
+    },
+    "currentUser": {
+      "type": "object",
+      "description": "Information about the current user",
+      "properties": {
+        "username": { "type": "string", "description": "Login name" },
+        "displayName": { "type": "string", "description": "Printable name" },
+        "email": { "type": "string", "description": "Email address" },
+        "groups": { "type": "array", "items": { "type": "string" }, "description": "User's groups" },
+        "attributes": { "type": "object", "description": "LDAP attributes" }
+      }
+    },
+    "requestInfo": {
+      "type": "object",
+      "description": "Additional request data",
+      "properties": {
+        "query": { "type": "object", "description": "Query parameters" },
+        "ip": { "type": "string", "description": "Client IP address" },
+        "headers": { "type": "object", "description": "Request headers" }
+      }
+    },
+    "projectInfo": {
+      "type": "object",
+      "description": "Project metadata",
+      "properties": {
+        "orgId": { "type": "string", "description": "Organization ID" },
+        "orgName": { "type": "string", "description": "Organization name" },
+        "projectId": { "type": "string", "description": "Project ID" },
+        "projectName": { "type": "string", "description": "Project name" },
+        "repoId": { "type": "string", "description": "Repository ID" },
+        "repoName": { "type": "string", "description": "Repository name" },
+        "repoUrl": { "type": "string", "description": "Repository URL" },
+        "repoBranch": { "type": "string", "description": "Repository branch" },
+        "repoPath": { "type": "string", "description": "Repository path" },
+        "repoCommitId": { "type": "string", "description": "Last commit ID" },
+        "repoCommitAuthor": { "type": "string", "description": "Last commit author" },
+        "repoCommitMessage": { "type": "string", "description": "Last commit message" }
+      }
+    },
+    "processInfo": {
+      "type": "object",
+      "description": "Current process information",
+      "properties": {
+        "activeProfiles": { "type": "array", "items": { "type": "string" }, "description": "Active profiles" },
+        "sessionToken": { "type": "string", "description": "Session token for Concord API calls" }
+      }
+    }
+  }
+}
