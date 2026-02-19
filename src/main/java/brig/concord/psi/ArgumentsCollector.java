@@ -1,7 +1,7 @@
 package brig.concord.psi;
 
+import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
-import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
@@ -18,7 +18,7 @@ import java.util.*;
 @Service(Service.Level.PROJECT)
 public final class ArgumentsCollector {
 
-    private static final Key<CachedValue<Map<VirtualFile, Map<String, YAMLValue>>>> CACHE_KEY =
+    private static final Key<CachedValue<Map<VirtualFile, Map<String, YAMLKeyValue>>>> CACHE_KEY =
             Key.create("ArgumentsCollector.byScope");
 
     private final Project project;
@@ -35,7 +35,7 @@ public final class ArgumentsCollector {
      * Returns merged arguments for the element's scope.
      * Finds all scopes containing the element's file and merges arguments from all of them.
      */
-    public @NotNull Map<String, YAMLValue> getArguments(@NotNull PsiElement context) {
+    public @NotNull Map<String, YAMLKeyValue> getArguments(@NotNull PsiElement context) {
         var psiFile = context.getContainingFile();
         if (psiFile == null) {
             return Map.of();
@@ -53,7 +53,7 @@ public final class ArgumentsCollector {
         }
 
         var byScope = collectByScope();
-        Map<String, YAMLValue> merged = new LinkedHashMap<>();
+        Map<String, YAMLKeyValue> merged = new LinkedHashMap<>();
         for (var scope : scopes) {
             var scopeArgs = byScope.get(scope.getRootFile());
             if (scopeArgs != null) {
@@ -67,7 +67,7 @@ public final class ArgumentsCollector {
     /**
      * Returns arguments grouped by scope root (cached).
      */
-    public @NotNull Map<VirtualFile, Map<String, YAMLValue>> collectByScope() {
+    public @NotNull Map<VirtualFile, Map<String, YAMLKeyValue>> collectByScope() {
         return CachedValuesManager.getManager(project).getCachedValue(project, CACHE_KEY, () -> {
             var result = doCollectByScope();
             var tracker = ConcordModificationTracker.getInstance(project);
@@ -75,7 +75,7 @@ public final class ArgumentsCollector {
         }, false);
     }
 
-    private @NotNull Map<VirtualFile, Map<String, YAMLValue>> doCollectByScope() {
+    private @NotNull Map<VirtualFile, Map<String, YAMLKeyValue>> doCollectByScope() {
         var scopeService = ConcordScopeService.getInstance(project);
         var roots = scopeService.findRoots();
 
@@ -83,7 +83,7 @@ public final class ArgumentsCollector {
             return Map.of();
         }
 
-        Map<VirtualFile, Map<String, YAMLValue>> result = new HashMap<>();
+        Map<VirtualFile, Map<String, YAMLKeyValue>> result = new HashMap<>();
         for (var root : roots) {
             var args = collectForScope(root);
             if (!args.isEmpty()) {
@@ -98,7 +98,7 @@ public final class ArgumentsCollector {
      * Collects merged arguments for a single scope.
      * Files are sorted by name; root file is processed last (overrides everything).
      */
-    private @NotNull Map<String, YAMLValue> collectForScope(@NotNull ConcordRoot root) {
+    private @NotNull Map<String, YAMLKeyValue> collectForScope(@NotNull ConcordRoot root) {
         var scopeService = ConcordScopeService.getInstance(project);
         var filesInScope = scopeService.getFilesInScope(root);
         var rootFile = root.getRootFile();
@@ -107,7 +107,7 @@ public final class ArgumentsCollector {
         sortedFiles.remove(rootFile);
         sortedFiles.sort(Comparator.comparing(VirtualFile::getName));
 
-        Map<String, YAMLValue> result = new LinkedHashMap<>();
+        Map<String, YAMLKeyValue> result = new LinkedHashMap<>();
         var psiManager = PsiManager.getInstance(project);
 
         for (var vf : sortedFiles) {
@@ -129,7 +129,7 @@ public final class ArgumentsCollector {
     /**
      * Extracts arguments from a single ConcordFile into the target map.
      */
-    private static void collectArguments(@NotNull ConcordFile file, @NotNull Map<String, YAMLValue> target) {
+    private static void collectArguments(@NotNull ConcordFile file, @NotNull Map<String, YAMLKeyValue> target) {
         file.configuration().ifPresent(configKv -> {
             var configValue = configKv.getValue();
             if (!(configValue instanceof YAMLMapping configMapping)) {
@@ -148,9 +148,8 @@ public final class ArgumentsCollector {
 
             for (var kv : argsMapping.getKeyValues()) {
                 var key = kv.getKeyText().trim();
-                var value = kv.getValue();
-                if (!key.isEmpty() && value != null) {
-                    target.put(key, value);
+                if (!key.isEmpty()) {
+                    target.put(key, kv);
                 }
             }
         });

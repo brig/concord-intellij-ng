@@ -84,9 +84,8 @@ public final class VariablesProvider {
         var args = ArgumentsCollector.getInstance(context.getProject()).getArguments(context);
         for (var entry : args.entrySet()) {
             var name = entry.getKey();
-            var value = entry.getValue();
-            var declaration = value != null ? value.getParent() : null;
-            result.put(name, new Variable(name, VariableSource.ARGUMENT, declaration, inferSchema(name, value)));
+            var kv = entry.getValue();
+            result.put(name, new Variable(name, VariableSource.ARGUMENT, kv, inferSchema(name, kv.getValue())));
         }
     }
 

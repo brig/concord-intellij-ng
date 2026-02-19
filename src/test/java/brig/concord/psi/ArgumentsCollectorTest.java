@@ -86,7 +86,7 @@ class ArgumentsCollectorTest extends ConcordYamlTestBaseJunit5 {
         var args = byScope.values().iterator().next();
         assertEquals(1, args.size());
         // Root file should win because it's processed last
-        assertEquals("\"fromRoot\"", ReadAction.compute(() -> args.get("shared").getText()));
+        assertEquals("\"fromRoot\"", ReadAction.compute(() -> args.get("shared").getValue().getText()));
     }
 
     @Test
@@ -118,7 +118,7 @@ class ArgumentsCollectorTest extends ConcordYamlTestBaseJunit5 {
 
         var args = byScope.values().iterator().next();
         // zzz sorts after aaa, so zzz should win
-        assertEquals("\"fromZZZ\"", ReadAction.compute(() -> args.get("shared").getText()));
+        assertEquals("\"fromZZZ\"", ReadAction.compute(() -> args.get("shared").getValue().getText()));
     }
 
     @Test
@@ -215,7 +215,7 @@ class ArgumentsCollectorTest extends ConcordYamlTestBaseJunit5 {
         assertTrue(args.containsKey("aOnly"));
         assertTrue(args.containsKey("bOnly"));
         // Root processed last — overrides a.concord.yaml and b.concord.yaml
-        assertEquals("\"rootValue\"", ReadAction.compute(() -> args.get("shared").getText()));
+        assertEquals("\"rootValue\"", ReadAction.compute(() -> args.get("shared").getValue().getText()));
     }
 
     @Test
