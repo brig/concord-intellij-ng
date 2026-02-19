@@ -13,4 +13,8 @@ public record SchemaProperty(
     public SchemaProperty withRequired(boolean required) {
         return new SchemaProperty(name, schemaType, description, required);
     }
+
+    public static SchemaProperty any(String name, String description, boolean required) {
+        return new SchemaProperty(name, new SchemaType.Any(), description, required);
+    }
 }

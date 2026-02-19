@@ -349,6 +349,132 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testCallOutScalarWithFlowDoc() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: helper
+                      out: processed
+                    - log: "${processed}"
+                  ##
+                  # Helper flow
+                  # out:
+                  #   processed: int, optional, Files processed count
+                  #   failed: string, optional, Error message
+                  ##
+                  helper:
+                    - log: "hi"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var processedVar = vars.stream()
+                .filter(v -> v.source() == VariableSource.STEP_OUT && "processed".equals(v.name()))
+                .findFirst().orElseThrow();
+
+        assertNotNull(processedVar.schema());
+        assertInstanceOf(SchemaType.Scalar.class, processedVar.schema().schemaType());
+        assertEquals("int", ((SchemaType.Scalar) processedVar.schema().schemaType()).typeName());
+        assertEquals("Files processed count", processedVar.schema().description());
+    }
+
+    @Test
+    void testCallOutArrayWithFlowDoc() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: helper
+                      out:
+                        - processed
+                        - failed
+                    - log: "${processed}"
+                  ##
+                  # Helper flow
+                  # out:
+                  #   processed: int, optional, Files processed count
+                  #   failed: string, optional, Error message
+                  ##
+                  helper:
+                    - log: "hi"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var outVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.STEP_OUT)
+                .collect(Collectors.toMap(Variable::name, v -> v));
+
+        assertEquals(Set.of("processed", "failed"), outVars.keySet());
+
+        assertNotNull(outVars.get("processed").schema());
+        assertEquals("int", ((SchemaType.Scalar) outVars.get("processed").schema().schemaType()).typeName());
+
+        assertNotNull(outVars.get("failed").schema());
+        assertEquals("string", ((SchemaType.Scalar) outVars.get("failed").schema().schemaType()).typeName());
+    }
+
+    @Test
+    void testCallOutMappingWithFlowDoc() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: helper
+                      out:
+                        localCount: "${processed}"
+                        localMsg: "${failed}"
+                    - log: "${localCount}"
+                  ##
+                  # Helper flow
+                  # out:
+                  #   processed: int, optional, Files processed count
+                  #   failed: string, optional, Error message
+                  ##
+                  helper:
+                    - log: "hi"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var outVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.STEP_OUT)
+                .collect(Collectors.toMap(Variable::name, v -> v));
+
+        assertEquals(Set.of("localCount", "localMsg"), outVars.keySet());
+
+        // mapping form: keys are local variable names, schema is any
+        assertNotNull(outVars.get("localCount").schema());
+        assertInstanceOf(SchemaType.Any.class, outVars.get("localCount").schema().schemaType());
+
+        assertNotNull(outVars.get("localMsg").schema());
+        assertInstanceOf(SchemaType.Any.class, outVars.get("localMsg").schema().schemaType());
+    }
+
+    @Test
+    void testCallOutWithoutFlowDoc() {
+        configureFromText("""
+                flows:
+                  main:
+                    - call: helper
+                      out: res
+                    - log: "${res}"
+                  helper:
+                    - log: "hi"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var resVar = vars.stream()
+                .filter(v -> v.source() == VariableSource.STEP_OUT && "res".equals(v.name()))
+                .findFirst().orElseThrow();
+
+        assertNull(resVar.schema());
+    }
+
+    @Test
     void testOnlyPrecedingSteps() {
         configureFromText("""
                 flows:

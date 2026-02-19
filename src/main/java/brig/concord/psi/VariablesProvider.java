@@ -97,21 +97,20 @@ public final class VariablesProvider {
 
         for (var param : doc.getInputParameters()) {
             var name = param.getName();
-            var schemaType = flowDocTypeToSchemaType(param.getType());
+            var schemaType = flowDocTypeToSchemaType(param);
             var schemaProp = new SchemaProperty(name, schemaType, param.getDescription(), param.isMandatory());
             result.put(name, new Variable(name, VariableSource.FLOW_PARAMETER, param, schemaProp));
         }
     }
 
-    private static @NotNull SchemaType flowDocTypeToSchemaType(@NotNull String type) {
-        if (type.endsWith("[]")) {
-            var base = type.substring(0, type.length() - 2);
-            return new SchemaType.Array(base.isEmpty() ? null : base);
+    private static @NotNull SchemaType flowDocTypeToSchemaType(@NotNull FlowDocParameter param) {
+        if (param.isArrayType()) {
+            return new SchemaType.Array(param.getBaseType());
         }
-        if (type.equals("any")) {
+        if (param.getType().equals("any")) {
             return new SchemaType.Any();
         }
-        return new SchemaType.Scalar(type);
+        return new SchemaType.Scalar(param.getType());
     }
 
     private static void collectFromSteps(PsiElement element, Map<String, Variable> result) {
@@ -167,10 +166,13 @@ public final class VariablesProvider {
             return;
         }
 
+        var callKv = stepMapping.getKeyValueByKey("call");
+
         for (var kv : stepMapping.getKeyValues()) {
             switch (kv.getKeyText()) {
                 case "set" -> collectSetVars(kv.getValue(), result);
-                case "out" -> extractOutVars(kv.getValue(), result);
+                case "out" -> extractOutVars(kv.getValue(), result,
+                        callKv != null ? resolveCallOutTypes(callKv) : Map.of());
                 case "then", "else", "try", "error", "block" -> collectFromBranch(kv.getValue(), result);
             }
         }
@@ -258,11 +260,32 @@ public final class VariablesProvider {
         }
     }
 
-    private static void extractOutVars(YAMLValue value, Map<String, Variable> result) {
+    private static @NotNull Map<String, SchemaProperty> resolveCallOutTypes(@NotNull YAMLKeyValue callKv) {
+        var doc = FlowCallParamsProvider.findFlowDocumentation(callKv);
+        if (doc == null) {
+            return Map.of();
+        }
+
+        var outParams = doc.getOutputParameters();
+        if (outParams.isEmpty()) {
+            return Map.of();
+        }
+
+        var types = new HashMap<String, SchemaProperty>();
+        for (var param : outParams) {
+            var name = param.getName();
+            var schemaType = flowDocTypeToSchemaType(param);
+            types.put(name, new SchemaProperty(name, schemaType, param.getDescription(), param.isMandatory()));
+        }
+        return types;
+    }
+
+    private static void extractOutVars(YAMLValue value, Map<String, Variable> result,
+                                       @NotNull Map<String, SchemaProperty> outParamTypes) {
         if (value instanceof YAMLScalar s) {
             var name = s.getTextValue().trim();
             if (!name.isEmpty()) {
-                result.put(name, new Variable(name, VariableSource.STEP_OUT, s, null));
+                result.put(name, new Variable(name, VariableSource.STEP_OUT, s, outParamTypes.get(name)));
             }
         } else if (value instanceof YAMLSequence seq) {
             for (var item : seq.getItems()) {
@@ -270,7 +293,7 @@ public final class VariablesProvider {
                 if (itemValue instanceof YAMLScalar s) {
                     var name = s.getTextValue().trim();
                     if (!name.isEmpty()) {
-                        result.put(name, new Variable(name, VariableSource.STEP_OUT, s, null));
+                        result.put(name, new Variable(name, VariableSource.STEP_OUT, s, outParamTypes.get(name)));
                     }
                 }
             }
@@ -278,7 +301,7 @@ public final class VariablesProvider {
             for (var kv : m.getKeyValues()) {
                 var name = kv.getKeyText().trim();
                 if (!name.isEmpty()) {
-                    result.put(name, new Variable(name, VariableSource.STEP_OUT, kv, null));
+                    result.put(name, new Variable(name, VariableSource.STEP_OUT, kv, SchemaProperty.any(name, null, false)));
                 }
             }
         }
