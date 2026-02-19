@@ -3,8 +3,8 @@
 ## Unreleased
 
 ### Added
-
--schema type inference for variables declared in `out` section of call step
+   
+- schema type inference for variables declared in `out` section of call step
 ([#133](https://github.com/brig/concord-intellij-ng/pull/133))   
 - extends variable schema inference to `configuration.arguments`
 ([#132](https://github.com/brig/concord-intellij-ng/pull/132)) 
