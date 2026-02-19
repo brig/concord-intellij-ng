@@ -6,4 +6,4 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public record Variable(@NotNull String name, @NotNull VariableSource source,
-                       @Nullable PsiElement declaration, @Nullable SchemaProperty schema) {}
+                       @Nullable PsiElement declaration, @NotNull SchemaProperty schema) {}

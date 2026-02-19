@@ -8,6 +8,7 @@ import brig.concord.yaml.psi.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -143,8 +144,7 @@ public final class VariablesProvider {
             var types = resolveCallOutTypes(callKv);
             return name -> types.getOrDefault(name, SchemaProperty.any(name));
         } else if (taskKv != null) {
-            var taskProps = resolveTaskOutType(taskKv);
-            return name -> taskResultSchema(name, taskProps);
+            return name -> taskResultSchema(name, resolveTaskOutType(taskKv));
         }
 
         return SchemaProperty::any;
@@ -189,23 +189,25 @@ public final class VariablesProvider {
         return types;
     }
 
-    private static @NotNull Map<String, SchemaProperty> resolveTaskOutType(@NotNull YAMLKeyValue taskKv) {
+    private static @Nullable ObjectSchema resolveTaskOutType(@NotNull YAMLKeyValue taskKv) {
         var taskName = taskKv.getValueText();
         if (taskName.isBlank()) {
-            return Map.of();
+            return null;
         }
 
         var schema = TaskSchemaRegistry.getInstance(taskKv.getProject()).getSchema(taskName);
-        if (schema == null) return Map.of();
+        if (schema == null) {
+            return null;
+        }
 
-        return schema.outSection().properties();
+        return schema.outSection();
     }
 
-    private static SchemaProperty taskResultSchema(String name, Map<String, SchemaProperty> properties) {
-        if (properties.isEmpty()) {
+    private static @NotNull SchemaProperty taskResultSchema(String name, @Nullable ObjectSchema properties) {
+        if (properties == null) {
             return SchemaProperty.any(name);
         }
-        return new SchemaProperty(name, new SchemaType.Object(new ObjectSchema(properties, Set.of(), false)), "task result", false);
+        return new SchemaProperty(name, new SchemaType.Object(properties), "task result", false);
     }
 
     private static void extractOutVars(YAMLValue value, Map<String, Variable> result, Function<String, SchemaProperty> schemaResolver) {
