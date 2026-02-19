@@ -167,10 +167,18 @@ public final class VariablesProvider {
             return;
         }
 
+        var callKv = stepMapping.getKeyValueByKey("call");
+
         for (var kv : stepMapping.getKeyValues()) {
             switch (kv.getKeyText()) {
                 case "set" -> collectSetVars(kv.getValue(), result);
-                case "out" -> extractOutVars(kv.getValue(), result);
+                case "out" -> {
+                    if (callKv != null) {
+                        extractCallOutVars(callKv, kv.getValue(), result);
+                    } else {
+                        extractOutVars(kv.getValue(), result);
+                    }
+                }
                 case "then", "else", "try", "error", "block" -> collectFromBranch(kv.getValue(), result);
             }
         }
@@ -256,6 +264,74 @@ public final class VariablesProvider {
                 collectFromStep(mapping, result);
             }
         }
+    }
+
+    private static void extractCallOutVars(YAMLKeyValue callKv, YAMLValue outValue, Map<String, Variable> result) {
+        var outParamTypes = resolveCallOutTypes(callKv);
+        if (outParamTypes.isEmpty()) {
+            extractOutVars(outValue, result);
+            return;
+        }
+
+        if (outValue instanceof YAMLScalar s) {
+            var name = s.getTextValue().trim();
+            if (!name.isEmpty()) {
+                result.put(name, new Variable(name, VariableSource.STEP_OUT, s, outParamTypes.get(name)));
+            }
+        } else if (outValue instanceof YAMLSequence seq) {
+            for (var item : seq.getItems()) {
+                var itemValue = item.getValue();
+                if (itemValue instanceof YAMLScalar s) {
+                    var name = s.getTextValue().trim();
+                    if (!name.isEmpty()) {
+                        result.put(name, new Variable(name, VariableSource.STEP_OUT, s, outParamTypes.get(name)));
+                    }
+                }
+            }
+        } else if (outValue instanceof YAMLMapping m) {
+            for (var kv : m.getKeyValues()) {
+                var name = kv.getKeyText().trim();
+                if (!name.isEmpty()) {
+                    result.put(name, new Variable(name, VariableSource.STEP_OUT, kv, null));
+                }
+            }
+        }
+    }
+
+    private static @NotNull Map<String, SchemaProperty> resolveCallOutTypes(@NotNull YAMLKeyValue callKv) {
+        var callValue = callKv.getValue();
+        if (!(callValue instanceof YAMLScalar scalar)) {
+            return Map.of();
+        }
+
+        var flowName = scalar.getTextValue();
+        if (flowName.isBlank()) {
+            return Map.of();
+        }
+
+        var process = ProcessDefinitionProvider.getInstance().get(callKv);
+        var definition = process.flow(flowName);
+        if (definition == null) {
+            return Map.of();
+        }
+
+        var doc = FlowCallParamsProvider.findFlowDocumentationBefore(definition);
+        if (doc == null) {
+            return Map.of();
+        }
+
+        var outParams = doc.getOutputParameters();
+        if (outParams.isEmpty()) {
+            return Map.of();
+        }
+
+        var types = new HashMap<String, SchemaProperty>();
+        for (var param : outParams) {
+            var name = param.getName();
+            var schemaType = flowDocTypeToSchemaType(param.getType());
+            types.put(name, new SchemaProperty(name, schemaType, param.getDescription(), false));
+        }
+        return types;
     }
 
     private static void extractOutVars(YAMLValue value, Map<String, Variable> result) {
