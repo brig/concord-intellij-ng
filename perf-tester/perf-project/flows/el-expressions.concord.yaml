@@ -12,7 +12,7 @@ flows:
   ##
   elDataPipeline:
     - set:
-        pipelineId: "${uuid()}"
+        pipelineId: "${uuid()}" # find-usages:var
         startTime: "${currentTimeMillis()}"
         processedCount: 0
         failedCount: 0
@@ -20,7 +20,7 @@ flows:
 
         # Nested configuration objects for property chain resolution
         dbConfig:
-          host: "db.example.com"
+          host: "db.example.com" # find-usages:prop
           port: 5432
           database: "analytics"
           credentials:
@@ -147,6 +147,12 @@ flows:
     - log: "Metrics: ${metricsConfig}" # edit:el-metrics
 
     # move here
+
+    # Navigation test points - goto declaration from EL variable references
+    - log: "${pipelineId}" # goto:set-var
+    - log: "${dbConfig.host}" # goto:prop
+    - log: "${dbConfig.connectionPool.maxConnections}" # goto:deep-prop
+    - log: "${initiator.username}" # goto:builtin-prop
 
     # EL completion test points (caret positioned before closing brace)
     - set:
