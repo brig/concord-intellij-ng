@@ -4,6 +4,7 @@ import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLSequence;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
@@ -49,14 +50,14 @@ public final class ConcordFingerprintComputer {
             return null;
         }
 
-        var argumentsText = readArgumentsText(config.mapping);
+        var argumentsHash = readArgumentsHash(config.mapping);
 
         return new ConcordFileFingerprint(
                 normalize(resources),
                 normalize(dependencies),
                 normalize(extraDependencies),
                 profiles,
-                argumentsText
+                argumentsHash
         );
     }
 
@@ -72,22 +73,62 @@ public final class ConcordFingerprintComputer {
         return readList(resources.mapping, "concord");
     }
 
-    private static @NotNull String readArgumentsText(@Nullable YAMLMapping configMapping) {
+    private static long readArgumentsHash(@Nullable YAMLMapping configMapping) {
         if (configMapping == null) {
-            return "";
+            return 0;
         }
 
         var kv = configMapping.getKeyValueByKey("arguments");
         if (kv == null) {
-            return "";
+            return 0;
         }
 
         var value = kv.getValue();
         if (value == null) {
-            return "";
+            return 0;
         }
 
-        return value.getText();
+        return hashSubtree(value.getNode());
+    }
+
+    /**
+     * Computes a 64-bit hash of the AST subtree text by walking leaf nodes directly.
+     * Avoids the String allocation that {@code PsiElement.getText()} would cause on composite elements.
+     */
+    private static long hashSubtree(@NotNull ASTNode node) {
+        long h = 0;
+        for (var leaf = firstLeaf(node); leaf != null; leaf = nextLeaf(leaf, node)) {
+            var chars = leaf.getChars();
+            for (int i = 0; i < chars.length(); i++) {
+                h = h * 31 + chars.charAt(i);
+            }
+        }
+        return h;
+    }
+
+    private static @Nullable ASTNode firstLeaf(@NotNull ASTNode node) {
+        var n = node;
+        while (n.getFirstChildNode() != null) {
+            n = n.getFirstChildNode();
+        }
+        return n;
+    }
+
+    private static @Nullable ASTNode nextLeaf(@NotNull ASTNode current, @NotNull ASTNode root) {
+        var n = current;
+        while (n != root) {
+            var next = n.getTreeNext();
+            if (next != null) {
+                // Descend to first leaf of the sibling
+                var leaf = next;
+                while (leaf.getFirstChildNode() != null) {
+                    leaf = leaf.getFirstChildNode();
+                }
+                return leaf;
+            }
+            n = n.getTreeParent();
+        }
+        return null;
     }
 
     private static @Nullable Map<String, ConcordFileFingerprint.ProfileFingerprint> readProfiles(@NotNull YAMLMapping root) {
