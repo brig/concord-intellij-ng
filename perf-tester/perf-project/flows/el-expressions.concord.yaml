@@ -1,0 +1,358 @@
+flows:
+  ##
+  # EL expression stress test - data processing pipeline
+  # in:
+  #   inputRecords: object[], mandatory, Records to process
+  #   pipelineConfig: object, mandatory, Pipeline configuration
+  #   notifyOnComplete: boolean, optional, Send notification on completion
+  # out:
+  #   processedCount: int, Number of processed records
+  #   failedCount: int, Number of failed records
+  #   summary: object, Processing summary
+  ##
+  elDataPipeline:
+    - set:
+        pipelineId: "${uuid()}"
+        startTime: "${currentTimeMillis()}"
+        processedCount: 0
+        failedCount: 0
+        skippedCount: 0
+
+        # Nested configuration objects for property chain resolution
+        dbConfig:
+          host: "db.example.com"
+          port: 5432
+          database: "analytics"
+          credentials:
+            username: "pipeline_user"
+            password: "encrypted"
+          connectionPool:
+            minConnections: 5
+            maxConnections: 50
+            idleTimeout: 300
+            validationQuery: "SELECT 1"
+
+        apiConfig:
+          baseUrl: "https://api.example.com/v2"
+          timeout: 30000
+          retryPolicy:
+            maxRetries: 3
+            backoffMs: 1000
+            exponential: true
+          auth:
+            type: "bearer"
+            tokenUrl: "https://auth.example.com/token"
+            clientId: "pipeline-service"
+
+        metricsConfig:
+          enabled: true
+          endpoint: "https://metrics.example.com"
+          interval: 60
+          tags:
+            environment: "production"
+            service: "data-pipeline"
+            version: "2.0"
+
+    # Simple variable references
+    - log: "Pipeline ${pipelineId} started at ${startTime}"
+    - log: "Process ID: ${txId}, parent: ${parentInstanceId}"
+    - log: "Working directory: ${workDir}"
+
+    # Built-in object property access
+    - log: "Initiated by ${initiator.username} (${initiator.displayName})"
+    - log: "Initiator email: ${initiator.email}"
+    - log: "User groups: ${initiator.groups}"
+    - log: "Current user: ${currentUser.username} (${currentUser.displayName})"
+    - log: "Project: ${projectInfo.orgName}/${projectInfo.projectName}"
+    - log: "Repo: ${projectInfo.repoUrl} branch ${projectInfo.repoBranch}"
+    - log: "Commit: ${projectInfo.repoCommitId} by ${projectInfo.repoCommitAuthor}"
+    - log: "Commit message: ${projectInfo.repoCommitMessage}"
+    - log: "Request IP: ${requestInfo.ip}"
+    - log: "Session: ${processInfo.sessionToken}"
+    - log: "Active profiles: ${processInfo.activeProfiles}"
+
+    # Custom nested property access (1 level)
+    - log: "DB host: ${dbConfig.host}"
+    - log: "DB port: ${dbConfig.port}"
+    - log: "DB name: ${dbConfig.database}"
+    - log: "API URL: ${apiConfig.baseUrl}"
+    - log: "API timeout: ${apiConfig.timeout}ms"
+    - log: "Metrics enabled: ${metricsConfig.enabled}"
+    - log: "Metrics endpoint: ${metricsConfig.endpoint}"
+
+    # Custom nested property access (2 levels)
+    - log: "DB user: ${dbConfig.credentials.username}"
+    - log: "DB pool min: ${dbConfig.connectionPool.minConnections}"
+    - log: "DB pool max: ${dbConfig.connectionPool.maxConnections}"
+    - log: "DB pool idle: ${dbConfig.connectionPool.idleTimeout}"
+    - log: "DB pool validation: ${dbConfig.connectionPool.validationQuery}"
+    - log: "API retries: ${apiConfig.retryPolicy.maxRetries}"
+    - log: "API backoff: ${apiConfig.retryPolicy.backoffMs}ms"
+    - log: "API exponential: ${apiConfig.retryPolicy.exponential}"
+    - log: "Auth type: ${apiConfig.auth.type}"
+    - log: "Auth URL: ${apiConfig.auth.tokenUrl}"
+    - log: "Auth client: ${apiConfig.auth.clientId}"
+    - log: "Metrics env: ${metricsConfig.tags.environment}"
+    - log: "Metrics svc: ${metricsConfig.tags.service}"
+    - log: "Metrics ver: ${metricsConfig.tags.version}"
+
+    # Complex EL expressions with operators
+    - if: "${inputRecords != null && inputRecords.size() > 0}"
+      then:
+        - log: "Processing ${inputRecords.size()} records"
+      else:
+        - log: "No records to process"
+        - throw: "Empty input"
+
+    # Ternary expressions
+    - set:
+        batchSize: "${pipelineConfig.batchSize != null ? pipelineConfig.batchSize : 100}"
+        maxErrors: "${pipelineConfig.maxErrors != null ? pipelineConfig.maxErrors : 10}"
+        dryRun: "${pipelineConfig.dryRun == true}"
+        outputFormat: "${pipelineConfig.format != null ? pipelineConfig.format : 'json'}"
+
+    # Arithmetic expressions
+    - set:
+        totalBatches: "${(inputRecords.size() + batchSize - 1) / batchSize}"
+    - log: "Batch size: ${batchSize}, total batches: ${totalBatches}"
+    - log: "Max errors allowed: ${maxErrors} (${maxErrors * 100 / inputRecords.size()}%)"
+
+    # Logical and comparison expressions
+    - if: "${dbConfig.connectionPool.maxConnections > 20 && metricsConfig.enabled}"
+      then:
+        - log: "High-capacity mode with metrics"
+    - if: "${apiConfig.retryPolicy.maxRetries >= 3 || apiConfig.timeout > 60000}"
+      then:
+        - log: "Extended timeout/retry configuration"
+    - if: "${!dryRun && processedCount < inputRecords.size()}"
+      then:
+        - log: "Processing in live mode"
+    - if: "${empty inputRecords || inputRecords.size() == 0}"
+      then:
+        - log: "No records"
+
+    # String concatenation in expressions
+    - set:
+        connectionString: "${dbConfig.host += ':' += dbConfig.port += '/' += dbConfig.database}"
+        apiEndpoint: "${apiConfig.baseUrl += '/records?format=' += outputFormat}"
+
+    # Mixed text and multiple EL expressions per value
+    - log: "Connection: ${dbConfig.host}:${dbConfig.port}/${dbConfig.database} as ${dbConfig.credentials.username}"
+    - log: "API: ${apiConfig.baseUrl} [timeout=${apiConfig.timeout}, retries=${apiConfig.retryPolicy.maxRetries}]"
+    - log: "Pipeline ${pipelineId}: ${processedCount}/${inputRecords.size()} processed, ${failedCount} failed, ${skippedCount} skipped"
+
+    # EL editing stress test points (insert/delete property chains)
+    - log: "DB: ${dbConfig}" # edit:el-prop
+    - log: "API: ${apiConfig}" # edit:el-api
+    - log: "Metrics: ${metricsConfig}" # edit:el-metrics
+
+    # move here
+
+    # EL completion test points (caret positioned before closing brace)
+    - set:
+        elCompleteVar: "${}" # el-complete:var
+    - set:
+        elCompleteBuiltin: "${initiator.}" # el-complete:builtin-prop
+    - set:
+        elCompleteCustom: "${dbConfig.}" # el-complete:custom-prop
+    - set:
+        elCompleteDeep: "${dbConfig.connectionPool.}" # el-complete:deep-prop
+    - set:
+        elCompleteApi: "${apiConfig.retryPolicy.}" # el-complete:deep-prop2
+
+    # Process records using nested property chains
+    - call: processRecordBatch
+      in:
+        records: "${inputRecords}"
+        dbHost: "${dbConfig.host}"
+        dbPort: "${dbConfig.port}"
+        dbUser: "${dbConfig.credentials.username}"
+        apiUrl: "${apiConfig.baseUrl}"
+        apiTimeout: "${apiConfig.timeout}"
+        retries: "${apiConfig.retryPolicy.maxRetries}"
+
+    - if: "${notifyOnComplete != null && notifyOnComplete == true}"
+      then:
+        - call: sendPipelineNotification
+          in:
+            pipelineId: "${pipelineId}"
+            status: "${failedCount == 0 ? 'success' : 'partial_failure'}"
+            duration: "${currentTimeMillis() - startTime}"
+            processed: "${processedCount}"
+            failed: "${failedCount}"
+
+  ##
+  # Process a batch of records with EL-heavy logic
+  # in:
+  #   records: object[], mandatory, Records to process
+  #   dbHost: string, mandatory, Database host
+  #   dbPort: int, mandatory, Database port
+  #   dbUser: string, mandatory, Database user
+  #   apiUrl: string, mandatory, API base URL
+  #   apiTimeout: int, mandatory, API timeout in ms
+  #   retries: int, mandatory, Max retries
+  # out:
+  #   batchResult: object, Batch processing result
+  ##
+  processRecordBatch:
+    - set:
+        batchId: "${uuid()}"
+        batchStart: "${currentTimeMillis()}"
+        batchProcessed: 0
+        batchFailed: 0
+        recordResults: []
+    - log: "Batch ${batchId}: processing ${records.size()} records via ${dbHost}:${dbPort}"
+
+    - call: forEach
+      in:
+        items: "${records}"
+        flow: processOneRecord
+
+    - set:
+        batchDuration: "${currentTimeMillis() - batchStart}"
+        batchResult:
+          id: "${batchId}"
+          processed: "${batchProcessed}"
+          failed: "${batchFailed}"
+          durationMs: "${batchDuration}"
+          avgPerRecord: "${batchProcessed > 0 ? batchDuration / batchProcessed : 0}"
+    - log: "Batch ${batchId}: done in ${batchDuration}ms (${batchProcessed} ok, ${batchFailed} failed)"
+
+  processOneRecord:
+    - set:
+        recordId: "${item.id != null ? item.id : uuid()}"
+        recordType: "${item.type != null ? item.type : 'unknown'}"
+    - log: "Processing record ${recordId} (type=${recordType})"
+
+    - try:
+        - if: "${recordType == 'event'}"
+          then:
+            - task: http
+              in:
+                url: "${apiUrl}/events"
+                method: POST
+                body:
+                  id: "${recordId}"
+                  data: "${item.payload}"
+                  timestamp: "${item.timestamp != null ? item.timestamp : currentTimeMillis()}"
+                headers:
+                  X-Request-Id: "${txId}-${recordId}"
+                connectTimeout: "${apiTimeout}"
+                requestTimeout: "${apiTimeout}"
+              out:
+                httpResult: "${result}"
+          else:
+            - if: "${recordType == 'metric'}"
+              then:
+                - task: http
+                  in:
+                    url: "${apiUrl}/metrics"
+                    method: POST
+                    body:
+                      name: "${item.name}"
+                      value: "${item.value}"
+                      tags: "${item.tags != null ? item.tags : {}}"
+                    connectTimeout: "${apiTimeout}"
+                  out:
+                    httpResult: "${result}"
+              else:
+                - log: "Unknown record type: ${recordType}, skipping"
+                - expr: "${skippedCount + 1}"
+                  out: skippedCount
+
+        - expr: "${batchProcessed + 1}"
+          out: batchProcessed
+        - expr: "${processedCount + 1}"
+          out: processedCount
+      error:
+        - log: "Error processing ${recordId}: ${lastError.message}"
+        - expr: "${batchFailed + 1}"
+          out: batchFailed
+        - expr: "${failedCount + 1}"
+          out: failedCount
+
+  ##
+  # Generate processing summary report
+  # in:
+  #   pipelineId: string, mandatory, Pipeline identifier
+  #   startTime: int, mandatory, Pipeline start timestamp
+  #   processedCount: int, mandatory, Processed record count
+  #   failedCount: int, mandatory, Failed record count
+  #   skippedCount: int, mandatory, Skipped record count
+  #   dbConfig: object, mandatory, Database configuration
+  #   apiConfig: object, mandatory, API configuration
+  # out:
+  #   report: object, Summary report
+  ##
+  generateReport:
+    - set:
+        endTime: "${currentTimeMillis()}"
+        durationMs: "${currentTimeMillis() - startTime}"
+        totalRecords: "${processedCount + failedCount + skippedCount}"
+        successRate: "${totalRecords > 0 ? (processedCount * 100) / totalRecords : 0}"
+        report:
+          id: "${pipelineId}"
+          timing:
+            startTime: "${startTime}"
+            endTime: "${endTime}"
+            durationMs: "${durationMs}"
+            durationSec: "${durationMs / 1000}"
+          counts:
+            total: "${totalRecords}"
+            processed: "${processedCount}"
+            failed: "${failedCount}"
+            skipped: "${skippedCount}"
+          rates:
+            successPercent: "${successRate}"
+            failurePercent: "${totalRecords > 0 ? (failedCount * 100) / totalRecords : 0}"
+            recordsPerSec: "${durationMs > 0 ? (totalRecords * 1000) / durationMs : 0}"
+          infrastructure:
+            database: "${dbConfig.host}:${dbConfig.port}/${dbConfig.database}"
+            dbPool: "${dbConfig.connectionPool.minConnections}-${dbConfig.connectionPool.maxConnections}"
+            apiEndpoint: "${apiConfig.baseUrl}"
+            apiRetries: "${apiConfig.retryPolicy.maxRetries}"
+          initiator: "${initiator.username}"
+          project: "${projectInfo.orgName}/${projectInfo.projectName}"
+
+    - log: "Report for ${pipelineId}: ${processedCount}/${totalRecords} records (${successRate}% success) in ${durationMs / 1000}s"
+    - log: "Infra: DB=${dbConfig.host}:${dbConfig.port}, API=${apiConfig.baseUrl}"
+    - log: "Initiated by ${initiator.displayName} (${initiator.email}) for ${projectInfo.projectName}"
+
+  ##
+  # Send pipeline completion notification
+  # in:
+  #   pipelineId: string, mandatory, Pipeline identifier
+  #   status: string, mandatory, Pipeline status
+  #   duration: int, mandatory, Duration in ms
+  #   processed: int, mandatory, Processed count
+  #   failed: int, mandatory, Failed count
+  ##
+  sendPipelineNotification:
+    - set:
+        statusEmoji: "${status == 'success' ? 'OK' : 'WARN'}"
+        durationSec: "${duration / 1000}"
+        message: "Pipeline ${pipelineId} ${status}: ${processed} processed, ${failed} failed in ${durationSec}s"
+    - log: "[${statusEmoji}] ${message}"
+    - task: http
+      in:
+        url: "https://hooks.slack.com/services/pipeline-alerts"
+        method: POST
+        body:
+          text: "${message}"
+          channel: "#data-pipeline"
+          username: "pipeline-bot"
+          attachments:
+            - color: "${status == 'success' ? 'good' : 'warning'}"
+              fields:
+                - title: "Pipeline"
+                  value: "${pipelineId}"
+                  short: true
+                - title: "Status"
+                  value: "${status}"
+                  short: true
+                - title: "Duration"
+                  value: "${durationSec}s"
+                  short: true
+                - title: "Records"
+                  value: "${processed} ok / ${failed} failed"
+                  short: true
