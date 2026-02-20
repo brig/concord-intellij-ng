@@ -169,6 +169,27 @@ class ElParserTest extends TestBaseJunit5 {
                 .isEmpty();
     }
 
+    // ---- Complex expression tests ----
+
+    @Test
+    void zeroParamLambda() {
+        var file = parseEl("() -> x");
+        var errors = collectErrors(file);
+        assertThat(errors)
+                .as("Expected no parse errors for zero-param lambda\nPSI:\n%s", psiToString(file))
+                .isEmpty();
+    }
+
+    @Test
+    void streamReduceWithLambdaAndOrElse() {
+        var expr = "result.output.split('\\\\n').stream().reduce((f, s) -> s).orElse(() -> throw('aws cli output corrupted'))";
+        var file = parseEl(expr);
+        var errors = collectErrors(file);
+        assertThat(errors)
+                .as("Expected no parse errors for: %s\nPSI:\n%s", expr, psiToString(file))
+                .isEmpty();
+    }
+
     // ---- Specific PSI structure tests ----
 
     @Test
