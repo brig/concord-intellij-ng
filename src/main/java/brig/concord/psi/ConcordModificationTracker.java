@@ -249,7 +249,7 @@ public final class ConcordModificationTracker implements Disposable {
                     if (oldFp.hasDependencies()) {
                         dependenciesChanged = true;
                     }
-                    if (!oldFp.argumentsText().isEmpty()) {
+                    if (oldFp.argumentsHash() != 0) {
                         argumentsChanged = true;
                     }
                     // If it was a root file and had resources, technically structure changed,
@@ -271,7 +271,7 @@ public final class ConcordModificationTracker implements Disposable {
                     if (oldFp.hasDependencies()) {
                         dependenciesChanged = true;
                     }
-                    if (!oldFp.argumentsText().isEmpty()) {
+                    if (oldFp.argumentsHash() != 0) {
                         argumentsChanged = true;
                     }
                 }
@@ -285,7 +285,7 @@ public final class ConcordModificationTracker implements Disposable {
                     if (old.hasDependencies()) {
                         dependenciesChanged = true;
                     }
-                    if (!old.argumentsText().isEmpty()) {
+                    if (old.argumentsHash() != 0) {
                         argumentsChanged = true;
                     }
                     if (isRoot && !old.resourcePatterns().isEmpty()) {
@@ -301,7 +301,7 @@ public final class ConcordModificationTracker implements Disposable {
                 if (newFp.hasDependencies()) {
                     dependenciesChanged = true;
                 }
-                if (!newFp.argumentsText().isEmpty()) {
+                if (newFp.argumentsHash() != 0) {
                     argumentsChanged = true;
                 }
                 // If it's a new root file with resources, structure changed.
@@ -337,7 +337,7 @@ public final class ConcordModificationTracker implements Disposable {
                     if (fp.hasDependencies()) {
                         dependenciesChanged = true;
                     }
-                    if (!fp.argumentsText().isEmpty()) {
+                    if (fp.argumentsHash() != 0) {
                         argumentsChanged = true;
                     }
                     iterator.remove();

@@ -235,8 +235,7 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
             return;
         }
 
-        var tokenText = buffer.subSequence(tokenStart, tokenEnd).toString();
-        var segs = buildSegments(type, tokenStart, tokenText);
+        var segs = buildSegments(type, tokenStart, tokenEnd);
         if (segs == null || segs.isEmpty()) {
             return;
         }
@@ -246,19 +245,19 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
     }
 
     /**
-     * Scan a token for ${ expressions, handling both complete and unclosed expressions.
+     * Scan a buffer range for ${ expressions, handling both complete and unclosed expressions.
+     * Works directly with {@link #buffer} using absolute offsets to avoid String allocations.
      */
     private @Nullable List<Segment> buildSegments(
             @NotNull IElementType scalarType,
-            int tokenStart,
-            @NotNull String tokenText) {
+            int from,
+            int to) {
 
-        int n = tokenText.length();
-        int pos = 0;
+        int pos = from;
         List<Segment> result = null;
 
-        while (pos < n) {
-            int exprStart = indexOfUnescapedDollarBrace(tokenText, pos);
+        while (pos < to) {
+            int exprStart = indexOfUnescapedDollarBrace(buffer, pos, to);
             if (exprStart < 0) {
                 break;
             }
@@ -269,11 +268,11 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
 
             // Text before ${
             if (exprStart > pos) {
-                result.add(new Segment(scalarType, tokenStart + pos, tokenStart + exprStart));
+                result.add(new Segment(scalarType, pos, exprStart));
             }
 
             // ${ delimiter
-            result.add(new Segment(EL_EXPR_START, tokenStart + exprStart, tokenStart + exprStart + 2));
+            result.add(new Segment(EL_EXPR_START, exprStart, exprStart + 2));
 
             // Scan for closing }
             int bodyStart = exprStart + 2;
@@ -283,10 +282,10 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
 
             int j = bodyStart;
             boolean found = false;
-            while (j < n) {
-                char c = tokenText.charAt(j);
+            while (j < to) {
+                char c = buffer.charAt(j);
 
-                if ((sq || dq) && c == '\\' && j + 1 < n) {
+                if ((sq || dq) && c == '\\' && j + 1 < to) {
                     j += 2;
                     continue;
                 }
@@ -310,9 +309,9 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                         if (depth == 0) {
                             // Complete expression
                             if (j > bodyStart) {
-                                result.add(new Segment(EL_EXPR_BODY, tokenStart + bodyStart, tokenStart + j));
+                                result.add(new Segment(EL_EXPR_BODY, bodyStart, j));
                             }
-                            result.add(new Segment(EL_EXPR_END, tokenStart + j, tokenStart + j + 1));
+                            result.add(new Segment(EL_EXPR_END, j, j + 1));
                             pos = j + 1;
                             found = true;
                             break;
@@ -326,27 +325,27 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                 if (CONTINUATION_TYPES.contains(scalarType)) {
                     // Block scalar / plain text: enter continuation mode for multi-line expressions
                     if (j > bodyStart) {
-                        result.add(new Segment(EL_EXPR_BODY, tokenStart + bodyStart, tokenStart + j));
+                        result.add(new Segment(EL_EXPR_BODY, bodyStart, j));
                     }
                     inExpression = true;
                     braceDepth = depth;
                     inSingleQuote = sq;
                     inDoubleQuote = dq;
-                    pos = n;
+                    pos = to;
                 } else {
                     // Quoted string: unclosed expression — keep EL_EXPR_START + body so parser reports the error
                     if (j > bodyStart) {
-                        result.add(new Segment(EL_EXPR_BODY, tokenStart + bodyStart, tokenStart + j));
+                        result.add(new Segment(EL_EXPR_BODY, bodyStart, j));
                     }
-                    pos = n;
+                    pos = to;
                 }
                 break;
             }
         }
 
         // Text after last expression
-        if (result != null && pos < n) {
-            result.add(new Segment(scalarType, tokenStart + pos, tokenStart + n));
+        if (result != null && pos < to) {
+            result.add(new Segment(scalarType, pos, to));
         }
 
         return result;
@@ -355,19 +354,18 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
     /**
      * Continue scanning within a continuation (multi-line expression).
      * The current delegate token is a splittable scalar in the middle of an unclosed ${...}.
+     * Works directly with {@link #buffer} using absolute offsets to avoid String allocations.
      */
     private void splitContinuation(@NotNull IElementType scalarType) {
         int tokenStart = delegate.getTokenStart();
         int tokenEnd = delegate.getTokenEnd();
-        String tokenText = buffer.subSequence(tokenStart, tokenEnd).toString();
-        int n = tokenText.length();
 
-        int j = 0;
+        int j = tokenStart;
 
-        while (j < n) {
-            char c = tokenText.charAt(j);
+        while (j < tokenEnd) {
+            char c = buffer.charAt(j);
 
-            if ((inSingleQuote || inDoubleQuote) && c == '\\' && j + 1 < n) {
+            if ((inSingleQuote || inDoubleQuote) && c == '\\' && j + 1 < tokenEnd) {
                 j += 2;
                 continue;
             }
@@ -393,24 +391,23 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                         var result = new ArrayList<Segment>();
 
                         // Body fragment before }
-                        if (j > 0) {
-                            result.add(new Segment(EL_EXPR_BODY, tokenStart, tokenStart + j));
+                        if (j > tokenStart) {
+                            result.add(new Segment(EL_EXPR_BODY, tokenStart, j));
                         }
 
                         // } delimiter
-                        result.add(new Segment(EL_EXPR_END, tokenStart + j, tokenStart + j + 1));
+                        result.add(new Segment(EL_EXPR_END, j, j + 1));
 
                         resetContinuation();
 
                         // Remaining text after } — may contain more ${...} expressions
                         int remaining = j + 1;
-                        if (remaining < n) {
-                            String rest = tokenText.substring(remaining);
-                            var moreSegs = buildSegments(scalarType, tokenStart + remaining, rest);
+                        if (remaining < tokenEnd) {
+                            var moreSegs = buildSegments(scalarType, remaining, tokenEnd);
                             if (moreSegs != null) {
                                 result.addAll(moreSegs);
                             } else {
-                                result.add(new Segment(scalarType, tokenStart + remaining, tokenEnd));
+                                result.add(new Segment(scalarType, remaining, tokenEnd));
                             }
                         }
 
@@ -450,20 +447,16 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
     }
 
     /**
-     * Find the next unescaped "${" in text starting from fromIndex.
+     * Find the next unescaped "${" in the buffer range [from, to).
+     * Returns an absolute offset into buf, or -1 if not found.
      */
-    private static int indexOfUnescapedDollarBrace(@NotNull String text, int fromIndex) {
-        int n = text.length();
-        int idx = fromIndex;
-        while (idx <= n - 2) {
-            int p = text.indexOf("${", idx);
-            if (p < 0) {
-                return -1;
+    private static int indexOfUnescapedDollarBrace(@NotNull CharSequence buf, int from, int to) {
+        for (int i = from; i < to - 1; i++) {
+            if (buf.charAt(i) == '$' && buf.charAt(i + 1) == '{') {
+                if (!isEscaped(buf, i)) {
+                    return i;
+                }
             }
-            if (!isEscaped(text, p)) {
-                return p;
-            }
-            idx = p + 1;
         }
         return -1;
     }
@@ -471,10 +464,10 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
     /**
      * Returns true if character at position 'pos' is escaped by an odd number of backslashes.
      */
-    private static boolean isEscaped(@NotNull String s, int pos) {
+    private static boolean isEscaped(@NotNull CharSequence buf, int pos) {
         int bs = 0;
         int i = pos - 1;
-        while (i >= 0 && s.charAt(i) == '\\') {
+        while (i >= 0 && buf.charAt(i) == '\\') {
             bs++;
             i--;
         }

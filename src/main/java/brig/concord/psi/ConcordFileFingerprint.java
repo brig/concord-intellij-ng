@@ -1,7 +1,5 @@
 package brig.concord.psi;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -11,9 +9,9 @@ public record ConcordFileFingerprint(
         List<String> dependencies,
         List<String> extraDependencies,
         Map<String, ProfileFingerprint> profiles,
-        @NotNull String argumentsText
+        long argumentsHash
 ) {
-    public static final ConcordFileFingerprint EMPTY = new ConcordFileFingerprint(List.of(), List.of(), List.of(), Map.of(), "");
+    public static final ConcordFileFingerprint EMPTY = new ConcordFileFingerprint(List.of(), List.of(), List.of(), Map.of(), 0);
 
     public boolean hasDependencies() {
         if (!dependencies.isEmpty() || !extraDependencies.isEmpty()) {
@@ -42,7 +40,7 @@ public record ConcordFileFingerprint(
             return false;
         }
 
-        return Objects.equals(argumentsText, other.argumentsText);
+        return argumentsHash == other.argumentsHash;
     }
 
     public record ProfileFingerprint(
