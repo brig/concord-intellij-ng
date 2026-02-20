@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
-import java.util.Objects;
 
 public final class ConcordRunConfigurationProducer extends LazyRunConfigurationProducer<ConcordRunConfiguration> {
 
@@ -62,24 +61,8 @@ public final class ConcordRunConfigurationProducer extends LazyRunConfigurationP
             return false;
         }
 
-        var project = context.getProject();
-        var runModeSettings = ConcordRunModeSettings.getInstance(project);
-
-        if (!flowInfo.workingDirectory.equals(configuration.getWorkingDirectory())) {
-            return false;
-        }
-
-        if (runModeSettings.isDelegatingMode()) {
-            // Delegating: check entry-point = main and flow parameter
-            if (!runModeSettings.getMainEntryPoint().equals(configuration.getEntryPoint())) {
-                return false;
-            }
-            var flowParamValue = configuration.getParameters().get(runModeSettings.getFlowParameterName());
-            return Objects.equals(flowInfo.flowName, flowParamValue);
-        } else {
-            // Direct: check entry-point = flowName
-            return flowInfo.flowName.equals(configuration.getEntryPoint());
-        }
+        return ConcordRunConfigurationHelper.isMatchingConfiguration(
+                configuration, flowInfo.flowName, flowInfo.workingDirectory, context.getProject());
     }
 
     private static @Nullable FlowInfo findFlowAtContext(@NotNull ConfigurationContext context) {
