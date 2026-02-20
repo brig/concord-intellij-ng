@@ -5,8 +5,9 @@ import brig.concord.meta.ConcordMetaTypeProvider;
 import brig.concord.meta.model.StepElementMetaType;
 import brig.concord.schema.*;
 import brig.concord.yaml.psi.*;
+import com.intellij.openapi.util.Key;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,21 +16,71 @@ import java.util.function.Function;
 
 public final class VariablesProvider {
 
+    private static final Key<CachedValue<List<Variable>>> BASE_VARS_KEY =
+            Key.create("concord.variables.base");
+
     private VariablesProvider() {}
 
     public static @NotNull List<Variable> getVariables(@NotNull PsiElement element) {
-        Map<String, Variable> result = new LinkedHashMap<>();
+        var sequenceItem = PsiTreeUtil.getParentOfType(element, YAMLSequenceItem.class);
+        if (sequenceItem == null) {
+            return computeWithoutScope(element);
+        }
 
+        var baseVars = getCachedBaseVariables(sequenceItem);
+
+        var resultVar = resolveTaskResult(sequenceItem, element);
+        if (resultVar == null) {
+            return baseVars;
+        }
+
+        var withResult = new ArrayList<Variable>(baseVars.size() + 1);
+        withResult.addAll(baseVars);
+        withResult.add(resultVar);
+        return Collections.unmodifiableList(withResult);
+    }
+
+    private static @NotNull List<Variable> getCachedBaseVariables(@NotNull YAMLSequenceItem stepItem) {
+        return CachedValuesManager.getCachedValue(stepItem, BASE_VARS_KEY, () -> {
+            Map<String, Variable> result = new LinkedHashMap<>();
+            collectBuiltInVars(result);
+            collectArguments(stepItem, result);
+
+            var flowKv = ProcessDefinition.findEnclosingFlowDefinition(stepItem);
+            if (flowKv != null) {
+                collectFlowInputParams(flowKv, result);
+                collectVariablesFromScopeBase(stepItem, result);
+            }
+
+            return CachedValueProvider.Result.create(
+                    List.copyOf(result.values()),
+                    PsiModificationTracker.getInstance(stepItem.getProject())
+            );
+        });
+    }
+
+    private static @NotNull List<Variable> computeWithoutScope(@NotNull PsiElement element) {
+        Map<String, Variable> result = new LinkedHashMap<>();
         collectBuiltInVars(result);
         collectArguments(element, result);
-
         var flowKv = ProcessDefinition.findEnclosingFlowDefinition(element);
         if (flowKv != null) {
             collectFlowInputParams(flowKv, result);
-            collectVariablesFromScope(element, result);
         }
+        return List.copyOf(result.values());
+    }
 
-        return new ArrayList<>(result.values());
+    private static @Nullable Variable resolveTaskResult(YAMLSequenceItem stepItem, PsiElement cursor) {
+        if (!(stepItem.getValue() instanceof YAMLMapping m)) {
+            return null;
+        }
+        var taskKv = m.getKeyValueByKey("task");
+        var outKv = m.getKeyValueByKey("out");
+        if (taskKv == null || !PsiTreeUtil.isAncestor(outKv, cursor, false)) {
+            return null;
+        }
+        var schema = taskResultSchema("result", resolveTaskOutType(taskKv));
+        return new Variable("result", VariableSource.TASK_RESULT, outKv, schema);
     }
 
     private static void collectBuiltInVars(Map<String, Variable> result) {
@@ -68,40 +119,33 @@ public final class VariablesProvider {
         }
     }
 
-    private static void collectVariablesFromScope(PsiElement element, Map<String, Variable> result) {
-        var metaProvider = ConcordMetaTypeProvider.getInstance(element.getProject());
-        var current = element;
+    private static void collectVariablesFromScopeBase(YAMLSequenceItem startItem, Map<String, Variable> result) {
+        var metaProvider = ConcordMetaTypeProvider.getInstance(startItem.getProject());
+        var sequenceItem = startItem;
+        var current = (PsiElement) startItem;
+
         while (true) {
-            var sequenceItem = PsiTreeUtil.getParentOfType(current, YAMLSequenceItem.class);
             if (sequenceItem == null || !(sequenceItem.getParent() instanceof YAMLSequence sequence)) {
                 break;
             }
 
             if (metaProvider.getResolvedMetaType(sequenceItem) instanceof StepElementMetaType) {
-                collectLocalStepVariables(sequenceItem, element, result);
+                collectLocalStepVarsBase(sequenceItem, result);
                 collectPreviousSiblingsVariables(sequence, sequenceItem, result);
             }
 
             current = sequence;
+            sequenceItem = PsiTreeUtil.getParentOfType(current, YAMLSequenceItem.class);
         }
     }
 
-    private static void collectLocalStepVariables(YAMLSequenceItem stepItem, PsiElement cursorElement, Map<String, Variable> result) {
+    private static void collectLocalStepVarsBase(YAMLSequenceItem stepItem, Map<String, Variable> result) {
         if (!(stepItem.getValue() instanceof YAMLMapping m)) {
             return;
         }
-
         var loopKv = m.getKeyValueByKey("loop");
         if (loopKv != null) {
             collectLoopVars(result, loopKv);
-        }
-
-        var outKv = m.getKeyValueByKey("out");
-        var taskKv = m.getKeyValueByKey("task");
-        if (taskKv != null && PsiTreeUtil.isAncestor(outKv, cursorElement, false)) {
-            var taskOutType = resolveTaskOutType(taskKv);
-            var schema = taskResultSchema("result", taskOutType);
-            result.put("result", new Variable("result", VariableSource.TASK_RESULT, outKv, schema));
         }
     }
 
