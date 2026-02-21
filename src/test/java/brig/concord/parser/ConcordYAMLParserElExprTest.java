@@ -122,6 +122,17 @@ class ConcordYAMLParserElExprTest extends ConcordYamlTestBaseJunit5 {
         assertElExpressionCount(file, 1);
     }
 
+    @Test
+    void yamlEscapedBackslashInSingleQuotedElStringInDoubleQuotedYamlString() {
+        // YAML: key: "${resource.replace('\"', '\\'')}"
+        // After YAML unescaping: ${resource.replace('"', '\'')}
+        // The \\ is YAML escape for \, which then EL-escapes the following '
+        var file = parse("key: \"${resource.replace('\\\"', '\\\\'')}\"\n");
+
+        assertNoPsiErrors(file);
+        assertElExpressionCount(file, 1);
+    }
+
     // --- Block scalar expressions ---
 
     @Test
@@ -186,6 +197,22 @@ class ConcordYAMLParserElExprTest extends ConcordYamlTestBaseJunit5 {
         assertScalarType(file, YAMLElementTypes.SCALAR_TEXT_VALUE);
         var exprNodes = findNodes(file, ConcordElTokenTypes.EL_EXPR);
         assertTrue(exprNodes.getFirst().getText().contains("a +"));
+    }
+
+    @Test
+    void multiLineStreamExpressionInPlainScalar() {
+        // Real-world case: multi-line EL expression with stream API, lambdas,
+        // string concatenation (+=), list literals, and nested method calls.
+        var file = parse("""
+                - set:
+                    S3SourceBucketLocations:
+                      ${[1, 2, 3].stream()
+                      .map(bucket -> 'arn:aws:s3:::' += bucket)
+                      .flatMap(bucket -> [ bucket, bucket += '/*' ].stream())
+                      .toList()}""");
+
+        assertNoPsiErrors(file);
+        assertElExpressionCount(file, 1);
     }
 
     // --- Combined scenario (from docs-site example) ---

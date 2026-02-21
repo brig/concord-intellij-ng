@@ -423,7 +423,7 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
         while (type == TEXT || type == INDENT || type == EOL
                 || type == EL_EXPR_START) {
             if (type == EL_EXPR_START) {
-                consumeElExpression();
+                consumeElExpression(EL_BODY_PASSTHROUGH_WITH_EOL);
             } else {
                 advanceLexer();
             }
@@ -452,6 +452,9 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
 
     private static final TokenSet EL_BODY_PASSTHROUGH = TokenSet.create(EL_EXPR_BODY, SCALAR_EOL, INDENT);
 
+    /** Extended passthrough that also allows EOL tokens — used for multi-line expressions in plain scalars. */
+    private static final TokenSet EL_BODY_PASSTHROUGH_WITH_EOL = TokenSet.create(EL_EXPR_BODY, SCALAR_EOL, EOL, INDENT);
+
     /**
      * Consumes an EL expression: EL_EXPR_START, then all body tokens (EL_EXPR_BODY, SCALAR_EOL, INDENT)
      * collapsed into a single EL_EXPR chameleon node, then EL_EXPR_END.
@@ -459,13 +462,17 @@ public class ConcordYAMLParser implements PsiParser, LightPsiParser, YAMLTokenTy
      * Stops consuming if an unexpected token is encountered (e.g. unclosed expression).
      */
     private void consumeElExpression() {
+        consumeElExpression(EL_BODY_PASSTHROUGH);
+    }
+
+    private void consumeElExpression(TokenSet passthrough) {
         assert getTokenType() == EL_EXPR_START;
         advanceLexer(); // consume EL_EXPR_START
 
         PsiBuilder.Marker bodyMarker = myBuilder.mark();
         boolean hasBody = false;
         while (getTokenType() != null && getTokenType() != EL_EXPR_END) {
-            if (!EL_BODY_PASSTHROUGH.contains(getTokenType())) {
+            if (!passthrough.contains(getTokenType())) {
                 break;
             }
             myBuilder.advanceLexer(); // use raw advance to avoid eol tracking for internal tokens

@@ -179,6 +179,20 @@ class ExpressionSplittingLexerTest {
     }
 
     @Test
+    void yamlEscapedBackslashInSingleQuotedElStringInDoubleQuotedYamlString() {
+        // YAML: key: "${resource.replace('\"', '\\'')}"
+        // After YAML unescaping: ${resource.replace('"', '\'')}
+        // The EL expression has two args: '"' and '\'' (string containing ')
+        // Raw body: resource.replace('\"', '\\'')
+        // The \\\\ is YAML \\, decoded \; the decoded \ escapes the following '
+        assertTokensWithExprSplitting("key: \"${resource.replace('\\\"', '\\\\'')}\"\n")
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1)
+                .token("el expr body").hasText("resource.replace('\\\"', '\\\\'')");
+    }
+
+    @Test
     void yamlDoubleEscapeInsideElStringInDoubleQuotedYamlString() {
         // YAML: - log: "${\"has \\\"escaped\\\" quotes\"}"
         // After YAML unescaping: ${"has \"escaped\" quotes"}
@@ -209,6 +223,22 @@ class ExpressionSplittingLexerTest {
                 .hasCount("el expr end", 1)
                 .token("el expr body", 0).hasText("ok").and()
                 .token("el expr body", 1).hasText("bad\"");
+    }
+
+    @Test
+    void multiLineStreamExpressionInPlainScalar() {
+        // Multi-line EL with stream API, lambdas, += concat, list literals
+        String yaml = """
+                - set:
+                    S3SourceBucketLocations:
+                      ${[1, 2, 3].stream()
+                      .map(bucket -> 'arn:aws:s3:::' += bucket)
+                      .flatMap(bucket -> [ bucket, bucket += '/*' ].stream())
+                      .toList()}""";
+
+        var result = assertTokensWithExprSplitting(yaml);
+        result.hasCount("el expr start", 1)
+                .hasCount("el expr end", 1);
     }
 
     @Test

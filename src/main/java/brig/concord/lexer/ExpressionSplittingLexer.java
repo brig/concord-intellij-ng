@@ -209,7 +209,7 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
 
         if (inExpression) {
             // In continuation mode
-            if (type == SCALAR_EOL || type == INDENT) {
+            if (type == SCALAR_EOL || type == EOL || type == INDENT) {
                 // Passthrough — these tokens pass through as-is in continuation mode
                 return;
             }
@@ -275,112 +275,27 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
             // ${ delimiter
             result.add(new Segment(EL_EXPR_START, exprStart, exprStart + 2));
 
-            // Scan for closing }
             int bodyStart = exprStart + 2;
-            int depth = 1;
-            boolean sq = false;
-            boolean dq = false;
-            boolean yamlDQ = scalarType == SCALAR_DSTRING;
+            var scan = scanForClosingBrace(bodyStart, to, scalarType == SCALAR_DSTRING);
 
-            int j = bodyStart;
-            boolean found = false;
-            // When inside a YAML double-quoted string, a decoded \ (from raw \\)
-            // may escape the next decoded character (e.g., raw YAML \\\" → decoded \", an EL escape).
-            boolean yamlDecodedBackslash = false;
-            while (j < to) {
-                char c = buffer.charAt(j);
-
-                // In YAML double-quoted strings, \ is always a YAML escape prefix.
-                // Handle it before EL-level logic to correctly distinguish
-                // YAML escapes (like \") from EL escapes.
-                if (yamlDQ && c == '\\' && j + 1 < to) {
-                    char next = buffer.charAt(j + 1);
-                    j += 2;
-
-                    if (next == '\\') {
-                        // YAML \\, decoded: \
-                        // Inside an EL string, track whether this decoded \
-                        // will escape the next decoded character.
-                        if (sq || dq) {
-                            yamlDecodedBackslash = !yamlDecodedBackslash;
-                        }
-                    } else if (next == '"') {
-                        // YAML \", decoded: "
-                        if (yamlDecodedBackslash) {
-                            // Preceded by decoded \ → EL escape \" → don't toggle
-                            yamlDecodedBackslash = false;
-                        } else if (!sq) {
-                            dq = !dq;
-                        }
-                    } else {
-                        // Other YAML escape (\n, \t, etc.) — decoded char is not \ or "
-                        yamlDecodedBackslash = false;
-                    }
-                    continue;
+            if (scan.found) {
+                if (scan.endPos > bodyStart) {
+                    result.add(new Segment(EL_EXPR_BODY, bodyStart, scan.endPos));
                 }
-
-                // A decoded \ from a YAML \\ escapes the next (non-YAML-escape) character
-                if (yamlDecodedBackslash) {
-                    yamlDecodedBackslash = false;
-                    j++;
-                    continue;
+                result.add(new Segment(EL_EXPR_END, scan.endPos, scan.endPos + 1));
+                pos = scan.endPos + 1;
+            } else {
+                if (scan.endPos > bodyStart) {
+                    result.add(new Segment(EL_EXPR_BODY, bodyStart, scan.endPos));
                 }
-
-                // EL-level escape: \ inside EL-quoted strings (non-YAML-DQ contexts)
-                if ((sq || dq) && c == '\\' && j + 1 < to) {
-                    j += 2;
-                    continue;
-                }
-
-                if (!dq && c == '\'') {
-                    sq = !sq;
-                    j++;
-                    continue;
-                }
-                if (!sq && c == '"') {
-                    dq = !dq;
-                    j++;
-                    continue;
-                }
-
-                if (!sq && !dq) {
-                    if (c == '{') {
-                        depth++;
-                    } else if (c == '}') {
-                        depth--;
-                        if (depth == 0) {
-                            // Complete expression
-                            if (j > bodyStart) {
-                                result.add(new Segment(EL_EXPR_BODY, bodyStart, j));
-                            }
-                            result.add(new Segment(EL_EXPR_END, j, j + 1));
-                            pos = j + 1;
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-                j++;
-            }
-
-            if (!found) {
                 if (CONTINUATION_TYPES.contains(scalarType)) {
                     // Block scalar / plain text: enter continuation mode for multi-line expressions
-                    if (j > bodyStart) {
-                        result.add(new Segment(EL_EXPR_BODY, bodyStart, j));
-                    }
                     inExpression = true;
-                    braceDepth = depth;
-                    inSingleQuote = sq;
-                    inDoubleQuote = dq;
-                    pos = to;
-                } else {
-                    // Quoted string: unclosed expression — keep EL_EXPR_START + body so parser reports the error
-                    if (j > bodyStart) {
-                        result.add(new Segment(EL_EXPR_BODY, bodyStart, j));
-                    }
-                    pos = to;
+                    braceDepth = scan.depth;
+                    inSingleQuote = scan.inSQ;
+                    inDoubleQuote = scan.inDQ;
                 }
+                pos = to;
                 break;
             }
         }
@@ -391,6 +306,109 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         }
 
         return result;
+    }
+
+    /**
+     * Scan for the closing {@code }} of an EL expression, tracking brace depth and EL string
+     * quoting state. In YAML double-quoted scalars ({@code yamlDQ=true}), YAML escape sequences
+     * ({@code \\}, {@code \"}) are decoded before EL-level processing.
+     *
+     * @param from   start of expression body (just after {@code ${})
+     * @param to     end of the scalar token range
+     * @param yamlDQ true if the enclosing scalar is a YAML double-quoted string
+     * @return scan result with closing brace position and quoting state
+     */
+    private BraceScanResult scanForClosingBrace(int from, int to, boolean yamlDQ) {
+        int depth = 1;
+        boolean sq = false;
+        boolean dq = false;
+        // When inside a YAML double-quoted string, a decoded \ (from raw \\)
+        // may escape the next decoded character (e.g., raw YAML \\\" → decoded \", an EL escape).
+        boolean yamlDecodedBackslash = false;
+
+        int j = from;
+        while (j < to) {
+            char c = buffer.charAt(j);
+
+            // In YAML double-quoted strings, \ is always a YAML escape prefix.
+            // Handle it before EL-level logic to correctly distinguish
+            // YAML escapes (like \") from EL escapes.
+            if (yamlDQ && c == '\\' && j + 1 < to) {
+                char next = buffer.charAt(j + 1);
+                j += 2;
+
+                if (next == '\\') {
+                    // YAML \\, decoded: \
+                    // Inside an EL string, track whether this decoded \
+                    // will escape the next decoded character.
+                    if (sq || dq) {
+                        yamlDecodedBackslash = !yamlDecodedBackslash;
+                    }
+                } else if (next == '"') {
+                    // YAML \", decoded: "
+                    if (yamlDecodedBackslash) {
+                        // Preceded by decoded \ → EL escape \" → don't toggle
+                        yamlDecodedBackslash = false;
+                    } else if (!sq) {
+                        dq = !dq;
+                    }
+                } else {
+                    // Other YAML escape (\n, \t, etc.) — decoded char is not \ or "
+                    yamlDecodedBackslash = false;
+                }
+                continue;
+            }
+
+            // A decoded \ from a YAML \\ escapes the next (non-YAML-escape) character
+            if (yamlDecodedBackslash) {
+                yamlDecodedBackslash = false;
+                j++;
+                continue;
+            }
+
+            // EL-level escape: \ inside EL-quoted strings (non-YAML-DQ contexts)
+            if ((sq || dq) && c == '\\' && j + 1 < to) {
+                j += 2;
+                continue;
+            }
+
+            if (!dq && c == '\'') {
+                sq = !sq;
+                j++;
+                continue;
+            }
+            if (!sq && c == '"') {
+                dq = !dq;
+                j++;
+                continue;
+            }
+
+            if (!sq && !dq) {
+                if (c == '{') {
+                    depth++;
+                } else if (c == '}') {
+                    depth--;
+                    if (depth == 0) {
+                        return new BraceScanResult(true, j, 0, false, false);
+                    }
+                }
+            }
+            j++;
+        }
+
+        return new BraceScanResult(false, j, depth, sq, dq);
+    }
+
+    /**
+     * Result of scanning for a closing {@code }} brace in an EL expression body.
+     *
+     * @param found  true if the closing brace was found
+     * @param endPos if found: position of the closing {@code }}; otherwise: position where scanning stopped
+     * @param depth  remaining brace depth (0 if found)
+     * @param inSQ   true if inside a single-quoted EL string when scanning stopped
+     * @param inDQ   true if inside a double-quoted EL string when scanning stopped
+     */
+    private record BraceScanResult(boolean found, int endPos, int depth, boolean inSQ, boolean inDQ) {
     }
 
     /**
