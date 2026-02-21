@@ -20,7 +20,6 @@ import brig.concord.yaml.psi.*;
 import brig.concord.yaml.psi.impl.YAMLQuotedTextImpl;
 
 import java.util.Collection;
-import java.util.List;
 
 public class YAMLElementGenerator {
     private final Project myProject;
@@ -31,20 +30,6 @@ public class YAMLElementGenerator {
 
     public static YAMLElementGenerator getInstance(Project project) {
         return project.getService(YAMLElementGenerator.class);
-    }
-
-    public static @NotNull String createChainedKey(@NotNull List<String> keyComponents, int indentAddition) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < keyComponents.size(); ++i) {
-            if (i > 0) {
-                sb.append(StringUtil.repeatSymbol(' ', indentAddition + 2 * i));
-            }
-            sb.append(keyComponents.get(i)).append(":");
-            if (i + 1 < keyComponents.size()) {
-                sb.append('\n');
-            }
-        }
-        return sb.toString();
     }
 
     public @NotNull YAMLKeyValue createYamlKeyValue(@NotNull String keyName, @NotNull String valueText) {

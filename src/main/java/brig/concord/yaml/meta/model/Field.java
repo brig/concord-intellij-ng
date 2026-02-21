@@ -5,10 +5,7 @@ package brig.concord.yaml.meta.model;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiReference;
-import kotlin.Pair;
 import org.jetbrains.annotations.*;
-import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLValue;
 
 import javax.swing.*;
@@ -38,7 +35,6 @@ public class Field {
     private boolean myEmptyValueAllowed;
     private boolean myIsMany;
     private Relation myOverriddenDefaultRelation;
-    private Pair<String, List<String>> myRequiredSiblingValues;
     private final Map<Relation, YamlMetaType> myPerRelationTypes = new HashMap<>();
 
     /**
@@ -82,27 +78,9 @@ public class Field {
         myMetaTypeSupplier = supplier;
     }
 
-    public @NotNull Field withDefaultRelation(@NotNull Relation relation) {
-        myOverriddenDefaultRelation = relation;
-        return this;
-    }
-
-    public @NotNull Field withRequiredSibling(String key, List<String> values) {
-        myRequiredSiblingValues = new Pair<>(key, values);
-        return this;
-    }
-
-    public Pair<String, List<String>> getRequiredSibling() {
-        return myRequiredSiblingValues;
-    }
-
     public Field withRelationSpecificType(@NotNull Relation relation, @NotNull YamlMetaType specificType) {
         myPerRelationTypes.put(relation, specificType);
         return this;
-    }
-
-    public @NotNull Field withMultiplicityMany() {
-        return withMultiplicityManyNotOne(true);
     }
 
     public @NotNull Field withMultiplicityManyNotOne(boolean manyNotOne) {
@@ -204,27 +182,12 @@ public class Field {
         return this;
     }
 
-    public @NotNull Field withNamePattern(@NotNull Pattern pattern) {
-        myNamePattern = pattern.pattern().equals(PATTERN_ANYTHING.pattern()) ? PATTERN_ANYTHING : pattern;
-        return this;
-    }
-
     public final boolean isAnyNameAllowed() {
         return PATTERN_ANYTHING == myNamePattern;
     }
 
     public final boolean isByPattern() {
         return myNamePattern != null;
-    }
-
-    public final boolean acceptsFieldName(@NotNull String actualName) {
-        if (myNamePattern == null) {
-            return false;
-        }
-        if (myNamePattern == PATTERN_ANYTHING) {
-            return true;
-        }
-        return myNamePattern.matcher(actualName).matches();
     }
 
     public final boolean isEmptyValueAllowed() {
@@ -266,16 +229,6 @@ public class Field {
             lookup = lookup.bold();
         }
         return Collections.singletonList(lookup);
-    }
-
-    public @Nullable PsiReference getReferenceFromKey(@NotNull YAMLKeyValue keyValue) {
-        return null;
-    }
-
-    public PsiReference[] getReferencesFromKey(@NotNull YAMLKeyValue keyValue) {
-        return Optional.ofNullable(getReferenceFromKey(keyValue))
-                .map(ref -> new PsiReference[]{ref})
-                .orElse(PsiReference.EMPTY_ARRAY);
     }
 
     public boolean hasRelationSpecificType(@NotNull Relation relation) {
