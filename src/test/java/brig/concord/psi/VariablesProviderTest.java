@@ -1045,6 +1045,126 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
         assertObjectType(resultVar.schema().schemaType(), "ok", "body");
     }
 
+    @Test
+    void testSetStepDottedKey() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        a.b: 1
+                    - log: "${a}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var setVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.SET_STEP)
+                .collect(Collectors.toMap(Variable::name, v -> v.schema().schemaType()));
+
+        assertEquals(Set.of("a"), setVars.keySet());
+        assertObjectType(setVars.get("a"), "b");
+        var aProps = ((SchemaType.Object) setVars.get("a")).section().properties();
+        assertScalarType("integer", aProps.get("b").schemaType());
+    }
+
+    @Test
+    void testSetStepDottedKeyMultipleProperties() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        a.b: 1
+                        a.c: "hello"
+                    - log: "${a}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var setVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.SET_STEP)
+                .collect(Collectors.toMap(Variable::name, v -> v.schema().schemaType()));
+
+        assertEquals(Set.of("a"), setVars.keySet());
+        assertObjectType(setVars.get("a"), "b", "c");
+        var aProps = ((SchemaType.Object) setVars.get("a")).section().properties();
+        assertScalarType("integer", aProps.get("b").schemaType());
+        assertScalarType("string", aProps.get("c").schemaType());
+    }
+
+    @Test
+    void testSetStepDottedKeyDeepNesting() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        a.b.c: 1
+                    - log: "${a}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var setVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.SET_STEP)
+                .collect(Collectors.toMap(Variable::name, v -> v.schema().schemaType()));
+
+        assertEquals(Set.of("a"), setVars.keySet());
+        assertObjectType(setVars.get("a"), "b");
+
+        var bType = ((SchemaType.Object) setVars.get("a")).section().properties().get("b").schemaType();
+        assertObjectType(bType, "c");
+
+        var cType = ((SchemaType.Object) bType).section().properties().get("c").schemaType();
+        assertScalarType("integer", cType);
+    }
+
+    @Test
+    void testSetStepDottedKeyMixedWithRegular() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        a.b: 1
+                        x: 2
+                    - log: "${a} ${x}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var setVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.SET_STEP)
+                .collect(Collectors.toMap(Variable::name, v -> v.schema().schemaType()));
+
+        assertEquals(Set.of("a", "x"), setVars.keySet());
+        assertObjectType(setVars.get("a"), "b");
+        assertScalarType("integer", setVars.get("x"));
+    }
+
+    @Test
+    void testSetStepDottedKeyLeadingOrTrailingDot() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        ".a": 1
+                        "b.": 2
+                    - log: "test"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var setVars = vars.stream()
+                .filter(v -> v.source() == VariableSource.SET_STEP)
+                .map(Variable::name)
+                .collect(Collectors.toSet());
+
+        assertEquals(Set.of(".a", "b."), setVars);
+    }
+
     private static void assertScalarType(String expectedTypeName, SchemaType actual) {
         assertInstanceOf(SchemaType.Scalar.class, actual);
         assertEquals(expectedTypeName, ((SchemaType.Scalar) actual).typeName());
