@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkdocs_site=globalThis.webpackChunkdocs_site||[]).push([[6569],{3191(i){i.exports=JSON.parse('{"authors":[{"name":"Brig","title":"Concord IntelliJ Plugin Maintainer","url":"https://github.com/brig","key":"brig","page":null,"count":6}]}')}}]);

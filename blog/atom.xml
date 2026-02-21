@@ -2,11 +2,66 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://brig.github.io/concord-intellij-ng/blog</id>
     <title>Concord IntelliJ Plugin Blog</title>
-    <updated>2026-02-14T00:00:00.000Z</updated>
+    <updated>2026-02-21T00:00:00.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://brig.github.io/concord-intellij-ng/blog"/>
     <subtitle>Concord IntelliJ Plugin Blog</subtitle>
     <icon>https://brig.github.io/concord-intellij-ng/favicon.png</icon>
+    <entry>
+        <title type="html"><![CDATA[What's New in Concord IntelliJ 0.20.0]]></title>
+        <id>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0</id>
+        <link href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0"/>
+        <updated>2026-02-21T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[The 0.20.0 release is all about Expression Language support — bringing]]></summary>
+        <content type="html"><![CDATA[<p>The <code>0.20.0</code> release is all about <strong>Expression Language support</strong> — bringing
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/highlighting#4-expressions">EL Highlighting</a></strong> with lexer-level coloring,
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/completion#expression-variable-completion">Variable Completion</a></strong> and <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/completion#expression-property-completion">Property Completion</a></strong> inside <code>${...}</code> expressions,
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/navigation#expression-variables">Go to Declaration</a></strong> and <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/find-usages#variable-usages">Find Usages</a></strong> for variables,
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/completion#expression-variable-completion">Variable Schema Inference</a></strong> across flow steps,
+and <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/run-configurations">JDK Selection</a></strong> for the Concord CLI.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="expression-language-support">Expression Language Support<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#expression-language-support" class="hash-link" aria-label="Direct link to Expression Language Support" title="Direct link to Expression Language Support" translate="no">​</a></h2>
+<p>Concord <code>${...}</code> expressions are now first-class citizens in the editor, with full IDE support from highlighting through navigation.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="el-highlighting">EL Highlighting<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#el-highlighting" class="hash-link" aria-label="Direct link to EL Highlighting" title="Direct link to EL Highlighting" translate="no">​</a></h3>
+<p>Expression delimiters <code>${</code> and <code>}</code> are highlighted at the lexer level, providing accurate, real-time coloring as you type — including inline strings, multiple expressions, and nested braces.</p>
+<figure class="docFigure docFigure--sm2"><img src="https://brig.github.io/concord-intellij-ng/assets/images/expression-highlighting-872fc595ffb039f55724bacf85b73b71.png" alt="EL Expression Highlighting"><figcaption><p>EL expression highlighting in Concord YAML files.</p></figcaption></figure>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="variable-completion">Variable Completion<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#variable-completion" class="hash-link" aria-label="Direct link to Variable Completion" title="Direct link to Variable Completion" translate="no">​</a></h3>
+<p>Press <span class="keystroke__keystrokes"><kbd class="keystroke">Ctrl</kbd><kbd class="keystroke">Space</kbd></span> inside a <code>${...}</code> expression to see all variables in scope. Each suggestion shows the variable name, its source (e.g. <code>built-in</code>, <code>set</code>, <code>flow in</code>, <code>step out</code>), and its type when known. Completion is context-aware — only variables visible at the current step are suggested.</p>
+<figure class="docFigure docFigure--sm4"><img src="https://brig.github.io/concord-intellij-ng/assets/images/completion-el-vars-2a337842fcc8b6945abe4b3ac68e05b3.png" alt="Expression Variable Completion"><figcaption><p>Variable completion inside an EL expression, showing variable icons, source labels, and types.</p></figcaption></figure>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="property-completion">Property Completion<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#property-completion" class="hash-link" aria-label="Direct link to Property Completion" title="Direct link to Property Completion" translate="no">​</a></h3>
+<p>After typing a dot in an expression (e.g. <code>${initiator.}</code>), the plugin suggests available sub-properties based on the variable's schema. This works for built-in variables, task output, and any variable whose structure can be inferred from the YAML.</p>
+<figure class="docFigure docFigure--sm5"><img src="https://brig.github.io/concord-intellij-ng/assets/images/completion-el-props-a555f0dd8de3f1eaba68656cd8c18f3b.png" alt="Expression Property Completion"><figcaption><p>Property completion after a dot in an EL expression, showing available sub-fields with types.</p></figcaption></figure>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="go-to-declaration--find-usages">Go to Declaration &amp; Find Usages<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#go-to-declaration--find-usages" class="hash-link" aria-label="Direct link to Go to Declaration &amp; Find Usages" title="Direct link to Go to Declaration &amp; Find Usages" translate="no">​</a></h3>
+<p><span class="keystroke__keystrokes"><kbd class="keystroke">Ctrl</kbd></span> + <strong>Click</strong> on a variable in a <code>${...}</code> expression to jump to its declaration — whether it's a key in <code>configuration.arguments</code>, a parameter in a flow doc block, a <span class="tokenBadge" data-kind="step">set</span> step, or an <code>out</code> field of a task/call step. The same works in reverse: place the caret on a variable declaration and press <span class="keystroke__keystrokes"><kbd class="keystroke">Alt</kbd><kbd class="keystroke">F7</kbd></span> to find every expression that references it.</p>
+<p>Navigation also works for <strong>nested properties</strong> — clicking <code>host</code> in <code>${config.db.host}</code> walks the property chain to the corresponding YAML key.</p>
+<figure class="docFigure docFigure--sm4"><img src="https://brig.github.io/concord-intellij-ng/assets/images/find-usages-variable-97577faa9d9e3e4dfb1f14fee91d7180.png" alt="Find Usages for a variable"><figcaption><p>Find Usages showing all expression references to a variable declared in a set step.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="variable-schema-inference">Variable Schema Inference<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#variable-schema-inference" class="hash-link" aria-label="Direct link to Variable Schema Inference" title="Direct link to Variable Schema Inference" translate="no">​</a></h2>
+<p>The plugin now infers variable types from multiple sources across your flow, enabling typed completion and property suggestions for <code>${...}</code> expressions:</p>
+<ul>
+<li class=""><strong><code>set</code> steps</strong> — Variables assigned in <span class="tokenBadge" data-kind="step">set</span> steps have their structure inferred from the YAML mapping values.</li>
+<li class=""><strong><code>configuration.arguments</code></strong> — Arguments declared at the top level are tracked with their types.</li>
+<li class=""><strong><code>call</code> step <code>out</code></strong> — Output variables from a <span class="tokenBadge" data-kind="step">call</span> step are inferred from the target flow's documentation block.</li>
+<li class=""><strong><code>task</code> step <code>out</code></strong> — Output variables from a <span class="tokenBadge" data-kind="step">task</span> step are inferred from the task's JSON schema.</li>
+</ul>
+<figure class="docFigure docFigure--sm4"><img src="https://brig.github.io/concord-intellij-ng/assets/images/auto-task-out-var-d81ba687f84acb233535937654358307.png" alt="Task output variable schema inference"><figcaption><p>Property completion for a task output variable, with types inferred from the task's JSON schema.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="call-output-parameter-completion">Call Output Parameter Completion<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#call-output-parameter-completion" class="hash-link" aria-label="Direct link to Call Output Parameter Completion" title="Direct link to Call Output Parameter Completion" translate="no">​</a></h2>
+<p>When writing the <span class="tokenBadge" data-kind="step">out</span> field of a <span class="tokenBadge" data-kind="step">call</span> step,
+the plugin now suggests output parameter names from the target flow's <a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/flow-docs">Documentation Block</a>.
+This works for both scalar and sequence forms of the <code>out</code> field.</p>
+<figure class="docFigure docFigure--sm4"><img src="https://brig.github.io/concord-intellij-ng/assets/images/completion-call-out-2a82d8605be88c274114fefb42589a9a.png" alt="Call Output Parameter Completion"><figcaption><p>Completion popup suggesting output parameter names from the target flow's documentation block.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="jdk-selection-for-concord-cli">JDK Selection for Concord CLI<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#jdk-selection-for-concord-cli" class="hash-link" aria-label="Direct link to JDK Selection for Concord CLI" title="Direct link to JDK Selection for Concord CLI" translate="no">​</a></h2>
+<p>You can now select a specific JDK for running the Concord CLI, independent of the project SDK. This is useful when your project targets a different Java version than what Concord requires.</p>
+<p>Configure it in <strong>Settings</strong> &gt; <strong>Tools</strong> &gt; <strong>Concord</strong> &gt; <strong>CLI</strong>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="other-improvements">Other Improvements<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0#other-improvements" class="hash-link" aria-label="Direct link to Other Improvements" title="Direct link to Other Improvements" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Stale Highlighting Fix:</strong> The analysis daemon now restarts on external VFS changes, preventing stale highlighting after files are modified outside the IDE.</li>
+</ul>]]></content>
+        <author>
+            <name>Brig</name>
+            <uri>https://github.com/brig</uri>
+        </author>
+        <category label="Release" term="Release"/>
+        <category label="Features" term="Features"/>
+    </entry>
     <entry>
         <title type="html"><![CDATA[What's New in Concord IntelliJ 0.19.0]]></title>
         <id>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.19.0</id>
