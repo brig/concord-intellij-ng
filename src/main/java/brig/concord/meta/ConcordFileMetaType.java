@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static brig.concord.yaml.meta.model.TypeProps.descKey;
@@ -24,18 +23,16 @@ public class ConcordFileMetaType extends ConcordMetaType implements HighlightPro
         return INSTANCE;
     }
 
-    protected static final Map<String, YamlMetaType> features = new HashMap<>();
-
-    static {
-        features.put("resources", ResourcesMetaType.getInstance());
-        features.put("configuration", ConfigurationMetaType.getInstance());
-        features.put("publicFlows", new StringArrayMetaType(descKey("doc.publicFlows.description")));
-        features.put("forms", FormsMetaType.getInstance());
-        features.put("imports", ImportsMetaType.getInstance());
-        features.put("profiles", ProfilesMetaType.getInstance());
-        features.put(FLOWS_KEY, FlowsMetaType.getInstance());
-        features.put("triggers", TriggersMetaType.getInstance());
-    }
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "resources", ResourcesMetaType.getInstance(),
+            "configuration", ConfigurationMetaType.getInstance(),
+            "publicFlows", new StringArrayMetaType(descKey("doc.publicFlows.description")),
+            "forms", FormsMetaType.getInstance(),
+            "imports", ImportsMetaType.getInstance(),
+            "profiles", ProfilesMetaType.getInstance(),
+            FLOWS_KEY, FlowsMetaType.getInstance(),
+            "triggers", TriggersMetaType.getInstance()
+    );
 
     @Override
     protected @NotNull Map<String, YamlMetaType> getFeatures() {

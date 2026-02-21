@@ -20,17 +20,12 @@ public class IfStepMetaType extends IdentityMetaType {
         return INSTANCE;
     }
 
-    private static final Map<String, YamlMetaType> features;
-
-    static {
-        var thenSteps = new StepsMetaType(descKey("doc.step.feature.then.description").andRequired());
-        var elseSteps = new StepsMetaType(descKey("doc.step.feature.else.description"));
-        features = Map.of(
-                "if", new ExpressionMetaType(descKey("doc.type.expression.description").andRequired()),
-                THEN, thenSteps,
-                ELSE, elseSteps,
-                "meta", StepMetaMetaType.getInstance());
-    }
+    private static final Map<String, YamlMetaType> features = Map.of(
+            "if", new ExpressionMetaType(descKey("doc.type.expression.description").andRequired()),
+            THEN, new StepsMetaType(descKey("doc.step.feature.then.description").andRequired()),
+            ELSE, new StepsMetaType(descKey("doc.step.feature.else.description")),
+            "meta", StepMetaMetaType.getInstance()
+    );
 
     private IfStepMetaType() {
         super("if", descKey("doc.step.if.description"));

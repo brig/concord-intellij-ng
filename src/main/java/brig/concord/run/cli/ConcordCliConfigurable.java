@@ -238,6 +238,13 @@ public final class ConcordCliConfigurable implements Configurable {
     }
 
     @Override
+    public void disposeUIResources() {
+        myCliPathField = null;
+        myVersionLabel = null;
+        myJdkComboBox = null;
+    }
+
+    @Override
     public void reset() {
         myListenersActive = false;
         try {

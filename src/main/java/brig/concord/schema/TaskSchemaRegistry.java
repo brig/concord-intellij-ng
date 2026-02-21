@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package brig.concord.schema;
 
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -12,7 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service(Service.Level.PROJECT)
-public final class TaskSchemaRegistry {
+public final class TaskSchemaRegistry implements Disposable {
 
     private static final Logger LOG = Logger.getInstance(TaskSchemaRegistry.class);
 
@@ -51,6 +52,11 @@ public final class TaskSchemaRegistry {
 
     @TestOnly
     public void clearCache() {
+        cache.clear();
+    }
+
+    @Override
+    public void dispose() {
         cache.clear();
     }
 }

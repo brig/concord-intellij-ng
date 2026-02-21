@@ -3,6 +3,7 @@ package brig.concord.dependency;
 
 import brig.concord.psi.ConcordScopeService;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.components.Service;
@@ -27,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Provides task names for autocomplete in the task: field.
  */
 @Service(Service.Level.PROJECT)
-public final class TaskRegistry {
+public final class TaskRegistry implements Disposable {
 
     private static final Logger LOG = Logger.getInstance(TaskRegistry.class);
     private static final TaskNameExtractor TASK_NAME_EXTRACTOR = new TaskNameExtractor();
@@ -245,8 +246,12 @@ public final class TaskRegistry {
 
         LOG.debug("Found " + allCoordinates.size() + " unique dependencies across " + scopeDependencies.size() + " scopes");
 
+        ProgressManager.checkCanceled();
+
         // Step 2: Partition coordinates — skip "latest" versions, try to resolve the rest
         var partitioned = resolvePartitioned(allCoordinates, resolver, indicator, reporter);
+
+        ProgressManager.checkCanceled();
 
         skippedDependencies = partitioned.skipped().isEmpty() ? Set.of() : Set.copyOf(partitioned.skipped());
         updateFailedAndRestart(partitioned.errors(), scopeDependencies);
@@ -329,9 +334,10 @@ public final class TaskRegistry {
             return new PartitionResult(Map.of(), Map.of(), skipped);
         }
 
+        ProgressManager.checkCanceled();
+
         indicator.setText("Resolving " + toResolve.size() + " artifacts...");
         reporter.reportResolving(toResolve.size());
-        ProgressManager.checkCanceled();
         var resolveResult = resolver.resolveAll(toResolve);
 
         // Reclassify failed non-version-like coordinates as skipped instead of errors
@@ -438,5 +444,13 @@ public final class TaskRegistry {
         } else {
             tracker.markReloaded(loadedDeps, modCountAtStart);
         }
+    }
+
+    @Override
+    public void dispose() {
+        taskNamesByScope = Map.of();
+        failedDependencies = Map.of();
+        skippedDependencies = Set.of();
+        markedProblemFiles = Set.of();
     }
 }

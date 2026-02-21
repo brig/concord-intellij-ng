@@ -612,5 +612,6 @@ public final class ConcordModificationTracker implements Disposable {
     @Override
     public void dispose() {
         queue.cancelAllUpdates();
+        fileCache.clear();
     }
 }
