@@ -364,7 +364,7 @@ public final class TaskRegistry {
                 }
                 var psiFile = psiManager.findFile(vf);
                 if (psiFile != null) {
-                    analyzer.restart(psiFile);
+                    analyzer.restart(psiFile, "Concord dependency resolution changed");
                 }
             }
         }, project.getDisposed());

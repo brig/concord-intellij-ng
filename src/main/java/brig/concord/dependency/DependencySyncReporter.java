@@ -8,6 +8,7 @@ import com.intellij.build.SyncViewManager;
 import com.intellij.build.events.MessageEvent;
 import com.intellij.build.progress.BuildProgress;
 import com.intellij.build.progress.BuildProgressDescriptor;
+import com.intellij.execution.process.ProcessOutputType;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
@@ -55,7 +56,7 @@ final class DependencySyncReporter {
             return;
         }
 
-        buildProgress.output("Collecting dependencies...\n", true);
+        buildProgress.output("Collecting dependencies...\n", ProcessOutputType.STDOUT);
     }
 
     void reportResolving(int count) {
@@ -63,7 +64,7 @@ final class DependencySyncReporter {
             return;
         }
 
-        buildProgress.output("Resolving " + count + " artifacts...\n", true);
+        buildProgress.output("Resolving " + count + " artifacts...\n", ProcessOutputType.STDOUT);
     }
 
     void reportErrors(@NotNull Map<MavenCoordinate, String> errors,
