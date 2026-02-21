@@ -45,7 +45,14 @@ public class ConcordYAMLFlexLexer extends MergingLexerAdapter {
         @Override
         public int getState() {
             final int state = super.getState();
-            if (state != 0 || getFlex().isCleanState()) {
+            if (state == 0 && getFlex().isCleanState()) {
+                return 0;
+            }
+            // Inside the flows section, the lexer carries context (myInsideFlowsSection,
+            // myFlowDefIndent, etc.) that cannot be captured in the integer state alone.
+            // Returning DIRTY_STATE forces re-lex from a clean point, preserving
+            // flow doc highlighting after incremental edits.
+            if (state != 0 && !getFlex().isInsideFlowsSection()) {
                 return state;
             }
             return DIRTY_STATE;
