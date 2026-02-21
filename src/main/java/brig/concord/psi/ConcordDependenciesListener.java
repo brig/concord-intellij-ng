@@ -5,6 +5,7 @@ import com.intellij.util.messages.Topic;
 
 public interface ConcordDependenciesListener {
 
+    @Topic.ProjectLevel
     Topic<ConcordDependenciesListener> TOPIC =
             Topic.create("Concord Dependencies Changes", ConcordDependenciesListener.class);
 

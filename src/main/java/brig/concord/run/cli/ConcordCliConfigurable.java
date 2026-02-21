@@ -28,6 +28,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.Future;
 
 public final class ConcordCliConfigurable implements Configurable {
 
@@ -36,6 +37,7 @@ public final class ConcordCliConfigurable implements Configurable {
     private ComboBox<String> myJdkComboBox;
     private boolean myListenersActive;
     private int myVersionDetectionGeneration;
+    private @Nullable Future<?> myVersionDetectionFuture;
     private @Nullable String myDetectedVersion;
     private @Nullable String myNotFoundJdkName;
 
@@ -142,7 +144,10 @@ public final class ConcordCliConfigurable implements Configurable {
         myVersionLabel.setText(ConcordBundle.message("cli.settings.version.detecting"));
 
         var jdkInfo = resolveSelectedJdk();
-        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+        if (myVersionDetectionFuture != null) {
+            myVersionDetectionFuture.cancel(true);
+        }
+        myVersionDetectionFuture = ApplicationManager.getApplication().executeOnPooledThread(() -> {
             var version = manager.detectCliVersion(path, jdkInfo);
             ApplicationManager.getApplication().invokeLater(() -> {
                 if (generation == myVersionDetectionGeneration && myVersionLabel.isShowing()) {
@@ -239,6 +244,10 @@ public final class ConcordCliConfigurable implements Configurable {
 
     @Override
     public void disposeUIResources() {
+        if (myVersionDetectionFuture != null) {
+            myVersionDetectionFuture.cancel(true);
+            myVersionDetectionFuture = null;
+        }
         myCliPathField = null;
         myVersionLabel = null;
         myJdkComboBox = null;

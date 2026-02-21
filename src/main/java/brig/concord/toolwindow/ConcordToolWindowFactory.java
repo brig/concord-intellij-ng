@@ -14,6 +14,7 @@ public class ConcordToolWindowFactory implements ToolWindowFactory, DumbAware {
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         var panel = new ConcordProjectsPanel(project);
         var content = ContentFactory.getInstance().createContent(panel, "", false);
+        content.setDisposer(panel);
         toolWindow.getContentManager().addContent(content);
     }
 }
