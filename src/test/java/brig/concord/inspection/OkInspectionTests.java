@@ -38,6 +38,7 @@ class OkInspectionTests extends InspectionTestBase {
             "/ok/publicFlows/000.concord.yml",
             "/ok/resources/000.concord.yml",
             "/ok/return/000.concord.yml",
+            "/ok/exit/000.concord.yml",
             "/ok/script/000.concord.yml",
             "/ok/setVariables/000.concord.yml",
             "/ok/switch/000.concord.yml",
