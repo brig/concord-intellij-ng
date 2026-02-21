@@ -9,8 +9,10 @@ import com.intellij.execution.executors.DefaultRunExecutor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 public final class ConcordRunConfigurationHelper {
 
@@ -60,15 +62,59 @@ public final class ConcordRunConfigurationHelper {
             @NotNull String workingDirectory) {
 
         var runManager = RunManager.getInstance(project);
-        var settings = createConfiguration(project, flowName, workingDirectory);
 
-        runManager.setTemporaryConfiguration(settings);
+        var existing = findExistingConfiguration(project, flowName, workingDirectory);
+        var settings = existing != null ? existing : createConfiguration(project, flowName, workingDirectory);
+
+        if (existing == null) {
+            runManager.setTemporaryConfiguration(settings);
+        }
         runManager.setSelectedConfiguration(settings);
 
         var executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID);
         if (executor != null) {
             ProgramRunnerUtil.executeConfiguration(settings, executor);
         }
+    }
+
+    public static boolean isMatchingConfiguration(
+            @NotNull ConcordRunConfiguration config,
+            @NotNull String flowName,
+            @NotNull String workingDirectory,
+            @NotNull Project project) {
+
+        if (!workingDirectory.equals(config.getWorkingDirectory())) {
+            return false;
+        }
+
+        var runModeSettings = ConcordRunModeSettings.getInstance(project);
+        if (runModeSettings.isDelegatingMode()) {
+            if (!runModeSettings.getMainEntryPoint().equals(config.getEntryPoint())) {
+                return false;
+            }
+            var flowParamValue = config.getParameters().get(runModeSettings.getFlowParameterName());
+            return Objects.equals(flowName, flowParamValue);
+        } else {
+            return flowName.equals(config.getEntryPoint());
+        }
+    }
+
+    private static @Nullable RunnerAndConfigurationSettings findExistingConfiguration(
+            @NotNull Project project,
+            @NotNull String flowName,
+            @NotNull String workingDirectory) {
+
+        var runManager = RunManager.getInstance(project);
+        var configurationType = ConcordRunConfigurationType.getInstance();
+
+        for (var settings : runManager.getConfigurationSettingsList(configurationType)) {
+            if (settings.getConfiguration() instanceof ConcordRunConfiguration config
+                    && isMatchingConfiguration(config, flowName, workingDirectory, project)) {
+                return settings;
+            }
+        }
+
+        return null;
     }
 
     public static @NotNull String getWorkingDirectory(

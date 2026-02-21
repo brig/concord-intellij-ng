@@ -3,6 +3,7 @@ package brig.concord.lexer;
 import org.junit.jupiter.api.Test;
 
 import static brig.concord.assertions.TokenAssertions.assertTokens;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FlowDocLexerTest {
 
@@ -879,5 +880,76 @@ class FlowDocLexerTest {
 
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 1);
+    }
+
+    @Test
+    void testIncrementalRelexPreservesFlowDocTokens() {
+        // Regression: after editing inside flows section, IntelliJ performs
+        // incremental re-lexing from the nearest token with state=0.
+        // After 'flows:' (root-level key at column 0), the EOL token transitions
+        // to YYINITIAL with myPrevElementIndent=0 and isCleanState() returns true
+        // (state=0), even though myInsideFlowsSection=true.
+        // A new lexer started from that position resets all state via cleanMyState(),
+        // loses the flows context, and ## becomes a regular COMMENT instead of
+        // FLOW_DOC_MARKER — the entire flow doc block turns gray.
+        var yaml = """
+                flows:
+                  ##
+                  # in:
+                  #   param1: string, mandatory
+                  ##
+                  myFlow:
+                    - log: "test"
+                """;
+
+        // Full lex correctly recognizes flow doc
+        var allTokens = assertTokens(yaml);
+        allTokens.hasCount("FLOW_DOC_MARKER", 2);
+
+        var tokens = allTokens.getTokens();
+
+        // Find the first FLOW_DOC_MARKER
+        int markerIdx = -1;
+        for (int i = 0; i < tokens.size(); i++) {
+            if (tokens.get(i).typeName().equals("FLOW_DOC_MARKER")) {
+                markerIdx = i;
+                break;
+            }
+        }
+        assertTrue(markerIdx > 0, "Should find FLOW_DOC_MARKER");
+
+        // Find the last token with state=0 before the flow doc marker.
+        // This is the position IntelliJ would pick for incremental re-lex.
+        int restartIdx = -1;
+        for (int i = markerIdx - 1; i >= 0; i--) {
+            if (tokens.get(i).state() == 0) {
+                restartIdx = i;
+                break;
+            }
+        }
+
+        // There must be no state=0 restart point between 'flows:' and '##'
+        // that would cause a new lexer to lose the flows context.
+        // If such a point exists, verify that re-lexing from it still works.
+        if (restartIdx > 0) {
+            var restartToken = tokens.get(restartIdx);
+
+            // Simulate incremental re-lex: new lexer from state=0 position
+            var lexer = new ConcordYAMLFlexLexer();
+            lexer.start(yaml, restartToken.start(), yaml.length(), 0);
+
+            int flowDocMarkers = 0;
+            while (lexer.getTokenType() != null) {
+                if ("FLOW_DOC_MARKER".equals(lexer.getTokenType().toString())) {
+                    flowDocMarkers++;
+                }
+                lexer.advance();
+            }
+
+            assertEquals(2, flowDocMarkers,
+                    "Incremental re-lex from state=0 token '" + restartToken +
+                    "' inside flows section must still recognize flow doc markers.\n" +
+                    allTokens.formatTokens());
+        }
     }
 }

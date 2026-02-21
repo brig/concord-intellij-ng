@@ -137,7 +137,7 @@ functionExpr ::= <<isFunctionCall>> IDENTIFIER COLON IDENTIFIER argList+ {pin=3}
 
 // Permissive: (expr, expr, ...) allows both grouping and lambda param lists.
 // Lambda params validated semantically — each must be a simple identifier.
-parenExpr ::= LPAREN expression (COMMA expression)* RPAREN {pin=1}
+parenExpr ::= LPAREN [expression (COMMA expression)*] RPAREN {pin=1}
 
 // ---- Literals ----
 literal ::= INTEGER_LITERAL

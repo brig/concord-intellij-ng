@@ -72,7 +72,12 @@ import com.intellij.lexer.FlexLexer;
     return yystate() == YYINITIAL
            && myBraceCount == 0
            && myPrevElementIndent == 0
-           && !myPossiblePlainTextScalarContinue;
+           && !myPossiblePlainTextScalarContinue
+           && !myInsideFlowsSection;
+  }
+
+  public boolean isInsideFlowsSection() {
+    return myInsideFlowsSection;
   }
 
   public void cleanMyState() {
