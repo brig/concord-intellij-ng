@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.changelog)
     alias(libs.plugins.qodana)
     alias(libs.plugins.grammarkit)
+    alias(libs.plugins.spotless)
 }
 
 group = properties("pluginGroup")
@@ -93,6 +94,26 @@ changelog {
 
 grammarKit {
     jflexRelease.set(libs.versions.jflex.get())
+}
+
+spotless {
+    ratchetFrom("origin/main")
+    val excludeDirs = listOf(".qodana/**", ".idea-sources/**", ".idea/**", ".gradle/**", "build/**", "**/build/**")
+    // Files forked from JetBrains YAML plugin — keep their original copyright
+    val jetbrainsFiles = listOf("**/brig/concord/yaml/**", "**/brig/concord/formatter/YAML*", "**/brig/concord/formatter/YamlInjectedBlockFactory*")
+    java {
+        target("**/src/main/java/**/*.java", "**/src/test/java/**/*.java")
+        targetExclude(excludeDirs + jetbrainsFiles + "**/src/main/gen/**")
+        licenseHeaderFile(file("gradle/license-header.txt"))
+    }
+    kotlin {
+        target(
+            "**/src/main/java/**/*.kt", "**/src/main/kotlin/**/*.kt",
+            "**/src/test/java/**/*.kt", "**/src/test/kotlin/**/*.kt"
+        )
+        targetExclude(excludeDirs + jetbrainsFiles)
+        licenseHeaderFile(file("gradle/license-header.txt"))
+    }
 }
 
 tasks {

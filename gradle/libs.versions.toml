@@ -11,6 +11,7 @@ jflex = "1.9.2"
 cronUtils = "9.2.0"
 asm = "9.7"
 gson = "2.11.0"
+spotless = "7.0.2"
 
 [libraries]
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
@@ -29,3 +30,4 @@ intellijPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "inte
 grammarkit = { id = "org.jetbrains.grammarkit", version.ref = "grammarkit" }
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
 qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
