@@ -9,6 +9,9 @@
 
 ### Changed
 
+- handle quoted return/exit step values
+([#143](https://github.com/brig/concord-intellij-ng/pull/143))
+
 ## 0.20.0 - 2026-02-21
 
 ### Added
