@@ -58,6 +58,25 @@ class ElLexerTest {
     }
 
     @Test
+    void yamlEscapedDoubleQuotedString() {
+        // In YAML DQ strings, the EL body contains \" as string delimiters
+        assertTokenTypes("\\\"hello\\\"", ElTypes.DOUBLE_QUOTED_STRING);
+    }
+
+    @Test
+    void yamlEscapedDoubleQuotedStringWithContent() {
+        // Matches the user's real-world case: \"No GitHub branch named '\"
+        assertTokenTypes("\\\"No GitHub branch named '\\\"", ElTypes.DOUBLE_QUOTED_STRING);
+    }
+
+    @Test
+    void yamlEscapedDoubleQuotedStringWithElEscape() {
+        // \\\" in raw text = YAML \\ (decoded \) + YAML \" (decoded ") = EL escape \"
+        // Full: \"abc\\\"def\" — string containing abc"def
+        assertTokenTypes("\\\"abc\\\\\\\"def\\\"", ElTypes.DOUBLE_QUOTED_STRING);
+    }
+
+    @Test
     void booleanKeywords() {
         assertTokenTypes("true", ElTypes.TRUE_KEYWORD);
         assertTokenTypes("false", ElTypes.FALSE_KEYWORD);

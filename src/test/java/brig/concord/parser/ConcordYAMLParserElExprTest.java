@@ -110,6 +110,18 @@ class ConcordYAMLParserElExprTest extends ConcordYamlTestBaseJunit5 {
         assertTokenCount(file, ConcordElTokenTypes.EL_EXPR_START, 0);
     }
 
+    @Test
+    void yamlEscapedQuoteInsideElStringInDoubleQuotedYamlString() {
+        // YAML: - log: "${\"No GitHub branch named '\"}"
+        // After YAML unescaping: ${"No GitHub branch named '"}
+        // This is a valid EL expression containing a double-quoted string literal.
+        // The \" sequences are YAML escapes, not EL escapes.
+        var file = parse("- log: \"${\\\"No GitHub branch named '\\\"}\"\n");
+
+        assertNoPsiErrors(file);
+        assertElExpressionCount(file, 1);
+    }
+
     // --- Block scalar expressions ---
 
     @Test

@@ -20,6 +20,10 @@ INTEGER          = [0-9]+
 FLOAT            = [0-9]*\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+[eE][+-]?[0-9]+
 SINGLE_QUOTED    = '([^'\\]|\\.)*'
 DOUBLE_QUOTED    = \"([^\"\\]|\\.)*\"
+// In YAML double-quoted strings, the EL body text contains YAML escapes:
+// literal " appears as \" in the raw text. This pattern matches EL strings
+// whose delimiters are YAML-escaped: \"...\"
+YAML_DQ_DOUBLE_QUOTED = \\\"([^\"\\]|\\.)*\\\"
 
 // EL identifiers: letters, $, _, # (for implicit objects like #sessionScope)
 // Unicode letter ranges from EL 3.0 spec (ELParser.jjt lines 559-574)
@@ -64,7 +68,8 @@ IDENTIFIER       = ({LETTER}|{IMPL_OBJ_START})({LETTER}|{DIGIT})*
 "{"              { return LBRACE; }
 "}"              { return RBRACE; }
 
-// Strings
+// Strings — YAML-escaped variant handles \" delimiters in YAML DQ contexts
+{YAML_DQ_DOUBLE_QUOTED} { return DOUBLE_QUOTED_STRING; }
 {SINGLE_QUOTED}  { return SINGLE_QUOTED_STRING; }
 {DOUBLE_QUOTED}  { return DOUBLE_QUOTED_STRING; }
 

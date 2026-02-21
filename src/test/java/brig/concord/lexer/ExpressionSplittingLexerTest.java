@@ -165,6 +165,34 @@ class ExpressionSplittingLexerTest {
     }
 
     @Test
+    void yamlEscapedQuoteInsideExpressionInDoubleQuotedString() {
+        // YAML: - log: "${\"No GitHub branch named '\"}"
+        // After YAML unescaping the value is: ${"No GitHub branch named '"}
+        // The EL expression body (in raw YAML text) is: \"No GitHub branch named '\"
+        // The ExpressionSplittingLexer must recognise that \" in a SCALAR_DSTRING
+        // is a YAML escape for a literal " and NOT an EL-level escape.
+        assertTokensWithExprSplitting("- log: \"${\\\"No GitHub branch named '\\\"}\"\n")
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1)
+                .token("el expr body").hasText("\\\"No GitHub branch named '\\\"");
+    }
+
+    @Test
+    void yamlDoubleEscapeInsideElStringInDoubleQuotedYamlString() {
+        // YAML: - log: "${\"has \\\"escaped\\\" quotes\"}"
+        // After YAML unescaping: ${"has \"escaped\" quotes"}
+        // The EL expression is a string containing: has "escaped" quotes
+        // Raw body: \"has \\\"escaped\\\" quotes\"
+        // The \\\\ is YAML \\, decoded \; the \\\" is YAML \", decoded "
+        // Together decoded \" is an EL escape inside the string — must not toggle dq
+        assertTokensWithExprSplitting("- log: \"${\\\"has \\\\\\\"escaped\\\\\\\" quotes\\\"}\"\n")
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1);
+    }
+
+    @Test
     void quotesInsideExpression() {
         assertTokensWithExprSplitting("- log: ${foo('bar')}")
                 .hasCount("el expr start", 1)

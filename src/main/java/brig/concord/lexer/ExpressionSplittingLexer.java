@@ -280,12 +280,53 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
             int depth = 1;
             boolean sq = false;
             boolean dq = false;
+            boolean yamlDQ = scalarType == SCALAR_DSTRING;
 
             int j = bodyStart;
             boolean found = false;
+            // When inside a YAML double-quoted string, a decoded \ (from raw \\)
+            // may escape the next decoded character (e.g., raw YAML \\\" → decoded \", an EL escape).
+            boolean yamlDecodedBackslash = false;
             while (j < to) {
                 char c = buffer.charAt(j);
 
+                // In YAML double-quoted strings, \ is always a YAML escape prefix.
+                // Handle it before EL-level logic to correctly distinguish
+                // YAML escapes (like \") from EL escapes.
+                if (yamlDQ && c == '\\' && j + 1 < to) {
+                    char next = buffer.charAt(j + 1);
+                    j += 2;
+
+                    if (next == '\\') {
+                        // YAML \\, decoded: \
+                        // Inside an EL string, track whether this decoded \
+                        // will escape the next decoded character.
+                        if (sq || dq) {
+                            yamlDecodedBackslash = !yamlDecodedBackslash;
+                        }
+                    } else if (next == '"') {
+                        // YAML \", decoded: "
+                        if (yamlDecodedBackslash) {
+                            // Preceded by decoded \ → EL escape \" → don't toggle
+                            yamlDecodedBackslash = false;
+                        } else if (!sq) {
+                            dq = !dq;
+                        }
+                    } else {
+                        // Other YAML escape (\n, \t, etc.) — decoded char is not \ or "
+                        yamlDecodedBackslash = false;
+                    }
+                    continue;
+                }
+
+                // A decoded \ from a YAML \\ escapes the next (non-YAML-escape) character
+                if (yamlDecodedBackslash) {
+                    yamlDecodedBackslash = false;
+                    j++;
+                    continue;
+                }
+
+                // EL-level escape: \ inside EL-quoted strings (non-YAML-DQ contexts)
                 if ((sq || dq) && c == '\\' && j + 1 < to) {
                     j += 2;
                     continue;
