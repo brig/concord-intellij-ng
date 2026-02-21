@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+
+- support for interpreting dotted keys in set: steps (e.g., a.b: 1) as nested object variables for schema inference and variable discovery
+([#141](https://github.com/brig/concord-intellij-ng/pull/141))
+
+### Changed
+
 ## 0.20.0 - 2026-02-21
 
 ### Added
