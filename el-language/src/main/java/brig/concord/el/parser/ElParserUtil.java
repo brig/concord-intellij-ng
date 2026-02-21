@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Concord Plugin Authors
 package brig.concord.el.parser;
 
 import brig.concord.el.psi.ElTypes;
