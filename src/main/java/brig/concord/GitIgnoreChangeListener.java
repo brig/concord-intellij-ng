@@ -37,6 +37,6 @@ public final class GitIgnoreChangeListener implements ChangeListListener {
         EditorNotifications.getInstance(project).updateAllNotifications();
 
         // Restart code analysis to re-run inspections
-        DaemonCodeAnalyzer.getInstance(project).restart();
+        DaemonCodeAnalyzer.getInstance(project).restart("VCS ignore status changed");
     }
 }
