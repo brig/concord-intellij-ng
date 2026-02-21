@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2026 Concord Plugin Authors
 package brig.concord.editor;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
