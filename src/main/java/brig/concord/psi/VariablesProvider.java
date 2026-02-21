@@ -154,12 +154,64 @@ public final class VariablesProvider {
 
     private static void collectSetVars(YAMLValue value, VariableCollector collector) {
         if (value instanceof YAMLMapping m) {
+            Map<String, DottedKeyNode> roots = new LinkedHashMap<>();
+
             for (var entry : m.getKeyValues()) {
                 var name = entry.getKeyText().trim();
-                if (!name.isEmpty()) {
+                if (name.isEmpty()) {
+                    continue;
+                }
+
+                var segments = name.split("\\.", -1);
+                if (segments.length > 1 && allSegmentsNonEmpty(segments)) {
+                    roots.computeIfAbsent(segments[0], k -> new DottedKeyNode())
+                            .insert(segments, 1, SchemaInference.inferSchema(name, entry.getValue()).schemaType());
+                } else {
                     collector.add(new Variable(name, VariableSource.SET_STEP, entry, SchemaInference.inferSchema(name, entry.getValue())));
                 }
             }
+
+            for (var entry : roots.entrySet()) {
+                collector.add(new Variable(entry.getKey(), VariableSource.SET_STEP, m,
+                        new SchemaProperty(entry.getKey(), entry.getValue().toSchemaType(), null, false)));
+            }
+        }
+    }
+
+    private static boolean allSegmentsNonEmpty(String[] segments) {
+        for (var s : segments) {
+            if (s.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static class DottedKeyNode {
+
+        final Map<String, DottedKeyNode> children = new LinkedHashMap<>();
+        SchemaType leafType;
+
+        void insert(String[] segments, int index, SchemaType type) {
+            if (index == segments.length) {
+                leafType = type;
+                return;
+            }
+            children.computeIfAbsent(segments[index], k -> new DottedKeyNode())
+                    .insert(segments, index + 1, type);
+        }
+
+        SchemaType toSchemaType() {
+            if (children.isEmpty()) {
+                return leafType != null ? leafType : SchemaType.ANY;
+            }
+            var props = new LinkedHashMap<String, SchemaProperty>();
+            for (var entry : children.entrySet()) {
+                props.put(entry.getKey(), new SchemaProperty(
+                        entry.getKey(), entry.getValue().toSchemaType(), null, false));
+            }
+            return new SchemaType.Object(
+                    new ObjectSchema(Collections.unmodifiableMap(props), Set.of(), true));
         }
     }
 
