@@ -1,0 +1,4 @@
+flows:
+  default:
+    - exit
+    - "exit"

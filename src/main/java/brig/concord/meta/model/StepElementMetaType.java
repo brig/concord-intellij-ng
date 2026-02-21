@@ -54,11 +54,11 @@ public class StepElementMetaType extends IdentityElementMetaType implements High
 
     @Override
     public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        if (value instanceof YAMLScalar) {
-            if ("return".equals(value.getText())) {
+        if (value instanceof YAMLScalar scalar) {
+            if ("return".equals(scalar.getTextValue())) {
                 return;
             }
-            if ("exit".equals(value.getText())) {
+            if ("exit".equals(scalar.getTextValue())) {
                 return;
             }
 
