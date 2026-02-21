@@ -1,5 +1,44 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- autocomplete and navigation support for nested properties in EL (Expression Language) expressions within Concord YAML files
+([#136](https://github.com/brig/concord-intellij-ng/pull/136))   
+- schema type inference for variables declared in `out` section of task step
+([#135](https://github.com/brig/concord-intellij-ng/pull/135))   
+- schema type inference for variables declared in `out` section of call step
+([#133](https://github.com/brig/concord-intellij-ng/pull/133))   
+- extends variable schema inference to `configuration.arguments`
+([#132](https://github.com/brig/concord-intellij-ng/pull/132)) 
+- schema type inference for variables declared in `set` steps within Concord flow definitions
+([#131](https://github.com/brig/concord-intellij-ng/pull/131)) 
+- ability to select a specific JDK for running the Concord CLI
+([#128](https://github.com/brig/concord-intellij-ng/pull/128)) 
+- EL variable navigation support so `${var}` identifiers can Go to Declaration and variable declarations
+can Find Usages across common Concord variable sources (args, flow doc params, set, and step out)
+([#124](https://github.com/brig/concord-intellij-ng/pull/124)) 
+- variable completion support inside EL (Expression Language) expressions in Concord YAML files
+([#123](https://github.com/brig/concord-intellij-ng/pull/123)) 
+- lexer-level highlighting and parsing for EL (Expression Language) expressions in Concord YAML files
+([#121](https://github.com/brig/concord-intellij-ng/pull/121)) 
+- variables provider with argument tracking and built-in variables
+([#119](https://github.com/brig/concord-intellij-ng/pull/119))
+- autocompletion for output variables in the `out` field of `call` steps
+([#118](https://github.com/brig/concord-intellij-ng/pull/118))
+
+### Changed
+
+- improved Concord variable completion to better reflect step scoping and Concord-specific variables (loop variables, task results)
+([#129](https://github.com/brig/concord-intellij-ng/pull/129))  
+- nested object properties support in task schemas
+([#125](https://github.com/brig/concord-intellij-ng/pull/125))
+- restart daemon on external VFS changes to fix stale highlighting
+([#122](https://github.com/brig/concord-intellij-ng/pull/122))
+- `TaskRegistry` now checks `VirtualFile` validity before access to prevent potential `InvalidVirtualFileAccessException`
+([#116](https://github.com/brig/concord-intellij-ng/pull/116))
+
 ## 0.19.0 - 2026-02-14
 
 ### Added
