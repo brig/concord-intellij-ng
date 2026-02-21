@@ -1,0 +1,95 @@
+---
+title: Run Configurations
+description: Run and test Concord flows directly from IntelliJ IDEA
+---
+
+# Run Configurations
+
+The Concord IntelliJ Plugin allows you to execute Concord flows locally directly from the IDE. This is powered by the [Concord CLI](https://github.com/walmartlabs/concord-cli), enabling rapid feedback loops during development without pushing changes to the server.
+
+## Prerequisites
+
+Before running flows, you need to configure the Concord CLI.
+
+1.  Open **Settings | Tools | Concord CLI**.
+2.  Either:
+    *   **Download:** Click "Download..." to fetch the CLI directly from Maven Central. The plugin will download and configure it automatically.
+    *   **Manual path:** If you already have the CLI installed, specify the path to the executable.
+3.  The plugin validates the path and displays the detected version.
+4.  Optionally, select a **Java runtime** to use for running the CLI. By default, the CLI uses `java` from the system PATH. You can choose any JDK registered in IntelliJ to run the CLI via `java -jar` instead.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/concord-cli-settings.png').default} alt="Concord CLI Settings" />
+    <figcaption>Concord CLI Settings</figcaption>
+</figure>
+
+:::tip Custom JDK
+Selecting a specific Java runtime is useful when the Concord CLI requires a different JDK version than your system default, or when `java` is not on the system PATH.
+:::
+
+## Running a Flow
+
+There are multiple ways to start a flow execution.
+
+### 1. Gutter Icons
+
+:::tip Quick Run
+The easiest way to run a specific flow is using the **Run** icon in the editor gutter (left margin) next to the flow definition.
+:::
+
+<figure className="docFigure docFigure--sm00">
+    <img src={require('@site/static/img/concord-gutter.png').default} alt="Run Gutter Icon" />
+    <figcaption>Click the Play icon next to a flow name</figcaption>
+</figure>
+
+Clicking the icon will create a temporary run configuration and start the flow immediately.
+
+### 2. Context Menu
+Right-click anywhere inside a flow definition and select **Run \<flowName\>**.
+
+### 3. Run Configuration Dialog
+You can manually create and edit configurations via **Run | Edit Configurations...**. Click the **+** button and select **Concord**.
+
+<figure className="docFigure docFigure--sm5">
+    <img src={require('@site/static/img/run-dialog.png').default} alt="Run Configuration Dialog" />
+    <figcaption>Concord Run Configuration Editor</figcaption>
+</figure>
+
+## Configuration Options
+
+When editing a Concord Run Configuration, you can customize the execution environment:
+
+*   **Entry Point:** The name of the flow to execute.
+*   **Working Directory:** The root directory for the execution (usually the folder containing `concord.yml`).
+*   **Parameters:** Process arguments passed to the execution (accessible via `${...}` in the flow).
+*   **Additional Arguments:** Any extra flags to pass directly to the CLI command (e.g., `--verbose`).
+
+## Execution Modes
+
+The plugin supports two distinct execution modes, which can be configured globally in **Settings | Tools | Concord Run Mode**.
+
+### Direct Mode (Default)
+In this mode, the selected flow is executed directly as the entry point.
+*   **Command:** `concord run --entry-point <flowName>`
+*   **Use case:** Testing independent flows or simple processes.
+
+### Delegating Mode
+In this mode, the plugin always runs a specific "Main" entry point (e.g., a `main` flow) and passes the *actual* target flow name as a parameter.
+
+*   **Command:** `concord run --entry-point <MainEntryPoint> -e <FlowParamName>=<TargetFlowName>`
+*   **Use case:** Complex projects where a wrapper flow handles initialization, logging, or error handling before calling the target business logic.
+
+**Configuration:**
+*   **Main Entry Point:** The flow that acts as the wrapper (default: `default`).
+*   **Flow Parameter Name:** The variable name used to pass the target flow (default: `flow`).
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/run-mode-settings.png').default} alt="Run Mode Settings" />
+    <figcaption>Run Mode Settings</figcaption>
+</figure>
+
+## Interactive Console
+
+The execution output is displayed in the **Run** tool window. The console supports:
+*   **ANSI Colors:** Full color support for logs.
+*   **Hyperlinks:** Error messages in the output (e.g., `(concord.yml): Error @ line 10`) are clickable and navigate directly to the source code location.

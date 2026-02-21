@@ -1,0 +1,250 @@
+---
+title: Code Completion
+description: Context-aware autocomplete for Concord YAML and documentation
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+
+# Code Completion
+
+The Concord IntelliJ Plugin provides intelligent, context-aware code completion for every part of your Concord flows. It understands the Concord schema and your project structure to suggest relevant keys, steps, and parameters.
+
+## YAML Key Completion
+
+As you type in a `.concord.yaml` file, the plugin suggests valid keys based on your current location:
+
+*   **Top-level sections:** <span className="tokenBadge" data-kind="section">flows</span>, <span className="tokenBadge" data-kind="section">configuration</span>, <span className="tokenBadge" data-kind="section">triggers</span>, <span className="tokenBadge" data-kind="section">forms</span>, etc.
+*   **Step types:** Inside a flow, it suggests <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">log</span>, <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">checkpoint</span>, <span className="tokenBadge" data-kind="step">if</span>, and others.
+*   **Call input parameters:** When using a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests input parameter names in the <span className="tokenBadge" data-kind="step">in</span> block defined in the target flow's [Documentation Block](./flow-docs).
+*   **Call output parameters:** When using a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests output parameter names in the <span className="tokenBadge" data-kind="step">out</span> field defined in the target flow's [Documentation Block](./flow-docs).
+*   **Task parameters:** When using a <span className="tokenBadge" data-kind="step">task</span> step, the plugin suggests input parameters and their values from built-in task schemas. See [Task Parameter Completion](#task-parameter-completion) below.
+
+## Task Name Completion
+
+When writing a <span className="tokenBadge" data-kind="step">task</span> step, the plugin suggests available task names extracted from your project's [Maven dependencies](./dependencies):
+
+*   The plugin resolves JARs declared in `configuration.dependencies` and `configuration.extraDependencies`.
+*   Task names are extracted from `@Named` annotations inside the dependency JARs.
+*   Suggestions are **scope-aware** — each [scope](./scopes) only shows tasks from its own dependencies.
+
+```concord
+configuration:
+  dependencies:
+  - "mvn://com.walmartlabs.concord.plugins.basic:smtp-tasks:2.35.0"
+
+flows:
+  main:
+    - task: sm  # Ctrl+Space suggests: smtp
+      in:
+        to: "user@example.com"
+```
+
+:::tip
+If you add a new dependency and don't see its tasks in completion, use the floating **Refresh** toolbar
+that appears in the editor, or click **Refresh** in the [Concord tool window](./tool-window).
+See [Dependency Change Tracking](./dependencies#dependency-change-tracking) for details.
+:::
+
+## Task Parameter Completion
+
+When writing the <span className="tokenBadge" data-kind="step">in</span> block of a <span className="tokenBadge" data-kind="step">task</span> step, the plugin suggests parameter names and values from built-in task schemas:
+
+*   **Parameter keys:** Suggests valid input parameter names for the given task.
+*   **Enum values:** For parameters that accept a fixed set of values (e.g. `action`, `method`), suggests the allowed options.
+*   **Conditional parameters:** Suggestions adapt based on already specified values. For example, after setting `action: start`, only parameters relevant to the `start` action are suggested.
+
+```concord
+flows:
+  main:
+    - task: concord
+      in:
+        action: start
+        # Ctrl+Space here suggests parameters for the "start" action:
+        # repo, org, project, payload, ...
+```
+
+## Call Output Parameter Completion
+
+When writing the <span className="tokenBadge" data-kind="step">out</span> field of a <span className="tokenBadge" data-kind="step">call</span> step, the plugin suggests output parameter names from the target flow's [Documentation Block](./flow-docs). This works for both scalar and array forms of the `out` field.
+
+The completion popup shows:
+
+*   **Parameter name** — the output variable name
+*   **Type** — shown on the right side (e.g. `int`, `string`)
+
+<figure className="docFigure docFigure--sm4">
+    <img src={require('@site/static/img/completion-call-out.png').default} alt="Call Output Parameter Completion" />
+    <figcaption>
+        Completion popup suggesting output parameter names from the target flow's documentation block.
+    </figcaption>
+</figure>
+
+## Expression Variable Completion
+
+Inside `${...}` expressions, the plugin suggests variable names that are in scope at the current cursor position. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to trigger completion.
+
+Each suggestion displays:
+
+*   A **variable icon** for quick visual identification
+*   The **variable name**
+*   The **source** label after the name (e.g. `built-in`, `set`, `flow in`), so you know where the variable comes from
+*   The **type** on the right side (e.g. `string`, `object`, `integer`) for variables that have schema information — built-in variables, loop variables, and flow input parameters all show their types
+
+The following variable sources are recognized:
+
+*   **built-in** — Concord runtime variables like `txId`, `workDir`, `initiator`, `processInfo`, etc. These have full type information, including sub-fields for object-type variables.
+*   **argument** — Variables declared in `configuration.arguments`.
+*   **flow in** — Input parameters defined in the flow's [Documentation Block](./flow-docs). The type from the doc block is shown (e.g. `string`, `int`, `object`).
+*   **set** — Variables assigned by <span className="tokenBadge" data-kind="step">set</span> steps earlier in the flow.
+*   **step out** — Variables captured by `out` fields of preceding steps.
+*   **loop** — Loop iteration variables (`item`, `items`, `itemIndex`) available inside <span className="tokenBadge" data-kind="step">loop</span> steps. These show their types (`integer` for `itemIndex`, `array` for `items`).
+*   **task result** — The implicit `result` variable available inside the `out` block of a <span className="tokenBadge" data-kind="step">task</span> step.
+
+Completion is context-aware — it only suggests standalone variable names at the top level, not inside function names. After a dot, the plugin switches to [property completion](#expression-property-completion) instead.
+
+<figure className="docFigure docFigure--sm4">
+    <img src={require('@site/static/img/completion-el-vars.png').default} alt="Expression Variable Completion" />
+    <figcaption>
+        Variable completion inside an EL expression, showing variable icons, source labels, and types.
+    </figcaption>
+</figure>
+
+## Expression Property Completion
+
+When you type a dot after a variable name inside a `${...}` expression, the plugin suggests the available properties of that variable. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to trigger completion.
+
+Each suggestion displays:
+
+*   A **property icon** for quick visual identification
+*   The **property name**
+*   The **type** on the right side (e.g. `string`, `integer`, `object`)
+
+Property completion works for any variable whose type is known:
+
+*   **Built-in objects** — variables like `initiator`, `projectInfo`, and `processInfo` have full property schemas. For example, `${initiator.}` suggests `username`, `displayName`, `email`, `groups`, and `attributes`.
+*   **Set step objects** — variables assigned by <span className="tokenBadge" data-kind="step">set</span> steps with nested mappings. For example, after setting `config.host` and `config.port`, `${config.}` suggests `host` and `port`.
+*   **Task result** — the `result` variable inside a task's `out` block. For example, `${result.}` suggests properties defined in the task schema's output section (e.g. `ok`, `body`).
+*   **Deep nesting** — property completion works at any depth. After `${config.db.}`, it suggests the properties of the `db` sub-object.
+
+<figure className="docFigure docFigure--sm5">
+    <img src={require('@site/static/img/completion-el-props.png').default} alt="Expression Property Completion" />
+    <figcaption>
+        Property completion after a dot in an EL expression, showing available sub-fields with types.
+    </figcaption>
+</figure>
+
+:::note
+Property completion does not fire after bracket access (`items[0].`) or method calls (`config.toString().`), since the resulting type cannot be statically determined from the YAML structure.
+:::
+
+## Flow Documentation Completion
+
+When writing structured flow documentation (`/** ... */`), the plugin helps you define your parameters correctly:
+
+*   **Types:** Suggests valid Concord types like <span className="tokenBadge" data-kind="doc-param-type">string</span>, <span className="tokenBadge" data-kind="doc-param-type">int</span>, <span className="tokenBadge" data-kind="doc-param-type">boolean</span>, <span className="tokenBadge" data-kind="doc-param-type">object</span>, and their array counterparts (<span className="tokenBadge" data-kind="doc-param-type">string[]</span>, etc.).
+*   **Keywords:** Suggests keywords like <span className="tokenBadge" data-kind="doc-param-mandatory">mandatory</span>, <span className="tokenBadge" data-kind="doc-param-mandatory">required</span>, and <span className="tokenBadge" data-kind="doc-param-optional">optional</span> after the parameter type.
+
+## Quick Documentation in Completion
+
+While the completion list is open, you can preview the documentation for the selected item without accepting it. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "J"}]} win={[{label: "Ctrl"}, {label: "Q"}]} /> to open a documentation popup next to the completion list.
+
+### YAML Key Documentation
+
+Selecting a key like <span className="tokenBadge" data-kind="section">flows</span>, <span className="tokenBadge" data-kind="section">configuration</span>, <span className="tokenBadge" data-kind="step">task</span>, or <span className="tokenBadge" data-kind="step">call</span> in the completion list shows a short description of that key's purpose.
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-key.png').default} alt="YAML Key Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a YAML key selected in the completion list.
+    </figcaption>
+</figure>
+
+### Task Name Documentation
+
+When completing a task name, the documentation popup shows the full task description along with its input and output parameters, types, and descriptions — the same information you would see when [hovering over a task name](./hover-docs#task-documentation) in the editor.
+
+```concord
+flows:
+  main:
+    - task: co  # Ctrl+Space, then Ctrl+Q on "concord"
+```
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-task.png').default} alt="Task Name Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a task name showing description, input and output parameters.
+    </figcaption>
+</figure>
+
+### Task Parameter Documentation
+
+When completing parameters inside a task's <span className="tokenBadge" data-kind="step">in</span> block, the documentation popup shows the type and description of the selected parameter.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/completion-doc-param.png').default} alt="Task Parameter Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a task parameter showing its type and description.
+    </figcaption>
+</figure>
+
+### Variable Documentation
+
+When completing variables inside `${...}` expressions, the documentation popup shows details about the selected variable:
+
+*   **Type** — the variable's data type (e.g. `string`, `object`, `integer`)
+*   **Description** — a short explanation of the variable's purpose
+*   **Sub-fields** — for object-type variables (like `initiator`, `projectInfo`, `processInfo`), the popup lists all available fields with their types and descriptions
+*   **Source** — where the variable comes from (e.g. "built-in variable", "flow input parameter", "set step variable")
+
+This is especially useful for built-in object variables. For example, selecting `initiator` in the completion list and pressing <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "J"}]} win={[{label: "Ctrl"}, {label: "Q"}]} /> shows its sub-fields (`username`, `displayName`, `email`, `groups`, `attributes`) with their types and descriptions -- so you can see exactly what properties are available without leaving the editor.
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-var-object.png').default} alt="Variable Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a built-in variable showing its type and description.
+    </figcaption>
+</figure>
+
+### Property Documentation
+
+When completing properties after a dot (e.g., `${initiator.}`), the documentation popup shows details about the selected property:
+
+*   **Type** — the property's data type
+*   **Description** — a short explanation of the property's purpose (when available from the schema)
+*   **Sub-fields** — for nested object properties, the popup lists their fields
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/completion-doc-property.png').default} alt="Property Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a property in the completion list, showing its type and description.
+    </figcaption>
+</figure>
+
+## How to Use
+
+Simply start typing, and the completion list will appear automatically.
+
+*   **Force Open:** Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to show suggestions at any time.
+*   **Select Item:** Use the arrow keys to navigate and `Enter` or `Tab` to insert the selected item.
+*   **Documentation:** While the completion list is open, press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "J"}]} win={[{label: "Ctrl"}, {label: "Q"}]} /> to see a quick description of the selected key (if available).
+
+## Example
+
+### Autocomplete in Action
+
+Writing a <span className="tokenBadge" data-kind="section">call</span> step becomes much faster as the plugin suggests available flows and their input and output parameters:
+
+:::tip Try it yourself
+Type `cal` and press `Enter` to create a <span className="tokenBadge" data-kind="section">call</span> step, then use <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to see available flow names.
+:::
+
+<figure className="docFigure docFigure--sm2">
+    <img src={require('@site/static/img/completion.png').default} alt="Code Completion Example" />
+    <figcaption>
+        Context-aware completion for Concord YAML keys and flow names.
+    </figcaption>
+</figure>
+
+:::note Smart Type Completion
+The plugin is smart enough to know that <span className="tokenBadge" data-kind="doc-param-mandatory">mandatory</span> and <span className="tokenBadge" data-kind="doc-param-optional">optional</span> only make sense in certain parts of a documentation block, filtering out irrelevant suggestions.
+:::
