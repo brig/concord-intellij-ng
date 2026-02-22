@@ -21,6 +21,8 @@ configuration:
     group: "X"
     mode: "cancel"
   events:
+    batchFlushInterval: 123
+    batchSize: 1
     recordTaskInVars: true
     inVarsBlacklist:
       - "password"

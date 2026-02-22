@@ -21,6 +21,8 @@ public class EventsMetaType extends ConcordMetaType implements HighlightProvider
     private static final EventsMetaType INSTANCE = new EventsMetaType();
 
     private static final Map<String, YamlMetaType> features = Map.ofEntries(
+            Map.entry("batchSize", new IntegerMetaType(descKey("doc.configuration.events.batchSize.description"))),
+            Map.entry("batchFlushInterval", new IntegerMetaType(descKey("doc.configuration.events.batchFlushInterval.description"))),
             Map.entry("recordEvents", new BooleanMetaType(descKey("doc.configuration.events.recordEvents.description"))),
             Map.entry("recordTaskInVars", new BooleanMetaType(descKey("doc.configuration.events.recordTaskInVars.description"))),
             Map.entry("truncateMaxStringLength", new IntegerMetaType(descKey("doc.configuration.events.truncateMaxStringLength.description"))),
