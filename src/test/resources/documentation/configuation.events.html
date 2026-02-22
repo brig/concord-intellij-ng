@@ -6,14 +6,6 @@
         events</p>
     <p><b>Keys:</b></p>
     <ul>
-        <li><code>batchFlushInterval</code> <i>(integer)</i> &mdash; maximum time (in seconds) before a queued event
-            batch is flushed. Ensures events from long-running steps (e.g. ansible) are reported promptly. Default is 15
-            seconds
-        </li>
-        <li><code>batchSize</code> <i>(integer)</i> &mdash; maximum number of process events to queue before flushing
-            the batch synchronously. Default value of 1 disables batching (each event is reported individually).
-            Increase to enable batching and reduce API load
-        </li>
         <li><code>inVarsBlacklist</code> <i>(string[])</i> &mdash; list of input variable names to exclude from
             recording
         </li>
@@ -35,5 +27,8 @@
         <li><code>truncateMaxStringLength</code> <i>(integer)</i> &mdash; maximum string length before truncation</li>
         <li><code>truncateMeta</code> <i>(boolean)</i> &mdash; truncate recorded metadata</li>
         <li><code>truncateOutVars</code> <i>(boolean)</i> &mdash; truncate recorded output variables</li>
+        <li><code>updateMetaOnAllEvents</code> <i>(boolean)</i> &mdash; if true, process metadata is sent to the server
+            on every event. If false, metadata is updated only on process termination or suspend
+        </li>
     </ul>
 </div>

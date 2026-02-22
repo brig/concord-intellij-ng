@@ -35,7 +35,8 @@ public class EventsMetaType extends ConcordMetaType implements HighlightProvider
             Map.entry("outVarsBlacklist", new StringArrayMetaType(descKey("doc.configuration.events.outVarsBlacklist.description"))),
             Map.entry("recordTaskMeta", new BooleanMetaType(descKey("doc.configuration.events.recordTaskMeta.description"))),
             Map.entry("truncateMeta", new BooleanMetaType(descKey("doc.configuration.events.truncateMeta.description"))),
-            Map.entry("metaBlacklist", new StringArrayMetaType(descKey("doc.configuration.events.metaBlacklist.description")))
+            Map.entry("metaBlacklist", new StringArrayMetaType(descKey("doc.configuration.events.metaBlacklist.description"))),
+            Map.entry("updateMetaOnAllEvents", new BooleanMetaType(descKey("doc.configuration.events.updateMetaOnAllEvents.description")))
     );
 
     private EventsMetaType() {

@@ -41,6 +41,7 @@ configuration:
     truncateMaxStringLength: 133
     truncateMeta: true
     truncateOutVars: true
+    updateMetaOnAllEvents: true
 
 flows:
   main-test:
