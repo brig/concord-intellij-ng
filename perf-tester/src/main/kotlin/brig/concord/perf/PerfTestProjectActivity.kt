@@ -8,6 +8,7 @@ import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.readAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.ScrollType
@@ -348,8 +349,11 @@ class PerfTestProjectActivity : ProjectActivity {
 
         println("PERF-TEST: Navigation phase - find usages from declarations")
         for (marker in findUsagesMarkers) {
-            withContext(Dispatchers.EDT) {
-                searchUsages(project, marker)
+            val element = withContext(Dispatchers.EDT) {
+                findElementForUsages(project, marker)
+            }
+            if (element != null) {
+                searchUsages(marker, element)
             }
             delay(500.milliseconds)
         }
@@ -420,16 +424,16 @@ class PerfTestProjectActivity : ProjectActivity {
     }
 
     /**
-     * Positions caret on a YAML key (variable declaration) and searches
-     * for all references to it across the file (find usages).
+     * Positions caret on a YAML key (variable declaration) and finds
+     * the corresponding PSI element. Must be called on EDT.
      */
-    private fun searchUsages(project: Project, marker: String) {
-        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return
+    private fun findElementForUsages(project: Project, marker: String): PsiNamedElement? {
+        val editor = FileEditorManager.getInstance(project).selectedTextEditor ?: return null
         val text = editor.document.text
         val markerOffset = text.indexOf(marker)
         if (markerOffset < 0) {
             println("PERF-TEST: Marker '$marker' not found for find-usages")
-            return
+            return null
         }
 
         // Find the YAML key on this line (first non-whitespace text)
@@ -438,30 +442,41 @@ class PerfTestProjectActivity : ProjectActivity {
         val keyStart = lineText.indexOfFirst { !it.isWhitespace() }
         if (keyStart < 0) {
             println("PERF-TEST: No key found on line for '$marker'")
-            return
+            return null
         }
 
         val caretOffset = lineStart + keyStart
         editor.caretModel.moveToOffset(caretOffset)
         editor.scrollingModel.scrollToCaret(ScrollType.CENTER)
 
+        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document) ?: return null
+        PsiDocumentManager.getInstance(project).commitDocument(editor.document)
+
+        var element = psiFile.findElementAt(caretOffset)
+        // Walk up to find a PsiNamedElement (YAML key-value)
+        while (element != null && element !is PsiNamedElement && element !is PsiFile) {
+            element = element.parent
+        }
+
+        if (element !is PsiNamedElement) {
+            println("PERF-TEST: Find usages '$marker': no suitable PSI element at offset $caretOffset")
+            return null
+        }
+
+        return element
+    }
+
+    /**
+     * Searches for all references to the given element (find usages).
+     * Runs the heavy search in a background read action off EDT.
+     */
+    private suspend fun searchUsages(marker: String, element: PsiNamedElement) {
         try {
-            val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document) ?: return
-            PsiDocumentManager.getInstance(project).commitDocument(editor.document)
-
-            var element = psiFile.findElementAt(caretOffset)
-            // Walk up to find a PsiNamedElement (YAML key-value)
-            while (element != null && element !is PsiNamedElement && element !is PsiFile) {
-                element = element.parent
+            val usages = readAction {
+                ReferencesSearch.search(element).findAll()
             }
-
-            if (element != null && element !is PsiFile) {
-                val usages = ReferencesSearch.search(element).findAll()
-                val name = (element as? PsiNamedElement)?.name
-                println("PERF-TEST: Find usages '$marker': ${usages.size} references to '$name'")
-            } else {
-                println("PERF-TEST: Find usages '$marker': no suitable PSI element at offset $caretOffset")
-            }
+            val name = element.name
+            println("PERF-TEST: Find usages '$marker': ${usages.size} references to '$name'")
         } catch (e: Exception) {
             println("PERF-TEST: Find usages '$marker' failed: ${e.message}")
         }
