@@ -165,6 +165,87 @@ class ExpressionSplittingLexerTest {
     }
 
     @Test
+    void yamlEscapedQuoteInsideExpressionInDoubleQuotedString() {
+        // YAML: - log: "${\"No GitHub branch named '\"}"
+        // After YAML unescaping the value is: ${"No GitHub branch named '"}
+        // The EL expression body (in raw YAML text) is: \"No GitHub branch named '\"
+        // The ExpressionSplittingLexer must recognise that \" in a SCALAR_DSTRING
+        // is a YAML escape for a literal " and NOT an EL-level escape.
+        assertTokensWithExprSplitting("- log: \"${\\\"No GitHub branch named '\\\"}\"\n")
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1)
+                .token("el expr body").hasText("\\\"No GitHub branch named '\\\"");
+    }
+
+    @Test
+    void yamlEscapedBackslashInSingleQuotedElStringInDoubleQuotedYamlString() {
+        // YAML: key: "${resource.replace('\"', '\\'')}"
+        // After YAML unescaping: ${resource.replace('"', '\'')}
+        // The EL expression has two args: '"' and '\'' (string containing ')
+        // Raw body: resource.replace('\"', '\\'')
+        // The \\\\ is YAML \\, decoded \; the decoded \ escapes the following '
+        assertTokensWithExprSplitting("key: \"${resource.replace('\\\"', '\\\\'')}\"\n")
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1)
+                .token("el expr body").hasText("resource.replace('\\\"', '\\\\'')");
+    }
+
+    @Test
+    void yamlDoubleEscapeInsideElStringInDoubleQuotedYamlString() {
+        // YAML: - log: "${\"has \\\"escaped\\\" quotes\"}"
+        // After YAML unescaping: ${"has \"escaped\" quotes"}
+        // The EL expression is a string containing: has "escaped" quotes
+        // Raw body: \"has \\\"escaped\\\" quotes\"
+        // The \\\\ is YAML \\, decoded \; the \\\" is YAML \", decoded "
+        // Together decoded \" is an EL escape inside the string — must not toggle dq
+        assertTokensWithExprSplitting("- log: \"${\\\"has \\\\\\\"escaped\\\\\\\" quotes\\\"}\"\n")
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1);
+    }
+
+    @Test
+    void yamlLineFoldingInDoubleQuotedExpression() {
+        // YAML: "key: "${secrets.waitFor('secretName',\
+        //         \ 20)}"
+        // The \<newline> is YAML line folding, \ <space> is an escaped space.
+        // After YAML unescaping: ${secrets.waitFor('secretName', 20)}
+        String yaml = "- set:\n    giteaSecret: \"${secrets.waitFor('secretName',\\\n      \\ 20)}\"";
+        assertTokensWithExprSplitting(yaml)
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1);
+    }
+
+    @Test
+    void yamlEscapedNewlineInDoubleQuotedExpression() {
+        // YAML \n (backslash + letter n) is a YAML escape for a literal newline.
+        // Real-world case: multi-line lambda in a DQ string using \n for newlines.
+        // expr: "${list(\n  c -> c.enabled\
+        //       \ == true)}"
+        String yaml = "- expr: \"${list(\\n  c -> c.enabled\\\n      \\ == true)}\"";
+        assertTokensWithExprSplitting(yaml)
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1);
+    }
+
+    @Test
+    void yamlBackslashBeforeLineFoldingInElString() {
+        // YAML: "${resource.fromJsonString(value.replace('\\\n      '', '\"') )}"
+        // The \\ decodes to \, then \<newline> folds (nothing),
+        // then the decoded \ escapes the next ' (EL-level escape).
+        // After YAML decode: ${resource.fromJsonString(value.replace('\'', '"') )}
+        String yaml = "- expr: \"${resource.fromJsonString(value.replace('\\\\\\\n      '', '\\\"') )}\"";
+        assertTokensWithExprSplitting(yaml)
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1);
+    }
+
+    @Test
     void quotesInsideExpression() {
         assertTokensWithExprSplitting("- log: ${foo('bar')}")
                 .hasCount("el expr start", 1)
@@ -181,6 +262,22 @@ class ExpressionSplittingLexerTest {
                 .hasCount("el expr end", 1)
                 .token("el expr body", 0).hasText("ok").and()
                 .token("el expr body", 1).hasText("bad\"");
+    }
+
+    @Test
+    void multiLineStreamExpressionInPlainScalar() {
+        // Multi-line EL with stream API, lambdas, += concat, list literals
+        String yaml = """
+                - set:
+                    S3SourceBucketLocations:
+                      ${[1, 2, 3].stream()
+                      .map(bucket -> 'arn:aws:s3:::' += bucket)
+                      .flatMap(bucket -> [ bucket, bucket += '/*' ].stream())
+                      .toList()}""";
+
+        var result = assertTokensWithExprSplitting(yaml);
+        result.hasCount("el expr start", 1)
+                .hasCount("el expr end", 1);
     }
 
     @Test
