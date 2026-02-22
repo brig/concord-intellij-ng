@@ -207,6 +207,45 @@ class ExpressionSplittingLexerTest {
     }
 
     @Test
+    void yamlLineFoldingInDoubleQuotedExpression() {
+        // YAML: "key: "${secrets.waitFor('secretName',\
+        //         \ 20)}"
+        // The \<newline> is YAML line folding, \ <space> is an escaped space.
+        // After YAML unescaping: ${secrets.waitFor('secretName', 20)}
+        String yaml = "- set:\n    giteaSecret: \"${secrets.waitFor('secretName',\\\n      \\ 20)}\"";
+        assertTokensWithExprSplitting(yaml)
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1);
+    }
+
+    @Test
+    void yamlEscapedNewlineInDoubleQuotedExpression() {
+        // YAML \n (backslash + letter n) is a YAML escape for a literal newline.
+        // Real-world case: multi-line lambda in a DQ string using \n for newlines.
+        // expr: "${list(\n  c -> c.enabled\
+        //       \ == true)}"
+        String yaml = "- expr: \"${list(\\n  c -> c.enabled\\\n      \\ == true)}\"";
+        assertTokensWithExprSplitting(yaml)
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1);
+    }
+
+    @Test
+    void yamlBackslashBeforeLineFoldingInElString() {
+        // YAML: "${resource.fromJsonString(value.replace('\\\n      '', '\"') )}"
+        // The \\ decodes to \, then \<newline> folds (nothing),
+        // then the decoded \ escapes the next ' (EL-level escape).
+        // After YAML decode: ${resource.fromJsonString(value.replace('\'', '"') )}
+        String yaml = "- expr: \"${resource.fromJsonString(value.replace('\\\\\\\n      '', '\\\"') )}\"";
+        assertTokensWithExprSplitting(yaml)
+                .hasCount("el expr start", 1)
+                .hasCount("el expr body", 1)
+                .hasCount("el expr end", 1);
+    }
+
+    @Test
     void quotesInsideExpression() {
         assertTokensWithExprSplitting("- log: ${foo('bar')}")
                 .hasCount("el expr start", 1)

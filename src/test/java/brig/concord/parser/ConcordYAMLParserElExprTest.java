@@ -133,6 +133,41 @@ class ConcordYAMLParserElExprTest extends ConcordYamlTestBaseJunit5 {
         assertElExpressionCount(file, 1);
     }
 
+    @Test
+    void yamlLineFoldingInDoubleQuotedExpression() {
+        // YAML line folding: \<newline> removes the newline, \ <space> is escaped space
+        // After YAML unescaping: ${secrets.waitFor('secretName', 20)}
+        var file = parse("- set:\n    giteaSecret: \"${secrets.waitFor('secretName',\\\n      \\ 20)}\"");
+
+        assertNoPsiErrors(file);
+        assertElExpressionCount(file, 1);
+        assertScalarType(file, YAMLElementTypes.SCALAR_QUOTED_STRING);
+    }
+
+    @Test
+    void yamlEscapedNewlineInDoubleQuotedExpression() {
+        // YAML \n (backslash + letter n) is a YAML escape for a literal newline.
+        // Combined with line folding (\<newline>) and escaped space (\ ).
+        // After YAML unescaping: ${list(\n  c -> c.enabled == true)}
+        var file = parse("- expr: \"${list(\\n  c -> c.enabled\\\n      \\ == true)}\"");
+
+        assertNoPsiErrors(file);
+        assertElExpressionCount(file, 1);
+        assertScalarType(file, YAMLElementTypes.SCALAR_QUOTED_STRING);
+    }
+
+    @Test
+    void yamlBackslashBeforeLineFoldingInElString() {
+        // YAML: "${resource.fromJsonString(value.replace('\\\n      '', '\"') )}"
+        // \\ → \, \<newline> → fold, so the decoded \ escapes the next '
+        // After YAML decode: ${resource.fromJsonString(value.replace('\'', '"') )}
+        var file = parse("- expr: \"${resource.fromJsonString(value.replace('\\\\\\\n      '', '\\\"') )}\"");
+
+        assertNoPsiErrors(file);
+        assertElExpressionCount(file, 1);
+        assertScalarType(file, YAMLElementTypes.SCALAR_QUOTED_STRING);
+    }
+
     // --- Block scalar expressions ---
 
     @Test

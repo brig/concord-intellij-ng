@@ -32,28 +32,21 @@ class YamlDQElLexerTest {
 
     @Test
     void yamlEscapedDoubleQuoteBecomesStringDelimiter() {
-        // Raw: \"hello\" — YAML \" decoded to " → EL string "hello"
         assertTokenTypes("\\\"hello\\\"", ElTypes.DOUBLE_QUOTED_STRING);
     }
 
     @Test
     void yamlEscapedBackslashBeforeQuote() {
-        // Raw: '\\'' — YAML \\ decoded to \, which EL-escapes the following '
-        // Decoded: '\'' — EL string containing '
         assertTokenTypes("'\\\\''", ElTypes.SINGLE_QUOTED_STRING);
     }
 
     @Test
     void yamlEscapedBackslashElEscape() {
-        // Raw: \"abc\\\"def\" — YAML \\ (→ \) + YAML \" (→ ") = EL escape \"
-        // Decoded: "abc\"def" — EL string containing abc"def
         assertTokenTypes("\\\"abc\\\\\\\"def\\\"", ElTypes.DOUBLE_QUOTED_STRING);
     }
 
     @Test
     void methodCallWithYamlEscapedArgs() {
-        // Raw: resource.replace('\"', '\\'')
-        // Decoded: resource.replace('"', '\'')
         assertTokenTypes("resource.replace('\\\"', '\\\\'')",
                 ElTypes.IDENTIFIER, ElTypes.DOT, ElTypes.IDENTIFIER,
                 ElTypes.LPAREN,
@@ -64,9 +57,54 @@ class YamlDQElLexerTest {
 
     @Test
     void otherYamlEscapesPassThrough() {
-        // Raw: '\\n' — \n is a YAML escape, not \\ + n
-        // Both chars pass through as-is: EL lexer sees \n inside string → \\.
         assertTokenTypes("'\\n'", ElTypes.SINGLE_QUOTED_STRING);
+    }
+
+    @Test
+    void yamlLineFoldingDecodedToNothing() {
+        // Raw: secrets.waitFor('secretName',\<newline>      \ 20)
+        // \<newline> is YAML line folding (removes newline + trims leading whitespace)
+        // \ <space> is YAML escaped space
+        // Decoded: secrets.waitFor('secretName', 20)
+        assertTokenTypes("secrets.waitFor('secretName',\\\n      \\ 20)",
+                ElTypes.IDENTIFIER, ElTypes.DOT, ElTypes.IDENTIFIER,
+                ElTypes.LPAREN,
+                ElTypes.SINGLE_QUOTED_STRING, ElTypes.COMMA,
+                TokenType.WHITE_SPACE,
+                ElTypes.INTEGER_LITERAL,
+                ElTypes.RPAREN);
+    }
+
+    @Test
+    void yamlLineFoldingOffsets() {
+        // Verify offset mapping for line folding
+        var lexer = new YamlDQElLexer();
+        // Raw: a , \ \n <4 spaces> \ <space> b  (11 chars)
+        // Decoded: a , <space> b  (4 chars)
+        // The \<newline><spaces> folds to nothing; the "\ " decodes to space
+        var raw = "a,\\\n    \\ b";
+        lexer.start(raw, 0, raw.length(), 0);
+
+        assertEquals(ElTypes.IDENTIFIER, lexer.getTokenType());
+        assertEquals(0, lexer.getTokenStart());
+        assertEquals(1, lexer.getTokenEnd());
+        lexer.advance();
+
+        // COMMA ends at raw 8: the folded chars (positions 2-7) are absorbed
+        assertEquals(ElTypes.COMMA, lexer.getTokenType());
+        assertEquals(1, lexer.getTokenStart());
+        assertEquals(8, lexer.getTokenEnd());
+        lexer.advance();
+
+        // Space decoded from "\ " at raw positions [8, 10)
+        assertEquals(TokenType.WHITE_SPACE, lexer.getTokenType());
+        assertEquals(8, lexer.getTokenStart());
+        assertEquals(10, lexer.getTokenEnd());
+        lexer.advance();
+
+        assertEquals(ElTypes.IDENTIFIER, lexer.getTokenType());
+        assertEquals(10, lexer.getTokenStart());
+        assertEquals(11, lexer.getTokenEnd());
     }
 
     @Test
@@ -82,7 +120,7 @@ class YamlDQElLexerTest {
         // Decoded: '"' (3 chars: ' " ')
         // Token should span raw [0, 4)
         var lexer = new YamlDQElLexer();
-        String raw = "'\\\"'";
+        var raw = "'\\\"'";
         lexer.start(raw, 0, raw.length(), 0);
 
         assertEquals(ElTypes.SINGLE_QUOTED_STRING, lexer.getTokenType());
@@ -92,11 +130,8 @@ class YamlDQElLexerTest {
 
     @Test
     void offsetMappingMultipleTokens() {
-        // Raw: \\\"x\\\" (8 chars: \ \ " x \ \ " — wait, let me count)
-        // Actually raw: \"x\" — 6 chars: \ " x \ "
-        // Decoded: "x" — 3 chars: " x "
         var lexer = new YamlDQElLexer();
-        String raw = "\\\"x\\\"";
+        var raw = "\\\"x\\\"";
         lexer.start(raw, 0, raw.length(), 0);
 
         // Single token: DOUBLE_QUOTED_STRING
@@ -110,15 +145,12 @@ class YamlDQElLexerTest {
 
     @Test
     void contiguousTokensWithEscapes() {
-        // Raw: a+\\\"b\\\" — a + \"b\"
-        // Decoded: a+"b" — 5 tokens: IDENTIFIER, PLUS (actually += is CONCAT... let me use space)
-        // Let me use: a \\\"b\\\"
         var lexer = new YamlDQElLexer();
-        String raw = "a \\\"b\\\"";
+        var raw = "a \\\"b\\\"";
         lexer.start(raw, 0, raw.length(), 0);
 
-        int prevEnd = -1;
-        int tokenCount = 0;
+        var prevEnd = -1;
+        var tokenCount = 0;
         while (lexer.getTokenType() != null) {
             if (prevEnd >= 0) {
                 assertEquals(prevEnd, lexer.getTokenStart(),

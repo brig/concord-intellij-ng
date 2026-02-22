@@ -313,7 +313,7 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
      * quoting state. In YAML double-quoted scalars ({@code yamlDQ=true}), YAML escape sequences
      * ({@code \\}, {@code \"}) are decoded before EL-level processing.
      *
-     * @param from   start of expression body (just after {@code ${})
+     * @param from   start of expression body (just after <code>${</code>)
      * @param to     end of the scalar token range
      * @param yamlDQ true if the enclosing scalar is a YAML double-quoted string
      * @return scan result with closing brace position and quoting state
@@ -351,6 +351,19 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                         yamlDecodedBackslash = false;
                     } else if (!sq) {
                         dq = !dq;
+                    }
+                } else if (next == '\n' || next == '\r') {
+                    // YAML line folding: \<newline> produces no character.
+                    // Preserve yamlDecodedBackslash — a pending decoded \ is still pending.
+                    if (next == '\r' && j < to && buffer.charAt(j) == '\n') {
+                        j++; // skip \r\n
+                    }
+                    while (j < to) {
+                        char ws = buffer.charAt(j);
+                        if (ws != ' ' && ws != '\t') {
+                            break;
+                        }
+                        j++;
                     }
                 } else {
                     // Other YAML escape (\n, \t, etc.) — decoded char is not \ or "
