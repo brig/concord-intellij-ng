@@ -15,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Dialog for editing a single Maven repository entry.
@@ -115,6 +117,17 @@ final class RepositoryEditDialog extends DialogWrapper {
         if (myUrlField.getText().isBlank()) {
             return new ValidationInfo(
                     ConcordBundle.message("repositories.validation.url.empty"), myUrlField);
+        }
+        try {
+            var url = new URL(myUrlField.getText().trim());
+            var protocol = url.getProtocol();
+            if (!"http".equals(protocol) && !"https".equals(protocol)) {
+                return new ValidationInfo(
+                        ConcordBundle.message("repositories.validation.url.invalid"), myUrlField);
+            }
+        } catch (MalformedURLException e) {
+            return new ValidationInfo(
+                    ConcordBundle.message("repositories.validation.url.invalid"), myUrlField);
         }
         var portText = myProxyPortField.getText().trim();
         if (!portText.isEmpty()) {
