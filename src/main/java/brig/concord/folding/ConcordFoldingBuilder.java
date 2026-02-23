@@ -115,13 +115,6 @@ public class ConcordFoldingBuilder extends CustomFoldingBuilder {
         if (val instanceof YAMLScalar scalar) {
             return "- " + key + ": " + normalizePlaceholderText(scalar.getTextValue());
         }
-        if (val instanceof YAMLSequence) {
-            return "- " + key + ": ...";
-        }
-        if (val instanceof YAMLMapping map) {
-            var size = map.getKeyValues().size();
-            return "- " + key + ": {" + size + (size == 1 ? " key" : " keys") + "}";
-        }
         return "- " + key + ": ...";
     }
 
