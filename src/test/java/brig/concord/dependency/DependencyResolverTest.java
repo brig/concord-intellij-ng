@@ -100,18 +100,8 @@ class DependencyResolverTest {
                                                   @Nullable Map<MavenCoordinate, Path> downloadResults) {
         return new MavenSupport() {
             @Override
-            public boolean isAvailable() {
-                return false;
-            }
-
-            @Override
             public @Nullable Path getLocalRepositoryPath() {
                 return localRepo;
-            }
-
-            @Override
-            public @NotNull List<String> getRemoteRepositoryUrls() {
-                return List.of();
             }
 
             @Override

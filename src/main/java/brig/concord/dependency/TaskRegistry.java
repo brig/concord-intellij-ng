@@ -207,7 +207,7 @@ public final class TaskRegistry implements Disposable {
                                    boolean isInitialLoad,
                                    @NotNull DependencySyncReporter reporter) {
         var collector = DependencyCollector.getInstance(project);
-        var resolver = new DependencyResolver(project);
+        var resolver = new DependencyResolver();
 
         indicator.setText("Collecting dependencies...");
         reporter.reportCollecting();
