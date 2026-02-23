@@ -2,6 +2,7 @@
 package brig.concord.run;
 
 import brig.concord.ConcordBundle;
+import brig.concord.dependency.ConcordRepositorySettings;
 import brig.concord.run.cli.ConcordCliManager;
 import brig.concord.run.cli.ConcordCliSettings;
 import com.intellij.execution.ExecutionException;
@@ -77,6 +78,9 @@ public class ConcordCommandLineState extends CommandLineState {
         }
 
         commandLine.addParameter("run");
+
+        var depsCachePath = ConcordRepositorySettings.getInstance().getEffectiveDepsCachePath();
+        commandLine.addParameter("--deps-cache-dir=" + depsCachePath);
 
         var runModeSettings = ConcordRunModeSettings.getInstance(project);
 

@@ -36,6 +36,7 @@
         <applicationSettings service="brig.concord.smart.YAMLEditorOptions"/>
 
         <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliSettings"/>
+        <applicationService serviceImplementation="brig.concord.dependency.ConcordRepositorySettings"/>
 
         <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
 
@@ -229,6 +230,14 @@
                 id="brig.concord.cli.settings"
                 bundle="messages.ConcordBundle"
                 key="cli.settings.display.name"/>
+
+        <!-- Repository Settings -->
+        <applicationConfigurable
+                parentId="brig.concord.settings"
+                instance="brig.concord.dependency.ConcordRepositoriesConfigurable"
+                id="brig.concord.repositories.settings"
+                bundle="messages.ConcordBundle"
+                key="repositories.settings.display.name"/>
 
         <!-- Project-level run mode settings -->
         <projectConfigurable
