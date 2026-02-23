@@ -221,7 +221,7 @@ class ConcordFoldingBuilderTest extends ConcordYamlTestBaseJunit5 {
                         y: 2
                 """);
 
-        foldRegion(seqItem("/flows/default", 0)).assertPlaceholderText("- set: {2 keys}");
+        foldRegion(seqItem("/flows/default", 0)).assertPlaceholderText("- set: ...");
     }
 
     @Test

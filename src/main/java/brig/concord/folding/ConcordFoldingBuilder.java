@@ -58,7 +58,7 @@ public class ConcordFoldingBuilder extends CustomFoldingBuilder {
             }
 
             var childMeta = provider.getBaseMetaType(childValue);
-            addDescriptor(descriptors, kv, keyValuePlaceholder(kv, childMeta, provider));
+            addDescriptor(descriptors, kv, keyValuePlaceholder(kv));
 
             if (childValue instanceof YAMLSequence seq) {
                 var recurse = childMeta instanceof StepElementMetaType;
@@ -180,31 +180,8 @@ public class ConcordFoldingBuilder extends CustomFoldingBuilder {
         return "...";
     }
 
-    private static @NotNull String keyValuePlaceholder(@NotNull YAMLKeyValue kv,
-                                                       @Nullable YamlMetaType childMeta,
-                                                       @NotNull ConcordMetaTypeProvider provider) {
-        var keyText = normalizePlaceholderText(kv.getKeyText());
-        var value = kv.getValue();
-
-        if (value instanceof YAMLSequence) {
-            if (childMeta instanceof StepElementMetaType) {
-                return keyText + ": " + stepsPlaceholder();
-            }
-            var parentMapping = kv.getParentMapping();
-            if (parentMapping != null && provider.getBaseMetaType(parentMapping) instanceof FormsMetaType) {
-                return keyText + ": " + fieldsPlaceholder();
-            }
-            return keyText + ": ...";
-        }
-        return keyText + ": ...";
-    }
-
-    private static @NotNull String stepsPlaceholder() {
-        return "...";
-    }
-
-    private static @NotNull String fieldsPlaceholder() {
-        return "...";
+    private static @NotNull String keyValuePlaceholder(@NotNull YAMLKeyValue kv) {
+        return normalizePlaceholderText(kv.getKeyText()) + ": ...";
     }
 
     @Override

@@ -25,26 +25,6 @@ public class FoldRegionAssert {
         Assertions.assertNull(region, "Expected NO fold region at " + target.path() + " but found one");
     }
 
-    public static void assertHasFoldWithPlaceholder(CodeInsightTestFixture fixture, String expectedPlaceholder) {
-        updateFolding(fixture);
-        var result = ReadAction.compute(() -> {
-            var editor = fixture.getEditor();
-            var regions = editor.getFoldingModel().getAllFoldRegions();
-            var actualPlaceholders = new java.util.ArrayList<String>();
-            for (var region : regions) {
-                if (expectedPlaceholder.equals(region.getPlaceholderText())) {
-                    return java.util.List.<String>of();
-                }
-                actualPlaceholders.add(region.getPlaceholderText());
-            }
-            return actualPlaceholders;
-        });
-        if (!result.isEmpty()) {
-            Assertions.fail("Expected a fold region with placeholder '" + expectedPlaceholder
-                    + "' but none found. Actual placeholders: " + result);
-        }
-    }
-
     private FoldRegionAssert(FoldRegion region) {
         Assertions.assertNotNull(region, "Expected a fold region but none found");
         this.region = region;
