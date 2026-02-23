@@ -43,6 +43,11 @@ public final class ConcordMetaTypeProvider extends YamlMetaTypeProvider {
         return metaTypeProxy != null ? metaTypeProxy.getMetaType() : null;
     }
 
+    public @Nullable YamlMetaType getBaseMetaType(@NotNull PsiElement element) {
+        MetaTypeProxy proxy = super.getMetaTypeProxy(element);
+        return proxy != null ? proxy.getMetaType() : null;
+    }
+
     private static MetaTypeProxy of(MetaTypeProxy result, YamlMetaType newType) {
         return FieldAndRelation.forNullable(new Field(result.getField().getName(), newType), result.getField().getDefaultRelation());
     }

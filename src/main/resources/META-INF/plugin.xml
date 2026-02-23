@@ -84,8 +84,8 @@
         <!-- Folding -->
         <lang.foldingBuilder language="Concord" implementationClass="brig.concord.folding.CronExpressionFolding"/>
         <lang.foldingBuilder language="Concord"
-                             id="YAMLFolding"
-                             implementationClass="brig.concord.yaml.folding.YAMLFoldingBuilder"/>
+                             id="ConcordFolding"
+                             implementationClass="brig.concord.folding.ConcordFoldingBuilder"/>
 
         <!-- Find usages / usage types -->
         <iconProvider implementation="brig.concord.psi.ConcordIconProvider" order="first"/>
