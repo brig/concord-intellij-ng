@@ -97,26 +97,49 @@ grammarKit {
 }
 
 spotless {
+    lineEndings = com.diffplug.spotless.LineEnding.UNIX
     ratchetFrom("origin/main")
-    val excludeDirs = listOf(".qodana/**", ".idea-sources/**", ".idea/**", ".gradle/**", "build/**", "**/build/**")
     // Files forked from JetBrains YAML plugin — keep their original copyright
     val jetbrainsFiles = listOf("**/brig/concord/yaml/**", "**/brig/concord/formatter/YAML*", "**/brig/concord/formatter/YamlInjectedBlockFactory*")
     java {
-        target("**/src/main/java/**/*.java", "**/src/test/java/**/*.java")
-        targetExclude(excludeDirs + jetbrainsFiles + "**/src/main/gen/**")
+        target(
+            "src/main/java/**/*.java", "src/test/java/**/*.java",
+            "el-language/src/main/java/**/*.java", "el-language/src/test/java/**/*.java"
+        )
+        targetExclude(jetbrainsFiles + "**/src/main/gen/**")
         licenseHeaderFile(file("gradle/license-header.txt"))
     }
     kotlin {
         target(
-            "**/src/main/java/**/*.kt", "**/src/main/kotlin/**/*.kt",
-            "**/src/test/java/**/*.kt", "**/src/test/kotlin/**/*.kt"
+            "src/main/java/**/*.kt", "src/main/kotlin/**/*.kt",
+            "src/test/java/**/*.kt", "src/test/kotlin/**/*.kt",
+            "perf-tester/src/main/kotlin/**/*.kt"
         )
-        targetExclude(excludeDirs + jetbrainsFiles)
+        targetExclude(jetbrainsFiles)
         licenseHeaderFile(file("gradle/license-header.txt"))
     }
 }
 
+// Clean stale IDE runtime artifacts (indexes, caches, logs) from test sandboxes
+// to prevent Gradle's input fingerprinting from scanning hundreds of thousands of files.
+// Uses direct delete (not fileTree) to avoid triggering the same file walk we're trying to prevent.
+val cleanSandboxRuntime by tasks.registering {
+    doFirst {
+        val sandboxBase = layout.buildDirectory.dir("idea-sandbox").get().asFile
+        if (sandboxBase.exists()) {
+            sandboxBase.walk().maxDepth(2)
+                .filter { it.isDirectory && it.name.let { n -> n.startsWith("system") || n.startsWith("log") } }
+                .forEach { it.deleteRecursively() }
+        }
+    }
+}
+
 tasks {
+    // Run sandbox cleanup early — before any task that triggers input fingerprinting
+    named("spotlessJava") { dependsOn(cleanSandboxRuntime) }
+    named("spotlessKotlin") { dependsOn(cleanSandboxRuntime) }
+    prepareTestSandbox { dependsOn(cleanSandboxRuntime) }
+
     generateLexer {
         sourceFile.set(file("src/main/java/brig/concord/lexer/ConcordYaml.flex"))
         targetOutputDir.set(file("src/main/gen/brig/concord/lexer"))
