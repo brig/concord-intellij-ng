@@ -1,0 +1,66 @@
+name: Snapshot
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  snapshot:
+    name: Publish Snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+
+      - name: Check SNAPSHOT version
+        id: check
+        run: |
+          VERSION=$(grep "^pluginVersion" gradle.properties | sed 's/.*=\s*//')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [[ "$VERSION" == *-SNAPSHOT ]]; then
+            echo "is_snapshot=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_snapshot=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Java
+        if: steps.check.outputs.is_snapshot == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Setup Gradle
+        if: steps.check.outputs.is_snapshot == 'true'
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: false
+          gradle-home-cache-excludes: |
+            caches/transforms-*
+
+      - name: Build Plugin
+        if: steps.check.outputs.is_snapshot == 'true'
+        run: ./gradlew buildPlugin
+
+      - name: Upload Snapshot
+        if: steps.check.outputs.is_snapshot == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ZIP=$(ls build/distributions/*.zip)
+
+          # delete existing snapshot release if present
+          gh release delete snapshot --yes 2>/dev/null || true
+          git push origin :refs/tags/snapshot 2>/dev/null || true
+
+          gh release create snapshot "$ZIP" \
+            --title "Snapshot (${{ steps.check.outputs.version }})" \
+            --notes "Latest snapshot build from \`main\` (commit ${{ github.sha }}).
+
+          > [!WARNING]
+          > This is an unstable pre-release build. Use at your own risk." \
+            --prerelease \
+            --target ${{ github.sha }}
