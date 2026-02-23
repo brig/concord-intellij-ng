@@ -4,7 +4,7 @@
 
 ### Added
 
-- repositories settings page with mvn.json support
+- repositories settings page with `mvn.json` support
 ([#148](https://github.com/brig/concord-intellij-ng/pull/148))
 
 ## 0.20.1 - 2026-02-21
