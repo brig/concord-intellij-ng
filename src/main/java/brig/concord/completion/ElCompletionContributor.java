@@ -5,6 +5,8 @@ import brig.concord.el.psi.ElFunctionExpr;
 import brig.concord.el.psi.ElIdentifierExpr;
 import brig.concord.el.psi.ElMemberName;
 import brig.concord.el.psi.ElTypes;
+import brig.concord.psi.BuiltInFunction;
+import brig.concord.psi.BuiltInFunctions;
 import brig.concord.psi.ElAccessChainResolver;
 import brig.concord.psi.VariableSource;
 import brig.concord.psi.VariablesProvider;
@@ -14,6 +16,7 @@ import brig.concord.yaml.psi.YAMLValue;
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.editor.EditorModificationUtil;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
@@ -28,10 +31,17 @@ public class ElCompletionContributor extends CompletionContributor {
     public record PropertyLookup(@NotNull String name, @NotNull SchemaProperty schema) {
     }
 
+    public record FunctionLookup(@NotNull BuiltInFunction function) {
+    }
+
     public ElCompletionContributor() {
         extend(CompletionType.BASIC,
                 PlatformPatterns.psiElement(ElTypes.IDENTIFIER),
                 new ElVariableCompletionProvider());
+
+        extend(CompletionType.BASIC,
+                PlatformPatterns.psiElement(ElTypes.IDENTIFIER),
+                new ElFunctionCompletionProvider());
 
         extend(CompletionType.BASIC,
                 PlatformPatterns.psiElement(ElTypes.IDENTIFIER),
@@ -71,6 +81,41 @@ public class ElCompletionContributor extends CompletionContributor {
                         .withIcon(AllIcons.Nodes.Variable)
                         .withTailText("  " + variable.source().shortLabel(), true)
                         .withTypeText(SchemaType.displayName(schema.schemaType()));
+                result.addElement(builder);
+            }
+        }
+    }
+
+    private static class ElFunctionCompletionProvider extends CompletionProvider<CompletionParameters> {
+
+        @Override
+        protected void addCompletions(@NotNull CompletionParameters parameters,
+                                      @NotNull ProcessingContext context,
+                                      @NotNull CompletionResultSet result) {
+            var position = parameters.getPosition();
+
+            var parent = position.getParent();
+            if (parent instanceof ElMemberName || parent instanceof ElFunctionExpr) {
+                return;
+            }
+
+            if (!(parent instanceof ElIdentifierExpr)) {
+                return;
+            }
+
+            for (var function : BuiltInFunctions.getInstance().getAll()) {
+                var lookup = new FunctionLookup(function);
+                var builder = LookupElementBuilder.create(lookup, function.name())
+                        .withIcon(AllIcons.Nodes.Method)
+                        .withTailText(function.signature(), true)
+                        .withTypeText(SchemaType.displayName(function.returnType()))
+                        .withInsertHandler((ctx, item) -> {
+                            var editor = ctx.getEditor();
+                            EditorModificationUtil.insertStringAtCaret(editor, "()");
+                            if (!function.params().isEmpty()) {
+                                editor.getCaretModel().moveCaretRelatively(-1, 0, false, false, false);
+                            }
+                        });
                 result.addElement(builder);
             }
         }

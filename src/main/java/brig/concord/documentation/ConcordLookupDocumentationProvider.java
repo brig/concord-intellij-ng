@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package brig.concord.documentation;
 
+import brig.concord.completion.ElCompletionContributor.FunctionLookup;
 import brig.concord.completion.ElCompletionContributor.PropertyLookup;
 import brig.concord.completion.ElCompletionContributor.VariableLookup;
 import brig.concord.meta.model.TaskStepMetaType.TaskNameLookup;
@@ -49,6 +50,10 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
 
         if (obj instanceof PropertyLookup propLookup) {
             return resolvePropertyDocumentation(propLookup);
+        }
+
+        if (obj instanceof FunctionLookup funcLookup) {
+            return resolveFunctionDocumentation(funcLookup);
         }
 
         return null;
@@ -134,6 +139,39 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
         };
 
         return new ConcordDocumentationTarget(lookup.name(), documented, typeText);
+    }
+
+    private static @NotNull DocumentationTarget resolveFunctionDocumentation(@NotNull FunctionLookup lookup) {
+        var function = lookup.function();
+        var returnTypeText = SchemaType.displayName(function.returnType());
+
+        var paramFields = function.params().stream()
+                .map(p -> new Documented.DocumentedField(
+                        p.name(), SchemaType.displayName(p.schemaType()), p.required(), p.description(), List.of()))
+                .toList();
+
+        var documented = new Documented() {
+
+            @Override
+            public @Nullable String getDescription() {
+                return function.description();
+            }
+
+            @Override
+            public @NotNull List<DocumentedSection> getDocumentationSections() {
+                if (paramFields.isEmpty()) {
+                    return List.of();
+                }
+                return List.of(new DocumentedSection("Parameters:", paramFields));
+            }
+
+            @Override
+            public @NotNull String getDocumentationFooter() {
+                return "<p><b>Returns</b>: <code>" + returnTypeText + "</code></p>";
+            }
+        };
+
+        return new ConcordDocumentationTarget(function.name() + function.signature(), documented, "function");
     }
 
     private static @NotNull List<Documented.DocumentedField> objectFields(@NotNull SchemaType schemaType) {

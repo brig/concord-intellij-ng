@@ -2,6 +2,8 @@
 package brig.concord.completion;
 
 import brig.concord.ConcordYamlTestBaseJunit5;
+import brig.concord.psi.BuiltInFunction;
+import brig.concord.psi.BuiltInFunctions;
 import brig.concord.schema.BuiltInVarsSchema;
 import brig.concord.schema.TaskSchemaRegistry;
 import com.intellij.codeInsight.completion.CompletionType;
@@ -330,5 +332,108 @@ class ElCompletionTest extends ConcordYamlTestBaseJunit5 {
         // Should have property completions but NOT variable names
         assertThat(lookups).contains("host");
         assertThat(lookups).doesNotContain("txId", "config", "initiator");
+    }
+
+    // --- Built-in function completion tests ---
+
+    @Test
+    void testBuiltInFunctionsInExpression() {
+        configureFromText("""
+                flows:
+                  main:
+                    - log: "${<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+
+        var functionNames = BuiltInFunctions.getInstance().getAll().stream()
+                .map(BuiltInFunction::name)
+                .toList();
+        assertThat(lookups).containsAll(functionNames);
+    }
+
+    @Test
+    void testNoFunctionCompletionAfterDot() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        config:
+                          host: "localhost"
+                    - log: "${config.<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).doesNotContain("hasVariable", "allVariables", "uuid", "throw");
+    }
+
+    @Test
+    void testFunctionCompletionInPlainText() {
+        configureFromText("""
+                flows:
+                  main:
+                    - if: ${<caret>}
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("hasVariable", "allVariables", "uuid");
+    }
+
+    // --- Function insert handler tests ---
+
+    @Test
+    void testFunctionWithParamsInsertHandler() {
+        configureFromText("""
+                flows:
+                  main:
+                    - if: ${hasVariable<caret>}
+                """);
+
+        selectCompletion("hasVariable");
+
+        myFixture.checkResult("""
+                flows:
+                  main:
+                    - if: ${hasVariable(<caret>)}
+                """);
+    }
+
+    @Test
+    void testFunctionNoParamsInsertHandler() {
+        configureFromText("""
+                flows:
+                  main:
+                    - if: ${uuid<caret>}
+                """);
+
+        selectCompletion("uuid");
+
+        myFixture.checkResult("""
+                flows:
+                  main:
+                    - if: ${uuid()<caret>}
+                """);
+    }
+
+    private void selectCompletion(String itemText) {
+        var items = myFixture.complete(CompletionType.BASIC);
+        if (items != null) {
+            for (var item : items) {
+                if (item.getLookupString().equals(itemText)) {
+                    myFixture.getLookup().setCurrentItem(item);
+                    break;
+                }
+            }
+            myFixture.type('\n');
+        }
     }
 }
