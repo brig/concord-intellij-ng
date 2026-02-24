@@ -5,9 +5,13 @@ import brig.concord.navigation.FlowNamesIndex;
 import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.CachedValue;
+import com.intellij.psi.util.CachedValueProvider;
+import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.CommonProcessors;
 import com.intellij.util.indexing.FileBasedIndex;
@@ -20,6 +24,9 @@ import java.util.*;
 import static brig.concord.meta.ConcordFileMetaType.FLOWS_KEY;
 
 public class ProcessDefinition {
+
+    private static final Key<CachedValue<Map<String, YAMLKeyValue>>> FLOW_MAP_KEY =
+            Key.create("concord.flow.definitions.map");
 
     private final PsiElement element;
 
@@ -103,14 +110,13 @@ public class ProcessDefinition {
         List<PsiElement> result = new ArrayList<>();
         for (var file : files.getResults()) {
             var psiFile = PsiManager.getInstance(project).findFile(file);
-            if (psiFile == null) {
+            if (!(psiFile instanceof ConcordFile cf)) {
                 continue;
             }
 
-            var doc = PsiTreeUtil.getChildOfType(psiFile, YAMLDocument.class);
-            var flowKey = flow(doc, name);
-            if (flowKey != null) {
-                result.add(flowKey.getParent());
+            var flowKv = getFlowDefinitions(cf).get(name);
+            if (flowKv != null) {
+                result.add(flowKv);
             }
         }
 
@@ -140,7 +146,27 @@ public class ProcessDefinition {
         });
     }
 
-    private static PsiElement flow(PsiElement root, String name) {
-        return YamlPsiUtils.get(root, YAMLPsiElement.class, FLOWS_KEY, name);
+    /**
+     * Returns a cached map of flow name → flow definition KV for the given file.
+     * Built once per file modification, then all flow lookups are O(1).
+     */
+    static @NotNull Map<String, YAMLKeyValue> getFlowDefinitions(@NotNull ConcordFile file) {
+        return CachedValuesManager.getCachedValue((PsiElement) file, FLOW_MAP_KEY, () -> {
+            var flowsKv = file.flows().orElse(null);
+            if (flowsKv == null) {
+                return CachedValueProvider.Result.create(Map.of(), (PsiElement) file);
+            }
+            var flowsValue = flowsKv.getValue();
+            if (!(flowsValue instanceof YAMLMapping mapping)) {
+                return CachedValueProvider.Result.create(Map.of(), (PsiElement) file);
+            }
+            var map = new HashMap<String, YAMLKeyValue>();
+            for (var child = mapping.getFirstChild(); child != null; child = child.getNextSibling()) {
+                if (child instanceof YAMLKeyValue kv) {
+                    map.putIfAbsent(kv.getKeyText(), kv);
+                }
+            }
+            return CachedValueProvider.Result.create(Collections.unmodifiableMap(map), (PsiElement) file);
+        });
     }
 }
