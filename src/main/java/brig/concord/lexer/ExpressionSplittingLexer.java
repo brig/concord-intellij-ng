@@ -10,8 +10,7 @@ import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import static brig.concord.lexer.ConcordElTokenTypes.*;
 import static brig.concord.yaml.YAMLTokenTypes.*;
@@ -57,9 +56,21 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
     private CharSequence buffer;
     private int bufferEnd;
 
-    // Current segments from splitting. Null if not split.
-    private List<Segment> segments;
+    // Reusable segment storage — avoids per-split ArrayList/Segment allocation.
+    // Parallel arrays hold (type, start, end) for each segment.
+    private IElementType[] segTypes = new IElementType[8];
+    private int[] segStarts = new int[8];
+    private int[] segEnds = new int[8];
+    private int segCount;
     private int segmentIndex;
+    private boolean splitting;
+
+    // Reusable scan result fields — avoids BraceScanResult record allocation
+    private boolean scanFound;
+    private int scanEndPos;
+    private int scanDepth;
+    private boolean scanInSQ;
+    private boolean scanInDQ;
 
     // Continuation state for multi-line expressions
     private boolean inExpression;
@@ -86,7 +97,8 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         inDoubleQuote = (initialState & (1 << 14)) != 0;
 
         delegate.start(buffer, startOffset, endOffset, delegateState);
-        segments = null;
+        splitting = false;
+        segCount = 0;
         segmentIndex = 0;
         trySplit();
     }
@@ -110,7 +122,7 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         // highlighter must not restart at any segment offset because (a) the delegate
         // cannot be restarted mid-token, and (b) for continuation splits,
         // resetContinuation() has already cleared inExpression before segments are emitted.
-        if (segments != null) {
+        if (splitting) {
             state |= (1 << 15);
         }
         return state;
@@ -118,9 +130,9 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
 
     @Override
     public @Nullable IElementType getTokenType() {
-        if (segments != null) {
-            if (segmentIndex < segments.size()) {
-                return segments.get(segmentIndex).type;
+        if (splitting) {
+            if (segmentIndex < segCount) {
+                return segTypes[segmentIndex];
             }
             return null;
         }
@@ -129,29 +141,30 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
 
     @Override
     public int getTokenStart() {
-        if (segments != null && segmentIndex < segments.size()) {
-            return segments.get(segmentIndex).start;
+        if (splitting && segmentIndex < segCount) {
+            return segStarts[segmentIndex];
         }
         return delegate.getTokenStart();
     }
 
     @Override
     public int getTokenEnd() {
-        if (segments != null && segmentIndex < segments.size()) {
-            return segments.get(segmentIndex).end;
+        if (splitting && segmentIndex < segCount) {
+            return segEnds[segmentIndex];
         }
         return delegate.getTokenEnd();
     }
 
     @Override
     public void advance() {
-        if (segments != null) {
+        if (splitting) {
             segmentIndex++;
-            if (segmentIndex < segments.size()) {
+            if (segmentIndex < segCount) {
                 return;
             }
             // Done with segments — advance delegate and try splitting the next token
-            segments = null;
+            splitting = false;
+            segCount = 0;
             segmentIndex = 0;
         }
         delegate.advance();
@@ -236,26 +249,27 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
             return;
         }
 
-        var segs = buildSegments(type, tokenStart, tokenEnd);
-        if (segs == null || segs.isEmpty()) {
-            return;
+        segCount = 0;
+        if (buildSegments(type, tokenStart, tokenEnd)) {
+            splitting = true;
+            segmentIndex = 0;
         }
-
-        segments = segs;
-        segmentIndex = 0;
     }
 
     /**
      * Scan a buffer range for ${ expressions, handling both complete and unclosed expressions.
+     * Appends segments to the reusable segment arrays.
      * Works directly with {@link #buffer} using absolute offsets to avoid String allocations.
+     *
+     * @return true if any expressions were found and segments were added
      */
-    private @Nullable List<Segment> buildSegments(
+    private boolean buildSegments(
             @NotNull IElementType scalarType,
             int from,
             int to) {
 
         int pos = from;
-        List<Segment> result = null;
+        boolean added = false;
 
         while (pos < to) {
             int exprStart = indexOfUnescapedDollarBrace(buffer, pos, to);
@@ -263,37 +277,35 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                 break;
             }
 
-            if (result == null) {
-                result = new ArrayList<>();
-            }
+            added = true;
 
             // Text before ${
             if (exprStart > pos) {
-                result.add(new Segment(scalarType, pos, exprStart));
+                addSegment(scalarType, pos, exprStart);
             }
 
             // ${ delimiter
-            result.add(new Segment(EL_EXPR_START, exprStart, exprStart + 2));
+            addSegment(EL_EXPR_START, exprStart, exprStart + 2);
 
             int bodyStart = exprStart + 2;
-            var scan = scanForClosingBrace(bodyStart, to, scalarType == SCALAR_DSTRING);
+            scanForClosingBrace(bodyStart, to, scalarType == SCALAR_DSTRING);
 
-            if (scan.found) {
-                if (scan.endPos > bodyStart) {
-                    result.add(new Segment(EL_EXPR_BODY, bodyStart, scan.endPos));
+            if (scanFound) {
+                if (scanEndPos > bodyStart) {
+                    addSegment(EL_EXPR_BODY, bodyStart, scanEndPos);
                 }
-                result.add(new Segment(EL_EXPR_END, scan.endPos, scan.endPos + 1));
-                pos = scan.endPos + 1;
+                addSegment(EL_EXPR_END, scanEndPos, scanEndPos + 1);
+                pos = scanEndPos + 1;
             } else {
-                if (scan.endPos > bodyStart) {
-                    result.add(new Segment(EL_EXPR_BODY, bodyStart, scan.endPos));
+                if (scanEndPos > bodyStart) {
+                    addSegment(EL_EXPR_BODY, bodyStart, scanEndPos);
                 }
                 if (CONTINUATION_TYPES.contains(scalarType)) {
                     // Block scalar / plain text: enter continuation mode for multi-line expressions
                     inExpression = true;
-                    braceDepth = scan.depth;
-                    inSingleQuote = scan.inSQ;
-                    inDoubleQuote = scan.inDQ;
+                    braceDepth = scanDepth;
+                    inSingleQuote = scanInSQ;
+                    inDoubleQuote = scanInDQ;
                 }
                 pos = to;
                 break;
@@ -301,24 +313,26 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         }
 
         // Text after last expression
-        if (result != null && pos < to) {
-            result.add(new Segment(scalarType, pos, to));
+        if (added && pos < to) {
+            addSegment(scalarType, pos, to);
         }
 
-        return result;
+        return added;
     }
 
     /**
      * Scan for the closing {@code }} of an EL expression, tracking brace depth and EL string
      * quoting state. In YAML double-quoted scalars ({@code yamlDQ=true}), YAML escape sequences
      * ({@code \\}, {@code \"}) are decoded before EL-level processing.
+     * <p>
+     * Results are written to {@link #scanFound}, {@link #scanEndPos}, {@link #scanDepth},
+     * {@link #scanInSQ}, {@link #scanInDQ} to avoid allocating a result object.
      *
      * @param from   start of expression body (just after <code>${</code>)
      * @param to     end of the scalar token range
      * @param yamlDQ true if the enclosing scalar is a YAML double-quoted string
-     * @return scan result with closing brace position and quoting state
      */
-    private BraceScanResult scanForClosingBrace(int from, int to, boolean yamlDQ) {
+    private void scanForClosingBrace(int from, int to, boolean yamlDQ) {
         int depth = 1;
         boolean sq = false;
         boolean dq = false;
@@ -402,26 +416,23 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                 } else if (c == '}') {
                     depth--;
                     if (depth == 0) {
-                        return new BraceScanResult(true, j, 0, false, false);
+                        scanFound = true;
+                        scanEndPos = j;
+                        scanDepth = 0;
+                        scanInSQ = false;
+                        scanInDQ = false;
+                        return;
                     }
                 }
             }
             j++;
         }
 
-        return new BraceScanResult(false, j, depth, sq, dq);
-    }
-
-    /**
-     * Result of scanning for a closing {@code }} brace in an EL expression body.
-     *
-     * @param found  true if the closing brace was found
-     * @param endPos if found: position of the closing {@code }}; otherwise: position where scanning stopped
-     * @param depth  remaining brace depth (0 if found)
-     * @param inSQ   true if inside a single-quoted EL string when scanning stopped
-     * @param inDQ   true if inside a double-quoted EL string when scanning stopped
-     */
-    private record BraceScanResult(boolean found, int endPos, int depth, boolean inSQ, boolean inDQ) {
+        scanFound = false;
+        scanEndPos = j;
+        scanDepth = depth;
+        scanInSQ = sq;
+        scanInDQ = dq;
     }
 
     /**
@@ -461,30 +472,27 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
                     braceDepth--;
                     if (braceDepth == 0) {
                         // Found closing } — end continuation
-                        var result = new ArrayList<Segment>();
+                        segCount = 0;
 
                         // Body fragment before }
                         if (j > tokenStart) {
-                            result.add(new Segment(EL_EXPR_BODY, tokenStart, j));
+                            addSegment(EL_EXPR_BODY, tokenStart, j);
                         }
 
                         // } delimiter
-                        result.add(new Segment(EL_EXPR_END, j, j + 1));
+                        addSegment(EL_EXPR_END, j, j + 1);
 
                         resetContinuation();
 
                         // Remaining text after } — may contain more ${...} expressions
                         int remaining = j + 1;
                         if (remaining < tokenEnd) {
-                            var moreSegs = buildSegments(scalarType, remaining, tokenEnd);
-                            if (moreSegs != null) {
-                                result.addAll(moreSegs);
-                            } else {
-                                result.add(new Segment(scalarType, remaining, tokenEnd));
+                            if (!buildSegments(scalarType, remaining, tokenEnd)) {
+                                addSegment(scalarType, remaining, tokenEnd);
                             }
                         }
 
-                        segments = result;
+                        splitting = true;
                         segmentIndex = 0;
                         return;
                     }
@@ -494,10 +502,23 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
         }
 
         // Still unclosed — entire token is EL_EXPR_BODY continuation
-        var result = new ArrayList<Segment>();
-        result.add(new Segment(EL_EXPR_BODY, tokenStart, tokenEnd));
-        segments = result;
+        segCount = 0;
+        addSegment(EL_EXPR_BODY, tokenStart, tokenEnd);
+        splitting = true;
         segmentIndex = 0;
+    }
+
+    private void addSegment(@NotNull IElementType type, int start, int end) {
+        if (segCount == segTypes.length) {
+            int newLen = segTypes.length * 2;
+            segTypes = Arrays.copyOf(segTypes, newLen);
+            segStarts = Arrays.copyOf(segStarts, newLen);
+            segEnds = Arrays.copyOf(segEnds, newLen);
+        }
+        segTypes[segCount] = type;
+        segStarts[segCount] = start;
+        segEnds[segCount] = end;
+        segCount++;
     }
 
     private void resetContinuation() {
@@ -545,8 +566,5 @@ public class ExpressionSplittingLexer extends LexerBase implements RestartableLe
             i--;
         }
         return (bs % 2) == 1;
-    }
-
-    private record Segment(@NotNull IElementType type, int start, int end) {
     }
 }

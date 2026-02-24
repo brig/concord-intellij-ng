@@ -21,6 +21,9 @@ public final class VariablesProvider {
     private static final Key<CachedValue<List<Variable>>> BASE_VARS_KEY =
             Key.create("concord.variables.base");
 
+    private static final Key<CachedValue<List<Variable>>> ARG_VARS_KEY =
+            Key.create("concord.variables.arguments");
+
     private VariablesProvider() {
     }
 
@@ -137,8 +140,28 @@ public final class VariablesProvider {
     }
 
     private static void collectArguments(PsiElement context, VariableCollector collector) {
-        ArgumentsCollector.getInstance(collector.project).getArguments(context).forEach((name, kv) ->
-                collector.add(new Variable(name, VariableSource.ARGUMENT, kv, SchemaInference.inferSchema(name, kv.getValue()))));
+        getCachedArgumentVariables(context).forEach(collector::add);
+    }
+
+    private static @NotNull List<Variable> getCachedArgumentVariables(@NotNull PsiElement context) {
+        var psiFile = context.getContainingFile();
+        if (psiFile == null) {
+            return List.of();
+        }
+
+        return CachedValuesManager.getCachedValue(psiFile, ARG_VARS_KEY, () -> {
+            var project = psiFile.getProject();
+            var args = ArgumentsCollector.getInstance(project).getArguments(psiFile);
+            if (args.isEmpty()) {
+                var tracker = ConcordModificationTracker.getInstance(project);
+                return CachedValueProvider.Result.create(List.of(), tracker.structure(), tracker.arguments());
+            }
+            var vars = new ArrayList<Variable>(args.size());
+            args.forEach((name, kv) ->
+                    vars.add(new Variable(name, VariableSource.ARGUMENT, kv, SchemaInference.inferSchema(name, kv.getValue()))));
+            var tracker = ConcordModificationTracker.getInstance(project);
+            return CachedValueProvider.Result.create(List.copyOf(vars), tracker.structure(), tracker.arguments());
+        });
     }
 
     private static void collectLocalStepVars(YAMLSequenceItem stepItem, VariableCollector collector) {

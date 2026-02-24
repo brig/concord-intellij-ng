@@ -27,7 +27,12 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType implements D
     }
 
     public IdentityMetaType findEntry(YAMLMapping element) {
-        return findEntry(YamlPsiUtils.keys(element));
+        for (var entry : entries) {
+            if (element.getKeyValueByKey(entry.getIdentity()) != null) {
+                return entry;
+            }
+        }
+        return guessEntry(YamlPsiUtils.keys(element));
     }
 
     @Override
@@ -53,7 +58,7 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType implements D
                     return this;
                 }
 
-                var meta = findEntry(YamlPsiUtils.keys(m));
+                var meta = findEntry(m);
                 if (meta == null) {
                     return this;
                 }
@@ -84,10 +89,7 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType implements D
 
     @Override
     public @NotNull List<Field> computeKeyCompletions(@Nullable YAMLMapping existingMapping) {
-        var meta = Optional.ofNullable(existingMapping)
-                .map(YamlPsiUtils::keys)
-                .map(this::identifyEntry)
-                .orElse(null);
+        var meta = existingMapping != null ? identifyEntry(existingMapping) : null;
 
         if (meta != null) {
             return meta.computeKeyCompletions(existingMapping);
@@ -111,12 +113,21 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType implements D
             return;
         }
 
-        var meta = findEntry(YamlPsiUtils.keys(m));
+        var meta = findEntry(m);
         if (meta == null) {
             return;
         }
 
         meta.validateValue(value, problemsHolder);
+    }
+
+    protected IdentityMetaType identifyEntry(@NotNull YAMLMapping element) {
+        for (var entry : entries) {
+            if (element.getKeyValueByKey(entry.getIdentity()) != null) {
+                return entry;
+            }
+        }
+        return null;
     }
 
     protected IdentityMetaType identifyEntry(Set<String> existingKeys) {
@@ -167,11 +178,4 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType implements D
         return entries.stream().anyMatch(entry -> entry.getFeatures().containsKey(name));
     }
 
-    private IdentityMetaType findEntry(Set<String> existingKeys) {
-        var result = identifyEntry(existingKeys);
-        if (result != null) {
-            return result;
-        }
-        return guessEntry(existingKeys);
-    }
 }
