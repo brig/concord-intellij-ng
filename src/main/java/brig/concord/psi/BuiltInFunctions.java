@@ -23,24 +23,24 @@ public final class BuiltInFunctions {
     private BuiltInFunctions() {
         var map = new LinkedHashMap<String, BuiltInFunction>();
 
-        register(map, "allVariables", Scalar.OBJECT, List.of());
-        register(map, "hasVariable", Scalar.BOOLEAN,
+        register(map, "allVariables", "doc.builtin.function.allVariables.description", Scalar.OBJECT, List.of());
+        register(map, "hasVariable", "doc.builtin.function.hasVariable.description", Scalar.BOOLEAN,
                 List.of(param("variableName", Scalar.STRING, "doc.builtin.function.hasVariable.param.variable_name.description")));
-        register(map, "hasNonNullVariable", Scalar.BOOLEAN,
+        register(map, "hasNonNullVariable", "doc.builtin.function.hasNonNullVariable.description", Scalar.BOOLEAN,
                 List.of(param("variableName", Scalar.STRING, "doc.builtin.function.hasNonNullVariable.param.variable_name.description")));
-        register(map, "currentFlowName", Scalar.STRING, List.of());
-        register(map, "evalAsMap", Scalar.OBJECT,
+        register(map, "currentFlowName", "doc.builtin.function.currentFlowName.description", Scalar.STRING, List.of());
+        register(map, "evalAsMap", "doc.builtin.function.evalAsMap.description", Scalar.OBJECT,
                 List.of(param("value", SchemaType.ANY, "doc.builtin.function.evalAsMap.param.value.description")));
-        register(map, "hasFlow", Scalar.BOOLEAN,
+        register(map, "hasFlow", "doc.builtin.function.hasFlow.description", Scalar.BOOLEAN,
                 List.of(param("name", Scalar.STRING, "doc.builtin.function.hasFlow.param.name.description")));
-        register(map, "isDebug", Scalar.BOOLEAN, List.of());
-        register(map, "isDryRun", Scalar.BOOLEAN, List.of());
-        register(map, "orDefault", SchemaType.ANY,
+        register(map, "isDebug", "doc.builtin.function.isDebug.description", Scalar.BOOLEAN, List.of());
+        register(map, "isDryRun", "doc.builtin.function.isDryRun.description", Scalar.BOOLEAN, List.of());
+        register(map, "orDefault", "doc.builtin.function.orDefault.description", SchemaType.ANY,
                 List.of(param("name", Scalar.STRING, "doc.builtin.function.orDefault.param.name.description"),
                         param("defaultValue", SchemaType.ANY, "doc.builtin.function.orDefault.param.defaultValue.description")));
-        register(map, "throw", SchemaType.ANY,
+        register(map, "throw", "doc.builtin.function.throw.description", SchemaType.ANY,
                 List.of(param("message", Scalar.STRING, "doc.builtin.function.throw.param.message.description")));
-        register(map, "uuid", Scalar.STRING, List.of());
+        register(map, "uuid", "doc.builtin.function.uuid.description", Scalar.STRING, List.of());
 
         this.functions = Map.copyOf(map);
     }
@@ -58,10 +58,11 @@ public final class BuiltInFunctions {
     }
 
     private static void register(Map<String, BuiltInFunction> map,
-                                 String name, SchemaType returnType,
+                                 String name,
+                                 @PropertyKey(resourceBundle = ConcordBundle.BUNDLE) String descriptionKey,
+                                 SchemaType returnType,
                                  List<SchemaProperty> params) {
-        var description = ConcordBundle.message("doc.builtin.function." + name + ".description");
-        map.put(name, new BuiltInFunction(name, returnType, description, params));
+        map.put(name, new BuiltInFunction(name, returnType, ConcordBundle.message(descriptionKey), params));
     }
 
     private static SchemaProperty param(String name, SchemaType type,
