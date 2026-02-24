@@ -147,14 +147,15 @@ public final class ConcordCliConfigurable implements Configurable {
         if (myVersionDetectionFuture != null) {
             myVersionDetectionFuture.cancel(true);
         }
+        var component = myVersionLabel;
         myVersionDetectionFuture = ApplicationManager.getApplication().executeOnPooledThread(() -> {
             var version = manager.detectCliVersion(path, jdkInfo);
             ApplicationManager.getApplication().invokeLater(() -> {
-                if (generation == myVersionDetectionGeneration && myVersionLabel.isShowing()) {
+                if (generation == myVersionDetectionGeneration && myVersionLabel != null && myVersionLabel.isShowing()) {
                     myDetectedVersion = version;
                     myVersionLabel.setText(version != null ? version : ConcordBundle.message("cli.settings.version.not.detected"));
                 }
-            }, ModalityState.stateForComponent(myVersionLabel));
+            }, ModalityState.stateForComponent(component));
         });
     }
 
@@ -305,6 +306,7 @@ public final class ConcordCliConfigurable implements Configurable {
         }
 
         private void loadVersions() {
+            var component = myVersionComboBox;
             ApplicationManager.getApplication().executeOnPooledThread(() -> {
                 try {
                     var versions = ConcordCliManager.getInstance().fetchAvailableVersions()
@@ -322,7 +324,7 @@ public final class ConcordCliConfigurable implements Configurable {
                         }
                         myVersionComboBox.setEnabled(true);
                         myVersionsLoaded = true;
-                    }, ModalityState.stateForComponent(myVersionComboBox));
+                    }, ModalityState.stateForComponent(component));
                 } catch (IOException e) {
                     ApplicationManager.getApplication().invokeLater(() -> {
                         if (!isShowing()) {
@@ -330,7 +332,7 @@ public final class ConcordCliConfigurable implements Configurable {
                         }
                         myVersionComboBox.removeAllItems();
                         myVersionComboBox.addItem(ConcordBundle.message("cli.settings.download.error", e.getMessage()));
-                    }, ModalityState.stateForComponent(myVersionComboBox));
+                    }, ModalityState.stateForComponent(component));
                 }
             });
         }
