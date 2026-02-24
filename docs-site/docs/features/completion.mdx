@@ -109,6 +109,53 @@ Completion is context-aware — it only suggests standalone variable names at th
     </figcaption>
 </figure>
 
+## Expression Function Completion
+
+Inside `${...}` expressions, the plugin suggests Concord's built-in functions alongside variables. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to trigger completion.
+
+Each suggestion displays:
+
+*   A **method icon** to distinguish functions from variables
+*   The **function name**
+*   The **signature** after the name (e.g. `(string variableName)`)
+*   The **return type** on the right side (e.g. `boolean`, `string`, `object`)
+
+The following built-in functions are available:
+
+| Function | Return | Description |
+|----------|--------|-------------|
+| `allVariables()` | object | Returns all current process variables as a Map |
+| `currentFlowName()` | string | Returns the name of the currently executing flow |
+| `evalAsMap(value)` | object | Evaluates an expression and returns the result as a Map |
+| `hasFlow(name)` | boolean | Checks if a flow with the given name exists |
+| `hasNonNullVariable(variableName)` | boolean | Checks if a variable exists and is not null |
+| `hasVariable(variableName)` | boolean | Checks if a variable exists (supports dot-separated paths) |
+| `isDebug()` | boolean | Returns true if started with the debug flag |
+| `isDryRun()` | boolean | Returns true if started in dry-run mode |
+| `orDefault(name, defaultValue)` | any | Returns variable value or default if not set |
+| `throw(message)` | any | Throws an exception with the given message |
+| `uuid()` | string | Returns a random UUID string |
+
+When you accept a function from the completion list, the plugin automatically inserts parentheses. For functions that take parameters, the caret is placed inside the parentheses so you can start typing the argument immediately. For no-argument functions, the caret is placed after the closing parenthesis.
+
+```concord
+flows:
+  main:
+    - if: ${hasVariable(<caret>)}    # caret inside parens
+    - log: "${uuid()<caret>}"        # caret after parens
+```
+
+<figure className="docFigure docFigure--sm4">
+    <img src={require('@site/static/img/completion-el-functions.png').default} alt="Expression Function Completion" />
+    <figcaption>
+        Function completion inside an EL expression, showing method icons, signatures, and return types.
+    </figcaption>
+</figure>
+
+:::note
+Function completion only appears at the top level of an expression — not after a dot. After a dot, the plugin shows [property completion](#expression-property-completion) instead.
+:::
+
 ## Expression Property Completion
 
 When you type a dot after a variable name inside a `${...}` expression, the plugin suggests the available properties of that variable. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to trigger completion.
@@ -202,6 +249,21 @@ This is especially useful for built-in object variables. For example, selecting 
     <img src={require('@site/static/img/completion-doc-var-object.png').default} alt="Variable Documentation in Completion" />
     <figcaption>
         Quick documentation for a built-in variable showing its type and description.
+    </figcaption>
+</figure>
+
+### Function Documentation
+
+When completing built-in functions inside `${...}` expressions, the documentation popup shows:
+
+*   **Description** — what the function does
+*   **Parameters** — each parameter with its type (when the function takes arguments)
+*   **Returns** — the return type
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-function.png').default} alt="Function Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a built-in function showing its description, parameters, and return type.
     </figcaption>
 </figure>
 
