@@ -30,6 +30,9 @@ jobs:
       - name: Fetch Sources
         uses: actions/checkout@v4
 
+      - name: Fetch main branch for Spotless ratchet
+        run: git fetch origin main:refs/remotes/origin/main
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -59,6 +62,10 @@ jobs:
           ./gradlew printProductsReleases -q
   
           echo "pluginVerifierHomeDir=$HOME/.pluginVerifier" >> "$GITHUB_OUTPUT"
+
+      # Check code formatting (license headers, line endings)
+      - name: Check Formatting
+        run: ./gradlew spotlessCheck
 
       # Run tests
       - name: Run Tests

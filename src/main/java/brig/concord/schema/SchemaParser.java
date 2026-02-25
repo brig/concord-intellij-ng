@@ -2,6 +2,7 @@
 package brig.concord.schema;
 
 import brig.concord.ConcordType;
+import brig.concord.ConcordTypes;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -318,7 +319,7 @@ public class SchemaParser {
             return new SchemaType.Object(parseSectionObject(root, obj, depth + 1));
         }
 
-        var concordType = ConcordType.fromString(type);
+        var concordType = ConcordTypes.fromString(type);
         if (concordType == null) {
             return new SchemaType.Any();
         }
@@ -353,7 +354,7 @@ public class SchemaParser {
         if (resolved.isJsonObject()) {
             var typeName = getString(resolved.getAsJsonObject(), "type");
             if (typeName != null) {
-                var concordType = ConcordType.fromString(typeName);
+                var concordType = ConcordTypes.fromString(typeName);
                 if (concordType != null) {
                     return concordType;
                 }

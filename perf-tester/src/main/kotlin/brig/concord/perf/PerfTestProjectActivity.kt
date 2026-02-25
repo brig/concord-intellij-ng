@@ -105,7 +105,9 @@ class PerfTestProjectActivity : ProjectActivity {
         }
 
         println("PERF-TEST: Exiting...")
-        withContext(Dispatchers.EDT) {
+        // Schedule exit outside this coroutine scope — calling exit() from within
+        // the activity coroutine deadlocks because exit() waits for this scope to finish.
+        ApplicationManager.getApplication().invokeLater {
             ApplicationManager.getApplication().exit(true, true, true)
         }
     }

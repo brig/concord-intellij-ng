@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package brig.concord.completion;
 
-import brig.concord.ConcordType;
+import brig.concord.ConcordTypes;
 import brig.concord.lexer.FlowDocElementTypes;
 import brig.concord.lexer.FlowDocTokenTypes;
 import brig.concord.psi.ConcordFile;
@@ -23,7 +23,7 @@ public class FlowDocCompletionContributor extends CompletionContributor {
 
     private static List<String> createTypeNames() {
         var names = new ArrayList<String>();
-        for (var type : ConcordType.ALIASES.keySet()) {
+        for (var type : ConcordTypes.aliases().keySet()) {
             names.add(type);
             names.add(type + "[]");
         }

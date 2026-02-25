@@ -2,6 +2,7 @@
 package brig.concord.completion.provider;
 
 import brig.concord.ConcordType;
+import brig.concord.ConcordTypes;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.meta.model.value.AnythingMetaType;
@@ -145,7 +146,7 @@ public class FlowCallParamsProvider {
             return AnythingMetaType.getInstance();
         }
 
-        var concordType = ConcordType.resolve(parameter.getBaseType(), ConcordType.YamlBaseType.ANY);
+        var concordType = ConcordTypes.resolve(parameter.getBaseType(), ConcordType.YamlBaseType.ANY);
         var props = TypeProps.desc(parameter.getDescription()).andRequired(parameter.isMandatory());
 
         if (parameter.isArrayType()) {

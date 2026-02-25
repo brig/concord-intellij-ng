@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 package brig.concord.completion;
 
-import brig.concord.el.psi.ElFunctionExpr;
-import brig.concord.el.psi.ElIdentifierExpr;
-import brig.concord.el.psi.ElMemberName;
-import brig.concord.el.psi.ElTypes;
+import brig.concord.dependency.TaskInfo;
+import brig.concord.dependency.TaskMethod;
+import brig.concord.dependency.TaskRegistry;
+import brig.concord.el.psi.*;
 import brig.concord.psi.BuiltInFunction;
 import brig.concord.psi.BuiltInFunctions;
 import brig.concord.psi.ElAccessChainResolver;
@@ -34,6 +34,12 @@ public class ElCompletionContributor extends CompletionContributor {
     public record FunctionLookup(@NotNull BuiltInFunction function) {
     }
 
+    public record TaskNameElLookup(@NotNull String name) {
+    }
+
+    public record TaskMethodLookup(@NotNull String taskName, @NotNull TaskMethod method) {
+    }
+
     public ElCompletionContributor() {
         extend(CompletionType.BASIC,
                 PlatformPatterns.psiElement(ElTypes.IDENTIFIER),
@@ -45,7 +51,15 @@ public class ElCompletionContributor extends CompletionContributor {
 
         extend(CompletionType.BASIC,
                 PlatformPatterns.psiElement(ElTypes.IDENTIFIER),
+                new ElTaskNameCompletionProvider());
+
+        extend(CompletionType.BASIC,
+                PlatformPatterns.psiElement(ElTypes.IDENTIFIER),
                 new ElPropertyCompletionProvider());
+
+        extend(CompletionType.BASIC,
+                PlatformPatterns.psiElement(ElTypes.IDENTIFIER),
+                new ElTaskMethodCompletionProvider());
     }
 
     private static class ElVariableCompletionProvider extends CompletionProvider<CompletionParameters> {
@@ -121,6 +135,39 @@ public class ElCompletionContributor extends CompletionContributor {
         }
     }
 
+    private static class ElTaskNameCompletionProvider extends CompletionProvider<CompletionParameters> {
+
+        @Override
+        protected void addCompletions(@NotNull CompletionParameters parameters,
+                                      @NotNull ProcessingContext context,
+                                      @NotNull CompletionResultSet result) {
+            var position = parameters.getPosition();
+
+            var parent = position.getParent();
+            if (parent instanceof ElMemberName || parent instanceof ElFunctionExpr) {
+                return;
+            }
+
+            if (!(parent instanceof ElIdentifierExpr)) {
+                return;
+            }
+
+            var yamlElement = PsiTreeUtil.getParentOfType(position, YAMLValue.class);
+            if (yamlElement == null) {
+                return;
+            }
+
+            var taskInfos = TaskRegistry.getInstance(yamlElement.getProject()).getTaskInfos(yamlElement);
+            for (var taskInfo : taskInfos.values()) {
+                var lookup = new TaskNameElLookup(taskInfo.name());
+                var builder = LookupElementBuilder.create(lookup, taskInfo.name())
+                        .withIcon(AllIcons.Nodes.Class)
+                        .withTailText("  task", true);
+                result.addElement(builder);
+            }
+        }
+    }
+
     private static class ElPropertyCompletionProvider extends CompletionProvider<CompletionParameters> {
 
         @Override
@@ -146,6 +193,76 @@ public class ElCompletionContributor extends CompletionContributor {
                         .withIcon(AllIcons.Nodes.Property)
                         .withTypeText(SchemaType.displayName(prop.schemaType()));
 
+                result.addElement(builder);
+            }
+        }
+    }
+
+    private static class ElTaskMethodCompletionProvider extends CompletionProvider<CompletionParameters> {
+
+        @Override
+        protected void addCompletions(@NotNull CompletionParameters parameters,
+                                      @NotNull ProcessingContext context,
+                                      @NotNull CompletionResultSet result) {
+            var position = parameters.getPosition();
+            var parent = position.getParent();
+
+            if (!(parent instanceof ElMemberName memberName)) {
+                return;
+            }
+
+            var dotSuffix = memberName.getParent();
+            if (!(dotSuffix instanceof ElDotSuffix)) {
+                return;
+            }
+
+            var accessExpr = dotSuffix.getParent();
+            if (!(accessExpr instanceof ElAccessExpr access)) {
+                return;
+            }
+
+            // Only complete on the first dot suffix (direct task method call)
+            var suffixes = access.getSuffixList();
+            if (suffixes.isEmpty() || suffixes.get(0) != dotSuffix) {
+                return;
+            }
+
+            var baseExpr = access.getExpression();
+            if (!(baseExpr instanceof ElIdentifierExpr identExpr)) {
+                return;
+            }
+
+            var taskName = identExpr.getIdentifier().getText();
+
+            var yamlElement = PsiTreeUtil.getParentOfType(position, YAMLValue.class);
+            if (yamlElement == null) {
+                return;
+            }
+
+            var taskInfo = TaskRegistry.getInstance(yamlElement.getProject()).getTaskInfo(yamlElement, taskName);
+            if (taskInfo == null) {
+                return;
+            }
+
+            for (var method : taskInfo.methods()) {
+                var lookup = new TaskMethodLookup(taskName, method);
+                var lookupKey = method.name() + method.signature();
+                var builder = LookupElementBuilder.create(lookup, lookupKey)
+                        .withPresentableText(method.name())
+                        .withIcon(AllIcons.Nodes.Method)
+                        .withTailText(method.signature(), true)
+                        .withTypeText(SchemaType.displayName(method.returnType()))
+                        .withInsertHandler((ctx, item) -> {
+                            var document = ctx.getDocument();
+                            document.replaceString(ctx.getStartOffset(), ctx.getTailOffset(), method.name());
+                            ctx.setTailOffset(ctx.getStartOffset() + method.name().length());
+                            var editor = ctx.getEditor();
+                            editor.getCaretModel().moveToOffset(ctx.getTailOffset());
+                            EditorModificationUtil.insertStringAtCaret(editor, "()");
+                            if (!method.parameterTypes().isEmpty()) {
+                                editor.getCaretModel().moveCaretRelatively(-1, 0, false, false, false);
+                            }
+                        });
                 result.addElement(builder);
             }
         }

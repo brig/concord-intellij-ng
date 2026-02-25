@@ -3,6 +3,7 @@ package brig.concord.schema;
 
 import brig.concord.ConcordType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +39,10 @@ public sealed interface SchemaType {
     record Object(@NotNull ObjectSchema section) implements SchemaType {
     }
 
-    record Any() implements SchemaType {
+    record Any(@Nullable String label) implements SchemaType {
+        public Any() {
+            this(null);
+        }
     }
 
     static @NotNull String displayName(@NotNull SchemaType schemaType) {
@@ -50,7 +54,7 @@ public sealed interface SchemaType {
                     .map(SchemaType::displayName)
                     .collect(Collectors.joining("|"));
             case Object o -> "object";
-            case Any a -> "any";
+            case Any a -> a.label() != null ? a.label() : "any";
         };
     }
 }
