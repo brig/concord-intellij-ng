@@ -37,18 +37,8 @@ public final class ArgumentsCollector {
      * Finds all scopes containing the element's file and merges arguments from all of them.
      */
     public @NotNull Map<String, YAMLKeyValue> getArguments(@NotNull PsiElement context) {
-        var psiFile = context.getContainingFile();
-        if (psiFile == null) {
-            return Map.of();
-        }
-
-        var vf = psiFile.getOriginalFile().getVirtualFile();
-        if (vf == null) {
-            return Map.of();
-        }
-
         var scopeService = ConcordScopeService.getInstance(project);
-        var scopes = scopeService.getScopesForFile(vf);
+        var scopes = scopeService.getScopes(context);
         if (scopes.isEmpty()) {
             return Map.of();
         }

@@ -2,6 +2,7 @@
 package brig.concord.schema;
 
 import brig.concord.ConcordType;
+import brig.concord.ConcordTypes;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.YamlPsiUtils;
 import brig.concord.yaml.YAMLUtil;
@@ -22,7 +23,7 @@ public final class SchemaInference {
     }
 
     public static @NotNull SchemaType fromFlowDocParameterType(@NotNull FlowDocParameter param) {
-        var concordType = ConcordType.resolve(param.getBaseType(), ConcordType.YamlBaseType.ANY);
+        var concordType = ConcordTypes.resolve(param.getBaseType(), ConcordType.YamlBaseType.ANY);
         if (param.isArrayType()) {
             return new SchemaType.Array(concordType);
         }

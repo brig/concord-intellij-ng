@@ -3,6 +3,8 @@ package brig.concord.documentation;
 
 import brig.concord.completion.ElCompletionContributor.FunctionLookup;
 import brig.concord.completion.ElCompletionContributor.PropertyLookup;
+import brig.concord.completion.ElCompletionContributor.TaskMethodLookup;
+import brig.concord.completion.ElCompletionContributor.TaskNameElLookup;
 import brig.concord.completion.ElCompletionContributor.VariableLookup;
 import brig.concord.meta.model.TaskStepMetaType.TaskNameLookup;
 import brig.concord.meta.model.call.CallOutValueMetaType.OutParameterLookup;
@@ -54,6 +56,14 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
 
         if (obj instanceof FunctionLookup funcLookup) {
             return resolveFunctionDocumentation(funcLookup);
+        }
+
+        if (obj instanceof TaskNameElLookup taskElLookup) {
+            return resolveTaskNameElDocumentation(psiFile.getProject(), taskElLookup);
+        }
+
+        if (obj instanceof TaskMethodLookup methodLookup) {
+            return resolveTaskMethodDocumentation(methodLookup);
         }
 
         return null;
@@ -172,6 +182,51 @@ public class ConcordLookupDocumentationProvider implements LookupElementDocument
         };
 
         return new ConcordDocumentationTarget(function.name() + function.signature(), documented, "function");
+    }
+
+    private static @NotNull DocumentationTarget resolveTaskNameElDocumentation(@NotNull Project project,
+                                                                                @NotNull TaskNameElLookup lookup) {
+        var schema = TaskSchemaRegistry.getInstance(project).getSchema(lookup.name());
+        if (schema != null) {
+            return new TaskDocumentationTarget(schema);
+        }
+
+        return new ConcordDocumentationTarget(lookup.name(), Documented.ofDescription("Concord task"), "task");
+    }
+
+    private static @NotNull DocumentationTarget resolveTaskMethodDocumentation(@NotNull TaskMethodLookup lookup) {
+        var method = lookup.method();
+        var returnTypeText = SchemaType.displayName(method.returnType());
+
+        var paramTypes = method.parameterTypes();
+        var paramFields = new ArrayList<Documented.DocumentedField>();
+        for (int i = 0; i < paramTypes.size(); i++) {
+            paramFields.add(new Documented.DocumentedField(
+                    "arg" + i, SchemaType.displayName(paramTypes.get(i)), false, null, List.of()));
+        }
+
+        var documented = new Documented() {
+
+            @Override
+            public @Nullable String getDescription() {
+                return "Method on task <code>" + lookup.taskName() + "</code>";
+            }
+
+            @Override
+            public @NotNull List<DocumentedSection> getDocumentationSections() {
+                if (paramFields.isEmpty()) {
+                    return List.of();
+                }
+                return List.of(new DocumentedSection("Parameters:", paramFields));
+            }
+
+            @Override
+            public @NotNull String getDocumentationFooter() {
+                return "<p><b>Returns</b>: <code>" + returnTypeText + "</code></p>";
+            }
+        };
+
+        return new ConcordDocumentationTarget(method.name() + method.signature(), documented, returnTypeText);
     }
 
     private static @NotNull List<Documented.DocumentedField> objectFields(@NotNull SchemaType schemaType) {

@@ -153,7 +153,64 @@ flows:
 </figure>
 
 :::note
-Function completion only appears at the top level of an expression — not after a dot. After a dot, the plugin shows [property completion](#expression-property-completion) instead.
+Function completion only appears at the top level of an expression — not after a dot. After a dot, the plugin shows [task method completion](#expression-task-method-completion) or [property completion](#expression-property-completion) instead.
+:::
+
+## Expression Task Name Completion
+
+Inside `${...}` expressions, the plugin suggests task names from your project's [Maven dependencies](./dependencies) alongside variables and functions. This lets you reference tasks directly in expressions without having to remember exact names.
+
+Each suggestion displays:
+
+*   A **class icon** to distinguish tasks from variables and functions
+*   The **task name**
+*   A `task` label after the name
+
+Task name completion is scope-aware — each [scope](./scopes) only shows tasks from its own dependencies, just like [task name completion](#task-name-completion) in `task:` fields.
+
+```concord
+configuration:
+  dependencies:
+  - "mvn://com.walmartlabs.concord.plugins:datetime-task:2.14.0"
+
+flows:
+  main:
+    - log: "${date<caret>}"  # suggests: datetime
+```
+
+<figure className="docFigure docFigure--sm4">
+    <img src={require('@site/static/img/completion-el-task-names.png').default} alt="Expression Task Name Completion" />
+    <figcaption>
+        Task name completion inside an EL expression, showing task icons and labels.
+    </figcaption>
+</figure>
+
+## Expression Task Method Completion
+
+When you type a dot after a task name inside a `${...}` expression, the plugin suggests the public methods available on that task. Press <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> to trigger completion.
+
+Each suggestion displays:
+
+*   A **method icon** for quick visual identification
+*   The **method name**
+*   The **parameter signature** after the name (e.g. `(any, string)`)
+*   The **return type** on the right side (e.g. `string`, `object`, `void`)
+
+Method signatures are extracted from the task's dependency JAR at the bytecode level, so they reflect the actual Java API of the task.
+
+When you accept a method from the completion list, the plugin automatically inserts parentheses.
+For methods that take parameters, the caret is placed inside the parentheses.
+For no-argument methods, the caret is placed after the closing parenthesis.
+
+<figure className="docFigure docFigure--sm5">
+    <img src={require('@site/static/img/completion-el-task-methods.png').default} alt="Expression Task Method Completion" />
+    <figcaption>
+        Task method completion after a dot, showing method names, parameter signatures, and return types.
+    </figcaption>
+</figure>
+
+:::note
+Task method completion only works on the first dot after a task name — not on chained calls like `datetime.current().something`.
 :::
 
 ## Expression Property Completion
@@ -264,6 +321,28 @@ When completing built-in functions inside `${...}` expressions, the documentatio
     <img src={require('@site/static/img/completion-doc-function.png').default} alt="Function Documentation in Completion" />
     <figcaption>
         Quick documentation for a built-in function showing its description, parameters, and return type.
+    </figcaption>
+</figure>
+
+### Task Name Documentation (EL)
+
+When completing task names inside `${...}` expressions, the documentation popup shows the same task documentation
+as for [task name completion](#task-name-documentation) in `task:` fields — the full task description with input and output parameters.
+For tasks without a built-in schema, a generic "Concord task" description is shown.
+
+### Task Method Documentation
+
+When completing task methods after a dot (e.g., `${datetime.}`), the documentation popup shows details about the
+selected method:
+
+*   **Description** — which task the method belongs to
+*   **Parameters** — each parameter with its inferred type
+*   **Returns** — the return type
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/completion-doc-task-method.png').default} alt="Task Method Documentation in Completion" />
+    <figcaption>
+        Quick documentation for a task method showing parameters and return type.
     </figcaption>
 </figure>
 
