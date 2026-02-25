@@ -4,6 +4,8 @@
 
 ### Added
 
+- EL task method autocomplete 
+([#151](https://github.com/brig/concord-intellij-ng/pull/151))
 - repositories settings page with `mvn.json` support
 ([#148](https://github.com/brig/concord-intellij-ng/pull/148))
 
