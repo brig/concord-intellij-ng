@@ -66,4 +66,4 @@ The test will automatically:
 2. Trigger code analysis and highlighting.
 3. Collect JFR data and exit.
 
-**Result:** The JFR report will be generated at `build/reports/perf.jfr`. You can open this file in IntelliJ IDEA or Java Mission Control to analyze CPU usage and allocations.
+**Result:** The JFR report will be generated at `build/reports/perf-<timestamp>.jfr` (e.g. `perf-20260226-121530.jfr`). You can open this file in IntelliJ IDEA or Java Mission Control to analyze CPU usage and allocations.

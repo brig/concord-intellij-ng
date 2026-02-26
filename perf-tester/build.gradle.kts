@@ -35,7 +35,8 @@ tasks {
         args = listOf(perfProjectDir.toString())
 
         // Настройки JFR
-        val reportFile = rootProject.layout.buildDirectory.file("reports/perf.jfr").get().asFile
+        val timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
+        val reportFile = rootProject.layout.buildDirectory.file("reports/perf-${timestamp}.jfr").get().asFile
         doFirst {
             reportFile.parentFile.mkdirs()
             // Fallback: filter out the hot-reload-agent if composeHotReload flag didn't prevent it
