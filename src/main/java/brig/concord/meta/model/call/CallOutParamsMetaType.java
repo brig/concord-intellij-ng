@@ -5,8 +5,6 @@ import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.yaml.meta.model.Field;
 import brig.concord.yaml.meta.model.YamlAnyOfType;
 import brig.concord.yaml.meta.model.YamlArrayType;
-import brig.concord.yaml.psi.YAMLValue;
-import com.intellij.codeInspection.ProblemsHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
