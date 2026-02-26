@@ -1,3 +1,6 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 plugins {
     id("java")
     alias(libs.plugins.kotlin)
@@ -35,7 +38,7 @@ tasks {
         args = listOf(perfProjectDir.toString())
 
         // Настройки JFR
-        val timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
+        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"))
         val reportFile = rootProject.layout.buildDirectory.file("reports/perf-${timestamp}.jfr").get().asFile
         doFirst {
             reportFile.parentFile.mkdirs()
