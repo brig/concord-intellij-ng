@@ -9,6 +9,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.util.Ref;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -89,7 +90,7 @@ public class ConcordEnterAtIndentHandler implements EnterHandlerDelegate {
         if (prevLineNumber >= 0) {
             var prevLineStart = document.getLineStartOffset(prevLineNumber);
             var prevLineEnd = document.getLineEndOffset(prevLineNumber);
-            return document.getText().substring(prevLineStart, prevLineEnd);
+            return document.getText(new TextRange(prevLineStart, prevLineEnd));
         }
         return null;
     }

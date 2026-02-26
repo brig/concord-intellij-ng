@@ -10,7 +10,6 @@ import brig.concord.meta.model.call.CallMetaType;
 import brig.concord.yaml.psi.impl.YAMLQuotedTextImpl;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import com.intellij.lang.ASTNode;
-import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.NlsSafe;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
@@ -24,32 +23,21 @@ import brig.concord.yaml.psi.impl.YAMLPlainTextImpl;
 
 public class ConcordYamlDelegateFactory {
 
-    private static final Key<PsiNamedElement> DELEGATE = new Key<>("CONCORD_YAML_DELEGATE");
-
     private ConcordYamlDelegateFactory() {
     }
 
-    public static @Nullable PsiNamedElement createDelegate(YAMLPsiElement psiElement) {
-        PsiNamedElement yamlDelegate = DELEGATE.get(psiElement);
-        if (yamlDelegate != null) {
-            return yamlDelegate;
-        }
+    public static @NotNull PsiNamedElement createDelegate(@NotNull YAMLPsiElement psiElement) {
+        PsiNamedElement delegate = computeDelegate(psiElement);
+        return delegate != null ? delegate : new NotADelegate(psiElement.getNode());
+    }
 
-        PsiNamedElement delegate = null;
-        if (psiElement instanceof YAMLKeyValue) {
-            delegate = createKeyValueDelegate((YAMLKeyValue) psiElement);
-        } else if (psiElement instanceof YAMLPlainTextImpl) {
-            delegate = createPlainTextDelegate((YAMLPlainTextImpl) psiElement);
-        } else if (psiElement instanceof YAMLQuotedTextImpl) {
-            delegate = createQuoteTextDelegate((YAMLQuotedTextImpl) psiElement);
-        }
-
-        if (delegate == null) {
-            delegate = psiElement != null ? new NotADelegate(psiElement.getNode()) : null;
-        }
-
-        DELEGATE.set(psiElement, delegate);
-        return delegate;
+    private static @Nullable PsiNamedElement computeDelegate(@NotNull YAMLPsiElement psiElement) {
+        return switch (psiElement) {
+            case YAMLKeyValue kv -> createKeyValueDelegate(kv);
+            case YAMLPlainTextImpl pt -> createPlainTextDelegate(pt);
+            case YAMLQuotedTextImpl qt -> createQuoteTextDelegate(qt);
+            default -> null;
+        };
     }
 
     private static PsiNamedElement createKeyValueDelegate(YAMLKeyValue keyValue) {

@@ -107,18 +107,9 @@ public class FlowCallParamsProvider {
                 var metaType = toMetaType(param);
                 result.put(param.getName(), metaType);
             }
-            this.features = Map.copyOf(result);
-            return this.features;
-        }
-
-        @Override
-        public @Nullable Field findFeatureByName(@NotNull String name) {
-            for (var param : documentation.getInputParameters()) {
-                if (name.equals(param.getName())) {
-                    return metaTypeToField(toMetaType(param), name);
-                }
-            }
-            return null;
+            f = Map.copyOf(result);
+            this.features = f;
+            return f;
         }
     }
 

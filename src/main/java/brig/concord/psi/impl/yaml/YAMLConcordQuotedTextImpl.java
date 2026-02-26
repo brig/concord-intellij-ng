@@ -12,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class YAMLConcordQuotedTextImpl extends YAMLQuotedTextImpl implements PsiNamedElement {
 
-    private transient PsiNamedElement delegate;
-
     public YAMLConcordQuotedTextImpl(@NotNull ASTNode node) {
         super(node);
     }
@@ -39,9 +37,6 @@ public class YAMLConcordQuotedTextImpl extends YAMLQuotedTextImpl implements Psi
     }
 
     private PsiNamedElement getDelegate() {
-        if (delegate == null) {
-            delegate = ConcordYamlDelegateFactory.createDelegate(this);
-        }
-        return delegate;
+        return ConcordYamlDelegateFactory.createDelegate(this);
     }
 }

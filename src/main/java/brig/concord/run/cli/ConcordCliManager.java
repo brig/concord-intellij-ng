@@ -76,6 +76,9 @@ public final class ConcordCliManager {
         List<String> versions = new ArrayList<>();
         try {
             var factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             var builder = factory.newDocumentBuilder();
             var inputSource = new InputSource(new StringReader(metadata));
             var doc = builder.parse(inputSource);

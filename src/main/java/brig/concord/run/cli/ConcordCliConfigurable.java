@@ -115,10 +115,6 @@ public final class ConcordCliConfigurable implements Configurable {
         return (String) myJdkComboBox.getSelectedItem();
     }
 
-    private @Nullable ConcordCliManager.JdkInfo resolveSelectedJdk() {
-        return ConcordCliManager.getInstance().resolveJdk(getSelectedJdkName());
-    }
-
     private void updateVersionLabel() {
         if (!myListenersActive) {
             return;
@@ -131,24 +127,28 @@ public final class ConcordCliConfigurable implements Configurable {
             return;
         }
 
-        var manager = ConcordCliManager.getInstance();
-        var jdkName = getSelectedJdkName();
-        if (!manager.validateCliPath(path, jdkName)) {
-            myDetectedVersion = null;
-            myVersionLabel.setText(ConcordBundle.message("cli.settings.invalid.path"));
-            return;
-        }
-
         var generation = ++myVersionDetectionGeneration;
         myDetectedVersion = null;
         myVersionLabel.setText(ConcordBundle.message("cli.settings.version.detecting"));
 
-        var jdkInfo = resolveSelectedJdk();
+        var manager = ConcordCliManager.getInstance();
+        var jdkName = getSelectedJdkName();
         if (myVersionDetectionFuture != null) {
             myVersionDetectionFuture.cancel(true);
         }
         var component = myVersionLabel;
         myVersionDetectionFuture = ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            if (!manager.validateCliPath(path, jdkName)) {
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    if (generation == myVersionDetectionGeneration && myVersionLabel != null && myVersionLabel.isShowing()) {
+                        myDetectedVersion = null;
+                        myVersionLabel.setText(ConcordBundle.message("cli.settings.invalid.path"));
+                    }
+                }, ModalityState.stateForComponent(component));
+                return;
+            }
+
+            var jdkInfo = manager.resolveJdk(jdkName);
             var version = manager.detectCliVersion(path, jdkInfo);
             ApplicationManager.getApplication().invokeLater(() -> {
                 if (generation == myVersionDetectionGeneration && myVersionLabel != null && myVersionLabel.isShowing()) {

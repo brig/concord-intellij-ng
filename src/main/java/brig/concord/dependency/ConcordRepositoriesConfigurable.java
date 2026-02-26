@@ -31,6 +31,7 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
     private TextFieldWithBrowseButton myDepsCachePathField;
     private JBTable myReposTable;
     private RepositoryTableModel myTableModel;
+    private List<MvnJsonConfig.Repository> mySavedRepositories = List.of();
 
     @Override
     public @NlsContexts.ConfigurableName String getDisplayName() {
@@ -102,14 +103,8 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
             return true;
         }
 
-        var mvnJsonPath = settings.getEffectiveMvnJsonPath();
-        try {
-            var stored = MvnJsonParser.read(mvnJsonPath);
-            if (!myTableModel.getRepositories().equals(stored.getRepositories())) {
-                return true;
-            }
-        } catch (Exception e) {
-            return !myTableModel.getRepositories().isEmpty();
+        if (!myTableModel.getRepositories().equals(mySavedRepositories)) {
+            return true;
         }
 
         return false;
@@ -126,13 +121,15 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
         settings.setDepsCachePath(nullIfBlank(myDepsCachePathField.getText()));
 
         var mvnJsonPath = settings.getEffectiveMvnJsonPath();
-        var config = new MvnJsonConfig(new ArrayList<>(myTableModel.getRepositories()));
+        var repos = myTableModel.getRepositories();
+        var config = new MvnJsonConfig(new ArrayList<>(repos));
         try {
             MvnJsonParser.write(mvnJsonPath, config);
         } catch (IOException e) {
             throw new ConfigurationException(
                     ConcordBundle.message("repositories.error.write", e.getMessage()));
         }
+        mySavedRepositories = List.copyOf(repos);
     }
 
     @Override
@@ -145,9 +142,11 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
         var mvnJsonPath = settings.getEffectiveMvnJsonPath();
         try {
             var config = MvnJsonParser.read(mvnJsonPath);
+            mySavedRepositories = List.copyOf(config.getRepositories());
             myTableModel.setRepositories(config.getRepositories());
         } catch (Exception e) {
             LOG.warn("Failed to read mvn.json from " + mvnJsonPath, e);
+            mySavedRepositories = List.of();
             myTableModel.setRepositories(List.of());
         }
     }
@@ -157,6 +156,7 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
         myDepsCachePathField = null;
         myReposTable = null;
         myTableModel = null;
+        mySavedRepositories = List.of();
     }
 
     private static @Nullable String nullIfBlank(@Nullable String s) {
