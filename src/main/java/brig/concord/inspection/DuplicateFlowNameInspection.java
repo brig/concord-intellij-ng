@@ -7,7 +7,6 @@ import brig.concord.psi.*;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLSequence;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;
-import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.project.Project;
@@ -58,9 +57,12 @@ public class DuplicateFlowNameInspection extends ConcordInspectionTool {
 
         var process = ProcessDefinitionProvider.getInstance().get(keyValue);
         var currentFile = keyValue.getContainingFile().getVirtualFile();
+        if (currentFile == null) {
+            return;
+        }
         for (var flow : process.flows(flowName)) {
             var flowFile = flow.getContainingFile().getVirtualFile();
-            if (!flowFile.equals(currentFile)) {
+            if (flowFile != null && !flowFile.equals(currentFile)) {
                 var relativePath = getRelativePath(keyValue.getProject(), flowFile);
                 holder.registerProblem(
                         keyElement,

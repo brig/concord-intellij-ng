@@ -12,7 +12,7 @@ import brig.concord.yaml.psi.impl.YAMLPlainTextImpl;
 
 public class YamlPlainTextFlowCallDelegate extends YamlPlainTextDelegateAbstract implements PsiNamedElement {
 
-    private final transient YAMLScalar flow;
+    private final YAMLScalar flow;
 
     public YamlPlainTextFlowCallDelegate(YAMLPlainTextImpl flow) {
         super(flow.getNode());

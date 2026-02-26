@@ -8,7 +8,7 @@ import brig.concord.yaml.psi.YAMLKeyValue;
 
 public class YamlFlowCallInParamDelegate extends YamlKeyValueDelegateAbstract implements PsiNamedElement {
 
-    private final transient YAMLKeyValue inParam;
+    private final YAMLKeyValue inParam;
 
     public YamlFlowCallInParamDelegate(YAMLKeyValue inParam) {
         super(inParam.getNode());

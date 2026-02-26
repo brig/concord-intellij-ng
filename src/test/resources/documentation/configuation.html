@@ -17,6 +17,7 @@
         </li>
         <li><code>exclusive</code> <i>(object)</i> &mdash; ensures only one process runs per <b>project + group</b>.
             Conflict behavior is controlled by <code>mode</code></li>
+        <li><code>extraDependencies</code> <i>(string[])</i> &mdash; extra dependencies appended to the main dependency list</li>
         <li><code>meta</code> <i>(object)</i> &mdash; process metadata map exposed by flows; values are updated after
             each step and can be retrieved via the API or shown in the Concord Console process list. Supports nested
             keys (e.g. <code>nested.value</code>) and form fields (e.g. <code>myForm.myValue</code>)

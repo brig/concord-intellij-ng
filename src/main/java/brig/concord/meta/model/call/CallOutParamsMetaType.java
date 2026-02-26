@@ -32,8 +32,4 @@ public class CallOutParamsMetaType extends YamlAnyOfType {
         return AnyMapMetaType.getInstance().findFeatureByName(name);
     }
 
-    @Override
-    public void validateValue(@NotNull YAMLValue value, @NotNull ProblemsHolder problemsHolder) {
-        super.validateValue(value, problemsHolder);
-    }
 }

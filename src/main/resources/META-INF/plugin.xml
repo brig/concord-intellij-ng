@@ -107,6 +107,10 @@
         <completion.contributor language="concord-el"
                                 implementationClass="brig.concord.completion.ElCompletionContributor"/>
 
+        <lang.elementManipulator forClass="brig.concord.yaml.psi.impl.YAMLScalarImpl"
+                                    implementationClass="brig.concord.yaml.psi.impl.YAMLScalarElementManipulator"/>
+        <elementDescriptionProvider implementation="brig.concord.yaml.psi.impl.YAMLElementDescriptionProvider"/>
+
         <multiHostInjector implementation="brig.concord.injection.ConcordLanguageInjector"/>
 
         <lang.psiStructureViewFactory language="Concord"

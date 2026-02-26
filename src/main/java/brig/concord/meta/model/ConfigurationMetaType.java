@@ -25,6 +25,7 @@ public class ConfigurationMetaType extends ConcordMetaType implements HighlightP
             Map.entry("debug", new BooleanMetaType(descKey("doc.configuration.debug.description"))),
             Map.entry("entryPoint", new CallMetaType(descKey("doc.configuration.entryPoint.description"))),
             Map.entry("dependencies", new DependenciesMetaType(descKey("doc.configuration.dependencies.description"))),
+            Map.entry("extraDependencies", new DependenciesMetaType(descKey("doc.configuration.extraDependencies.description"))),
             Map.entry("arguments", new AnyMapMetaType(descKey("doc.configuration.arguments.description"))),
             Map.entry("meta", new AnyMapMetaType(descKey("doc.configuration.meta.description"))),
             Map.entry("events", EventsMetaType.getInstance()),

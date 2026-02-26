@@ -12,7 +12,7 @@ import brig.concord.yaml.psi.YAMLScalar;
 
 public class YamlQuoteTextFlowCallDelegate extends YamlQuoteTextDelegateAbstract implements PsiNamedElement {
 
-    private final transient YAMLScalar flow;
+    private final YAMLScalar flow;
 
     public YamlQuoteTextFlowCallDelegate(YAMLQuotedTextImpl flow) {
         super(flow.getNode());

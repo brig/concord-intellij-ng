@@ -91,7 +91,7 @@ public class ConcordYamlDelegateFactory {
 
         @Override
         public PsiElement setName(@NlsSafe @NotNull String name) throws IncorrectOperationException {
-            return null;
+            throw new IncorrectOperationException();
         }
     }
 }

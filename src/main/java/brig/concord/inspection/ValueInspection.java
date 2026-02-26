@@ -70,6 +70,7 @@ public class ValueInspection extends YamlUnknownValuesInspectionBase {
                 if (meta instanceof YamlMetaTypeProvider.FieldAndRelation far) {
                     if (far.getRelation() == Field.Relation.SEQUENCE_ITEM && !(value instanceof YAMLSequence)) {
                         holder.registerProblem(value, ConcordBundle.message("YamlUnknownValuesInspectionBase.error.array.is.required"));
+                        return;
                     }
                 }
 

@@ -150,7 +150,7 @@ public class FlowDocumentationImpl extends ASTWrapperPsiElement implements FlowD
     private static String getLinePrefix(int offset, Document document) {
         var lineNum = document.getLineNumber(offset);
         var lineStart = document.getLineStartOffset(lineNum);
-        return document.getText().substring(lineStart, offset);
+        return document.getCharsSequence().subSequence(lineStart, offset).toString();
     }
 
     private static int getLineStartOffset(int offset, Document document) {
