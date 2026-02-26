@@ -33,6 +33,7 @@ public final class TaskRegistry implements Disposable {
 
     private final Project project;
     private final AtomicBoolean reloading = new AtomicBoolean(false);
+    private final AtomicBoolean pendingReload = new AtomicBoolean(false);
     private final AtomicReference<RegistryState> state = new AtomicReference<>(RegistryState.EMPTY);
 
     private static final Object DEPENDENCY_PROBLEM_SOURCE = new Object();
@@ -98,6 +99,7 @@ public final class TaskRegistry implements Disposable {
 
     private void scheduleLoad(boolean isInitialLoad) {
         if (!reloading.compareAndSet(false, true)) {
+            pendingReload.set(true);
             return;
         }
 
@@ -109,6 +111,9 @@ public final class TaskRegistry implements Disposable {
                     performLoad(indicator, modCount, isInitialLoad);
                 } finally {
                     reloading.set(false);
+                    if (pendingReload.compareAndSet(true, false) && !project.isDisposed()) {
+                        scheduleLoad(false);
+                    }
                 }
             }
         });

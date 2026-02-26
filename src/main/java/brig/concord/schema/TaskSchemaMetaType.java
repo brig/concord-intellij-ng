@@ -42,8 +42,9 @@ public class TaskSchemaMetaType extends ConcordMetaType {
             var metaType = toMetaType(prop);
             result.put(entry.getKey(), metaType);
         }
-        this.features = Map.copyOf(result);
-        return this.features;
+        f = Map.copyOf(result);
+        this.features = f;
+        return f;
     }
 
     @Override

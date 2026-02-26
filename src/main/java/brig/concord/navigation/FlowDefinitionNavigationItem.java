@@ -91,7 +91,7 @@ public class FlowDefinitionNavigationItem implements NavigationItem {
             }
 
             @Override
-            public @Nullable Icon getIcon(boolean unused) {
+            public Icon getIcon(boolean unused) {
                 return ConcordIcons.FILE;
             }
         };
@@ -99,8 +99,12 @@ public class FlowDefinitionNavigationItem implements NavigationItem {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var item = (FlowDefinitionNavigationItem) o;
         return myPosition == item.myPosition && myName.equals(item.myName) && myFile.equals(item.myFile);
     }

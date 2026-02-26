@@ -76,6 +76,9 @@ public final class ConcordCliManager {
         List<String> versions = new ArrayList<>();
         try {
             var factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             var builder = factory.newDocumentBuilder();
             var inputSource = new InputSource(new StringReader(metadata));
             var doc = builder.parse(inputSource);
@@ -92,6 +95,10 @@ public final class ConcordCliManager {
     }
 
     public void downloadCli(@NotNull String version, @NotNull ProgressIndicator indicator) throws IOException {
+        if (!isValidVersion(version)) {
+            throw new IOException("Invalid CLI version: " + version);
+        }
+
         var downloadUrl = buildDownloadUrl(version);
         var targetPath = getCliPathForVersion(version);
 
@@ -190,6 +197,10 @@ public final class ConcordCliManager {
     private @NotNull String buildDownloadUrl(@NotNull String version) {
         var extension = SystemInfo.isWindows ? "-executable.jar" : ".sh";
         return MAVEN_CENTRAL_BASE + "/" + GROUP_PATH + "/" + ARTIFACT_ID + "/" + version + "/" + ARTIFACT_ID + "-" + version + extension;
+    }
+
+    private static boolean isValidVersion(@NotNull String version) {
+        return !version.isBlank() && version.matches("[\\w.\\-]+");
     }
 
     private static void makeExecutable(@NotNull Path path) throws IOException {

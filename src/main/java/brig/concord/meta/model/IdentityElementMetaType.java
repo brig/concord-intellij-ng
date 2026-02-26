@@ -104,7 +104,7 @@ public abstract class IdentityElementMetaType extends YamlAnyOfType implements D
                 result.add(e.findFeatureByName(identity));
             }
         }
-        return new LinkedList<>(result);
+        return new ArrayList<>(result);
     }
 
     @Override

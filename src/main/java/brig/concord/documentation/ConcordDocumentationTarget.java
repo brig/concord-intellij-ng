@@ -192,7 +192,7 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
             for (var child : f.children()) {
                 sb.append("<li><code>").append(StringUtil.escapeXmlEntities(child.name())).append("</code>");
                 if (child.description() != null) {
-                    sb.append(" &mdash; ").append(child.description());
+                    sb.append(" &mdash; ").append(normalizeDescription(child.description()));
                 }
                 sb.append("</li>");
             }
