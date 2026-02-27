@@ -35,15 +35,19 @@ public final class VariablesProvider {
 
         var baseVars = getCachedBaseVariables(stepItem);
         var resultVar = resolveTaskResult(stepItem, element);
+        var callOutVars = resolveCallOutParams(stepItem, element);
 
-        if (resultVar == null) {
+        if (resultVar == null && callOutVars.isEmpty()) {
             return baseVars;
         }
 
-        List<Variable> withResult = new ArrayList<>(baseVars.size() + 1);
-        withResult.addAll(baseVars);
-        withResult.add(resultVar);
-        return Collections.unmodifiableList(withResult);
+        List<Variable> all = new ArrayList<>(baseVars.size() + callOutVars.size() + (resultVar != null ? 1 : 0));
+        all.addAll(baseVars);
+        if (resultVar != null) {
+            all.add(resultVar);
+        }
+        all.addAll(callOutVars);
+        return Collections.unmodifiableList(all);
     }
 
     private static @NotNull List<Variable> getCachedBaseVariables(@NotNull YAMLSequenceItem stepItem) {
@@ -333,6 +337,29 @@ public final class VariablesProvider {
 
         var schema = taskResultSchema("result", resolveTaskOutType(taskKv));
         return new Variable("result", VariableSource.TASK_RESULT, outKv, schema);
+    }
+
+    private static @NotNull List<Variable> resolveCallOutParams(@NotNull YAMLSequenceItem stepItem, @NotNull PsiElement cursor) {
+        if (!(stepItem.getValue() instanceof YAMLMapping m)) {
+            return List.of();
+        }
+
+        var callKv = m.getKeyValueByKey("call");
+        var outKv = m.getKeyValueByKey("out");
+        if (callKv == null || !PsiTreeUtil.isAncestor(outKv, cursor, false)) {
+            return List.of();
+        }
+
+        var doc = FlowCallParamsProvider.findFlowDocumentation(callKv);
+        if (doc == null || doc.getOutputParameters().isEmpty()) {
+            return List.of();
+        }
+
+        var result = new ArrayList<Variable>(doc.getOutputParameters().size());
+        for (var p : doc.getOutputParameters()) {
+            result.add(new Variable(p.getName(), VariableSource.STEP_OUT, outKv, SchemaInference.fromFlowDocParameter(p)));
+        }
+        return result;
     }
 
     private static class VariableCollector {
