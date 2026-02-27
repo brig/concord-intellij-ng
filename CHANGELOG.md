@@ -4,6 +4,8 @@
 
 ### Added
 
+- EL autocomplete for call step output parameters
+([#154](https://github.com/brig/concord-intellij-ng/pull/154))
 - EL task method autocomplete 
 ([#151](https://github.com/brig/concord-intellij-ng/pull/151))
 - built-in function autocomplete in EL expressions
