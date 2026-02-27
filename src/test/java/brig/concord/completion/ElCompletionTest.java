@@ -343,6 +343,55 @@ class ElCompletionTest extends ConcordYamlTestBaseJunit5 {
         assertThat(lookups).doesNotContain("txId", "config", "initiator");
     }
 
+    @Test
+    void testCallOutVariablesFromFlowDoc() {
+        configureFromText("""
+                flows:
+                  default:
+                    - call: inner
+                      out:
+                        myOut: "${<caret>}"
+
+                  ##
+                  # in:
+                  #   inputParam: string, mandatory, some input
+                  # out:
+                  #   outFromInner: string, required
+                  ##
+                  inner:
+                    - set:
+                        outFromInner: "good"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("outFromInner");
+        assertThat(lookups).doesNotContain("inputParam");
+    }
+
+    @Test
+    void testCallOutVariablesNoFlowDoc() {
+        configureFromText("""
+                flows:
+                  default:
+                    - call: inner
+                      out:
+                        myOut: "${<caret>}"
+
+                  inner:
+                    - set:
+                        outFromInner: "good"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).doesNotContain("outFromInner");
+    }
+
     // --- Built-in function completion tests ---
 
     @Test
