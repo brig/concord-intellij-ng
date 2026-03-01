@@ -7,13 +7,12 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.YAMLElementGenerator;
-import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.impl.YAMLPlainTextImpl;
 
 public class YamlPlainTextFlowCallDelegate extends YamlPlainTextDelegateAbstract implements PsiNamedElement {
 
-    private final transient YAMLScalar flow;
+    private final YAMLScalar flow;
 
     public YamlPlainTextFlowCallDelegate(YAMLPlainTextImpl flow) {
         super(flow.getNode());
@@ -22,8 +21,8 @@ public class YamlPlainTextFlowCallDelegate extends YamlPlainTextDelegateAbstract
 
     @Override
     public PsiElement setName(@NotNull String newName) {
-        YAMLKeyValue newValue = YAMLElementGenerator.getInstance(flow.getProject())
-                .createYamlKeyValue("foo", newName);
+        var newValue = YAMLElementGenerator.getInstance(flow.getProject())
+                .createYamlScalar(newName);
         return replace(newValue);
     }
 

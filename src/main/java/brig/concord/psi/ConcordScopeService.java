@@ -87,6 +87,20 @@ public final class ConcordScopeService {
         return isIgnored(vf);
     }
 
+    public @NotNull List<ConcordRoot> getScopes(@NotNull PsiElement context) {
+        var psiFile = context.getContainingFile();
+        if (psiFile == null) {
+            return List.of();
+        }
+
+        var virtualFile = psiFile.getOriginalFile().getVirtualFile();
+        if (virtualFile == null) {
+            return List.of();
+        }
+
+        return getScopesForFile(virtualFile);
+    }
+
     /**
      * Returns all scopes that contain the given file.
      * Filters out ignored files.

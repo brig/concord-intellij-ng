@@ -2,7 +2,6 @@
 package brig.concord.dependency;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -11,7 +10,6 @@ import java.util.*;
 
 /**
  * Resolves Maven dependencies to local JAR files.
- * Uses IntelliJ Maven plugin when available, otherwise falls back to default ~/.m2/repository.
  */
 public final class DependencyResolver {
 
@@ -19,8 +17,8 @@ public final class DependencyResolver {
 
     private final MavenSupport mavenSupport;
 
-    public DependencyResolver(@NotNull Project project) {
-        this.mavenSupport = MavenSupport.create(project);
+    public DependencyResolver() {
+        this.mavenSupport = MavenSupport.create();
     }
 
     DependencyResolver(@NotNull MavenSupport mavenSupport) {
@@ -60,18 +58,4 @@ public final class DependencyResolver {
         return new DependencyResolveResult(resolved, Map.of());
     }
 
-    /**
-     * Checks if Maven plugin support is available.
-     */
-    public boolean isMavenAvailable() {
-        return mavenSupport.isAvailable();
-    }
-
-    /**
-     * Returns the list of remote repositories configured in Maven settings.
-     * Empty list if Maven plugin is not available.
-     */
-    public @NotNull List<String> getRemoteRepositories() {
-        return mavenSupport.getRemoteRepositoryUrls();
-    }
 }

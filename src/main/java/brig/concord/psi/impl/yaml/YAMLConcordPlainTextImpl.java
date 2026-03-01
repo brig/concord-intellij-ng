@@ -16,8 +16,6 @@ import brig.concord.yaml.psi.impl.YAMLPlainTextImpl;
 
 public class YAMLConcordPlainTextImpl extends YAMLPlainTextImpl implements PsiNamedElement {
 
-    private transient PsiNamedElement delegate;
-
     public YAMLConcordPlainTextImpl(@NotNull ASTNode node) {
         super(node);
     }
@@ -49,9 +47,6 @@ public class YAMLConcordPlainTextImpl extends YAMLPlainTextImpl implements PsiNa
     }
 
     private PsiNamedElement getDelegate() {
-        if (delegate == null) {
-            delegate = ConcordYamlDelegateFactory.createDelegate(this);
-        }
-        return delegate;
+        return ConcordYamlDelegateFactory.createDelegate(this);
     }
 }

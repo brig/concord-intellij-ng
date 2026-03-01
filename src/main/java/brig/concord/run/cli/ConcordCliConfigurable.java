@@ -27,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.Future;
 
@@ -115,10 +117,6 @@ public final class ConcordCliConfigurable implements Configurable {
         return (String) myJdkComboBox.getSelectedItem();
     }
 
-    private @Nullable ConcordCliManager.JdkInfo resolveSelectedJdk() {
-        return ConcordCliManager.getInstance().resolveJdk(getSelectedJdkName());
-    }
-
     private void updateVersionLabel() {
         if (!myListenersActive) {
             return;
@@ -131,30 +129,42 @@ public final class ConcordCliConfigurable implements Configurable {
             return;
         }
 
-        var manager = ConcordCliManager.getInstance();
-        var jdkName = getSelectedJdkName();
-        if (!manager.validateCliPath(path, jdkName)) {
-            myDetectedVersion = null;
-            myVersionLabel.setText(ConcordBundle.message("cli.settings.invalid.path"));
-            return;
-        }
-
         var generation = ++myVersionDetectionGeneration;
         myDetectedVersion = null;
         myVersionLabel.setText(ConcordBundle.message("cli.settings.version.detecting"));
 
-        var jdkInfo = resolveSelectedJdk();
+        var manager = ConcordCliManager.getInstance();
+        var jdkName = getSelectedJdkName();
         if (myVersionDetectionFuture != null) {
             myVersionDetectionFuture.cancel(true);
         }
+        // Capture modality state on EDT before dispatching to pooled thread.
+        // stateForComponent() called from a pooled thread may return NON_MODAL
+        // if the component isn't yet attached to a window, causing invokeLater
+        // callbacks to be deferred until the modal Settings dialog closes.
+        var modality = ModalityState.current();
         myVersionDetectionFuture = ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            if (!manager.validateCliPath(path, jdkName)) {
+                var errorKey = Files.isRegularFile(Path.of(path))
+                        ? "cli.settings.path.not.executable"
+                        : "cli.settings.path.not.found";
+                ApplicationManager.getApplication().invokeLater(() -> {
+                    if (generation == myVersionDetectionGeneration && myVersionLabel != null) {
+                        myDetectedVersion = null;
+                        myVersionLabel.setText(ConcordBundle.message(errorKey));
+                    }
+                }, modality);
+                return;
+            }
+
+            var jdkInfo = manager.resolveJdk(jdkName);
             var version = manager.detectCliVersion(path, jdkInfo);
             ApplicationManager.getApplication().invokeLater(() -> {
-                if (generation == myVersionDetectionGeneration && myVersionLabel.isShowing()) {
+                if (generation == myVersionDetectionGeneration && myVersionLabel != null) {
                     myDetectedVersion = version;
                     myVersionLabel.setText(version != null ? version : ConcordBundle.message("cli.settings.version.not.detected"));
                 }
-            }, ModalityState.stateForComponent(myVersionLabel));
+            }, modality);
         });
     }
 
@@ -305,6 +315,7 @@ public final class ConcordCliConfigurable implements Configurable {
         }
 
         private void loadVersions() {
+            var component = myVersionComboBox;
             ApplicationManager.getApplication().executeOnPooledThread(() -> {
                 try {
                     var versions = ConcordCliManager.getInstance().fetchAvailableVersions()
@@ -322,7 +333,7 @@ public final class ConcordCliConfigurable implements Configurable {
                         }
                         myVersionComboBox.setEnabled(true);
                         myVersionsLoaded = true;
-                    }, ModalityState.stateForComponent(myVersionComboBox));
+                    }, ModalityState.stateForComponent(component));
                 } catch (IOException e) {
                     ApplicationManager.getApplication().invokeLater(() -> {
                         if (!isShowing()) {
@@ -330,7 +341,7 @@ public final class ConcordCliConfigurable implements Configurable {
                         }
                         myVersionComboBox.removeAllItems();
                         myVersionComboBox.addItem(ConcordBundle.message("cli.settings.download.error", e.getMessage()));
-                    }, ModalityState.stateForComponent(myVersionComboBox));
+                    }, ModalityState.stateForComponent(component));
                 }
             });
         }

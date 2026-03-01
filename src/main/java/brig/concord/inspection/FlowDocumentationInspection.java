@@ -2,15 +2,12 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
-import brig.concord.ConcordType;
+import brig.concord.ConcordTypes;
 import brig.concord.inspection.fix.ReplaceFlowDocKeywordQuickFix;
 import brig.concord.inspection.fix.ReplaceFlowDocTypeQuickFix;
 import brig.concord.lexer.FlowDocTokenTypes;
-import brig.concord.psi.ConcordFile;
-import brig.concord.psi.ConcordScopeService;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
-import com.intellij.codeInspection.LocalInspectionTool;
 import com.intellij.codeInspection.LocalQuickFix;
 import com.intellij.codeInspection.ProblemHighlightType;
 import com.intellij.codeInspection.ProblemsHolder;
@@ -76,7 +73,7 @@ public class FlowDocumentationInspection extends ConcordInspectionTool {
 
             // Check for unknown types
             var baseType = param.getBaseType();
-            if (!baseType.isBlank() && ConcordType.fromString(baseType) == null) {
+            if (!baseType.isBlank() && ConcordTypes.fromString(baseType) == null) {
                 var isArray = param.isArrayType();
                 var fixes = new ArrayList<LocalQuickFix>();
                 for (var suggestion : getSuggestions(baseType)) {
@@ -134,7 +131,7 @@ public class FlowDocumentationInspection extends ConcordInspectionTool {
         }
 
         // 2. Case insensitive match against known aliases
-        for (var alias : ConcordType.ALIASES.keySet()) {
+        for (var alias : ConcordTypes.aliases().keySet()) {
             if (alias.equalsIgnoreCase(invalidType)) {
                 suggestions.add(alias);
             }

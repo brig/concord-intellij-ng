@@ -21,6 +21,9 @@ public final class VariablesProvider {
     private static final Key<CachedValue<List<Variable>>> BASE_VARS_KEY =
             Key.create("concord.variables.base");
 
+    private static final Key<CachedValue<List<Variable>>> ARG_VARS_KEY =
+            Key.create("concord.variables.arguments");
+
     private VariablesProvider() {
     }
 
@@ -32,15 +35,19 @@ public final class VariablesProvider {
 
         var baseVars = getCachedBaseVariables(stepItem);
         var resultVar = resolveTaskResult(stepItem, element);
+        var callOutVars = resolveCallOutParams(stepItem, element);
 
-        if (resultVar == null) {
+        if (resultVar == null && callOutVars.isEmpty()) {
             return baseVars;
         }
 
-        List<Variable> withResult = new ArrayList<>(baseVars.size() + 1);
-        withResult.addAll(baseVars);
-        withResult.add(resultVar);
-        return Collections.unmodifiableList(withResult);
+        List<Variable> all = new ArrayList<>(baseVars.size() + callOutVars.size() + (resultVar != null ? 1 : 0));
+        all.addAll(baseVars);
+        if (resultVar != null) {
+            all.add(resultVar);
+        }
+        all.addAll(callOutVars);
+        return Collections.unmodifiableList(all);
     }
 
     private static @NotNull List<Variable> getCachedBaseVariables(@NotNull YAMLSequenceItem stepItem) {
@@ -137,8 +144,28 @@ public final class VariablesProvider {
     }
 
     private static void collectArguments(PsiElement context, VariableCollector collector) {
-        ArgumentsCollector.getInstance(collector.project).getArguments(context).forEach((name, kv) ->
-                collector.add(new Variable(name, VariableSource.ARGUMENT, kv, SchemaInference.inferSchema(name, kv.getValue()))));
+        getCachedArgumentVariables(context).forEach(collector::add);
+    }
+
+    private static @NotNull List<Variable> getCachedArgumentVariables(@NotNull PsiElement context) {
+        var psiFile = context.getContainingFile();
+        if (psiFile == null) {
+            return List.of();
+        }
+
+        return CachedValuesManager.getCachedValue(psiFile, ARG_VARS_KEY, () -> {
+            var project = psiFile.getProject();
+            var args = ArgumentsCollector.getInstance(project).getArguments(psiFile);
+            if (args.isEmpty()) {
+                var tracker = ConcordModificationTracker.getInstance(project);
+                return CachedValueProvider.Result.create(List.of(), tracker.structure(), tracker.arguments());
+            }
+            var vars = new ArrayList<Variable>(args.size());
+            args.forEach((name, kv) ->
+                    vars.add(new Variable(name, VariableSource.ARGUMENT, kv, SchemaInference.inferSchema(name, kv.getValue()))));
+            var tracker = ConcordModificationTracker.getInstance(project);
+            return CachedValueProvider.Result.create(List.copyOf(vars), tracker.structure(), tracker.arguments());
+        });
     }
 
     private static void collectLocalStepVars(YAMLSequenceItem stepItem, VariableCollector collector) {
@@ -310,6 +337,29 @@ public final class VariablesProvider {
 
         var schema = taskResultSchema("result", resolveTaskOutType(taskKv));
         return new Variable("result", VariableSource.TASK_RESULT, outKv, schema);
+    }
+
+    private static @NotNull List<Variable> resolveCallOutParams(@NotNull YAMLSequenceItem stepItem, @NotNull PsiElement cursor) {
+        if (!(stepItem.getValue() instanceof YAMLMapping m)) {
+            return List.of();
+        }
+
+        var callKv = m.getKeyValueByKey("call");
+        var outKv = m.getKeyValueByKey("out");
+        if (callKv == null || !PsiTreeUtil.isAncestor(outKv, cursor, false)) {
+            return List.of();
+        }
+
+        var doc = FlowCallParamsProvider.findFlowDocumentation(callKv);
+        if (doc == null || doc.getOutputParameters().isEmpty()) {
+            return List.of();
+        }
+
+        var result = new ArrayList<Variable>(doc.getOutputParameters().size());
+        for (var p : doc.getOutputParameters()) {
+            result.add(new Variable(p.getName(), VariableSource.STEP_OUT, outKv, SchemaInference.fromFlowDocParameter(p)));
+        }
+        return result;
     }
 
     private static class VariableCollector {

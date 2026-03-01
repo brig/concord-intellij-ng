@@ -2,10 +2,7 @@
 package brig.concord.navigation;
 
 import brig.concord.ConcordFileType;
-import brig.concord.meta.ConcordMetaTypeProvider;
-import brig.concord.meta.model.StepElementMetaType;
 import brig.concord.psi.ConcordFile;
-import com.intellij.psi.PsiElement;
 import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorIntegerDescriptor;
@@ -15,7 +12,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import brig.concord.yaml.meta.model.YamlMetaType;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLSequence;
 import brig.concord.yaml.psi.YamlRecursivePsiElementVisitor;

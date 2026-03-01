@@ -36,6 +36,7 @@
         <applicationSettings service="brig.concord.smart.YAMLEditorOptions"/>
 
         <applicationService serviceImplementation="brig.concord.run.cli.ConcordCliSettings"/>
+        <applicationService serviceImplementation="brig.concord.dependency.ConcordRepositorySettings"/>
 
         <projectService serviceImplementation="brig.concord.yaml.YAMLElementGenerator"/>
 
@@ -83,8 +84,8 @@
         <!-- Folding -->
         <lang.foldingBuilder language="Concord" implementationClass="brig.concord.folding.CronExpressionFolding"/>
         <lang.foldingBuilder language="Concord"
-                             id="YAMLFolding"
-                             implementationClass="brig.concord.yaml.folding.YAMLFoldingBuilder"/>
+                             id="ConcordFolding"
+                             implementationClass="brig.concord.folding.ConcordFoldingBuilder"/>
 
         <!-- Find usages / usage types -->
         <iconProvider implementation="brig.concord.psi.ConcordIconProvider" order="first"/>
@@ -105,6 +106,10 @@
                                 implementationClass="brig.concord.completion.FlowDocCompletionContributor"/>
         <completion.contributor language="concord-el"
                                 implementationClass="brig.concord.completion.ElCompletionContributor"/>
+
+        <lang.elementManipulator forClass="brig.concord.yaml.psi.impl.YAMLScalarImpl"
+                                    implementationClass="brig.concord.yaml.psi.impl.YAMLScalarElementManipulator"/>
+        <elementDescriptionProvider implementation="brig.concord.yaml.psi.impl.YAMLElementDescriptionProvider"/>
 
         <multiHostInjector implementation="brig.concord.injection.ConcordLanguageInjector"/>
 
@@ -230,6 +235,14 @@
                 bundle="messages.ConcordBundle"
                 key="cli.settings.display.name"/>
 
+        <!-- Repository Settings -->
+        <applicationConfigurable
+                parentId="brig.concord.settings"
+                instance="brig.concord.dependency.ConcordRepositoriesConfigurable"
+                id="brig.concord.repositories.settings"
+                bundle="messages.ConcordBundle"
+                key="repositories.settings.display.name"/>
+
         <!-- Project-level run mode settings -->
         <projectConfigurable
                 parentId="brig.concord.settings"
@@ -257,6 +270,9 @@
         <backgroundPostStartupActivity implementation="brig.concord.dependency.ConcordDependenciesStartupActivity"/>
 
         <problemFileHighlightFilter implementation="brig.concord.ConcordProblemFileHighlightFilter"/>
+
+        <!-- Exclude target/ dirs created by Concord CLI from indexing -->
+        <directoryIndexExcludePolicy implementation="brig.concord.psi.ConcordDirectoryIndexExcludePolicy"/>
 
         <!-- Suppress raw EL parser errors; annotator shows simplified messages -->
         <highlightErrorFilter implementation="brig.concord.highlighting.ElHighlightErrorFilter"/>

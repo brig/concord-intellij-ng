@@ -8,12 +8,11 @@ import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.YAMLElementGenerator;
-import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLScalar;
 
 public class YamlQuoteTextFlowCallDelegate extends YamlQuoteTextDelegateAbstract implements PsiNamedElement {
 
-    private final transient YAMLScalar flow;
+    private final YAMLScalar flow;
 
     public YamlQuoteTextFlowCallDelegate(YAMLQuotedTextImpl flow) {
         super(flow.getNode());
@@ -22,8 +21,11 @@ public class YamlQuoteTextFlowCallDelegate extends YamlQuoteTextDelegateAbstract
 
     @Override
     public PsiElement setName(@NotNull String newName) {
-        YAMLKeyValue newValue = YAMLElementGenerator.getInstance(flow.getProject())
-                .createYamlKeyValue("foo", newName);
+        String quoted = isSingleQuote()
+                ? "'" + newName + "'"
+                : "\"" + newName + "\"";
+        YAMLScalar newValue = YAMLElementGenerator.getInstance(flow.getProject())
+                .createYamlScalar(quoted);
         return replace(newValue);
     }
 

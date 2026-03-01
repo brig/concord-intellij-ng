@@ -27,6 +27,7 @@ public final class ConcordRunModeConfigurable implements Configurable {
     private ComboBox<RunModeItem> myRunModeComboBox;
     private JBTextField myMainEntryPointField;
     private JBTextField myFlowParameterNameField;
+    private JBTextField myTargetDirField;
     private JBTextField myActiveProfilesField;
     private ParametersTablePanel myDefaultParametersPanel;
     private JBLabel myMainEntryPointLabel;
@@ -52,6 +53,8 @@ public final class ConcordRunModeConfigurable implements Configurable {
 
         myMainEntryPointField = new JBTextField();
         myFlowParameterNameField = new JBTextField();
+        myTargetDirField = new JBTextField();
+        myTargetDirField.getEmptyText().setText(ConcordBundle.message("run.mode.target.dir.placeholder"));
         myActiveProfilesField = new JBTextField();
         myActiveProfilesField.getEmptyText().setText(ConcordBundle.message("run.mode.active.profiles.placeholder"));
 
@@ -79,6 +82,7 @@ public final class ConcordRunModeConfigurable implements Configurable {
                 .addLabeledComponent(ConcordBundle.message("run.mode.label"), myRunModeComboBox)
                 .addLabeledComponent(myMainEntryPointLabel, myMainEntryPointField)
                 .addLabeledComponent(myFlowParameterNameLabel, myFlowParameterNameField)
+                .addLabeledComponent(ConcordBundle.message("run.mode.target.dir.label"), myTargetDirField)
                 .addLabeledComponent(ConcordBundle.message("run.mode.active.profiles.label"), myActiveProfilesField)
                 .addComponent(parametersComponent)
                 .addComponentFillVertically(new JPanel(), 0)
@@ -110,6 +114,10 @@ public final class ConcordRunModeConfigurable implements Configurable {
         }
 
         if (!myFlowParameterNameField.getText().trim().equals(settings.getFlowParameterName())) {
+            return true;
+        }
+
+        if (!myTargetDirField.getText().trim().equals(settings.getTargetDir())) {
             return true;
         }
 
@@ -157,6 +165,7 @@ public final class ConcordRunModeConfigurable implements Configurable {
         settings.setRunMode(item.mode());
         settings.setMainEntryPoint(myMainEntryPointField.getText().trim());
         settings.setFlowParameterName(myFlowParameterNameField.getText().trim());
+        settings.setTargetDir(myTargetDirField.getText().trim());
         settings.setActiveProfiles(parseProfiles(myActiveProfilesField.getText()));
         settings.setDefaultParameters(myDefaultParametersPanel.getParameters());
     }
@@ -176,6 +185,7 @@ public final class ConcordRunModeConfigurable implements Configurable {
 
         myMainEntryPointField.setText(settings.getMainEntryPoint());
         myFlowParameterNameField.setText(settings.getFlowParameterName());
+        myTargetDirField.setText(settings.getTargetDir());
         myActiveProfilesField.setText(formatProfiles(settings.getActiveProfiles()));
 
         myDefaultParametersPanel.setParameters(settings.getDefaultParameters());

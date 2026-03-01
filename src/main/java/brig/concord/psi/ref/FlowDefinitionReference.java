@@ -19,7 +19,15 @@ public class FlowDefinitionReference extends PsiReferenceBase.Poly<YAMLScalar> i
     private static final Key<CachedValue<List<PsiElement>>> FLOW_DEFS_CACHE = Key.create("concord.flow.defs");
 
     public FlowDefinitionReference(YAMLScalar element) {
-        super(element, TextRange.allOf(element.getText()), false);
+        super(element, computeContentRange(element), false);
+    }
+
+    private static TextRange computeContentRange(YAMLScalar element) {
+        var ranges = element.getContentRanges();
+        if (ranges.isEmpty()) {
+            return TextRange.EMPTY_RANGE;
+        }
+        return TextRange.create(ranges.getFirst().getStartOffset(), ranges.getLast().getEndOffset());
     }
 
     @Override

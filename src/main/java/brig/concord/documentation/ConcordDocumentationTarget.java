@@ -21,16 +21,16 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
     private final @Nullable SmartPsiElementPointer<YAMLKeyValue> elementPointer;
     private final @Nullable String keyName;
     private final Documented documented;
-    private final String typeName;
+    private final @NotNull String typeName;
 
-    public ConcordDocumentationTarget(YAMLKeyValue element, Documented documented, String typeName) {
+    public ConcordDocumentationTarget(YAMLKeyValue element, Documented documented, @NotNull String typeName) {
         this.elementPointer = SmartPointerManager.createPointer(element);
         this.keyName = null;
         this.documented = documented;
         this.typeName = typeName;
     }
 
-    public ConcordDocumentationTarget(@Nullable String keyName, Documented documented, String typeName) {
+    public ConcordDocumentationTarget(@Nullable String keyName, Documented documented, @NotNull String typeName) {
         this.elementPointer = null;
         this.keyName = keyName;
         this.documented = documented;
@@ -192,7 +192,7 @@ public class ConcordDocumentationTarget implements DocumentationTarget {
             for (var child : f.children()) {
                 sb.append("<li><code>").append(StringUtil.escapeXmlEntities(child.name())).append("</code>");
                 if (child.description() != null) {
-                    sb.append(" &mdash; ").append(child.description());
+                    sb.append(" &mdash; ").append(normalizeDescription(child.description()));
                 }
                 sb.append("</li>");
             }

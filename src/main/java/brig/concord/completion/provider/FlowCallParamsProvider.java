@@ -2,6 +2,7 @@
 package brig.concord.completion.provider;
 
 import brig.concord.ConcordType;
+import brig.concord.ConcordTypes;
 import brig.concord.meta.ConcordMetaType;
 import brig.concord.meta.model.value.AnyMapMetaType;
 import brig.concord.meta.model.value.AnythingMetaType;
@@ -106,18 +107,9 @@ public class FlowCallParamsProvider {
                 var metaType = toMetaType(param);
                 result.put(param.getName(), metaType);
             }
-            this.features = Map.copyOf(result);
-            return this.features;
-        }
-
-        @Override
-        public @Nullable Field findFeatureByName(@NotNull String name) {
-            for (var param : documentation.getInputParameters()) {
-                if (name.equals(param.getName())) {
-                    return metaTypeToField(toMetaType(param), name);
-                }
-            }
-            return null;
+            f = Map.copyOf(result);
+            this.features = f;
+            return f;
         }
     }
 
@@ -145,7 +137,7 @@ public class FlowCallParamsProvider {
             return AnythingMetaType.getInstance();
         }
 
-        var concordType = ConcordType.resolve(parameter.getBaseType(), ConcordType.YamlBaseType.ANY);
+        var concordType = ConcordTypes.resolve(parameter.getBaseType(), ConcordType.YamlBaseType.ANY);
         var props = TypeProps.desc(parameter.getDescription()).andRequired(parameter.isMandatory());
 
         if (parameter.isArrayType()) {

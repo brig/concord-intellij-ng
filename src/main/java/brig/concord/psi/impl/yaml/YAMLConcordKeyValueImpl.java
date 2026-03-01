@@ -7,14 +7,11 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiNamedElement;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.search.SearchScope;
-import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import brig.concord.yaml.YAMLUtil;
 import brig.concord.yaml.psi.impl.YAMLKeyValueImpl;
-
-import java.util.Collection;
 
 public class YAMLConcordKeyValueImpl extends YAMLKeyValueImpl {
 
@@ -22,13 +19,8 @@ public class YAMLConcordKeyValueImpl extends YAMLKeyValueImpl {
         super(node);
     }
 
-    private transient PsiNamedElement delegate;
-
     private PsiNamedElement getDelegate() {
-        if (delegate == null) {
-            delegate = ConcordYamlDelegateFactory.createDelegate(this);
-        }
-        return delegate;
+        return ConcordYamlDelegateFactory.createDelegate(this);
     }
 
     @Override
@@ -53,10 +45,6 @@ public class YAMLConcordKeyValueImpl extends YAMLKeyValueImpl {
 
     @Override
     public PsiElement setName(@NonNls @NotNull String newName) throws IncorrectOperationException {
-        Collection<PsiReference> referenceCollection =
-                ReferencesSearch.search(this, getUseScope()).findAll();
-        PsiElement rename = YAMLUtil.rename(this, newName);
-        referenceCollection.forEach(reference -> reference.handleElementRename(newName));
-        return rename;
+        return YAMLUtil.rename(this, newName);
     }
 }

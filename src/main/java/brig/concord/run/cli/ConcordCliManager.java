@@ -23,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 @Service(Service.Level.APP)
@@ -76,6 +78,9 @@ public final class ConcordCliManager {
         List<String> versions = new ArrayList<>();
         try {
             var factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             var builder = factory.newDocumentBuilder();
             var inputSource = new InputSource(new StringReader(metadata));
             var doc = builder.parse(inputSource);
@@ -92,6 +97,10 @@ public final class ConcordCliManager {
     }
 
     public void downloadCli(@NotNull String version, @NotNull ProgressIndicator indicator) throws IOException {
+        if (!isValidVersion(version)) {
+            throw new IOException("Invalid CLI version: " + version);
+        }
+
         var downloadUrl = buildDownloadUrl(version);
         var targetPath = getCliPathForVersion(version);
 
@@ -148,13 +157,23 @@ public final class ConcordCliManager {
             pb.redirectErrorStream(true);
             process = pb.start();
 
-            var completed = process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS);
+            var inputStream = process.getInputStream();
+            var outputFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return new String(inputStream.readAllBytes()).trim();
+                } catch (IOException e) {
+                    return "";
+                }
+            });
+
+            var completed = process.waitFor(10, TimeUnit.SECONDS);
             if (!completed) {
                 LOG.warn("CLI version detection timed out");
+                outputFuture.cancel(true);
                 return null;
             }
 
-            var output = new String(process.getInputStream().readAllBytes()).trim();
+            var output = outputFuture.get(2, TimeUnit.SECONDS);
             var exitCode = process.exitValue();
 
             if (exitCode == 0 && !output.isEmpty()) {
@@ -190,6 +209,10 @@ public final class ConcordCliManager {
     private @NotNull String buildDownloadUrl(@NotNull String version) {
         var extension = SystemInfo.isWindows ? "-executable.jar" : ".sh";
         return MAVEN_CENTRAL_BASE + "/" + GROUP_PATH + "/" + ARTIFACT_ID + "/" + version + "/" + ARTIFACT_ID + "-" + version + extension;
+    }
+
+    private static boolean isValidVersion(@NotNull String version) {
+        return !version.isBlank() && version.matches("[\\w.\\-]+");
     }
 
     private static void makeExecutable(@NotNull Path path) throws IOException {

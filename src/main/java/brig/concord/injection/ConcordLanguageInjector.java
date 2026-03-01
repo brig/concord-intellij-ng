@@ -89,7 +89,16 @@ public class ConcordLanguageInjector implements MultiHostInjector {
     }
 
     private @Nullable String getPrefix(Language language) {
-        return prefixes.computeIfAbsent(language.getID(), this::loadPrefix);
+        var id = language.getID();
+        var cached = prefixes.get(id);
+        if (cached != null) {
+            return cached;
+        }
+        var loaded = loadPrefix(id);
+        if (loaded != null) {
+            prefixes.put(id, loaded);
+        }
+        return loaded;
     }
 
     private String loadPrefix(String langId) {

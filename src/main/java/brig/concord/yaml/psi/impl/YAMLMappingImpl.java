@@ -27,9 +27,9 @@ public abstract class YAMLMappingImpl extends YAMLCompoundValueImpl implements Y
 
     @Override
     public @Nullable YAMLKeyValue getKeyValueByKey(@NotNull String keyText) {
-        for (YAMLKeyValue keyValue : getKeyValues()) {
-            if (keyText.equals(keyValue.getKeyText())) {
-                return keyValue;
+        for (var child = getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child instanceof YAMLKeyValue kv && keyText.equals(kv.getKeyText())) {
+                return kv;
             }
         }
         return null;

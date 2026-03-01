@@ -9,13 +9,18 @@ import brig.concord.yaml.meta.model.YamlMetaType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-
 public sealed interface ConcordType {
 
     @NotNull String displayName();
 
     @NotNull YamlBaseType yamlBaseType();
+
+    private static @NotNull YamlMetaType apply(@Nullable AnyOfType base, @Nullable TypeProps props) {
+        if (base == null) {
+            return props != null ? new AnythingMetaType(props) : AnythingMetaType.getInstance();
+        }
+        return props != null ? base.withProps(props) : base;
+    }
 
     default @NotNull YamlMetaType scalarMetaType(@Nullable TypeProps props) {
         return yamlBaseType().scalarMetaType(props);
@@ -26,35 +31,26 @@ public sealed interface ConcordType {
     }
 
     enum YamlBaseType {
-        STRING,
-        BOOLEAN,
-        INTEGER,
-        OBJECT,
-        ANY;
+        STRING(ParamMetaTypes.STRING_OR_EXPRESSION, ParamMetaTypes.STRING_ARRAY_OR_EXPRESSION),
+        BOOLEAN(ParamMetaTypes.BOOLEAN_OR_EXPRESSION, ParamMetaTypes.BOOLEAN_ARRAY_OR_EXPRESSION),
+        INTEGER(ParamMetaTypes.NUMBER_OR_EXPRESSION, ParamMetaTypes.NUMBER_ARRAY_OR_EXPRESSION),
+        OBJECT(ParamMetaTypes.OBJECT_OR_EXPRESSION, ParamMetaTypes.OBJECT_ARRAY_OR_EXPRESSION),
+        ANY(null, ParamMetaTypes.ARRAY_OR_EXPRESSION);
+
+        private final @Nullable AnyOfType scalarBase;
+        private final @NotNull AnyOfType arrayBase;
+
+        YamlBaseType(@Nullable AnyOfType scalarBase, @NotNull AnyOfType arrayBase) {
+            this.scalarBase = scalarBase;
+            this.arrayBase = arrayBase;
+        }
 
         public @NotNull YamlMetaType scalarMetaType(@Nullable TypeProps props) {
-            AnyOfType base = switch (this) {
-                case STRING -> ParamMetaTypes.STRING_OR_EXPRESSION;
-                case BOOLEAN -> ParamMetaTypes.BOOLEAN_OR_EXPRESSION;
-                case INTEGER -> ParamMetaTypes.NUMBER_OR_EXPRESSION;
-                case OBJECT -> ParamMetaTypes.OBJECT_OR_EXPRESSION;
-                case ANY -> null;
-            };
-            if (base == null) {
-                return props != null ? new AnythingMetaType(props) : AnythingMetaType.getInstance();
-            }
-            return props != null ? base.withProps(props) : base;
+            return ConcordType.apply(scalarBase, props);
         }
 
         public @NotNull AnyOfType arrayMetaType(@Nullable TypeProps props) {
-            AnyOfType base = switch (this) {
-                case STRING -> ParamMetaTypes.STRING_ARRAY_OR_EXPRESSION;
-                case BOOLEAN -> ParamMetaTypes.BOOLEAN_ARRAY_OR_EXPRESSION;
-                case INTEGER -> ParamMetaTypes.NUMBER_ARRAY_OR_EXPRESSION;
-                case OBJECT -> ParamMetaTypes.OBJECT_ARRAY_OR_EXPRESSION;
-                case ANY -> ParamMetaTypes.ARRAY_OR_EXPRESSION;
-            };
-            return props != null ? base.withProps(props) : base;
+            return (AnyOfType) ConcordType.apply(arrayBase, props);
         }
     }
 
@@ -64,28 +60,32 @@ public sealed interface ConcordType {
         INTEGER("integer", YamlBaseType.INTEGER),
         OBJECT("object", YamlBaseType.OBJECT),
         ANY("any", YamlBaseType.ANY),
-        REGEXP("regexp", YamlBaseType.STRING) {
-            @Override
-            public @NotNull YamlMetaType scalarMetaType(@Nullable TypeProps props) {
-                return props != null
-                        ? ParamMetaTypes.REGEXP_OR_EXPRESSION.withProps(props)
-                        : ParamMetaTypes.REGEXP_OR_EXPRESSION;
-            }
-
-            @Override
-            public @NotNull AnyOfType arrayMetaType(@Nullable TypeProps props) {
-                return props != null
-                        ? ParamMetaTypes.REGEXP_ARRAY_OR_EXPRESSION.withProps(props)
-                        : ParamMetaTypes.REGEXP_ARRAY_OR_EXPRESSION;
-            }
-        };
+        REGEXP("regexp", YamlBaseType.STRING, ParamMetaTypes.REGEXP_OR_EXPRESSION, ParamMetaTypes.REGEXP_ARRAY_OR_EXPRESSION);
 
         private final String displayName;
         private final YamlBaseType yamlBaseType;
+        private final @Nullable AnyOfType scalarBase;
+        private final @Nullable AnyOfType arrayBase;
 
-        WellKnown(@NotNull String displayName, @NotNull YamlBaseType yamlBaseType) {
+        WellKnown(String displayName, YamlBaseType base) {
+            this(displayName, base, base.scalarBase, base.arrayBase);
+        }
+
+        WellKnown(String displayName, YamlBaseType yamlBaseType, @Nullable AnyOfType scalar, @Nullable AnyOfType array) {
             this.displayName = displayName;
             this.yamlBaseType = yamlBaseType;
+            this.scalarBase = scalar;
+            this.arrayBase = array;
+        }
+
+        @Override
+        public @NotNull YamlMetaType scalarMetaType(@Nullable TypeProps props) {
+            return ConcordType.apply(scalarBase, props);
+        }
+
+        @Override
+        public @NotNull AnyOfType arrayMetaType(@Nullable TypeProps props) {
+            return (AnyOfType) ConcordType.apply(arrayBase, props);
         }
 
         @Override
@@ -101,44 +101,5 @@ public sealed interface ConcordType {
 
     record Custom(@NotNull String displayName,
                   @NotNull YamlBaseType yamlBaseType) implements ConcordType {
-    }
-
-    Map<String, ConcordType> ALIASES = Map.ofEntries(
-            Map.entry("string", WellKnown.STRING),
-            Map.entry("boolean", WellKnown.BOOLEAN),
-            Map.entry("int", WellKnown.INTEGER),
-            Map.entry("integer", WellKnown.INTEGER),
-            Map.entry("number", WellKnown.INTEGER),
-            Map.entry("object", WellKnown.OBJECT),
-            Map.entry("regexp", WellKnown.REGEXP),
-            Map.entry("any", WellKnown.ANY)
-    );
-
-    /**
-     * Resolves a type name to a known ConcordType.
-     * Handles aliases case-insensitively (e.g., "int" → INTEGER, "number" → INTEGER).
-     *
-     * @return the matching ConcordType, or null if the type name is not recognized
-     */
-    static @Nullable ConcordType fromString(@NotNull String name) {
-        return ALIASES.get(name.toLowerCase());
-    }
-
-    /**
-     * Resolves a type name to a ConcordType, creating a {@link Custom} instance
-     * for unrecognized types. The {@code fallbackBase} determines the structural
-     * YAML type used for validation and meta type mapping of unknown types.
-     *
-     * @param name         the type name to resolve
-     * @param fallbackBase the YAML base type to use if the name is not recognized
-     * @return the matching known ConcordType, or a Custom instance for unknown types
-     */
-    static @NotNull ConcordType resolve(@NotNull String name,
-                                        @NotNull YamlBaseType fallbackBase) {
-        var known = fromString(name);
-        if (known != null) {
-            return known;
-        }
-        return new Custom(name, fallbackBase);
     }
 }

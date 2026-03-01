@@ -2,7 +2,6 @@
 package brig.concord.dependency;
 
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,25 +10,39 @@ import java.util.*;
 
 /**
  * Provides access to Maven configuration.
- * Handles the case when Maven plugin is not installed.
+ * Uses Concord CLI's mvn.json for repository configuration and depsCache for local storage.
+ * Falls back when Maven plugin is not available.
  */
 public abstract class MavenSupport {
 
     private static final Logger LOG = Logger.getInstance(MavenSupport.class);
 
-    /**
-     * Creates MavenSupport instance.
-     * Returns Maven plugin-based implementation if available, otherwise fallback.
-     */
-    public static @NotNull MavenSupport create(@NotNull Project project) {
+    public static @NotNull MavenSupport create() {
+        var repoSettings = ConcordRepositorySettings.getInstance();
+        var depsCachePath = repoSettings.getEffectiveDepsCachePath();
+        var mvnJsonPath = repoSettings.getEffectiveMvnJsonPath();
+
+        List<MvnJsonConfig.Repository> repositories;
+        try {
+            var config = MvnJsonParser.read(mvnJsonPath);
+            repositories = config.getRepositories();
+        } catch (Exception e) {
+            LOG.warn("Failed to read mvn.json from " + mvnJsonPath, e);
+            repositories = List.of();
+        }
+
+        if (repositories.isEmpty()) {
+            repositories = List.of(MvnJsonConfig.mavenCentral());
+        }
+
         if (isMavenPluginAvailable()) {
             try {
-                return new MavenPluginSupport(project);
+                return new MavenPluginSupport(depsCachePath, repositories);
             } catch (Exception e) {
                 LOG.warn("Failed to initialize Maven plugin support", e);
             }
         }
-        return new FallbackMavenSupport();
+        return new FallbackMavenSupport(depsCachePath);
     }
 
     private static boolean isMavenPluginAvailable() {
@@ -41,48 +54,21 @@ public abstract class MavenSupport {
         }
     }
 
-    /**
-     * Returns true if Maven plugin support is available.
-     */
-    public abstract boolean isAvailable();
-
-    /**
-     * Returns path to local Maven repository.
-     */
     public abstract @Nullable Path getLocalRepositoryPath();
 
-    /**
-     * Returns list of remote repository URLs.
-     */
-    public abstract @NotNull List<String> getRemoteRepositoryUrls();
-
-    /**
-     * Downloads multiple artifacts, collecting both results and error messages.
-     */
     public abstract @NotNull DependencyResolveResult downloadAll(@NotNull Collection<MavenCoordinate> coordinates);
 
-    /**
-     * Fallback implementation when Maven plugin is not available.
-     */
     private static class FallbackMavenSupport extends MavenSupport {
 
-        private static final Path DEFAULT_LOCAL_REPO = Path.of(
-                System.getProperty("user.home"), ".m2", "repository"
-        );
+        private final Path myDepsCachePath;
 
-        @Override
-        public boolean isAvailable() {
-            return false;
+        FallbackMavenSupport(@NotNull Path depsCachePath) {
+            myDepsCachePath = depsCachePath;
         }
 
         @Override
         public @Nullable Path getLocalRepositoryPath() {
-            return DEFAULT_LOCAL_REPO;
-        }
-
-        @Override
-        public @NotNull List<String> getRemoteRepositoryUrls() {
-            return List.of("https://repo.maven.apache.org/maven2");
+            return myDepsCachePath;
         }
 
         @Override

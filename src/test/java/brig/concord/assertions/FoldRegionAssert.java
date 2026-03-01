@@ -19,8 +19,14 @@ public class FoldRegionAssert {
         return new FoldRegionAssert(findRegionForRange(fixture, target.range()));
     }
 
+    public static void assertNoFoldRegion(CodeInsightTestFixture fixture, ConcordYamlTestBaseJunit5.AbstractTarget target) {
+        updateFolding(fixture);
+        var region = findRegionForRange(fixture, target.range());
+        Assertions.assertNull(region, "Expected NO fold region at " + target.path() + " but found one");
+    }
+
     private FoldRegionAssert(FoldRegion region) {
-        Assertions.assertNotNull(region, "Expected a fold region for cron spec value");
+        Assertions.assertNotNull(region, "Expected a fold region but none found");
         this.region = region;
     }
 

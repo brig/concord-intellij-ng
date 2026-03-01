@@ -2,10 +2,7 @@
 package brig.concord.inspection;
 
 import brig.concord.meta.ConcordMetaTypeProvider;
-import brig.concord.psi.ConcordFile;
-import com.intellij.codeInspection.LocalInspectionToolSession;
 import com.intellij.codeInspection.ProblemsHolder;
-import com.intellij.psi.PsiElementVisitor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import brig.concord.yaml.meta.impl.YamlMetaTypeProvider;

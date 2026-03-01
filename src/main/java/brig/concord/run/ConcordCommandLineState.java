@@ -2,6 +2,7 @@
 package brig.concord.run;
 
 import brig.concord.ConcordBundle;
+import brig.concord.dependency.ConcordRepositorySettings;
 import brig.concord.run.cli.ConcordCliManager;
 import brig.concord.run.cli.ConcordCliSettings;
 import com.intellij.execution.ExecutionException;
@@ -21,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 public class ConcordCommandLineState extends CommandLineState {
 
@@ -78,7 +80,23 @@ public class ConcordCommandLineState extends CommandLineState {
 
         commandLine.addParameter("run");
 
+        var depsCachePath = ConcordRepositorySettings.getInstance().getEffectiveDepsCachePath();
+        commandLine.addParameter("--deps-cache-dir=" + depsCachePath);
+
         var runModeSettings = ConcordRunModeSettings.getInstance(project);
+
+        var targetDir = runModeSettings.getTargetDir();
+        if (!targetDir.isBlank()) {
+            var targetPath = Path.of(targetDir);
+            if (targetPath.isAbsolute()) {
+                commandLine.addParameter("--target-dir=" + targetDir);
+            } else {
+                var basePath = project.getBasePath();
+                if (basePath != null) {
+                    commandLine.addParameter("--target-dir=" + Path.of(basePath).resolve(targetDir));
+                }
+            }
+        }
 
         // Build parameters using helper
         var buildResult = ConcordCommandLineBuilder.buildParameters(
