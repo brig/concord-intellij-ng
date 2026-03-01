@@ -157,9 +157,6 @@ public final class ConcordCliManager {
             pb.redirectErrorStream(true);
             process = pb.start();
 
-            // Read output concurrently to avoid pipe buffer deadlock:
-            // waitFor() blocks until the process exits, but the process may block
-            // on writing to stdout if the pipe buffer is full and nobody is reading.
             var inputStream = process.getInputStream();
             var outputFuture = CompletableFuture.supplyAsync(() -> {
                 try {
