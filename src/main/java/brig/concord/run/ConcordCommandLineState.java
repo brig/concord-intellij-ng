@@ -87,11 +87,14 @@ public class ConcordCommandLineState extends CommandLineState {
 
         var targetDir = runModeSettings.getTargetDir();
         if (!targetDir.isBlank()) {
-            var basePath = project.getBasePath();
-            if (basePath != null) {
-                // resolve() uses targetDir as-is if it's absolute
-                var absoluteTargetDir = Path.of(basePath).resolve(targetDir).toString();
-                commandLine.addParameter("--target-dir=" + absoluteTargetDir);
+            var targetPath = Path.of(targetDir);
+            if (targetPath.isAbsolute()) {
+                commandLine.addParameter("--target-dir=" + targetDir);
+            } else {
+                var basePath = project.getBasePath();
+                if (basePath != null) {
+                    commandLine.addParameter("--target-dir=" + Path.of(basePath).resolve(targetDir));
+                }
             }
         }
 

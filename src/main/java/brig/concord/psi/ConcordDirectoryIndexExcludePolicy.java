@@ -30,18 +30,21 @@ public final class ConcordDirectoryIndexExcludePolicy implements DirectoryIndexE
 
     @Override
     public String @NotNull [] getExcludeUrlsForProject() {
-        var basePath = project.getBasePath();
-        if (basePath == null) {
-            return ArrayUtil.EMPTY_STRING_ARRAY;
-        }
-
         var targetDir = ConcordRunModeSettings.getInstance(project).getTargetDir();
         if (targetDir.isBlank()) {
             return ArrayUtil.EMPTY_STRING_ARRAY;
         }
 
-        // resolve() uses targetDir as-is if it's absolute
-        var absolutePath = Path.of(basePath).resolve(targetDir).toString();
-        return new String[]{VfsUtilCore.pathToUrl(absolutePath)};
+        var targetPath = Path.of(targetDir);
+        if (targetPath.isAbsolute()) {
+            return new String[]{VfsUtilCore.pathToUrl(targetDir)};
+        }
+
+        var basePath = project.getBasePath();
+        if (basePath == null) {
+            return ArrayUtil.EMPTY_STRING_ARRAY;
+        }
+
+        return new String[]{VfsUtilCore.pathToUrl(Path.of(basePath).resolve(targetDir).toString())};
     }
 }
