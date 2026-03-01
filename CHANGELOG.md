@@ -4,6 +4,8 @@
 
 ### Added
 
+- configurable target directory for CLI and fix CLI version detection
+([#155](https://github.com/brig/concord-intellij-ng/pull/155))
 - EL autocomplete for call step output parameters
 ([#154](https://github.com/brig/concord-intellij-ng/pull/154))
 - EL task method autocomplete 
