@@ -23,6 +23,8 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 @Service(Service.Level.APP)
@@ -155,13 +157,26 @@ public final class ConcordCliManager {
             pb.redirectErrorStream(true);
             process = pb.start();
 
-            var completed = process.waitFor(10, java.util.concurrent.TimeUnit.SECONDS);
+            // Read output concurrently to avoid pipe buffer deadlock:
+            // waitFor() blocks until the process exits, but the process may block
+            // on writing to stdout if the pipe buffer is full and nobody is reading.
+            var inputStream = process.getInputStream();
+            var outputFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return new String(inputStream.readAllBytes()).trim();
+                } catch (IOException e) {
+                    return "";
+                }
+            });
+
+            var completed = process.waitFor(10, TimeUnit.SECONDS);
             if (!completed) {
                 LOG.warn("CLI version detection timed out");
+                outputFuture.cancel(true);
                 return null;
             }
 
-            var output = new String(process.getInputStream().readAllBytes()).trim();
+            var output = outputFuture.get(2, TimeUnit.SECONDS);
             var exitCode = process.exitValue();
 
             if (exitCode == 0 && !output.isEmpty()) {
