@@ -31,9 +31,12 @@ public final class ConcordRunModeSettings implements PersistentStateComponent<Co
         DELEGATING
     }
 
+    public static final String DEFAULT_TARGET_DIR = ".concord/target";
+
     private RunMode myRunMode = RunMode.DIRECT;
     private String myMainEntryPoint = "default";
     private String myFlowParameterName = "flow";
+    private String myTargetDir = DEFAULT_TARGET_DIR;
     private List<String> myActiveProfiles = new ArrayList<>();
     private Map<String, String> myDefaultParameters = new LinkedHashMap<>();
 
@@ -97,6 +100,15 @@ public final class ConcordRunModeSettings implements PersistentStateComponent<Co
 
     public void setDefaultParameters(@NotNull Map<String, String> defaultParameters) {
         myDefaultParameters = new LinkedHashMap<>(defaultParameters);
+    }
+
+    @Tag("targetDir")
+    public @NotNull String getTargetDir() {
+        return myTargetDir;
+    }
+
+    public void setTargetDir(@NotNull String targetDir) {
+        myTargetDir = targetDir;
     }
 
     public boolean isDelegatingMode() {

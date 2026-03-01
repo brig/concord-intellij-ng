@@ -27,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.Future;
 
@@ -136,26 +138,33 @@ public final class ConcordCliConfigurable implements Configurable {
         if (myVersionDetectionFuture != null) {
             myVersionDetectionFuture.cancel(true);
         }
-        var component = myVersionLabel;
+        // Capture modality state on EDT before dispatching to pooled thread.
+        // stateForComponent() called from a pooled thread may return NON_MODAL
+        // if the component isn't yet attached to a window, causing invokeLater
+        // callbacks to be deferred until the modal Settings dialog closes.
+        var modality = ModalityState.current();
         myVersionDetectionFuture = ApplicationManager.getApplication().executeOnPooledThread(() -> {
             if (!manager.validateCliPath(path, jdkName)) {
+                var errorKey = Files.isRegularFile(Path.of(path))
+                        ? "cli.settings.path.not.executable"
+                        : "cli.settings.path.not.found";
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    if (generation == myVersionDetectionGeneration && myVersionLabel != null && myVersionLabel.isShowing()) {
+                    if (generation == myVersionDetectionGeneration && myVersionLabel != null) {
                         myDetectedVersion = null;
-                        myVersionLabel.setText(ConcordBundle.message("cli.settings.invalid.path"));
+                        myVersionLabel.setText(ConcordBundle.message(errorKey));
                     }
-                }, ModalityState.stateForComponent(component));
+                }, modality);
                 return;
             }
 
             var jdkInfo = manager.resolveJdk(jdkName);
             var version = manager.detectCliVersion(path, jdkInfo);
             ApplicationManager.getApplication().invokeLater(() -> {
-                if (generation == myVersionDetectionGeneration && myVersionLabel != null && myVersionLabel.isShowing()) {
+                if (generation == myVersionDetectionGeneration && myVersionLabel != null) {
                     myDetectedVersion = version;
                     myVersionLabel.setText(version != null ? version : ConcordBundle.message("cli.settings.version.not.detected"));
                 }
-            }, ModalityState.stateForComponent(component));
+            }, modality);
         });
     }
 

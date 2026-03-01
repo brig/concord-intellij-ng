@@ -271,6 +271,9 @@
 
         <problemFileHighlightFilter implementation="brig.concord.ConcordProblemFileHighlightFilter"/>
 
+        <!-- Exclude target/ dirs created by Concord CLI from indexing -->
+        <directoryIndexExcludePolicy implementation="brig.concord.psi.ConcordDirectoryIndexExcludePolicy"/>
+
         <!-- Suppress raw EL parser errors; annotator shows simplified messages -->
         <highlightErrorFilter implementation="brig.concord.highlighting.ElHighlightErrorFilter"/>
     </extensions>

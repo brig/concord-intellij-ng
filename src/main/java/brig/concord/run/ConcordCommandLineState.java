@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 public class ConcordCommandLineState extends CommandLineState {
 
@@ -83,6 +84,19 @@ public class ConcordCommandLineState extends CommandLineState {
         commandLine.addParameter("--deps-cache-dir=" + depsCachePath);
 
         var runModeSettings = ConcordRunModeSettings.getInstance(project);
+
+        var targetDir = runModeSettings.getTargetDir();
+        if (!targetDir.isBlank()) {
+            var targetPath = Path.of(targetDir);
+            if (targetPath.isAbsolute()) {
+                commandLine.addParameter("--target-dir=" + targetDir);
+            } else {
+                var basePath = project.getBasePath();
+                if (basePath != null) {
+                    commandLine.addParameter("--target-dir=" + Path.of(basePath).resolve(targetDir));
+                }
+            }
+        }
 
         // Build parameters using helper
         var buildResult = ConcordCommandLineBuilder.buildParameters(

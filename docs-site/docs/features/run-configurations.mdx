@@ -15,7 +15,7 @@ Before running flows, you need to configure the Concord CLI.
 2.  Either:
     *   **Download:** Click "Download..." to fetch the CLI directly from Maven Central. The plugin will download and configure it automatically.
     *   **Manual path:** If you already have the CLI installed, specify the path to the executable.
-3.  The plugin validates the path and displays the detected version.
+3.  The plugin validates the path and displays the detected version. If the path is incorrect, you will see a specific error: **"File not found"** if the file does not exist, or **"File is not executable"** if the file exists but cannot be run (with a suggestion to select a Java runtime or use a `.sh` distribution).
 4.  Optionally, select a **Java runtime** to use for running the CLI. By default, the CLI uses `java` from the system PATH. You can choose any JDK registered in IntelliJ to run the CLI via `java -jar` instead.
 
 <figure className="docFigure docFigure--lg">
@@ -87,6 +87,22 @@ In this mode, the plugin always runs a specific "Main" entry point (e.g., a `mai
     <img src={require('@site/static/img/run-mode-settings.png').default} alt="Run Mode Settings" />
     <figcaption>Run Mode Settings</figcaption>
 </figure>
+
+## Target Directory
+
+The **Target directory** setting in **Settings | Tools | Concord Run Mode** controls where the Concord CLI copies project files during execution. The default is `.concord/target`, relative to the project root.
+
+When set, the plugin passes `--target-dir=<path>` to the CLI automatically. You can specify either a relative path (resolved against the project root) or an absolute path.
+
+### Automatic Index Exclusion
+
+The target directory is automatically excluded from IntelliJ's indexing. Without this, the copied files inside the target directory would appear in **Search Everywhere**, **Find in Files**, and other IDE-wide searches, polluting results with duplicates.
+
+This exclusion happens transparently -- there is nothing to configure. The excluded path updates automatically when you change the target directory setting.
+
+:::tip
+If you notice duplicate results in searches from a previous CLI run, check that the **Target directory** setting points to the correct location.
+:::
 
 ## Interactive Console
 
