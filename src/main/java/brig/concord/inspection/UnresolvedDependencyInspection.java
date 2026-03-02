@@ -15,18 +15,14 @@ import org.jetbrains.annotations.NotNull;
 public class UnresolvedDependencyInspection extends ConcordInspectionTool {
 
     @Override
-    public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
+    public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly, @NotNull ConcordFile concordFile) {
+        var registry = TaskRegistry.getInstance(holder.getProject());
+        var failedDeps = registry.getFailedDependencies();
+        var skippedDeps = registry.getSkippedDependencies();
+
         return new PsiElementVisitor() {
             @Override
             public void visitFile(@NotNull PsiFile file) {
-                if (!(file instanceof ConcordFile concordFile)) {
-                    return;
-                }
-
-                var registry = TaskRegistry.getInstance(holder.getProject());
-                var failedDeps = registry.getFailedDependencies();
-                var skippedDeps = registry.getSkippedDependencies();
-
                 DependencyCollector.forEachDependencyScalar(concordFile, scalar -> {
                     var coordinate = MavenCoordinate.parse(scalar.getTextValue());
                     if (coordinate == null) {

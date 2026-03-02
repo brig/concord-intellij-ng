@@ -150,4 +150,51 @@ class ConcordRootTest extends ConcordYamlTestBaseJunit5 {
 
         ReadAction.run(() -> Assertions.assertEquals(1, root.getPatterns().size()));
     }
+
+    @Test
+    void testInvalidPatternIsIgnoredWithoutDefaultFallback() {
+        var yaml = configureFromText("""
+                resources:
+                  concord:
+                    - "glob:["
+                    - "glob:flows/*.concord.yaml"
+                configuration:
+                  runtime: concord-v2
+                """);
+
+        var flowsFile = createFile("flows/helper.concord.yaml", "flows: { helper: [] }").getVirtualFile();
+        var defaultPatternFile = createFile("concord/extra.concord.yaml", "flows: { extra: [] }").getVirtualFile();
+
+        VirtualFile rootFile = yaml.getVirtualFile();
+        ConcordRoot root = new ConcordRoot(getProject(), rootFile);
+
+        ReadAction.run(() -> {
+            Assertions.assertEquals(1, root.getPatterns().size());
+            Assertions.assertTrue(root.contains(flowsFile));
+            Assertions.assertFalse(root.contains(defaultPatternFile));
+        });
+    }
+
+    @Test
+    void testAllInvalidPatternsDoNotFallback() {
+        var yaml = configureFromText("""
+                resources:
+                  concord:
+                    - "glob:["
+                    - "regex:*invalid("
+                configuration:
+                  runtime: concord-v2
+                """);
+
+        var flowsFile = createFile("flows/helper.concord.yaml", "flows: { helper: [] }").getVirtualFile();
+
+        VirtualFile rootFile = yaml.getVirtualFile();
+        ConcordRoot root = new ConcordRoot(getProject(), rootFile);
+
+        ReadAction.run(() -> {
+            Assertions.assertTrue(root.getPatterns().isEmpty());
+            Assertions.assertFalse(root.contains(flowsFile));
+            Assertions.assertTrue(root.contains(rootFile));
+        });
+    }
 }

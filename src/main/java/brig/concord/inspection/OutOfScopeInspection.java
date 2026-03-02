@@ -2,6 +2,7 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
+import brig.concord.psi.ConcordFile;
 import brig.concord.psi.ConcordScopeService;
 import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;
@@ -18,7 +19,8 @@ public class OutOfScopeInspection extends ConcordInspectionTool {
 
     @Override
     public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
-                                                           boolean isOnTheFly) {
+                                                           boolean isOnTheFly,
+                                                           @NotNull ConcordFile concordFile) {
 
         var virtualFile = holder.getFile().getVirtualFile();
         if (virtualFile == null) {

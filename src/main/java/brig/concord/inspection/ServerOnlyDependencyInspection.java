@@ -22,21 +22,17 @@ import java.util.Set;
 public class ServerOnlyDependencyInspection extends ConcordInspectionTool {
 
     @Override
-    public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
+    public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly, @NotNull ConcordFile concordFile) {
+        var skippedDeps = TaskRegistry.getInstance(holder.getProject()).getSkippedDependencies();
+        if (skippedDeps.isEmpty()) {
+            return PsiElementVisitor.EMPTY_VISITOR;
+        }
+
+        var coveredGAs = collectCliProfileGAs(concordFile);
+
         return new PsiElementVisitor() {
             @Override
             public void visitFile(@NotNull PsiFile file) {
-                if (!(file instanceof ConcordFile concordFile)) {
-                    return;
-                }
-
-                var skippedDeps = TaskRegistry.getInstance(holder.getProject()).getSkippedDependencies();
-                if (skippedDeps.isEmpty()) {
-                    return;
-                }
-
-                var coveredGAs = collectCliProfileGAs(concordFile);
-
                 DependencyCollector.forEachDependencyScalar(concordFile, scalar -> {
                     var coordinate = MavenCoordinate.parse(scalar.getTextValue());
                     if (coordinate == null) {

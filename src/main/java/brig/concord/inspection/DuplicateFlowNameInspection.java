@@ -24,7 +24,8 @@ public class DuplicateFlowNameInspection extends ConcordInspectionTool {
 
     @Override
     public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
-                                                          boolean isOnTheFly) {
+                                                          boolean isOnTheFly,
+                                                          @NotNull ConcordFile concordFile) {
 
         return new YamlPsiElementVisitor() {
             @Override
