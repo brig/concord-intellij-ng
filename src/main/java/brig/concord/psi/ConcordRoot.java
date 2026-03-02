@@ -165,7 +165,7 @@ public final class ConcordRoot {
     private @Nullable PathMatcher tryParsePattern(@NotNull String pattern) {
         try {
             return parsePattern(pattern);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             LOG.warn("Invalid resources.concord pattern '" + pattern + "' in " + rootFile.getPath(), e);
             return null;
         }

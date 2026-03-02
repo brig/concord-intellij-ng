@@ -4,6 +4,7 @@ package brig.concord.inspection;
 import brig.concord.ConcordBundle;
 import brig.concord.psi.ConcordFile;
 import brig.concord.psi.ConcordResourcePatterns;
+import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLSequence;
@@ -25,23 +26,17 @@ public class InvalidResourcesPatternInspection extends ConcordInspectionTool {
             return PsiElementVisitor.EMPTY_VISITOR;
         }
 
-        var resourcesKv = concordFile.resources().orElse(null);
-        if (resourcesKv == null) {
-            return PsiElementVisitor.EMPTY_VISITOR;
-        }
+        var sequence = concordFile.resources()
+                .map(YAMLKeyValue::getValue)
+                .filter(YAMLMapping.class::isInstance)
+                .map(YAMLMapping.class::cast)
+                .map(m -> m.getKeyValueByKey("concord"))
+                .map(YAMLKeyValue::getValue)
+                .filter(YAMLSequence.class::isInstance)
+                .map(YAMLSequence.class::cast)
+                .orElse(null);
 
-        var resourcesValue = resourcesKv.getValue();
-        if (!(resourcesValue instanceof YAMLMapping resourcesMapping)) {
-            return PsiElementVisitor.EMPTY_VISITOR;
-        }
-
-        var concordKv = resourcesMapping.getKeyValueByKey("concord");
-        if (concordKv == null) {
-            return PsiElementVisitor.EMPTY_VISITOR;
-        }
-
-        var concordValue = concordKv.getValue();
-        if (!(concordValue instanceof YAMLSequence sequence)) {
+        if (sequence == null) {
             return PsiElementVisitor.EMPTY_VISITOR;
         }
 
@@ -76,7 +71,7 @@ public class InvalidResourcesPatternInspection extends ConcordInspectionTool {
         try {
             ConcordResourcePatterns.parsePattern(pattern, rootDirPrefix);
             return true;
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             return false;
         }
     }
