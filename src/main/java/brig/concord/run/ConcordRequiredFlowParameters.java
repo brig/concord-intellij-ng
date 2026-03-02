@@ -2,17 +2,18 @@
 package brig.concord.run;
 
 import brig.concord.completion.provider.FlowCallParamsProvider;
-import brig.concord.psi.ConcordScopeService;
+import brig.concord.psi.ConcordFile;
 import brig.concord.psi.ProcessDefinitionProvider;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -79,7 +80,7 @@ public final class ConcordRequiredFlowParameters {
     private static @NotNull List<String> findRequiredInputParameters(@NotNull Project project,
                                                                       @NotNull String workingDirectory,
                                                                       @NotNull String flowName) {
-        var contextFile = resolveContextFile(project, workingDirectory);
+        var contextFile = resolveContextFile(workingDirectory);
         if (contextFile == null) {
             return List.of();
         }
@@ -112,42 +113,19 @@ public final class ConcordRequiredFlowParameters {
         return List.copyOf(requiredNames);
     }
 
-    private static @Nullable VirtualFile resolveContextFile(@NotNull Project project, @NotNull String workingDirectory) {
+    private static @Nullable VirtualFile resolveContextFile(@NotNull String workingDirectory) {
         if (workingDirectory.isBlank()) {
             return null;
         }
 
-        final Path workingDirPath;
-        try {
-            workingDirPath = Path.of(workingDirectory).normalize();
-        } catch (InvalidPathException e) {
+        var dir = LocalFileSystem.getInstance().findFileByPath(workingDirectory);
+        if (dir == null && ApplicationManager.getApplication().isUnitTestMode()) {
+            dir = VirtualFileManager.getInstance().findFileByUrl("temp://" + workingDirectory);
+        }
+        if (dir == null) {
             return null;
         }
 
-        var roots = ConcordScopeService.getInstance(project).findRoots();
-
-        for (var root : roots) {
-            if (root.getRootDir().normalize().equals(workingDirPath)) {
-                return root.getRootFile();
-            }
-        }
-
-        VirtualFile bestMatch = null;
-        int bestDepth = -1;
-
-        for (var root : roots) {
-            var rootPath = root.getRootDir().normalize();
-            if (!workingDirPath.startsWith(rootPath)) {
-                continue;
-            }
-
-            var depth = rootPath.getNameCount();
-            if (depth > bestDepth) {
-                bestDepth = depth;
-                bestMatch = root.getRootFile();
-            }
-        }
-
-        return bestMatch;
+        return ConcordFile.findRootFile(dir);
     }
 }

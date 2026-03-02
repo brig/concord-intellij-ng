@@ -4,23 +4,35 @@ package brig.concord.psi;
 import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLSequence;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface ConcordFile extends PsiFile {
 
-    Set<String> PROJECT_ROOT_FILE_NAMES = Set.of(
-            ".concord.yml",
+    List<String> PROJECT_ROOT_FILE_NAMES = List.of(
             "concord.yml",
-            ".concord.yaml",
-            "concord.yaml"
+            ".concord.yml",
+            "concord.yaml",
+            ".concord.yaml"
     );
 
     static boolean isRootFileName(String name) {
         return PROJECT_ROOT_FILE_NAMES.contains(name);
+    }
+
+    static @Nullable VirtualFile findRootFile(@NotNull VirtualFile directory) {
+        for (var name : PROJECT_ROOT_FILE_NAMES) {
+            var child = directory.findChild(name);
+            if (child != null) {
+                return child;
+            }
+        }
+        return null;
     }
 
     static boolean isConcordFileName(@NotNull String name) {

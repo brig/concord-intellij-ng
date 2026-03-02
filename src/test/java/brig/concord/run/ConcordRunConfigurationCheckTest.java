@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -46,7 +47,7 @@ class ConcordRunConfigurationCheckTest extends ConcordYamlTestBaseJunit5 {
         runModeSettings.setMainEntryPoint("default");
         runModeSettings.setFlowParameterName("flow");
         runModeSettings.setTargetDir(ConcordRunModeSettings.DEFAULT_TARGET_DIR);
-        runModeSettings.setActiveProfiles(java.util.List.of());
+        runModeSettings.setActiveProfiles(List.of());
         runModeSettings.setDefaultParameters(Map.of());
 
         myConfiguration = null;
@@ -170,6 +171,56 @@ class ConcordRunConfigurationCheckTest extends ConcordYamlTestBaseJunit5 {
 
         var runModeSettings = ConcordRunModeSettings.getInstance(getProject());
         runModeSettings.setDefaultParameters(Map.of("bucket", "images-default"));
+
+        var cliPath = createExecutableCli();
+        try {
+            var settings = ConcordCliSettings.getInstance();
+            settings.setCliPath(cliPath.toString());
+            settings.setJdkName(null);
+
+            assertDoesNotThrow(() -> myConfiguration.checkConfiguration());
+        } finally {
+            Files.deleteIfExists(cliPath);
+        }
+    }
+
+    @Test
+    void testDelegatingMode_missingRequiredFlowParameter_throwsError() throws Exception {
+        var runModeSettings = ConcordRunModeSettings.getInstance(getProject());
+        runModeSettings.setRunMode(ConcordRunModeSettings.RunMode.DELEGATING);
+        runModeSettings.setMainEntryPoint("default");
+        runModeSettings.setFlowParameterName("flow");
+
+        myConfiguration.setEntryPoint("default");
+        myConfiguration.setWorkingDirectory(createFlowWithMandatoryInputParameter("deploy", "bucket"));
+        myConfiguration.setParameters(Map.of("flow", "deploy"));
+
+        var cliPath = createExecutableCli();
+        try {
+            var settings = ConcordCliSettings.getInstance();
+            settings.setCliPath(cliPath.toString());
+            settings.setJdkName(null);
+
+            var error = assertThrows(RuntimeConfigurationError.class, () -> myConfiguration.checkConfiguration());
+            assertEquals(
+                    ConcordBundle.message("run.configuration.required.params.missing", "bucket"),
+                    error.getMessage()
+            );
+        } finally {
+            Files.deleteIfExists(cliPath);
+        }
+    }
+
+    @Test
+    void testDelegatingMode_requiredFlowParameterProvided_passes() throws Exception {
+        var runModeSettings = ConcordRunModeSettings.getInstance(getProject());
+        runModeSettings.setRunMode(ConcordRunModeSettings.RunMode.DELEGATING);
+        runModeSettings.setMainEntryPoint("default");
+        runModeSettings.setFlowParameterName("flow");
+
+        myConfiguration.setEntryPoint("default");
+        myConfiguration.setWorkingDirectory(createFlowWithMandatoryInputParameter("deploy", "bucket"));
+        myConfiguration.setParameters(Map.of("flow", "deploy", "bucket", "images-dev"));
 
         var cliPath = createExecutableCli();
         try {
