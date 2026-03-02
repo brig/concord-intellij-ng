@@ -123,6 +123,37 @@ class ArgumentsCollectorTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void sameBasenameFilesUsePathAsTieBreaker() {
+        createFile("concord.yaml", """
+                resources:
+                  concord:
+                    - "glob:concord/**/*.concord.yaml"
+                flows:
+                  main:
+                    - log: "hi"
+                """);
+
+        createFile("concord/a/shared.concord.yaml", """
+                configuration:
+                  arguments:
+                    shared: "fromA"
+                """);
+
+        createFile("concord/b/shared.concord.yaml", """
+                configuration:
+                  arguments:
+                    shared: "fromB"
+                """);
+
+        var collector = ArgumentsCollector.getInstance(getProject());
+        var byScope = ReadAction.compute(collector::collectByScope);
+
+        var args = byScope.values().iterator().next();
+        // Same basename: tie is resolved by full path, so .../a/... is processed before .../b/...
+        assertEquals("\"fromB\"", ReadAction.compute(() -> args.get("shared").getValue().getText()));
+    }
+
+    @Test
     void emptyWhenNoArguments() {
         createFile("concord.yaml", """
                 configuration:

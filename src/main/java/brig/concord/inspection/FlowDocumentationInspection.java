@@ -6,6 +6,7 @@ import brig.concord.ConcordTypes;
 import brig.concord.inspection.fix.ReplaceFlowDocKeywordQuickFix;
 import brig.concord.inspection.fix.ReplaceFlowDocTypeQuickFix;
 import brig.concord.lexer.FlowDocTokenTypes;
+import brig.concord.psi.ConcordFile;
 import brig.concord.psi.FlowDocParameter;
 import brig.concord.psi.FlowDocumentation;
 import com.intellij.codeInspection.LocalQuickFix;
@@ -22,7 +23,8 @@ public class FlowDocumentationInspection extends ConcordInspectionTool {
 
     @Override
     public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
-                                                          boolean isOnTheFly) {
+                                                          boolean isOnTheFly,
+                                                          @NotNull ConcordFile concordFile) {
 
         return new PsiElementVisitor() {
             @Override

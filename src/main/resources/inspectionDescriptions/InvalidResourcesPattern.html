@@ -1,0 +1,28 @@
+<html>
+<body>
+
+<p>
+    Reports invalid path patterns in the <code>resources.concord</code> list.
+</p>
+
+<p>
+    Concord uses glob and regex patterns to determine which files belong to a project scope.
+    This inspection highlights patterns that cannot be parsed, such as malformed globs or
+    invalid regular expressions.
+</p>
+
+<pre><code>
+resources:
+  concord:
+    - "glob:concord/*.yml"
+    - "glob:concord/[invalid"
+</code></pre>
+
+<!-- tooltip end -->
+
+<p>
+    This inspection is applied only to Concord YAML files.
+</p>
+
+</body>
+</html>
