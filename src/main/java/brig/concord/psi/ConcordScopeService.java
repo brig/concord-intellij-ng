@@ -4,6 +4,7 @@ package brig.concord.psi;
 import brig.concord.ConcordFileType;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.fileTypes.FileTypeManager;
+import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.util.Key;
@@ -209,7 +210,8 @@ public final class ConcordScopeService {
             var roots = computeRoots();
             return CachedValueProvider.Result.create(
                     roots,
-                    ConcordModificationTracker.getInstance(project).structure()
+                    ConcordModificationTracker.getInstance(project).structure(),
+                    DumbService.getInstance(project).getModificationTracker()
             );
         }, false);
     }
@@ -250,7 +252,8 @@ public final class ConcordScopeService {
             var map = computeScopeFilesMap();
             return CachedValueProvider.Result.create(
                     map,
-                    ConcordModificationTracker.getInstance(project).structure()
+                    ConcordModificationTracker.getInstance(project).structure(),
+                    DumbService.getInstance(project).getModificationTracker()
             );
         }, false);
     }
@@ -287,7 +290,8 @@ public final class ConcordScopeService {
             var files = computeAllConcordFiles();
             return CachedValueProvider.Result.create(
                     files,
-                    ConcordModificationTracker.getInstance(project).structure()
+                    ConcordModificationTracker.getInstance(project).structure(),
+                    DumbService.getInstance(project).getModificationTracker()
             );
         }, false);
     }
