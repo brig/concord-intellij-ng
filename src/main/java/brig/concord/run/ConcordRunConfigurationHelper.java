@@ -1,17 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 package brig.concord.run;
 
+import brig.concord.ConcordBundle;
 import brig.concord.psi.ConcordScopeService;
 import com.intellij.execution.ExecutorRegistry;
 import com.intellij.execution.ProgramRunnerUtil;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.executors.DefaultRunExecutor;
+import com.intellij.execution.impl.RunDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 
@@ -73,6 +76,23 @@ public final class ConcordRunConfigurationHelper {
         runManager.setSelectedConfiguration(settings);
 
         var executor = ExecutorRegistry.getInstance().getExecutorById(DefaultRunExecutor.EXECUTOR_ID);
+
+        if (settings.getConfiguration() instanceof ConcordRunConfiguration concordConfig) {
+            var missingRequiredParameters = ConcordRequiredFlowParameters.findMissingRequiredParameters(concordConfig);
+            if (!missingRequiredParameters.isEmpty()) {
+                ensureMissingParameterRows(concordConfig, missingRequiredParameters);
+
+                var dialogTitle = ConcordBundle.message("run.configuration.required.params.dialog.title", flowName);
+                var accepted = executor != null
+                        ? RunDialog.editConfiguration(project, settings, dialogTitle, executor)
+                        : RunDialog.editConfiguration(project, settings, dialogTitle);
+
+                if (!accepted) {
+                    return;
+                }
+            }
+        }
+
         if (executor != null) {
             ProgramRunnerUtil.executeConfiguration(settings, executor);
         }
@@ -128,5 +148,22 @@ public final class ConcordRunConfigurationHelper {
         }
         var parent = virtualFile.getParent();
         return parent != null ? parent.getPath() : "";
+    }
+
+    private static void ensureMissingParameterRows(@NotNull ConcordRunConfiguration configuration,
+                                                   @NotNull List<String> missingRequiredParameters) {
+        var parameters = new LinkedHashMap<>(configuration.getParameters());
+        var changed = false;
+
+        for (var parameterName : missingRequiredParameters) {
+            if (!parameters.containsKey(parameterName)) {
+                parameters.put(parameterName, "");
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            configuration.setParameters(parameters);
+        }
     }
 }

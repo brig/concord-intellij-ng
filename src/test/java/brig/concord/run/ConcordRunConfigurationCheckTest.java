@@ -9,6 +9,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.EnumSet;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -33,6 +40,14 @@ class ConcordRunConfigurationCheckTest extends ConcordYamlTestBaseJunit5 {
         settings.setCliPath(null);
         settings.setCliVersion(null);
         settings.setJdkName(null);
+
+        var runModeSettings = ConcordRunModeSettings.getInstance(getProject());
+        runModeSettings.setRunMode(ConcordRunModeSettings.RunMode.DIRECT);
+        runModeSettings.setMainEntryPoint("default");
+        runModeSettings.setFlowParameterName("flow");
+        runModeSettings.setTargetDir(ConcordRunModeSettings.DEFAULT_TARGET_DIR);
+        runModeSettings.setActiveProfiles(java.util.List.of());
+        runModeSettings.setDefaultParameters(Map.of());
 
         myConfiguration = null;
         super.tearDown();
@@ -88,12 +103,12 @@ class ConcordRunConfigurationCheckTest extends ConcordYamlTestBaseJunit5 {
         myConfiguration.setEntryPoint("myFlow");
 
         // Create a real executable file so CLI validation passes
-        var tempFile = java.nio.file.Files.createTempFile("cli", ".sh");
+        var tempFile = Files.createTempFile("cli", ".sh");
         try {
-            java.nio.file.Files.setPosixFilePermissions(tempFile, java.util.EnumSet.of(
-                    java.nio.file.attribute.PosixFilePermission.OWNER_READ,
-                    java.nio.file.attribute.PosixFilePermission.OWNER_WRITE,
-                    java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE
+            Files.setPosixFilePermissions(tempFile, EnumSet.of(
+                    PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE,
+                    PosixFilePermission.OWNER_EXECUTE
             ));
 
             var settings = ConcordCliSettings.getInstance();
@@ -105,7 +120,97 @@ class ConcordRunConfigurationCheckTest extends ConcordYamlTestBaseJunit5 {
             assertEquals(ConcordBundle.message("run.configuration.jdk.not.found", "nonexistent-jdk"),
                     error.getMessage());
         } finally {
-            java.nio.file.Files.deleteIfExists(tempFile);
+            Files.deleteIfExists(tempFile);
         }
+    }
+
+    @Test
+    void testMissingRequiredFlowParameter_throwsError() throws Exception {
+        myConfiguration.setEntryPoint("deploy");
+        myConfiguration.setWorkingDirectory(createFlowWithMandatoryInputParameter("deploy", "bucket"));
+
+        var cliPath = createExecutableCli();
+        try {
+            var settings = ConcordCliSettings.getInstance();
+            settings.setCliPath(cliPath.toString());
+            settings.setJdkName(null);
+
+            var error = assertThrows(RuntimeConfigurationError.class, () -> myConfiguration.checkConfiguration());
+            assertEquals(
+                    ConcordBundle.message("run.configuration.required.params.missing", "bucket"),
+                    error.getMessage()
+            );
+        } finally {
+            Files.deleteIfExists(cliPath);
+        }
+    }
+
+    @Test
+    void testRequiredFlowParameterProvidedInConfiguration_passes() throws Exception {
+        myConfiguration.setEntryPoint("deploy");
+        myConfiguration.setWorkingDirectory(createFlowWithMandatoryInputParameter("deploy", "bucket"));
+        myConfiguration.setParameters(Map.of("bucket", "images-dev"));
+
+        var cliPath = createExecutableCli();
+        try {
+            var settings = ConcordCliSettings.getInstance();
+            settings.setCliPath(cliPath.toString());
+            settings.setJdkName(null);
+
+            assertDoesNotThrow(() -> myConfiguration.checkConfiguration());
+        } finally {
+            Files.deleteIfExists(cliPath);
+        }
+    }
+
+    @Test
+    void testRequiredFlowParameterProvidedByRunModeDefaults_passes() throws Exception {
+        myConfiguration.setEntryPoint("deploy");
+        myConfiguration.setWorkingDirectory(createFlowWithMandatoryInputParameter("deploy", "bucket"));
+
+        var runModeSettings = ConcordRunModeSettings.getInstance(getProject());
+        runModeSettings.setDefaultParameters(Map.of("bucket", "images-default"));
+
+        var cliPath = createExecutableCli();
+        try {
+            var settings = ConcordCliSettings.getInstance();
+            settings.setCliPath(cliPath.toString());
+            settings.setJdkName(null);
+
+            assertDoesNotThrow(() -> myConfiguration.checkConfiguration());
+        } finally {
+            Files.deleteIfExists(cliPath);
+        }
+    }
+
+    private String createFlowWithMandatoryInputParameter(String flowName, String parameterName) {
+        var file = createFile(
+                "project-a/concord.yaml",
+                """
+                        flows:
+                          ##
+                          # in:
+                          #   %s: string, mandatory
+                          ##
+                          %s:
+                            - log: "ok"
+                        """.formatted(parameterName, flowName)
+        );
+
+        var virtualFile = file.getVirtualFile();
+        if (virtualFile == null || virtualFile.getParent() == null) {
+            throw new AssertionError("Failed to resolve working directory for test file");
+        }
+        return virtualFile.getParent().getPath();
+    }
+
+    private static Path createExecutableCli() throws Exception {
+        var tempFile = Files.createTempFile("concord-cli", ".sh");
+        Files.setPosixFilePermissions(tempFile, EnumSet.of(
+                PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE,
+                PosixFilePermission.OWNER_EXECUTE
+        ));
+        return tempFile;
     }
 }
