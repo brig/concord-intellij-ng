@@ -35,6 +35,18 @@ See [Dependencies — Error Reporting](./dependencies#error-reporting) for detai
 Detects dependencies that use version string like `latest` that can only be resolved by the Concord server, not by the IDE locally. Offers a [quick fix](./quick-fixes#5-add-to-cli-profile) to add a concrete version to the `cli` profile.
 See [Dependencies — Server-Only Versions](./dependencies#server-only-versions) for details.
 
+### 8. Invalid Resources Pattern
+Validates path patterns in the `resources.concord` list. Malformed glob expressions (e.g., `glob:[`) or invalid regular expressions (e.g., `regex:*invalid(`) are highlighted as errors.
+
+```concord
+resources:
+  concord:
+    - "glob:concord/*.yml"       # OK
+    - "glob:concord/[invalid"    # Error: Invalid resources pattern
+```
+
+This inspection only checks patterns inside the top-level `resources.concord` list — similar-looking strings elsewhere in the file are not affected. See [Scopes — Customizing Resources](./scopes#customizing-resources) for details on the pattern syntax.
+
 ## Configuring Inspections
 
 You can control which inspections are enabled and their severity (Error, Warning, Information):

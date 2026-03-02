@@ -87,7 +87,7 @@ public final class ArgumentsCollector {
 
     /**
      * Collects merged arguments for a single scope.
-     * Files are sorted by name; root file is processed last (overrides everything).
+     * Files are sorted by name, then path; root file is processed last (overrides everything).
      */
     private @NotNull Map<String, YAMLKeyValue> collectForScope(@NotNull ConcordRoot root) {
         var scopeService = ConcordScopeService.getInstance(project);
@@ -96,7 +96,8 @@ public final class ArgumentsCollector {
 
         List<VirtualFile> sortedFiles = new ArrayList<>(filesInScope);
         sortedFiles.remove(rootFile);
-        sortedFiles.sort(Comparator.comparing(VirtualFile::getName));
+        sortedFiles.sort(Comparator.comparing(VirtualFile::getName)
+                .thenComparing(VirtualFile::getPath));
 
         Map<String, YAMLKeyValue> result = new LinkedHashMap<>();
         var psiManager = PsiManager.getInstance(project);

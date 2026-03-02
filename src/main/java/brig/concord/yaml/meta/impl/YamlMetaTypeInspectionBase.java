@@ -2,6 +2,7 @@ package brig.concord.yaml.meta.impl;
 
 
 import brig.concord.inspection.ConcordInspectionTool;
+import brig.concord.psi.ConcordFile;
 import com.intellij.codeInspection.ProblemsHolder;
 import com.intellij.openapi.progress.ProgressIndicatorProvider;
 import com.intellij.psi.PsiElement;
@@ -20,7 +21,7 @@ public abstract class YamlMetaTypeInspectionBase extends ConcordInspectionTool {
     protected abstract @NotNull PsiElementVisitor doBuildVisitor(@NotNull ProblemsHolder holder, @NotNull YamlMetaTypeProvider metaTypeProvider);
 
     @Override
-    public final @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
+    public final @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly, @NotNull ConcordFile concordFile) {
         YamlMetaTypeProvider provider = getMetaTypeProvider(holder);
         return provider == null ? PsiElementVisitor.EMPTY_VISITOR
                 : doBuildVisitor(holder, provider);
