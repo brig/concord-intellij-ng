@@ -71,6 +71,14 @@ public class ConcordRunConfiguration extends RunConfigurationBase<ConcordRunConf
             throw new RuntimeConfigurationError(ConcordBundle.message("run.configuration.entry.point.empty"));
         }
 
+        var missingRequiredParameters = ConcordRequiredFlowParameters.findMissingRequiredParameters(this);
+        if (!missingRequiredParameters.isEmpty()) {
+            throw new RuntimeConfigurationError(ConcordBundle.message(
+                    "run.configuration.required.params.missing",
+                    String.join(", ", missingRequiredParameters)
+            ));
+        }
+
         var cliSettings = ConcordCliSettings.getInstance();
         var cliPath = cliSettings.getCliPath();
         if (cliPath == null || cliPath.isBlank()) {

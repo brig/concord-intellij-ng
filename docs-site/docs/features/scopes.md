@@ -74,6 +74,12 @@ flows:
 
 For more details on pattern syntax, see the <Link to="https://concord.walmartlabs.com/docs/processes-v2/resources.html" className="external-link">official Concord documentation</Link>.
 
+### Pattern Validation
+
+The plugin validates resource patterns and highlights malformed ones as errors — for example, an unclosed bracket in a glob or an invalid regular expression. See [Inspections — Invalid Resources Pattern](./inspections#8-invalid-resources-pattern) for details.
+
+Invalid patterns are gracefully skipped when resolving scope membership: the remaining valid patterns still work as expected. If *all* patterns are invalid, the scope is limited to the root file only — the plugin does not silently fall back to the default `concord/` directory pattern.
+
 :::note Nested Scopes
 If a file is covered by the `resources` pattern of a parent `concord.yaml`, it becomes part of that parent scope. It does not start a new scope, even if it is named `concord.yaml`.
 :::

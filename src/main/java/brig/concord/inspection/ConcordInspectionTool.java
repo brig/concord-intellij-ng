@@ -13,7 +13,7 @@ public abstract class ConcordInspectionTool extends LocalInspectionTool {
 
     @Override
     public final @NotNull PsiElementVisitor buildVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly) {
-        if (!(holder.getFile() instanceof ConcordFile)) {
+        if (!(holder.getFile() instanceof ConcordFile concordFile)) {
             return PsiElementVisitor.EMPTY_VISITOR;
         }
 
@@ -21,7 +21,7 @@ public abstract class ConcordInspectionTool extends LocalInspectionTool {
             return PsiElementVisitor.EMPTY_VISITOR;
         }
 
-        return buildConcordVisitor(holder, isOnTheFly);
+        return buildConcordVisitor(holder, isOnTheFly, concordFile);
     }
 
     @Override
@@ -29,5 +29,5 @@ public abstract class ConcordInspectionTool extends LocalInspectionTool {
         return buildVisitor(holder, isOnTheFly);
     }
 
-    public abstract @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly);
+    public abstract @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder, boolean isOnTheFly, @NotNull ConcordFile concordFile);
 }

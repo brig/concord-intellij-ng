@@ -2,6 +2,7 @@
 package brig.concord.inspection;
 
 import brig.concord.ConcordBundle;
+import brig.concord.psi.ConcordFile;
 import brig.concord.yaml.psi.YAMLKeyValue;
 import brig.concord.yaml.psi.YAMLMapping;
 import brig.concord.yaml.psi.YamlPsiElementVisitor;
@@ -18,7 +19,8 @@ public class DuplicatedKeysInspection extends ConcordInspectionTool {
 
     @Override
     public @NotNull PsiElementVisitor buildConcordVisitor(@NotNull ProblemsHolder holder,
-                                                          boolean isOnTheFly) {
+                                                          boolean isOnTheFly,
+                                                          @NotNull ConcordFile concordFile) {
         return new YamlPsiElementVisitor() {
             @Override
             public void visitMapping(@NotNull YAMLMapping mapping) {
@@ -45,13 +47,17 @@ public class DuplicatedKeysInspection extends ConcordInspectionTool {
             }
         }
 
-        if (dups.isEmpty()) return;
+        if (dups.isEmpty()) {
+            return;
+        }
 
         for (var e : dups.entrySet()) {
             var key = e.getKey();
             for (var dupKv : e.getValue()) {
                 var keyElement = dupKv.getKey();
-                if (keyElement == null) continue;
+                if (keyElement == null) {
+                    continue;
+                }
 
                 holder.registerProblem(
                         keyElement,

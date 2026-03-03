@@ -219,6 +219,15 @@
                          enabledByDefault="true"
                          implementationClass="brig.concord.inspection.OutOfScopeInspection"/>
 
+        <localInspection language="Concord"
+                         bundle="messages.ConcordBundle"
+                         shortName="InvalidResourcesPattern"
+                         level="ERROR"
+                         key="inspections.invalid.resources.pattern.name"
+                         groupKey="inspections.group.name"
+                         enabledByDefault="true"
+                         implementationClass="brig.concord.inspection.InvalidResourcesPatternInspection"/>
+
         <!-- Concord Settings (parent group) -->
         <applicationConfigurable
                 parentId="tools"

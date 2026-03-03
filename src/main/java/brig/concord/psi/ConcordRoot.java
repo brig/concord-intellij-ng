@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package brig.concord.psi;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -15,7 +16,6 @@ import brig.concord.yaml.psi.YAMLDocument;
 import brig.concord.yaml.psi.YAMLScalar;
 import brig.concord.yaml.psi.YAMLSequence;
 
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
@@ -31,6 +31,7 @@ import java.util.Objects;
  */
 public final class ConcordRoot {
 
+    private static final Logger LOG = Logger.getInstance(ConcordRoot.class);
     private static final String DEFAULT_CONCORD_RESOURCES = "glob:concord/{**/,}{*.,}concord.{yml,yaml}";
     private static final Key<CachedValue<List<PathMatcher>>> PATTERNS_CACHE_KEY =
             Key.create("ConcordRoot.patterns");
@@ -54,7 +55,7 @@ public final class ConcordRoot {
         var parentPath = parent != null ? parent.getPath() : "/";
 
         this.rootDir = Paths.get(parentPath);
-        this.rootDirPrefix = parentPath.endsWith("/") ? parentPath : parentPath + "/";
+        this.rootDirPrefix = ConcordResourcePatterns.rootDirPrefix(rootFile);
     }
 
     /**
@@ -146,45 +147,42 @@ public final class ConcordRoot {
 
         List<PathMatcher> result = new ArrayList<>();
         for (var patternString : patternStrings) {
-            result.add(parsePattern(patternString));
+            var pattern = tryParsePattern(patternString);
+            if (pattern != null) {
+                result.add(pattern);
+            }
+        }
+
+        if (result.isEmpty()) {
+            // Explicit resources were configured but none are valid.
+            // Keep scope narrow (root file only) instead of silently falling back.
+            return List.of();
         }
 
         return Collections.unmodifiableList(result);
     }
 
-    private @NotNull PathMatcher parsePattern(@NotNull String pattern) {
-        var baseDir = rootDirPrefix; // Always ends with "/" and uses forward slashes
-
-        if (pattern.startsWith("glob:")) {
-            var content = pattern.substring("glob:".length());
-            var normalized = "glob:" + resolve(baseDir, content);
-            return FileSystems.getDefault().getPathMatcher(normalized);
+    private @Nullable PathMatcher tryParsePattern(@NotNull String pattern) {
+        try {
+            return parsePattern(pattern);
+        } catch (Exception e) {
+            LOG.warn("Invalid resources.concord pattern '" + pattern + "' in " + rootFile.getPath(), e);
+            return null;
         }
-
-        if (pattern.startsWith("regex:")) {
-            var content = pattern.substring("regex:".length());
-            var normalized = "regex:" + resolve(baseDir, content);
-            return FileSystems.getDefault().getPathMatcher(normalized);
-        }
-
-        // Plain file path
-        var singleFilePath = resolve(baseDir, pattern);
-        var targetPath = Paths.get(singleFilePath).toAbsolutePath();
-        return path -> path.toAbsolutePath().equals(targetPath);
     }
 
-    private static @NotNull String resolve(@NotNull String baseDir, @NotNull String relative) {
-        // baseDir is guaranteed to end with '/'
-        if (relative.startsWith("/")) {
-            return baseDir + relative.substring(1);
-        }
-        return baseDir + relative;
+    private @NotNull PathMatcher parsePattern(@NotNull String pattern) {
+        return ConcordResourcePatterns.parsePattern(pattern, rootDirPrefix);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         var that = (ConcordRoot) o;
         return rootFile.equals(that.rootFile);
     }

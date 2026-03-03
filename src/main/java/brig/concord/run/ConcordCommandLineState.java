@@ -17,6 +17,7 @@ import com.intellij.execution.process.ProcessTerminatedListener;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.text.VersionComparatorUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +54,16 @@ public class ConcordCommandLineState extends CommandLineState {
         return builder.getConsole();
     }
 
+    private static final String TARGET_DIR_MIN_VERSION = "2.37.0";
+
+    private static boolean cliSupportsTargetDir() {
+        var version = ConcordCliSettings.getInstance().getCliVersion();
+        if (version == null || version.isBlank()) {
+            return false;
+        }
+        return VersionComparatorUtil.compare(version, TARGET_DIR_MIN_VERSION) >= 0;
+    }
+
     private @NotNull GeneralCommandLine createCommandLine() throws ExecutionException {
         var cliManager = ConcordCliManager.getInstance();
         var cliPath = cliManager.getConfiguredCliPath();
@@ -86,7 +97,7 @@ public class ConcordCommandLineState extends CommandLineState {
         var runModeSettings = ConcordRunModeSettings.getInstance(project);
 
         var targetDir = runModeSettings.getTargetDir();
-        if (!targetDir.isBlank()) {
+        if (!targetDir.isBlank() && cliSupportsTargetDir()) {
             var targetPath = Path.of(targetDir);
             if (targetPath.isAbsolute()) {
                 commandLine.addParameter("--target-dir=" + targetDir);
