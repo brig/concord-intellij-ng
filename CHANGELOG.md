@@ -4,6 +4,8 @@
 
 ### Added
 
+- run configuration now automatically checks for missing mandatory flow parameters
+([#157](https://github.com/brig/concord-intellij-ng/pull/157))
 - inspection to validate glob/regex patterns in `resources.concord`
 ([#156](https://github.com/brig/concord-intellij-ng/pull/156))
 - configurable target directory for CLI and fix CLI version detection
