@@ -1,7 +1,66 @@
 ---
 slug: whats-new-0.21.0
-title: What’s New in Concord IntelliJ 0.21.0
+title: What's New in Concord IntelliJ 0.21.0
 authors: [brig]
-tags: [release]
+tags: [release, features]
 ---
 
+import Keystroke from '@site/src/components/Keystroke';
+
+The `0.21.0` release extends Expression Language support with
+**[Built-in Function Completion](/docs/features/completion#expression-function-completion)**,
+**[Task Method Completion](/docs/features/completion#expression-task-method-completion)**, and
+**[Call Output Parameter Completion](/docs/features/completion#call-output-parameter-completion)** inside `${...}` expressions,
+adds a **[Required Parameters Check](/docs/features/run-configurations#configuration-options)** that catches missing mandatory flow parameters before execution,
+a **[Repository Settings](/docs/features/dependencies#repository-configuration)** page for managing Maven repositories via `mvn.json`,
+and a **[Resources Pattern Inspection](/docs/features/inspections)** that validates glob/regex patterns in `resources.concord`.
+
+<!--truncate-->
+
+## Expression Function Completion
+
+Inside `${...}` expressions, pressing <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {label: "Space"}]} win={[{label: "Ctrl"}, {label: "Space"}]} /> now suggests Concord's built-in functions alongside variables. Each suggestion shows a method icon, the function name, its signature, and return type. Parentheses are inserted automatically — with the caret placed inside for functions that take parameters.
+
+Available functions include `hasVariable()`, `hasNonNullVariable()`, `orDefault()`, `currentFlowName()`, `allVariables()`, `hasFlow()`, `uuid()`, and others.
+
+<figure className="docFigure docFigure--sm4">
+    <img src={require('@site/static/img/completion-el-functions.png').default} alt="Expression Function Completion" />
+    <figcaption>
+        Function completion inside an EL expression, showing method icons, signatures, and return types.
+    </figcaption>
+</figure>
+
+## Expression Task Method Completion
+
+When you type a dot after a task name in a `${...}` expression (e.g., `${datetime.}`), the plugin now suggests the public methods available on that task. Method signatures are extracted from the task's dependency JAR at the bytecode level, so they reflect the actual Java API.
+
+<figure className="docFigure docFigure--sm5">
+    <img src={require('@site/static/img/completion-el-task-methods.png').default} alt="Expression Task Method Completion" />
+    <figcaption>
+        Task method completion after a dot, showing method names, parameter signatures, and return types.
+    </figcaption>
+</figure>
+
+## Required Flow Parameters Check
+
+When you run a flow that has mandatory input parameters (declared in a [flow documentation block](/docs/features/flow-docs)), the plugin now checks whether all required parameters have values before execution. If any are missing, it opens the Run Configuration dialog with the missing parameter rows pre-filled, so you can provide values before the flow starts.
+
+## Repository Settings
+
+A new **Settings | Tools | Concord | Repositories** page lets you manage Maven repositories directly from the IDE. The plugin reads and writes Concord CLI's `~/.concord/mvn.json` file, so the IDE and CLI always share the same repository configuration.
+
+Each repository supports authentication, release/snapshot policies, and proxy settings. If no repositories are configured, the plugin falls back to Maven Central.
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/repositories-settings.png').default} alt="Repositories settings page" />
+    <figcaption>
+        The Repositories settings page showing configured Maven repositories and the dependencies cache path.
+    </figcaption>
+</figure>
+
+## Other Improvements
+
+*   **Resources Pattern Inspection:** Invalid glob or regex patterns in `resources.concord` lists are now flagged with a warning, catching typos and syntax errors before runtime.
+*   **Configurable Target Directory:** The target directory for CLI execution (default `.concord/target`) is now configurable in **Settings | Tools | Concord Run Mode**. The directory is automatically excluded from IntelliJ's indexing.
+*   **Call Output Variable Completion:** Output parameters from <span className="tokenBadge" data-kind="step">call</span> steps are now available as variable suggestions in `${...}` expressions within the same step's <span className="tokenBadge" data-kind="step">out</span> block.
+*   **EL Task Name Completion:** Task names from project dependencies are now suggested inside `${...}` expressions, with class icons to distinguish them from variables and functions.
