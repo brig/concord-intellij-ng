@@ -39,6 +39,17 @@ public final class ConcordCliManager {
 
     public record JdkInfo(@NotNull String javaPath, @NotNull String homePath) {}
 
+    public record VersionResult(@Nullable String version, @Nullable String error) {
+
+        public static VersionResult success(@NotNull String version) {
+            return new VersionResult(version, null);
+        }
+
+        public static VersionResult failure(@NotNull String error) {
+            return new VersionResult(null, error);
+        }
+    }
+
     public static @NotNull ConcordCliManager getInstance() {
         return ApplicationManager.getApplication().getService(ConcordCliManager.class);
     }
@@ -144,7 +155,7 @@ public final class ConcordCliManager {
         return Files.isExecutable(p);
     }
 
-    public @Nullable String detectCliVersion(@NotNull String cliPath, @Nullable JdkInfo jdkInfo) {
+    public @NotNull VersionResult detectCliVersion(@NotNull String cliPath, @Nullable JdkInfo jdkInfo) {
         Process process = null;
         try {
             ProcessBuilder pb;
@@ -170,23 +181,33 @@ public final class ConcordCliManager {
             if (!completed) {
                 LOG.warn("CLI version detection timed out");
                 outputFuture.cancel(true);
-                return null;
+                return VersionResult.failure("Timed out after 10s");
             }
 
             var output = outputFuture.get(2, TimeUnit.SECONDS);
             var exitCode = process.exitValue();
 
             if (exitCode == 0 && !output.isEmpty()) {
-                return output.lines().findFirst().orElse(null);
+                var version = output.lines().findFirst().orElse(null);
+                if (version != null) {
+                    return VersionResult.success(version);
+                }
+                return VersionResult.failure("Empty output from CLI");
             }
+
+            var detail = output.isEmpty()
+                    ? "exit code " + exitCode
+                    : "exit code " + exitCode + ": " + output.lines().findFirst().orElse("");
+            LOG.warn("CLI version detection failed: " + detail);
+            return VersionResult.failure(detail);
         } catch (Exception e) {
             LOG.warn("Failed to detect CLI version: " + e.getMessage());
+            return VersionResult.failure(e.getMessage());
         } finally {
             if (process != null && process.isAlive()) {
                 process.destroyForcibly();
             }
         }
-        return null;
     }
 
     public boolean isCliAvailable() {
