@@ -1,22 +1,41 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- run configuration now automatically checks for missing mandatory flow parameters
+([#157](https://github.com/brig/concord-intellij-ng/pull/157))
+- inspection to validate glob/regex patterns in `resources.concord`
+([#156](https://github.com/brig/concord-intellij-ng/pull/156))
+- configurable target directory for CLI and fix CLI version detection
+([#155](https://github.com/brig/concord-intellij-ng/pull/155))
+- EL autocomplete for call step output parameters
+([#154](https://github.com/brig/concord-intellij-ng/pull/154))
+- EL task method autocomplete 
+([#151](https://github.com/brig/concord-intellij-ng/pull/151))
+- built-in function autocomplete in EL expressions
+([#150](https://github.com/brig/concord-intellij-ng/pull/150))
+- repositories settings page with `mvn.json` support
+([#148](https://github.com/brig/concord-intellij-ng/pull/148))
+
 ## 0.20.1 - 2026-02-21
 
 ### Added
 
 - updateMetaOnAllEvents to events configuration
-  ([#146](https://github.com/brig/concord-intellij-ng/pull/146))
+([#146](https://github.com/brig/concord-intellij-ng/pull/146))
 - batchSize and batchFlushInterval to events configuration
-  ([#145](https://github.com/brig/concord-intellij-ng/pull/145))
+([#145](https://github.com/brig/concord-intellij-ng/pull/145))
 - support for interpreting dotted keys in set: steps (e.g., a.b: 1) as nested object variables for schema inference and variable discovery
-  ([#141](https://github.com/brig/concord-intellij-ng/pull/141))
+([#141](https://github.com/brig/concord-intellij-ng/pull/141))
 
 ### Changed
 
 - fixes issues with the EL (Expression Language) parser
-  ([#144](https://github.com/brig/concord-intellij-ng/pull/144))
+([#144](https://github.com/brig/concord-intellij-ng/pull/144))
 - handle quoted return/exit step values
-  ([#143](https://github.com/brig/concord-intellij-ng/pull/143))
+([#143](https://github.com/brig/concord-intellij-ng/pull/143))
 
 ## 0.20.0 - 2026-02-21
 

@@ -114,7 +114,7 @@ jobs:
           cat <<EOF > "$BLOG_FILE"
           ---
           slug: whats-new-${NEXT_VERSION}
-          title: What’s New in Concord IntelliJ ${NEXT_VERSION}
+          title: What's New in Concord IntelliJ ${NEXT_VERSION}
           authors: [brig]
           tags: [release]
           ---
