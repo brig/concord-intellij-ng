@@ -1,0 +1,88 @@
+---
+title: Schema Validation
+description: Real-time error checking for Concord YAML
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+
+# Schema Validation
+
+The Concord IntelliJ Plugin provides deep, semantic validation of your project. It doesn't just check for valid YAML syntax; it understands the rules of the Concord DSL and flags logical errors in real-time.
+
+## Key Inspections
+
+### Unknown or Invalid Keys
+If you misspell a keyword or place it in the wrong context, the IDE will highlight it immediately.
+
+```concord
+flows:
+  main:
+    stepps: # Error: Unexpected key 'stepps'
+      - log: "Hello"
+```
+
+### Missing Required Keys
+Some steps require specific keys to be functional. For example, an <span className="tokenBadge" data-kind="step">if</span> step must have a <span className="tokenBadge" data-kind="step">then</span> block.
+
+```concord
+flows:
+  main:
+    - if: "${deployFailed}" # Error: Missing required key 'then'
+```
+
+### Duplicate Flow Definitions
+Namespaces (Scopes) must have unique flow names. The plugin detects when you accidentally define the same flow multiple times across different files.
+
+```concord
+# In project-a/concord.yaml
+flows:
+  myFlow: # Warning: Duplicate flow definition
+    - log: "A"
+
+# In project-a/flows/utils.yaml
+flows:
+  myFlow: # Warning: Duplicate flow definition
+    - log: "B"
+```
+
+### Documentation Block Validation
+The plugin also validates the content of your [Flow Documentation](./flow-docs), checking for valid types and keywords.
+
+```concord
+flows:
+  ##
+  # in:
+  #    userName: strnig
+  ##
+  main:
+    - log: "Hello, ${userName}"
+```
+
+## How to Configure
+
+Validation is implemented as standard IntelliJ inspections. You can customize their severity or disable them entirely:
+
+1.  Open **Settings | Editor | Inspections**.
+2.  Navigate to the **Concord** section.
+3.  Adjust the severity of individual checks (Error, Warning, Weak Warning, etc.).
+
+## Example
+
+### Catching Errors Early
+
+Real-time validation helps you fix issues before you even try to run the flow:
+
+:::tip Try it yourself
+Intentionally misspell a keyword like `log` as `logg` and see the IDE highlight it with an error description.
+:::
+
+<figure className="docFigure docFigure--sm">
+    <img src={require('@site/static/img/validation.png').default} alt="Validation Example" />
+    <figcaption>
+        Real-time validation highlighting a missing required key in an <code>if</code> step.
+    </figcaption>
+</figure>
+
+:::note Integrated Quick Fixes
+Many validation errors come with suggested [Quick Fixes](./quick-fixes). Press <Keystroke mac={[{icon: "⌥", label: "Alt"}, {label: "⏎"}]} win={[{label: "Alt"}, {label: "Enter"}]} /> to see available solutions.
+:::
