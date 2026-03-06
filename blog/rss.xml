@@ -4,10 +4,46 @@
         <title>Concord IntelliJ Plugin Blog</title>
         <link>https://brig.github.io/concord-intellij-ng/blog</link>
         <description>Concord IntelliJ Plugin Blog</description>
-        <lastBuildDate>Sat, 21 Feb 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Thu, 05 Mar 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[What's New in Concord IntelliJ 0.21.0]]></title>
+            <link>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.21.0</link>
+            <guid>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.21.0</guid>
+            <pubDate>Thu, 05 Mar 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[The 0.21.0 release extends Expression Language support with]]></description>
+            <content:encoded><![CDATA[<p>The <code>0.21.0</code> release extends Expression Language support with
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/completion#expression-function-completion">Built-in Function Completion</a></strong>,
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/completion#expression-task-method-completion">Task Method Completion</a></strong>, and
+<strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/completion#call-output-parameter-completion">Call Output Parameter Completion</a></strong> inside <code>${...}</code> expressions,
+adds a <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/run-configurations#configuration-options">Required Parameters Check</a></strong> that catches missing mandatory flow parameters before execution,
+a <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/dependencies#repository-configuration">Repository Settings</a></strong> page for managing Maven repositories via <code>mvn.json</code>,
+and a <strong><a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/inspections">Resources Pattern Inspection</a></strong> that validates glob/regex patterns in <code>resources.concord</code>.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="expression-function-completion">Expression Function Completion<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.21.0#expression-function-completion" class="hash-link" aria-label="Direct link to Expression Function Completion" title="Direct link to Expression Function Completion" translate="no">​</a></h2>
+<p>Inside <code>${...}</code> expressions, pressing <span class="keystroke__keystrokes"><kbd class="keystroke">Ctrl</kbd><kbd class="keystroke">Space</kbd></span> now suggests Concord's built-in functions alongside variables. Each suggestion shows a method icon, the function name, its signature, and return type. Parentheses are inserted automatically — with the caret placed inside for functions that take parameters.</p>
+<p>Available functions include <code>hasVariable()</code>, <code>hasNonNullVariable()</code>, <code>orDefault()</code>, <code>currentFlowName()</code>, <code>allVariables()</code>, <code>hasFlow()</code>, <code>uuid()</code>, and others.</p>
+<figure class="docFigure docFigure--sm4"><img src="https://brig.github.io/concord-intellij-ng/assets/images/completion-el-functions-5b753b63bbb4d610dc80804b0d98f3e8.png" alt="Expression Function Completion"><figcaption><p>Function completion inside an EL expression, showing method icons, signatures, and return types.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="expression-task-method-completion">Expression Task Method Completion<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.21.0#expression-task-method-completion" class="hash-link" aria-label="Direct link to Expression Task Method Completion" title="Direct link to Expression Task Method Completion" translate="no">​</a></h2>
+<p>When you type a dot after a task name in a <code>${...}</code> expression (e.g., <code>${datetime.}</code>), the plugin now suggests the public methods available on that task. Method signatures are extracted from the task's dependency JAR at the bytecode level, so they reflect the actual Java API.</p>
+<figure class="docFigure docFigure--sm5"><img src="https://brig.github.io/concord-intellij-ng/assets/images/completion-el-task-methods-2b224db7190e8b457c8e986e448a1902.png" alt="Expression Task Method Completion"><figcaption><p>Task method completion after a dot, showing method names, parameter signatures, and return types.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="required-flow-parameters-check">Required Flow Parameters Check<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.21.0#required-flow-parameters-check" class="hash-link" aria-label="Direct link to Required Flow Parameters Check" title="Direct link to Required Flow Parameters Check" translate="no">​</a></h2>
+<p>When you run a flow that has mandatory input parameters (declared in a <a class="" href="https://brig.github.io/concord-intellij-ng/docs/features/flow-docs">flow documentation block</a>), the plugin now checks whether all required parameters have values before execution. If any are missing, it opens the Run Configuration dialog with the missing parameter rows pre-filled, so you can provide values before the flow starts.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="repository-settings">Repository Settings<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.21.0#repository-settings" class="hash-link" aria-label="Direct link to Repository Settings" title="Direct link to Repository Settings" translate="no">​</a></h2>
+<p>A new <strong>Settings | Tools | Concord | Repositories</strong> page lets you manage Maven repositories directly from the IDE. The plugin reads and writes Concord CLI's <code>~/.concord/mvn.json</code> file, so the IDE and CLI always share the same repository configuration.</p>
+<p>Each repository supports authentication, release/snapshot policies, and proxy settings. If no repositories are configured, the plugin falls back to Maven Central.</p>
+<figure class="docFigure docFigure--lg"><img src="https://brig.github.io/concord-intellij-ng/assets/images/repositories-settings-7f0d53cb873904d9070fabc5d652271c.png" alt="Repositories settings page"><figcaption><p>The Repositories settings page showing configured Maven repositories and the dependencies cache path.</p></figcaption></figure>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="other-improvements">Other Improvements<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.21.0#other-improvements" class="hash-link" aria-label="Direct link to Other Improvements" title="Direct link to Other Improvements" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Resources Pattern Inspection:</strong> Invalid glob or regex patterns in <code>resources.concord</code> lists are now flagged with a warning, catching typos and syntax errors before runtime.</li>
+<li class=""><strong>Configurable Target Directory:</strong> The target directory for CLI execution (default <code>.concord/target</code>) is now configurable in <strong>Settings | Tools | Concord Run Mode</strong>. The directory is automatically excluded from IntelliJ's indexing.</li>
+<li class=""><strong>Call Output Variable Completion:</strong> Output parameters from <span class="tokenBadge" data-kind="step">call</span> steps are now available as variable suggestions in <code>${...}</code> expressions within the same step's <span class="tokenBadge" data-kind="step">out</span> block.</li>
+<li class=""><strong>EL Task Name Completion:</strong> Task names from project dependencies are now suggested inside <code>${...}</code> expressions, with class icons to distinguish them from variables and functions.</li>
+</ul>]]></content:encoded>
+            <category>Release</category>
+            <category>Features</category>
+        </item>
         <item>
             <title><![CDATA[What's New in Concord IntelliJ 0.20.0]]></title>
             <link>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.20.0</link>
