@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+- code folding uses step `name` field as placeholder text when available                                                                                                 
+([#160](https://github.com/brig/concord-intellij-ng/pull/160)) 
+
 ## 0.21.0 - 2026-03-05
 
 ### Added
