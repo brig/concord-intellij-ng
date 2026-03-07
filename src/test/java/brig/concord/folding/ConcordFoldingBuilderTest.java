@@ -145,6 +145,20 @@ class ConcordFoldingBuilderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testTaskStepWithNamePlaceholder() {
+        configureFromText("""
+                flows:
+                  default:
+                    - task: myTask
+                      name: "Deploy to production"
+                      in:
+                        param: value
+                """);
+
+        foldRegion(seqItem("/flows/default", 0)).assertPlaceholderText("- task: Deploy to production");
+    }
+
+    @Test
     void testCallStepPlaceholder() {
         configureFromText("""
                 flows:
@@ -431,8 +445,7 @@ class ConcordFoldingBuilderTest extends ConcordYamlTestBaseJunit5 {
                       name: myError
                 """);
 
-        // "something went wrong" is exactly 20 chars, no truncation
-        foldRegion(seqItem("/flows/default", 0)).assertPlaceholderText("- throw: something went wrong");
+        foldRegion(seqItem("/flows/default", 0)).assertPlaceholderText("- throw: myError");
     }
 
     @Test
