@@ -120,7 +120,19 @@ public class ConcordFoldingBuilder extends CustomFoldingBuilder {
 
     private static @NotNull String stepPlaceholder(@NotNull YAMLMapping mapping, @NotNull StepElementMetaType meta) {
         var identity = meta.findEntry(mapping);
-        return identity != null ? getValuedPlaceholder(mapping, identity.getIdentity()) : "- ...";
+        if (identity == null) {
+            return "- ...";
+        }
+
+        var nameKv = mapping.getKeyValueByKey("name");
+        if (nameKv != null && nameKv.getValue() instanceof YAMLScalar nameScalar) {
+            var nameText = nameScalar.getTextValue();
+            if (!nameText.isEmpty()) {
+                return "- " + identity.getIdentity() + ": " + normalizePlaceholderText(nameText);
+            }
+        }
+
+        return getValuedPlaceholder(mapping, identity.getIdentity());
     }
 
     private static @NotNull String triggerPlaceholder(@NotNull YAMLMapping mapping, @NotNull TriggerElementMetaType meta) {

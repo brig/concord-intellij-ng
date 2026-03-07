@@ -34,6 +34,7 @@ const sidebars: SidebarsConfig = {
         'features/find-usages',
         'features/call-hierarchy',
         'features/structure-view',
+        'features/code-folding',
         'features/rename',
         'features/flow-docs',
         'features/hover-docs',
