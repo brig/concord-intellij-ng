@@ -4,6 +4,8 @@
 
 ### Changed
 
+- skip v1 task classes in dependency extraction, include static methods
+([#161](https://github.com/brig/concord-intellij-ng/pull/161)) 
 - code folding uses step `name` field as placeholder text when available                                                                                                 
 ([#160](https://github.com/brig/concord-intellij-ng/pull/160)) 
 
