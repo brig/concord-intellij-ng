@@ -159,6 +159,20 @@ class ConcordFoldingBuilderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testTaskStepWithEmptyNamePlaceholder() {
+        configureFromText("""
+                flows:
+                  default:
+                    - task: myTask
+                      name: ""
+                      in:
+                        param: value
+                """);
+
+        foldRegion(seqItem("/flows/default", 0)).assertPlaceholderText("- task: myTask");
+    }
+
+    @Test
     void testCallStepPlaceholder() {
         configureFromText("""
                 flows:
