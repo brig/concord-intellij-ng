@@ -1,0 +1,129 @@
+---
+title: Code Folding
+description: Collapse and expand Concord YAML sections with smart placeholders
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+
+# Code Folding
+
+The Concord IntelliJ Plugin provides **smart code folding** that understands the structure of your flows. Instead of collapsing to generic `...` markers, folded regions display meaningful placeholders that tell you what each collapsed block contains at a glance.
+
+## Smart Placeholders
+
+When you collapse a step, the plugin shows a one-line summary that identifies the step type and its primary value:
+
+```concord
+flows:
+  deploy:
+    - task: myTask        # folds to: - task: myTask
+    - call: buildApp      # folds to: - call: buildApp
+    - if: ${env == "prod"} # folds to: - if: ${env == "prod"}
+      then:
+        - log: "prod"
+    - try:                 # folds to: - try: ...
+        - log: attempt
+```
+
+### Named Steps
+
+When a step has a <span className="tokenBadge" data-kind="step">name</span> field, the folded placeholder uses the name instead of the step's primary value. This makes it easy to scan a flow at a high level when steps have descriptive names:
+
+```concord
+flows:
+  deploy:
+    - task: s3             # folds to: - task: Upload artifacts
+      name: "Upload artifacts"
+      in:
+        bucket: my-bucket
+        src: ./build/
+
+    - task: ansible        # folds to: - task: Configure servers
+      name: "Configure servers"
+      in:
+        playbook: deploy.yml
+```
+
+Without a `name` field, the placeholder falls back to the step's identity value (e.g., `- task: s3`).
+
+## What Gets Folded
+
+The plugin creates fold regions for the following elements:
+
+### Top-Level Sections
+
+Sections like <span className="tokenBadge" data-kind="section">configuration</span>, <span className="tokenBadge" data-kind="section">flows</span>, <span className="tokenBadge" data-kind="section">triggers</span>, <span className="tokenBadge" data-kind="section">imports</span>, <span className="tokenBadge" data-kind="section">forms</span>, and <span className="tokenBadge" data-kind="section">profiles</span> fold to `sectionName: ...`.
+
+### Flow Steps
+
+Each step in a flow folds to a placeholder showing its type and primary value:
+
+| Step                                                        | Placeholder Example      |
+|-------------------------------------------------------------|--------------------------|
+| <span className="tokenBadge" data-kind="step">task</span>   | `- task: myTask`         |
+| <span className="tokenBadge" data-kind="step">call</span>   | `- call: buildApp`       |
+| <span className="tokenBadge" data-kind="step">if</span>     | `- if: ${condition}`     |
+| <span className="tokenBadge" data-kind="step">switch</span> | `- switch: ${action}`    |
+| <span className="tokenBadge" data-kind="step">log</span>    | `- log: Starting deploy` |
+| <span className="tokenBadge" data-kind="step">script</span> | `- script: groovy`       |
+| <span className="tokenBadge" data-kind="step">expr</span>   | `- expr: ${result}`      |
+| <span className="tokenBadge" data-kind="step">throw</span>  | `- throw: errorName`     |
+| <span className="tokenBadge" data-kind="step">try</span>    | `- try: ...`             |
+| <span className="tokenBadge" data-kind="step">block</span>  | `- block: ...`           |
+
+Step sub-keys like `in`, `out`, `then`, `else`, and `error` are also individually foldable.
+
+### Imports
+
+Import entries show the import type and its primary URL or path:
+
+```concord
+imports:
+  - git:                  # folds to: - git: https://github.com/example/repo
+      url: "https://github.com/example/repo"
+      version: "main"
+  - dir:                  # folds to: - dir: /src
+      src: /src
+```
+
+### Triggers
+
+Trigger entries fold to show the trigger type:
+
+```concord
+triggers:
+  - github:               # folds to: - github: ...
+      entryPoint: onPush
+  - cron:                 # folds to: - cron: ...
+      spec: "0 12 * * *"
+```
+
+### Cron Expressions
+
+Cron `spec` values are folded by default and display a **human-readable description** of the schedule:
+
+```concord
+triggers:
+  - cron:
+      spec: "0 12 * * *"   # folds to: At 12:00 PM every day
+```
+
+:::tip
+Cron expression folding is collapsed by default, so you see the readable description immediately without manually folding.
+:::
+
+## Keyboard Shortcuts
+
+| Action                | macOS                                                                                                                                                         | Windows / Linux                                                                                                                                               |
+|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Fold current region   | <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {label: "-"}]} win={[{label: "Ctrl"}, {label: "-"}]} />                                                           | <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {label: "-"}]} win={[{label: "Ctrl"}, {label: "-"}]} />                                                           |
+| Expand current region | <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {label: "+"}]} win={[{label: "Ctrl"}, {label: "+"}]} />                                                           | <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {label: "+"}]} win={[{label: "Ctrl"}, {label: "+"}]} />                                                           |
+| Fold all              | <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {icon: "⇧", label: "Shift"}, {label: "-"}]} win={[{label: "Ctrl"}, {icon: "⇧", label: "Shift"}, {label: "-"}]} /> | <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {icon: "⇧", label: "Shift"}, {label: "-"}]} win={[{label: "Ctrl"}, {icon: "⇧", label: "Shift"}, {label: "-"}]} /> |
+| Expand all            | <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {icon: "⇧", label: "Shift"}, {label: "+"}]} win={[{label: "Ctrl"}, {icon: "⇧", label: "Shift"}, {label: "+"}]} /> | <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {icon: "⇧", label: "Shift"}, {label: "+"}]} win={[{label: "Ctrl"}, {icon: "⇧", label: "Shift"}, {label: "+"}]} /> |
+
+<figure className="docFigure docFigure--sm2">
+    <img src={require('@site/static/img/code-folding.png').default} alt="Code folding overview" />
+    <figcaption>
+        A Concord file with several steps folded, showing smart placeholders.
+    </figcaption>
+</figure>
