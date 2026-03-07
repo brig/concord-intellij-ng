@@ -130,11 +130,27 @@ public final class TaskInfoExtractor {
 
     private static class TaskClassVisitor extends ClassVisitor {
 
+        private static final String V2_TASK_INTERFACE = "com/walmartlabs/concord/runtime/v2/sdk/Task";
+
+        private boolean isV2Task;
         private String namedValue;
         private final List<TaskMethod> methods = new ArrayList<>();
 
         TaskClassVisitor() {
             super(Opcodes.ASM9);
+        }
+
+        @Override
+        public void visit(int version, int access, String name, String signature,
+                          String superName, String[] interfaces) {
+            if (interfaces != null) {
+                for (var iface : interfaces) {
+                    if (V2_TASK_INTERFACE.equals(iface)) {
+                        isV2Task = true;
+                        return;
+                    }
+                }
+            }
         }
 
         @Override
@@ -175,9 +191,6 @@ public final class TaskInfoExtractor {
             if ((access & Opcodes.ACC_PUBLIC) == 0) {
                 return false;
             }
-            if ((access & Opcodes.ACC_STATIC) != 0) {
-                return false;
-            }
             if ((access & (Opcodes.ACC_SYNTHETIC | Opcodes.ACC_BRIDGE)) != 0) {
                 return false;
             }
@@ -188,7 +201,7 @@ public final class TaskInfoExtractor {
         }
 
         @Nullable String getNamedValue() {
-            return namedValue;
+            return isV2Task ? namedValue : null;
         }
 
         @NotNull List<TaskMethod> getMethods() {

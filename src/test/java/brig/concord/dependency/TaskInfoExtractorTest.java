@@ -12,12 +12,14 @@ import java.nio.file.Path;
 import java.util.jar.JarOutputStream;
 import java.nio.file.Files;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TaskInfoExtractorTest {
 
     private final TaskInfoExtractor extractor = new TaskInfoExtractor();
-
 
     @Test
     void extractReturnsTaskInfos() {
@@ -69,9 +71,51 @@ class TaskInfoExtractorTest {
         assertEquals("Date", SchemaType.displayName(dateType));
     }
 
+    @Test
+    void extractSkipsV1Tasks() {
+        var jarPath = getJarPath("/dependency/misc-tasks-2.36.1-SNAPSHOT.jar");
+        var taskInfos = extractor.extract(jarPath);
+
+        // SISU index has 7 classes, but only 5 are v2 (implement runtime.v2.sdk.Task)
+        // DateTimeTask(v1) and MiscTask(v1) should be skipped
+        assertEquals(5, taskInfos.size());
+        assertThat(taskInfos).containsOnlyKeys("datetime", "misc", "collections", "base64", "env");
+    }
+
+    @Test
+    void extractV2TaskMethods() {
+        var jarPath = getJarPath("/dependency/misc-tasks-2.36.1-SNAPSHOT.jar");
+        var taskInfos = extractor.extract(jarPath);
+
+        // DateTimeTaskV2 — has currentISO which v1 doesn't have
+        var datetimeMethods = methodNames(taskInfos.get("datetime"));
+        assertThat(datetimeMethods).contains("current", "currentISO", "currentWithZone", "format", "parse");
+
+        // MiscTaskV2 — has trim, does NOT have throwBpmnError (only v1 has it)
+        var miscMethods = methodNames(taskInfos.get("misc"));
+        assertThat(miscMethods).contains("throwRuntimeException", "trim");
+        assertThat(miscMethods).doesNotContain("throwBpmnError");
+
+        // CollectionsTaskV2 — all methods are static, but we still extract them
+        var collectionsMethods = methodNames(taskInfos.get("collections"));
+        assertThat(collectionsMethods).contains("concat", "concatAsSet", "reverse", "range", "newMap");
+    }
+
+    private static List<String> methodNames(TaskInfo info) {
+        assertNotNull(info);
+        return info.methods().stream()
+                .map(TaskMethod::name)
+                .distinct()
+                .toList();
+    }
+
     private Path getTestJarPath() {
-        var url = getClass().getResource("/dependency/git-task-2.12.0.jar");
-        assertNotNull(url, "Test JAR not found on classpath");
+        return getJarPath("/dependency/git-task-2.12.0.jar");
+    }
+
+    private Path getJarPath(String resourcePath) {
+        var url = getClass().getResource(resourcePath);
+        assertNotNull(url, "Test JAR not found on classpath: " + resourcePath);
         try {
             return Path.of(url.toURI());
         } catch (URISyntaxException e) {
