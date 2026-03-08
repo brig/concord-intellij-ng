@@ -25,6 +25,7 @@ public final class TaskInfoExtractor {
 
     private static final String SISU_JAVAX_INDEX_PATH = "META-INF/sisu/javax.inject.Named";
     private static final String JAVAX_NAMED_DESCRIPTOR = "Ljavax/inject/Named;";
+    private static final String V2_TASK_INTERFACE = "com/walmartlabs/concord/runtime/v2/sdk/Task";
 
     private static final Set<String> EXCLUDED_METHODS = Set.of(
             "execute", "equals", "hashCode", "toString", "getClass",
@@ -74,8 +75,8 @@ public final class TaskInfoExtractor {
     }
 
     private static @Nullable TaskInfo extractTaskInfo(@NotNull JarFile jarFile, @NotNull String className) {
-        var classPath = className.replace('.', '/') + ".class";
-        var entry = jarFile.getEntry(classPath);
+        var internalName = className.replace('.', '/');
+        var entry = jarFile.getEntry(internalName + ".class");
         if (entry == null) {
             return null;
         }
@@ -84,6 +85,10 @@ public final class TaskInfoExtractor {
             var reader = new ClassReader(is);
             var visitor = new TaskClassVisitor();
             reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+
+            if (!isV2Task(jarFile, visitor, new HashSet<>())) {
+                return null;
+            }
 
             var namedValue = visitor.getNamedValue();
             if (namedValue == null) {
@@ -95,6 +100,46 @@ public final class TaskInfoExtractor {
             LOG.debug("Failed to read class: " + className, e);
             return null;
         }
+    }
+
+    // Checks if the already-visited class is a v2 Task, walking superclasses and interfaces within the JAR.
+    // The target interface (V2_TASK_INTERFACE) itself typically lives outside the JAR (in the SDK),
+    // so it's matched by name before attempting to load the class file.
+    private static boolean isV2Task(@NotNull JarFile jarFile, @NotNull HierarchyVisitor visitor,
+                                    @NotNull Set<String> visited) {
+        for (var iface : visitor.getInterfaces()) {
+            if (V2_TASK_INTERFACE.equals(iface) || isV2Task(jarFile, iface, visited)) {
+                return true;
+            }
+        }
+
+        var superName = visitor.getSuperName();
+        if (superName != null) {
+            return isV2Task(jarFile, superName, visited);
+        }
+        return false;
+    }
+
+    private static boolean isV2Task(@NotNull JarFile jarFile, @NotNull String internalName,
+                                    @NotNull Set<String> visited) {
+        if (internalName.equals("java/lang/Object") || !visited.add(internalName)) {
+            return false;
+        }
+
+        var entry = jarFile.getEntry(internalName + ".class");
+        if (entry == null) {
+            return false;
+        }
+
+        try (var is = jarFile.getInputStream(entry)) {
+            var reader = new ClassReader(is);
+            var visitor = new HierarchyVisitor();
+            reader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+            return isV2Task(jarFile, visitor, visited);
+        } catch (Exception e) {
+            LOG.debug("Failed to check class hierarchy: " + internalName, e);
+        }
+        return false;
     }
 
     static @NotNull SchemaType toSchemaType(@NotNull Type type) {
@@ -128,14 +173,37 @@ public final class TaskInfoExtractor {
         };
     }
 
-    private static class TaskClassVisitor extends ClassVisitor {
+    private static class HierarchyVisitor extends ClassVisitor {
+
+        private String superName;
+        private String @NotNull [] interfaces = new String[0];
+
+        HierarchyVisitor() {
+            super(Opcodes.ASM9);
+        }
+
+        @Override
+        public void visit(int version, int access, String name, String signature,
+                          String superName, String[] interfaces) {
+            this.superName = superName;
+            if (interfaces != null) {
+                this.interfaces = interfaces;
+            }
+        }
+
+        @NotNull String[] getInterfaces() {
+            return interfaces;
+        }
+
+        @Nullable String getSuperName() {
+            return superName;
+        }
+    }
+
+    private static class TaskClassVisitor extends HierarchyVisitor {
 
         private String namedValue;
         private final List<TaskMethod> methods = new ArrayList<>();
-
-        TaskClassVisitor() {
-            super(Opcodes.ASM9);
-        }
 
         @Override
         public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
@@ -173,9 +241,6 @@ public final class TaskInfoExtractor {
 
         private static boolean isEligibleMethod(int access, String name) {
             if ((access & Opcodes.ACC_PUBLIC) == 0) {
-                return false;
-            }
-            if ((access & Opcodes.ACC_STATIC) != 0) {
                 return false;
             }
             if ((access & (Opcodes.ACC_SYNTHETIC | Opcodes.ACC_BRIDGE)) != 0) {
