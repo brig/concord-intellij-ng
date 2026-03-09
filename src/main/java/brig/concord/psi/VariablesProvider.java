@@ -346,12 +346,9 @@ public final class VariablesProvider {
 
         var cursorEntry = findDirectChild(setMapping, cursor);
 
-        var entries = new ArrayList<YAMLKeyValue>();
-        for (var entry : setMapping.getKeyValues()) {
-            if (entry != cursorEntry) {
-                entries.add(entry);
-            }
-        }
+        var entries = setMapping.getKeyValues().stream()
+                .filter(e -> e != cursorEntry)
+                .toList();
 
         if (entries.isEmpty()) {
             return List.of();
@@ -365,7 +362,7 @@ public final class VariablesProvider {
     private static @Nullable YAMLKeyValue findDirectChild(@NotNull YAMLMapping mapping, @NotNull PsiElement descendant) {
         var kv = PsiTreeUtil.getParentOfType(descendant, YAMLKeyValue.class);
         while (kv != null && kv.getParent() != mapping) {
-            kv = PsiTreeUtil.getParentOfType(kv, YAMLKeyValue.class);
+            kv = PsiTreeUtil.getParentOfType(kv, YAMLKeyValue.class, true);
         }
         return kv;
     }
