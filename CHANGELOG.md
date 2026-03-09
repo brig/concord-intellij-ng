@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+
+- show set step variables in EL completion within the same step
+([#162](https://github.com/brig/concord-intellij-ng/pull/162)) 
+
 ### Changed
 
 - skip v1 task classes in dependency extraction, include static methods
