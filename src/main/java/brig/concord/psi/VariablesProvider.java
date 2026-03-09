@@ -36,13 +36,15 @@ public final class VariablesProvider {
         var baseVars = getCachedBaseVariables(stepItem);
         var resultVar = resolveTaskResult(stepItem, element);
         var callOutVars = resolveCallOutParams(stepItem, element);
+        var currentSetVars = resolveCurrentSetVars(stepItem, element);
 
-        if (resultVar == null && callOutVars.isEmpty()) {
+        if (resultVar == null && callOutVars.isEmpty() && currentSetVars.isEmpty()) {
             return baseVars;
         }
 
-        List<Variable> all = new ArrayList<>(baseVars.size() + callOutVars.size() + (resultVar != null ? 1 : 0));
+        List<Variable> all = new ArrayList<>(baseVars.size() + currentSetVars.size() + callOutVars.size() + (resultVar != null ? 1 : 0));
         all.addAll(baseVars);
+        all.addAll(currentSetVars);
         if (resultVar != null) {
             all.add(resultVar);
         }
@@ -131,7 +133,11 @@ public final class VariablesProvider {
             }
 
             switch (kv.getKeyText()) {
-                case "set" -> collectSetVars(value, collector);
+                case "set" -> {
+                    if (value instanceof YAMLMapping setMapping) {
+                        collectSetVars(setMapping.getKeyValues(), collector);
+                    }
+                }
                 case "out" -> extractOutVars(value, collector, resolver);
                 case "then", "else", "try", "error", "block" -> collectFromBranch(value, collector);
             }
@@ -178,29 +184,29 @@ public final class VariablesProvider {
         }
     }
 
-    private static void collectSetVars(YAMLValue value, VariableCollector collector) {
-        if (value instanceof YAMLMapping m) {
-            Map<String, DottedKeyNode> roots = new LinkedHashMap<>();
+    private static void collectSetVars(Collection<? extends YAMLKeyValue> entries, VariableCollector collector) {
+        Map<String, DottedKeyNode> roots = new LinkedHashMap<>();
+        Map<String, YAMLKeyValue> rootDeclarations = new LinkedHashMap<>();
 
-            for (var entry : m.getKeyValues()) {
-                var name = entry.getKeyText().trim();
-                if (name.isEmpty()) {
-                    continue;
-                }
-
-                var segments = name.split("\\.", -1);
-                if (segments.length > 1 && allSegmentsNonEmpty(segments)) {
-                    roots.computeIfAbsent(segments[0], k -> new DottedKeyNode())
-                            .insert(segments, 1, SchemaInference.inferSchema(name, entry.getValue()).schemaType());
-                } else {
-                    collector.add(new Variable(name, VariableSource.SET_STEP, entry, SchemaInference.inferSchema(name, entry.getValue())));
-                }
+        for (var entry : entries) {
+            var name = entry.getKeyText().trim();
+            if (name.isEmpty()) {
+                continue;
             }
 
-            for (var entry : roots.entrySet()) {
-                collector.add(new Variable(entry.getKey(), VariableSource.SET_STEP, m,
-                        new SchemaProperty(entry.getKey(), entry.getValue().toSchemaType(), null, false)));
+            var segments = name.split("\\.", -1);
+            if (segments.length > 1 && allSegmentsNonEmpty(segments)) {
+                roots.computeIfAbsent(segments[0], k -> new DottedKeyNode())
+                        .insert(segments, 1, SchemaInference.inferSchema(name, entry.getValue()).schemaType());
+                rootDeclarations.putIfAbsent(segments[0], entry);
+            } else {
+                collector.add(new Variable(name, VariableSource.SET_STEP, entry, SchemaInference.inferSchema(name, entry.getValue())));
             }
+        }
+
+        for (var entry : roots.entrySet()) {
+            collector.add(new Variable(entry.getKey(), VariableSource.SET_STEP, rootDeclarations.get(entry.getKey()),
+                    new SchemaProperty(entry.getKey(), entry.getValue().toSchemaType(), null, false)));
         }
     }
 
@@ -322,6 +328,46 @@ public final class VariablesProvider {
             return SchemaProperty.any(name);
         }
         return new SchemaProperty(name, new SchemaType.Object(properties), "task result", false);
+    }
+
+    private static @NotNull List<Variable> resolveCurrentSetVars(@NotNull YAMLSequenceItem stepItem, @NotNull PsiElement cursor) {
+        if (!(stepItem.getValue() instanceof YAMLMapping m)) {
+            return List.of();
+        }
+
+        var setKv = m.getKeyValueByKey("set");
+        if (setKv == null || !(setKv.getValue() instanceof YAMLMapping setMapping)) {
+            return List.of();
+        }
+
+        if (!PsiTreeUtil.isAncestor(setKv, cursor, false)) {
+            return List.of();
+        }
+
+        var cursorEntry = findDirectChild(setMapping, cursor);
+
+        var entries = new ArrayList<YAMLKeyValue>();
+        for (var entry : setMapping.getKeyValues()) {
+            if (entry != cursorEntry) {
+                entries.add(entry);
+            }
+        }
+
+        if (entries.isEmpty()) {
+            return List.of();
+        }
+
+        var collector = new VariableCollector(stepItem.getProject());
+        collectSetVars(entries, collector);
+        return collector.toList();
+    }
+
+    private static @Nullable YAMLKeyValue findDirectChild(@NotNull YAMLMapping mapping, @NotNull PsiElement descendant) {
+        var kv = PsiTreeUtil.getParentOfType(descendant, YAMLKeyValue.class);
+        while (kv != null && kv.getParent() != mapping) {
+            kv = PsiTreeUtil.getParentOfType(kv, YAMLKeyValue.class);
+        }
+        return kv;
     }
 
     private static @Nullable Variable resolveTaskResult(@NotNull YAMLSequenceItem stepItem, @NotNull PsiElement cursor) {
