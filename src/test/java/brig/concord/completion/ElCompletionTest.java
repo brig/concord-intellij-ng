@@ -72,6 +72,60 @@ class ElCompletionTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testSetStepVariablesVisibleInSameStep() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        key: "value"
+                        key2: "${<caret>}"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("key");
+    }
+
+    @Test
+    void testSetStepOwnKeyNotVisibleInSameStep() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        key: "${<caret>}"
+                        key2: "value2"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("key2");
+        assertThat(lookups).doesNotContain("key");
+    }
+
+    @Test
+    void testSetStepNestedValueExcludesOwnKey() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        config:
+                          nested: "${<caret>}"
+                        otherKey: "value"
+                """);
+
+        myFixture.complete(CompletionType.BASIC);
+
+        var lookups = myFixture.getLookupElementStrings();
+        assertNotNull(lookups);
+        assertThat(lookups).contains("otherKey");
+        assertThat(lookups).doesNotContain("config");
+    }
+
+    @Test
     void testFlowDocParamsVisible() {
         configureFromText("""
                 flows:
