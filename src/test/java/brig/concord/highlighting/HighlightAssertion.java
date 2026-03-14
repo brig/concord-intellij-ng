@@ -432,7 +432,7 @@ public class HighlightAssertion {
         return merged;
     }
 
-    private static TextAttributesKey infoKey(HighlightInfo info) {
+    static TextAttributesKey infoKey(HighlightInfo info) {
         return info.forcedTextAttributesKey != null
                 ? info.forcedTextAttributesKey
                 : (info.getHighlighter() != null ? info.getHighlighter().getTextAttributesKey() : null);

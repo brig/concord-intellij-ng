@@ -3,6 +3,11 @@ package brig.concord.highlighting;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
 class StepsHighlightingTest extends HighlightingTestBase {
 
     @Test
@@ -410,5 +415,94 @@ class StepsHighlightingTest extends HighlightingTestBase {
             """);
 
         highlight(value("/flows/default[0]")).is(ConcordHighlightingColors.STEP_KEYWORD);
+    }
+
+    @Test
+    void testCommentedOutStepNotHighlighted() {
+        configureFromText("""
+            flows:
+              datavantPortalIngestion:
+            #    - call: datavantPortalIngestionSetupDb
+
+                - log: ""
+            """);
+
+        assertNoSemanticHighlightsInComments();
+    }
+
+    @Test
+    void testCommentedOutStepWithIndent() {
+        configureFromText("""
+            flows:
+              default:
+                # - call: myFlow
+                - log: "hello"
+            """);
+
+        assertNoSemanticHighlightsInComments();
+    }
+
+    @Test
+    void testMultipleCommentedOutSteps() {
+        configureFromText("""
+            flows:
+              default:
+                # - call: myFlow
+                # - task: http
+                - log: "hello"
+            """);
+
+        assertNoSemanticHighlightsInComments();
+    }
+
+    @Test
+    void testCommentedOutStepNoBlankLine() {
+        configureFromText("""
+            flows:
+              default:
+                #- call: myFlow
+                - log: "hello"
+            """);
+
+        assertNoSemanticHighlightsInComments();
+    }
+
+    private void assertNoSemanticHighlightsInComments() {
+        var text = myFixture.getEditor().getDocument().getText();
+        var infos = myFixture.doHighlighting();
+
+        // # inside strings would give false positives, but test fixtures don't have that
+        var commentRanges = new ArrayList<int[]>();
+        int idx = 0;
+        while ((idx = text.indexOf('#', idx)) != -1) {
+            int lineStart = text.lastIndexOf('\n', idx) + 1;
+            var prefix = text.substring(lineStart, idx).trim();
+            if (prefix.isEmpty()) {
+                int lineEnd = text.indexOf('\n', idx);
+                if (lineEnd == -1) {
+                    lineEnd = text.length();
+                }
+                commentRanges.add(new int[]{idx, lineEnd});
+            }
+            idx++;
+        }
+
+        var semanticKeys = Set.of("CONCORD_STEP_KEYWORD", "CONCORD_TARGET_IDENTIFIER",
+                "CONCORD_DSL_KEY", "CONCORD_USER_KEY", "CONCORD_DSL_LABEL", "CONCORD_FLOW_IDENTIFIER");
+        for (var info : infos) {
+            var key = HighlightAssertion.infoKey(info);
+            if (key == null) {
+                continue;
+            }
+            for (var range : commentRanges) {
+                if (info.getEndOffset() > range[0] && info.getStartOffset() < range[1]) {
+                    if (semanticKeys.contains(key.getExternalName())) {
+                        fail("Semantic highlight in comment: " + key.getExternalName() +
+                                " at [" + info.getStartOffset() + ".." + info.getEndOffset() + "]" +
+                                " comment=[" + range[0] + ".." + range[1] + "]");
+                    }
+                }
+            }
+        }
     }
 }
