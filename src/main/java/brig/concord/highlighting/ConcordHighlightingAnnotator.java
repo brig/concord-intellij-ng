@@ -15,12 +15,11 @@ import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Locale;
 
 import static brig.concord.yaml.YAMLUtil.isNumberValue;
 
@@ -88,7 +87,7 @@ public class ConcordHighlightingAnnotator implements Annotator {
         }
 
         var keyHighlight = highlightProvider.getKeyHighlight(keyText);
-        if (keyHighlight != null) {
+        if (keyHighlight != null && !isInsideComment(keyElement)) {
             highlight(holder, keyElement.getTextRange(), keyHighlight);
         }
     }
@@ -96,6 +95,10 @@ public class ConcordHighlightingAnnotator implements Annotator {
     private static void annotateValue(@NotNull YAMLScalar scalar, @NotNull AnnotationHolder holder) {
         var text = scalar.getTextValue();
         if (text.isBlank()) {
+            return;
+        }
+
+        if (isInsideComment(scalar)) {
             return;
         }
 
@@ -146,6 +149,15 @@ public class ConcordHighlightingAnnotator implements Annotator {
                 .range(range)
                 .textAttributes(key)
                 .create();
+    }
+
+    private static boolean isInsideComment(@NotNull PsiElement element) {
+        var file = element.getContainingFile();
+        if (file == null) {
+            return false;
+        }
+        var leaf = file.findElementAt(element.getTextOffset());
+        return leaf instanceof PsiComment;
     }
 
     private static boolean isNullValue(String v) {
