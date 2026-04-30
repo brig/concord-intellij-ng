@@ -47,7 +47,11 @@ public class ConfigurationDocumentationTest extends BaseDocumentationTargetTest 
                       - "password"
                       - "privateKey"
                       - "vaultPassword"
-                    outVarsBlacklist: []""");
+                    outVarsBlacklist: []
+                  validation:
+                    taskCalls:
+                      in: fail
+                      out: warn""");
 
         assertDocTarget(key("/configuration"), "doc.configuration.description",
                 "/documentation/configuation.html");
@@ -119,5 +123,14 @@ public class ConfigurationDocumentationTest extends BaseDocumentationTargetTest 
                 "/documentation/configuation.events.inVarsBlacklist.html");
         assertDocTarget(key("/configuration/events/outVarsBlacklist"), "doc.configuration.events.outVarsBlacklist.description",
                 "/documentation/configuation.events.outVarsBlacklist.html");
+
+        assertDocTarget(key("/configuration/validation"), "doc.configuration.validation.description",
+                "/documentation/configuation.validation.html");
+        assertDocTarget(key("/configuration/validation/taskCalls"), "doc.configuration.validation.taskCalls.description",
+                "/documentation/configuation.validation.taskCalls.html");
+        assertDocTarget(key("/configuration/validation/taskCalls/in"), "doc.configuration.validation.taskCalls.in.description",
+                "/documentation/configuation.validation.taskCalls.in.html");
+        assertDocTarget(key("/configuration/validation/taskCalls/out"), "doc.configuration.validation.taskCalls.out.description",
+                "/documentation/configuation.validation.taskCalls.out.html");
     }
 }

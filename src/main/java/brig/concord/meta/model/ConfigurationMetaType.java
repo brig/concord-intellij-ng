@@ -35,7 +35,8 @@ public class ConfigurationMetaType extends ConcordMetaType implements HighlightP
             Map.entry("exclusive", ProcessExclusiveMetaType.getInstance()),
             Map.entry("out", new StringArrayMetaType(descKey("doc.configuration.out.description"))),
             Map.entry("template", new StringMetaType(descKey("doc.configuration.template.description"))),
-            Map.entry("parallelLoopParallelism", new IntegerMetaType(descKey("doc.configuration.parallelLoopParallelism.description")))
+            Map.entry("parallelLoopParallelism", new IntegerMetaType(descKey("doc.configuration.parallelLoopParallelism.description"))),
+            Map.entry("validation", ValidationMetaType.getInstance())
     );
 
     private ConfigurationMetaType() {
