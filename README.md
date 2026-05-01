@@ -51,6 +51,14 @@ Download the [latest release](https://github.com/brig/concord-intellij-ng/releas
 
 ---
 
+## Releasing
+
+The release flow is automated via GitHub Actions. After preparing the changelog and blog post on the `chore/prepare-vX.Y.Z` branch:
+
+1. **Merge the release PR** (the one labeled `release`) into `main`.
+2. **Merge the docs-freeze PR** that the workflow opens automatically (labeled `internal-docs-freeze`).
+3. **Publish the draft release** in [GitHub Releases](https://github.com/brig/concord-intellij-ng/releases) — this triggers publication to the JetBrains Marketplace and opens the next-version PR.
+
 ## Development
 
 ### Running Performance Tests

@@ -2,6 +2,65 @@
 slug: whats-new-0.22.0
 title: What's New in Concord IntelliJ 0.22.0
 authors: [brig]
-tags: [release]
+tags: [release, features]
 ---
 
+import Keystroke from '@site/src/components/Keystroke';
+
+The `0.22.0` release adds schema support for **[Configuration Validation Settings](/docs/features/validation#concord-runtime-validation-settings)**,
+extends EL completion with **[Set Step Self-Reference](/docs/features/completion#expression-variable-completion)**,
+and makes **[Code Folding](/docs/features/code-folding#named-steps)** smarter by using a step's <span className="tokenBadge" data-kind="step">name</span> as the folded placeholder.
+
+<!--truncate-->
+
+## Configuration Validation Settings
+
+The plugin now understands Concord's <span className="tokenBadge" data-kind="section">configuration.validation</span> block — both at the top level and inside <span className="tokenBadge" data-kind="section">profiles</span>. Completion suggests the `taskCalls.in` and `taskCalls.out` keys, and the value is restricted to `disabled`, `warn`, or `fail`. Unknown modes are flagged as errors, and hover documentation explains each option.
+
+<figure className="docFigure docFigure--sm">
+    <img src={require('@site/static/img/0.22.0/configuration-validation.png').default} alt="Configuration validation completion" />
+    <figcaption>
+        Completion and hover docs for the <code>configuration.validation.taskCalls</code> block.
+    </figcaption>
+</figure>
+
+## Named Step Folding
+
+When a flow step has a <span className="tokenBadge" data-kind="step">name</span> field, the folded placeholder now displays that name instead of the step's identity value. This makes folded flows readable at a glance when steps are descriptively named — `- task: Upload artifacts` is far more useful than `- task: s3` in a long deploy.
+
+```concord
+flows:
+  deploy:
+    - task: s3              # folds to: - task: Upload artifacts
+      name: "Upload artifacts"
+      in:
+        bucket: my-bucket
+        src: ./build/
+```
+
+Steps without a `name` keep the previous behavior — folding to the identity value (e.g. `- task: s3`).
+
+<figure className="docFigure docFigure--sm2">
+    <img src={require('@site/static/img/code-folding.png').default} alt="Code folding with step names" />
+    <figcaption>
+        A flow with several steps folded, showing step names as smart placeholders.
+    </figcaption>
+</figure>
+
+## Set Step Self-Reference
+
+Variables declared earlier inside a <span className="tokenBadge" data-kind="step">set</span> step are now visible in EL completion within the same step — useful when one assignment derives from another. The variable being currently edited is excluded from its own suggestions, so you won't see self-referencing noise.
+
+```concord
+flows:
+  main:
+    - set:
+        bucket: "my-bucket"
+        path: "${bucket}/data"   # `bucket` is suggested here
+```
+
+## Other Improvements
+
+*   **Commented-Out Steps Highlighting:** Concord keywords inside YAML `#` comment lines are no longer colored as live syntax — commented-out steps now look like comments instead of mixed code/comment.
+*   **v1 Task Filtering:** Task name completion now skips legacy v1 task classes from dependency JARs, so only v2 tasks (those implementing `com.walmartlabs.concord.runtime.v2.sdk.Task`) appear in the completion popup.
+*   **Static Method Completion:** Public static methods on tasks are now included in EL task method completion (`${myTask.}`), alongside instance methods.
