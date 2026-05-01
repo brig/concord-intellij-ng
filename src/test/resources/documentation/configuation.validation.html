@@ -1,0 +1,19 @@
+<div class='definition'>
+    <pre>validation</pre>
+</div>
+<div class='content'><p>Type: <code>object</code></p>
+    <p>Configures process validation behavior</p>
+    <p><b>Keys:</b></p>
+    <ul>
+        <li><code>taskCalls</code> <i>(object)</i> &mdash; validation settings for task call input and output
+            parameters
+        </li>
+    </ul>
+    <p><b>Example:</b></p>
+    <pre><code>configuration:
+  validation:
+    taskCalls:
+      in: fail
+      out: warn
+</code></pre>
+</div>

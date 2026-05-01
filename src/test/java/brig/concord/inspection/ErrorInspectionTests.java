@@ -333,7 +333,12 @@ class ErrorInspectionTests extends InspectionTestBase {
                 args("020", a -> a.assertSingleValueExpected().assertSingleValueExpected()),
                 args("021", a -> a.assertUnexpectedValue("1")),
                 args("022", InspectionAssertions::assertArrayRequired),
-                args("023", InspectionAssertions::assertDurationExpected)
+                args("023", InspectionAssertions::assertDurationExpected),
+                args("024", InspectionAssertions::assertObjectRequired),
+                args("025", InspectionAssertions::assertObjectRequired),
+                args("026", a -> a.assertUnexpectedValue("oops")),
+                args("027", a -> a.assertUnknownKey("trash")),
+                args("028", a -> a.assertUnknownKey("trash"))
         );
     }
 

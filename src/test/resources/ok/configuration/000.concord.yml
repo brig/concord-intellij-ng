@@ -42,6 +42,10 @@ configuration:
     truncateMeta: true
     truncateOutVars: true
     updateMetaOnAllEvents: true
+  validation:
+    taskCalls:
+      in: fail
+      out: WARN
 
 flows:
   main-test:

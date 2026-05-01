@@ -36,3 +36,7 @@ configuration:
       - "meta1"
     outVarsBlacklist:
       - "out1"
+  validation:
+    taskCalls:
+      in: fail
+      out: warn
