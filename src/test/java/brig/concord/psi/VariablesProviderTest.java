@@ -1144,6 +1144,27 @@ class VariablesProviderTest extends ConcordYamlTestBaseJunit5 {
     }
 
     @Test
+    void testSetStepDottedKeyDeclarationNotNull() {
+        configureFromText("""
+                flows:
+                  main:
+                    - set:
+                        a.b: 1
+                    - log: "${a}"
+                """);
+
+        var target = element("/flows/main/[1]");
+        var vars = VariablesProvider.getVariables(target);
+
+        var aVar = vars.stream()
+                .filter(v -> v.source() == VariableSource.SET_STEP && v.name().equals("a"))
+                .findFirst()
+                .orElseThrow();
+
+        assertNotNull(aVar.declaration());
+    }
+
+    @Test
     void testSetStepDottedKeyLeadingOrTrailingDot() {
         configureFromText("""
                 flows:

@@ -73,5 +73,10 @@ class ConfigurationHighlightingTest extends HighlightingTestBase {
         highlight(key("/configuration/events/inVarsBlacklist")).is(ConcordHighlightingColors.DSL_KEY);
         highlight(key("/configuration/events/metaBlacklist")).is(ConcordHighlightingColors.DSL_KEY);
         highlight(key("/configuration/events/outVarsBlacklist")).is(ConcordHighlightingColors.DSL_KEY);
+
+        highlight(key("/configuration/validation")).is(ConcordHighlightingColors.DSL_KEY);
+        highlight(key("/configuration/validation/taskCalls")).is(ConcordHighlightingColors.DSL_KEY);
+        highlight(key("/configuration/validation/taskCalls/in")).is(ConcordHighlightingColors.DSL_KEY);
+        highlight(key("/configuration/validation/taskCalls/out")).is(ConcordHighlightingColors.DSL_KEY);
     }
 }

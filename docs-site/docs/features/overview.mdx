@@ -24,6 +24,7 @@ import BreadcrumbsIcon from '@site/src/icons/breadcrumbs.svg';
 import RunIcon from '@site/src/icons/run.svg';
 import DependenciesIcon from '@site/src/icons/dependencies.svg';
 import HoverDocsIcon from '@site/src/icons/hover-docs.svg';
+import CodeFoldingIcon from '@site/src/icons/structure-view.svg';
 
 export const FeatureCard = ({icon: Icon, title, description, to}) => (
   <Link className="landingCard" to={to}>
@@ -81,6 +82,12 @@ Understand complex projects by visualizing relationships between flows.
         title="Hover Docs"
         description="Instant documentation popups for flows, tasks, and parameters."
         to="/docs/features/hover-docs"
+    />
+    <FeatureCard
+        icon={CodeFoldingIcon}
+        title="Code Folding"
+        description="Collapse steps to smart one-line summaries with step names."
+        to="/docs/features/code-folding"
     />
 </div>
 

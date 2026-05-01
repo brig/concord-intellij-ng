@@ -15,4 +15,33 @@ class LexerTest {
         assertTokens(yaml)
                 .hasCount("FLOW_DOC_MARKER", 2);
     }
+
+    @Test
+    void commentedOutStepsAreCommentTokens() {
+        var yaml = """
+                flows:
+                  datavantPortalIngestion:
+                #    - call: datavantPortalIngestionSetupDb
+
+                    - log: ""
+                """;
+
+        assertTokens(yaml)
+                .hasToken("comment");
+    }
+
+    @Test
+    void commentedOutStepsAreCommentTokens2() {
+        var yaml = """
+                flows:
+                  datavantPortalIngestion:
+                #    - call: datavantPortalIngestionSetupDb
+                #    - call: datavantPortalIngestionSetupDb2
+
+                    - log: ""
+                """;
+
+        assertTokens(yaml)
+                .hasCount("comment", 2);
+    }
 }

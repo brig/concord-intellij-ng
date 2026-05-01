@@ -1,0 +1,3 @@
+configuration:
+  validation:
+    taskCalls: 1
