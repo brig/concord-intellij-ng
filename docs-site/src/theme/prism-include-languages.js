@@ -18,7 +18,7 @@ module.exports = function prismIncludeLanguages(Prism) {
       alias: ['step'],
     },
     dslKey: {
-      pattern: /\b(runtime|in|out|meta|method|body|headers|auth|debug|entryPoint|arguments|exclusive|tasks|dependencies)\b(?=\s*:)/m,
+      pattern: /\b(runtime|in|out|meta|method|body|headers|auth|debug|entryPoint|arguments|exclusive|tasks|dependencies|validation|taskCalls)\b(?=\s*:)/m,
       alias: ['dsl-key'],
     },
     expression: {

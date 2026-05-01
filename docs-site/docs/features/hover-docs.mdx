@@ -118,6 +118,9 @@ Hovering over any Concord YAML key shows a description of that key's purpose in 
 ```concord
 configuration:      # Hover: process configuration
   entryPoint: main  # Hover: flow to run on process start
+  validation:
+    taskCalls:
+      in: fail      # Hover: validation mode for task input parameters
 
 flows:
   main:
