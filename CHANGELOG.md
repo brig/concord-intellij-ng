@@ -4,6 +4,8 @@
 
 ### Added
 
+- support `configuration.validation` task call validation settings
+([#164](https://github.com/brig/concord-intellij-ng/pull/164))
 - show set step variables in EL completion within the same step
 ([#162](https://github.com/brig/concord-intellij-ng/pull/162)) 
 
