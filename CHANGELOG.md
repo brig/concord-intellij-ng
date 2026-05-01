@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- support `configuration.validation` task call validation settings
+([#164](https://github.com/brig/concord-intellij-ng/pull/164))
+- show set step variables in EL completion within the same step
+([#162](https://github.com/brig/concord-intellij-ng/pull/162)) 
+
+### Changed
+
+- fix highlighting of commented-out steps in Concord YAML
+([#163](https://github.com/brig/concord-intellij-ng/pull/163)) 
+- skip v1 task classes in dependency extraction, include static methods
+([#161](https://github.com/brig/concord-intellij-ng/pull/161)) 
+- code folding uses step `name` field as placeholder text when available
+([#160](https://github.com/brig/concord-intellij-ng/pull/160)) 
+
 ## 0.21.0 - 2026-03-05
 
 ### Added
