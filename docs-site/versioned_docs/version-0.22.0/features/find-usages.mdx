@@ -1,0 +1,80 @@
+---
+title: Find Usages
+description: Find all references to flows and variables across your project
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+
+# Find Usages
+
+Managing large Concord projects requires knowing exactly where a flow is being called before you make changes. **Find Usages** allows you to locate every reference to a flow or variable across your entire project.
+
+The tool is **scope-aware**, meaning it understands the boundaries of your Concord projects and filters results accordingly.
+
+## How to Use
+
+1.  Place the caret on any **flow definition** or **flow call**.
+2.  Invoke Find Usages:
+    *   **Shortcut:** <Keystroke mac={[{icon: "⌥", label: "Alt"}, {label: "F7"}]} win={[{label: "Alt"}, {label: "F7"}]} />
+    *   **Menu:** `Edit | Find | Find Usages`
+    *   **Context Menu:** Right-click and select `Find Usages`.
+
+## Features
+
+*   **Group by File/Module:** Organize results to see which projects or files use the flow most.
+*   **Preview Pane:** See the code context for each usage without switching files.
+*   **Filter Results:** Exclude certain types of usages (e.g., skip comments or documentation).
+
+## Variable Usages
+
+Find Usages also works for **variable declarations**, showing every `${...}` expression that references the variable. Place the caret on any of these and invoke Find Usages:
+
+*   A key in <span className="tokenBadge" data-kind="step">set</span> step
+*   A key in `configuration.arguments`
+*   A parameter in a flow [Documentation Block](./flow-docs)
+*   An `out` field value — scalar (`out: result`), mapping key (`out: {res: ...}`), or array item (`out: [result]`) — on <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">expr</span>, <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">script</span>, <span className="tokenBadge" data-kind="step">try</span>, <span className="tokenBadge" data-kind="step">block</span>, and <span className="tokenBadge" data-kind="step">parallel</span> steps
+
+<figure className="docFigure docFigure--md">
+    <img src={require('@site/static/img/find-usages-variable.png').default} alt="Find Usages for a variable declaration" />
+    <figcaption>
+        Find Usages showing all expression references to a variable declared in a set step.
+    </figcaption>
+</figure>
+
+## Example
+
+Consider a project with multiple deployment flows that share a common setup step:
+
+```concord
+flows:
+  deployDev:
+    - call: setupEnv
+    - log: "Deploying to Dev"
+
+  deployProd:
+    - call: setupEnv
+    - log: "Deploying to Prod"
+
+  setupEnv:
+    - log: "Setting up environment..."
+```
+
+### Locating Flow References
+
+Running Find Usages on the `setupEnv` definition will list both `deployDev` and `deployProd` as callers.
+
+:::tip Try it yourself
+Select `setupEnv` and press <Keystroke mac={[{icon: "⌥", label: "Alt"}, {label: "F7"}]} win={[{label: "Alt"}, {label: "F7"}]} /> to see where it is used.
+:::
+
+<figure className="docFigure docFigure--md2">
+    <img src={require('@site/static/img/find-usages.png').default} alt="Find Usages Example" />
+    <figcaption>
+        Find Usages tool window showing all references to a specific flow.
+    </figcaption>
+</figure>
+
+:::note Show Usages Popup
+For a quick list of references without opening a tool window, use **Show Usages**:
+<Keystroke mac={[{icon: "⌘", label: "Cmd"}, {icon: "⌥", label: "Alt"}, {label: "F7"}]} win={[{label: "Ctrl"}, {label: "Alt"}, {label: "F7"}]} />
+:::
