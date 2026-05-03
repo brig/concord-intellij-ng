@@ -124,8 +124,9 @@ spotless {
 // to prevent Gradle's input fingerprinting from scanning hundreds of thousands of files.
 // Uses direct delete (not fileTree) to avoid triggering the same file walk we're trying to prevent.
 val cleanSandboxRuntime by tasks.registering {
+    val sandboxBaseDir = layout.buildDirectory.dir("idea-sandbox")
     doFirst {
-        val sandboxBase = layout.buildDirectory.dir("idea-sandbox").get().asFile
+        val sandboxBase = sandboxBaseDir.get().asFile
         if (sandboxBase.exists()) {
             sandboxBase.walk().maxDepth(2)
                 .filter { it.isDirectory && it.name.let { n -> n.startsWith("system") || n.startsWith("log") } }
