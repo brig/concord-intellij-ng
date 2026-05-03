@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+
+### Changed
+
+- project: gradle version bump
+([#167](https://github.com/brig/concord-intellij-ng/pull/167))
+
 ## 0.22.0 - 2026-05-01
 
 ### Added
