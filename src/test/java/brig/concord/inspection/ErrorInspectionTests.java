@@ -357,8 +357,8 @@ class ErrorInspectionTests extends InspectionTestBase {
                 args("002", a -> a.assertUnexpectedKey("a").assertUnexpectedKey("b")),
                 args("003", InspectionAssertions::assertBooleanExpected),
                 args("004", InspectionAssertions::assertValueRequired),
-                args("005", InspectionAssertions::assertObjectRequired),
-                args("006", InspectionAssertions::assertObjectRequired),
+                args("005", InspectionAssertions::assertExpressionExpected),
+                args("006", InspectionAssertions::assertExpressionExpected),
                 args("007", InspectionAssertions::assertExpressionExpected)
         );
     }
