@@ -8,6 +8,8 @@
 
 - project: gradle version bump
 ([#167](https://github.com/brig/concord-intellij-ng/pull/167))
+- forms-step: allow expression strings for runAs and values 
+([#168](https://github.com/brig/concord-intellij-ng/pull/168))
 
 ## 0.22.0 - 2026-05-01
 
