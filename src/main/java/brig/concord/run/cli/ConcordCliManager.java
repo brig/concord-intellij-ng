@@ -201,8 +201,9 @@ public final class ConcordCliManager {
             LOG.warn("CLI version detection failed: " + detail);
             return VersionResult.failure(detail);
         } catch (Exception e) {
-            LOG.warn("Failed to detect CLI version: " + e.getMessage());
-            return VersionResult.failure(e.getMessage());
+            LOG.warn("Failed to detect CLI version: " + e.getMessage(), e);
+            var message = e.getMessage();
+            return VersionResult.failure(message != null ? message : e.getClass().getSimpleName());
         } finally {
             if (process != null && process.isAlive()) {
                 process.destroyForcibly();
