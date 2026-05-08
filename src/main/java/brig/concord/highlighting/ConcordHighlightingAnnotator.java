@@ -87,7 +87,7 @@ public class ConcordHighlightingAnnotator implements Annotator {
         }
 
         var keyHighlight = highlightProvider.getKeyHighlight(keyText);
-        if (keyHighlight != null && !isInsideComment(keyElement)) {
+        if (keyHighlight != null && !intersectsComment(keyElement)) {
             highlight(holder, keyElement.getTextRange(), keyHighlight);
         }
     }
@@ -98,7 +98,7 @@ public class ConcordHighlightingAnnotator implements Annotator {
             return;
         }
 
-        if (isInsideComment(scalar)) {
+        if (intersectsComment(scalar)) {
             return;
         }
 
@@ -151,13 +151,28 @@ public class ConcordHighlightingAnnotator implements Annotator {
                 .create();
     }
 
-    private static boolean isInsideComment(@NotNull PsiElement element) {
+    private static boolean intersectsComment(@NotNull PsiElement element) {
         var file = element.getContainingFile();
         if (file == null) {
             return false;
         }
-        var leaf = file.findElementAt(element.getTextOffset());
-        return leaf instanceof PsiComment;
+        var offsetLeaf = file.findElementAt(element.getTextOffset());
+        if (offsetLeaf instanceof PsiComment) {
+            return true;
+        }
+
+        var range = element.getTextRange();
+        if (range == null || range.isEmpty()) {
+            return false;
+        }
+
+        var startLeaf = file.findElementAt(range.getStartOffset());
+        if (startLeaf instanceof PsiComment) {
+            return true;
+        }
+
+        var endLeaf = file.findElementAt(range.getEndOffset() - 1);
+        return endLeaf instanceof PsiComment;
     }
 
     private static boolean isNullValue(String v) {
