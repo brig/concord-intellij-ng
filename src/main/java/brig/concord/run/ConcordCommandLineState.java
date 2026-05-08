@@ -197,6 +197,8 @@ public class ConcordCommandLineState extends CommandLineState {
             var writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
             var outputFileLock = new Object();
             processHandler.addProcessListener(new ProcessAdapter() {
+                private volatile boolean loggingFailed;
+
                 @Override
                 public void startNotified(@NotNull ProcessEvent event) {
                     processHandler.notifyTextAvailable(
@@ -207,11 +209,23 @@ public class ConcordCommandLineState extends CommandLineState {
 
                 @Override
                 public void onTextAvailable(@NotNull ProcessEvent event, @NotNull Key outputType) {
+                    if (loggingFailed) {
+                        return;
+                    }
+
+                    var text = event.getText();
+                    if (text.isEmpty()) {
+                        return;
+                    }
+
                     synchronized (outputFileLock) {
                         try {
-                            writer.write(event.getText());
-                            writer.flush();
+                            writer.write(text);
+                            if (text.indexOf('\n') >= 0 || text.indexOf('\r') >= 0) {
+                                writer.flush();
+                            }
                         } catch (IOException e) {
+                            loggingFailed = true;
                             LOG.warn("Failed to write Concord run output to " + outputFile, e);
                         }
                     }
@@ -221,6 +235,7 @@ public class ConcordCommandLineState extends CommandLineState {
                 public void processTerminated(@NotNull ProcessEvent event) {
                     synchronized (outputFileLock) {
                         try {
+                            writer.flush();
                             writer.close();
                         } catch (IOException e) {
                             LOG.warn("Failed to close Concord run output file " + outputFile, e);
