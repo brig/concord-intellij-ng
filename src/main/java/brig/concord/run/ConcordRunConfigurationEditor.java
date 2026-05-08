@@ -10,6 +10,7 @@ import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.RawCommandLineEditor;
+import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.FormBuilder;
@@ -28,6 +29,9 @@ public class ConcordRunConfigurationEditor extends SettingsEditor<ConcordRunConf
     private TextFieldWithBrowseButton myWorkingDirectoryField;
     private ParametersTablePanel myParametersPanel;
     private RawCommandLineEditor myAdditionalArgumentsField;
+    private JBCheckBox mySaveOutputToFileCheckBox;
+    private TextFieldWithBrowseButton myOutputFileField;
+    private JBLabel myOutputFileHintLabel;
 
     public ConcordRunConfigurationEditor(@NotNull Project project) {
         myProject = project;
@@ -40,6 +44,10 @@ public class ConcordRunConfigurationEditor extends SettingsEditor<ConcordRunConf
         myEntryPointField.setText(configuration.getEntryPoint());
         myWorkingDirectoryField.setText(configuration.getWorkingDirectory());
         myAdditionalArgumentsField.setText(configuration.getAdditionalArguments());
+        mySaveOutputToFileCheckBox.setSelected(configuration.isSaveOutputToFile());
+        myOutputFileField.setText(configuration.getOutputFile());
+        setOutputFilePlaceholder();
+        updateOutputFileFieldEnabled();
         myParametersPanel.setParameters(configuration.getParameters());
     }
 
@@ -58,6 +66,8 @@ public class ConcordRunConfigurationEditor extends SettingsEditor<ConcordRunConf
         configuration.setEntryPoint(myEntryPointField.getText().trim());
         configuration.setWorkingDirectory(myWorkingDirectoryField.getText().trim());
         configuration.setAdditionalArguments(myAdditionalArgumentsField.getText().trim());
+        configuration.setSaveOutputToFile(mySaveOutputToFileCheckBox.isSelected());
+        configuration.setOutputFile(myOutputFileField.getText().trim());
         configuration.setParameters(myParametersPanel.getParameters());
     }
 
@@ -90,6 +100,18 @@ public class ConcordRunConfigurationEditor extends SettingsEditor<ConcordRunConf
 
         myAdditionalArgumentsField = new RawCommandLineEditor();
 
+        mySaveOutputToFileCheckBox = new JBCheckBox(ConcordBundle.message("run.configuration.save.output.label"));
+        mySaveOutputToFileCheckBox.addActionListener(e -> updateOutputFileFieldEnabled());
+
+        myOutputFileField = new TextFieldWithBrowseButton(new JBTextField());
+        setOutputFilePlaceholder();
+        var outputFileDescriptor = FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor();
+        outputFileDescriptor.setTitle(ConcordBundle.message("run.configuration.output.file.browse.title"));
+        myOutputFileField.addBrowseFolderListener(myProject, outputFileDescriptor);
+
+        myOutputFileHintLabel = new JBLabel(ConcordBundle.message("run.configuration.output.file.hint"));
+        myOutputFileHintLabel.setForeground(UIUtil.getContextHelpForeground());
+
         var parametersComponent = LabeledComponent.create(
                 myParametersPanel.getPanel(),
                 ConcordBundle.message("run.configuration.parameters.label")
@@ -102,7 +124,22 @@ public class ConcordRunConfigurationEditor extends SettingsEditor<ConcordRunConf
                 .addLabeledComponent(ConcordBundle.message("run.configuration.working.dir.label"), myWorkingDirectoryField)
                 .addComponent(parametersComponent)
                 .addLabeledComponent(ConcordBundle.message("run.configuration.additional.args.label"), myAdditionalArgumentsField)
+                .addComponent(mySaveOutputToFileCheckBox)
+                .addLabeledComponent(ConcordBundle.message("run.configuration.output.file.label"), myOutputFileField)
+                .addComponentToRightColumn(myOutputFileHintLabel)
                 .addComponentFillVertically(new JPanel(), 0)
                 .getPanel();
+    }
+
+    private void updateOutputFileFieldEnabled() {
+        var enabled = mySaveOutputToFileCheckBox.isSelected();
+        myOutputFileField.setEnabled(enabled);
+        myOutputFileHintLabel.setEnabled(enabled);
+    }
+
+    private void setOutputFilePlaceholder() {
+        if (myOutputFileField.getTextField() instanceof JBTextField textField) {
+            textField.getEmptyText().setText(ConcordBundle.message("run.configuration.output.file.placeholder"));
+        }
     }
 }

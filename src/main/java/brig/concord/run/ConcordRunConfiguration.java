@@ -51,6 +51,22 @@ public class ConcordRunConfiguration extends RunConfigurationBase<ConcordRunConf
         getOptions().setAdditionalArguments(additionalArguments);
     }
 
+    public boolean isSaveOutputToFile() {
+        return getOptions().isSaveOutputToFile();
+    }
+
+    public void setSaveOutputToFile(boolean saveOutputToFile) {
+        getOptions().setSaveOutputToFile(saveOutputToFile);
+    }
+
+    public @NotNull String getOutputFile() {
+        return getOptions().getOutputFile();
+    }
+
+    public void setOutputFile(@NotNull String outputFile) {
+        getOptions().setOutputFile(outputFile);
+    }
+
     public @NotNull Map<String, String> getParameters() {
         return getOptions().getParameters();
     }
