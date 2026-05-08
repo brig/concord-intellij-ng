@@ -156,8 +156,8 @@ public class ConcordHighlightingAnnotator implements Annotator {
         if (file == null) {
             return false;
         }
-        var offsetLeaf = file.findElementAt(element.getTextOffset());
-        if (offsetLeaf instanceof PsiComment) {
+        var textOffset = element.getTextOffset();
+        if (file.findElementAt(textOffset) instanceof PsiComment) {
             return true;
         }
 
@@ -166,13 +166,15 @@ public class ConcordHighlightingAnnotator implements Annotator {
             return false;
         }
 
-        var startLeaf = file.findElementAt(range.getStartOffset());
-        if (startLeaf instanceof PsiComment) {
+        var startOffset = range.getStartOffset();
+        if (startOffset != textOffset && file.findElementAt(startOffset) instanceof PsiComment) {
             return true;
         }
 
-        var endLeaf = file.findElementAt(range.getEndOffset() - 1);
-        return endLeaf instanceof PsiComment;
+        var endOffset = range.getEndOffset() - 1;
+        return endOffset != textOffset
+                && endOffset != startOffset
+                && file.findElementAt(endOffset) instanceof PsiComment;
     }
 
     private static boolean isNullValue(String v) {
