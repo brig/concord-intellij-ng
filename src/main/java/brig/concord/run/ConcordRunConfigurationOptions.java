@@ -14,6 +14,8 @@ public class ConcordRunConfigurationOptions extends RunConfigurationOptions {
     private final StoredProperty<String> myEntryPoint = string("").provideDelegate(this, "entryPoint");
     private final StoredProperty<String> myWorkingDirectory = string("").provideDelegate(this, "workingDirectory");
     private final StoredProperty<String> myAdditionalArguments = string("").provideDelegate(this, "additionalArguments");
+    private final StoredProperty<Boolean> mySaveOutputToFile = property(false).provideDelegate(this, "saveOutputToFile");
+    private final StoredProperty<String> myOutputFile = string("").provideDelegate(this, "outputFile");
     private final StoredProperty<Map<Object, Object>> myParameters = map().provideDelegate(this, "parameters");
 
     public @NotNull String getEntryPoint() {
@@ -41,6 +43,24 @@ public class ConcordRunConfigurationOptions extends RunConfigurationOptions {
 
     public void setAdditionalArguments(@Nullable String additionalArguments) {
         myAdditionalArguments.setValue(this, additionalArguments != null ? additionalArguments : "");
+    }
+
+    public boolean isSaveOutputToFile() {
+        var value = mySaveOutputToFile.getValue(this);
+        return value != null && value;
+    }
+
+    public void setSaveOutputToFile(boolean saveOutputToFile) {
+        mySaveOutputToFile.setValue(this, saveOutputToFile);
+    }
+
+    public @NotNull String getOutputFile() {
+        var value = myOutputFile.getValue(this);
+        return value != null ? value : "";
+    }
+
+    public void setOutputFile(@Nullable String outputFile) {
+        myOutputFile.setValue(this, outputFile != null ? outputFile : "");
     }
 
     public @NotNull Map<String, String> getParameters() {
