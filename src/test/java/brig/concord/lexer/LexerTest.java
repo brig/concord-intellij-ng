@@ -44,4 +44,26 @@ class LexerTest {
         assertTokens(yaml)
                 .hasCount("comment", 2);
     }
+
+    @Test
+    void commentedOutStepAfterNestedOutBlockIsSingleCommentToken() {
+        var yaml = """
+                flows:
+                  datavantPortalTf:
+                    - call: awsRdsGetEndpoint
+                      in:
+                        identifier: "${awsRdsClusterDefinition.clusterName}"
+                        engine: "${awsRdsClusterDefinition.engine}"
+                      out:
+                        awsRdsEndpoint: "${endpoint}"
+
+                    #    - call: datavantPortalTfEventsV2
+
+                    - parallel:
+                        - call: datavantPortalTfKubernetesTooling
+                """;
+
+        assertTokens(yaml)
+                .tokenHasText("comment", "#    - call: datavantPortalTfEventsV2");
+    }
 }

@@ -139,6 +139,15 @@ public abstract class ConcordYamlTestBaseJunit5 {
         };
     }
 
+    protected @NotNull SubstringTarget documentSubstring(@NotNull String needle) {
+        var text = document().getText();
+        var offset = text.indexOf(needle);
+        if (offset < 0) {
+            fail("Substring '" + needle + "' not found.\n" + text);
+        }
+        return new SubstringTarget("/", needle, offset);
+    }
+
     protected void moveCaretTo(@NotNull AbstractTarget target) {
         EdtTestUtil.runInEdtAndWait(() -> {
             var offset = target.range().getStartOffset();
