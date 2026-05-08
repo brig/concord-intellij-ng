@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- an optional run configuration setting to mirror Concord Run console output into a log file
+([#171](https://github.com/brig/concord-intellij-ng/pull/171))
+
+### Changed
+
+- project: gradle version bump
+([#167](https://github.com/brig/concord-intellij-ng/pull/167))
+- forms-step: allow expression strings for runAs and values 
+([#168](https://github.com/brig/concord-intellij-ng/pull/168))
+- allow file Maven repository URLs
+([#170](https://github.com/brig/concord-intellij-ng/pull/170))
+- prevent Concord semantic highlighting from overriding YAML comment highlighting
+([#172](https://github.com/brig/concord-intellij-ng/pull/172))
+
 ## 0.22.0 - 2026-05-01
 
 ### Added
