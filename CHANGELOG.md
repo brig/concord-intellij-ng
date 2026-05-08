@@ -15,6 +15,8 @@
 ([#168](https://github.com/brig/concord-intellij-ng/pull/168))
 - allow file Maven repository URLs
 ([#170](https://github.com/brig/concord-intellij-ng/pull/170))
+- prevent Concord semantic highlighting from overriding YAML comment highlighting
+([#172](https://github.com/brig/concord-intellij-ng/pull/172))
 
 ## 0.22.0 - 2026-05-01
 
