@@ -4,10 +4,33 @@
         <title>Concord IntelliJ Plugin Blog</title>
         <link>https://brig.github.io/concord-intellij-ng/blog</link>
         <description>Concord IntelliJ Plugin Blog</description>
-        <lastBuildDate>Fri, 01 May 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Tue, 16 Jun 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[What's New in Concord IntelliJ 0.23.0]]></title>
+            <link>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.23.0</link>
+            <guid>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.23.0</guid>
+            <pubDate>Tue, 16 Jun 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[The 0.23.0 release improves local Concord runs, repository configuration, and editor highlighting.]]></description>
+            <content:encoded><![CDATA[<p>The <code>0.23.0</code> release improves local Concord runs, repository configuration, and editor highlighting.
+Run configurations can now mirror console output to a log file, Maven repository settings accept local <code>file:</code> URLs,
+and repository configuration errors are easier to diagnose.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="run-output-log-files">Run Output Log Files<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.23.0#run-output-log-files" class="hash-link" aria-label="Direct link to Run Output Log Files" title="Direct link to Run Output Log Files" translate="no">​</a></h2>
+<p>Run configurations now include an optional output file setting. When configured, the Concord Run console output is mirrored into that file while still appearing in the IDE console. This is useful for long local runs where the full output needs to be kept for later review or attached to an issue.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="repository-settings">Repository Settings<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.23.0#repository-settings" class="hash-link" aria-label="Direct link to Repository Settings" title="Direct link to Repository Settings" translate="no">​</a></h2>
+<p>The repositories settings page now supports local Maven repositories declared with <code>file:</code> URLs in <code>~/.concord/mvn.json</code>.
+This makes it possible to point the IDE at artifacts already present on disk, including a local <code>~/.m2/repository</code>.</p>
+<p>The page also reports <code>mvn.json</code> read errors directly in the UI. Previously, a malformed or unreadable config file could make the Maven repositories table look empty with no visible explanation. The settings page now shows the failing path and parser or I/O error message, making invalid JSON and accidental markdown-formatted URLs much easier to spot.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="other-improvements">Other Improvements<a href="https://brig.github.io/concord-intellij-ng/blog/whats-new-0.23.0#other-improvements" class="hash-link" aria-label="Direct link to Other Improvements" title="Direct link to Other Improvements" translate="no">​</a></h2>
+<ul>
+<li class=""><strong>Forms Expressions:</strong> Form step <code>runAs</code> and <code>values</code> fields now allow expression strings.</li>
+<li class=""><strong>Comment Highlighting:</strong> Concord semantic highlighting no longer overrides YAML comment highlighting.</li>
+<li class=""><strong>Build Tooling:</strong> The project Gradle version was updated.</li>
+</ul>]]></content:encoded>
+            <category>Release</category>
+        </item>
         <item>
             <title><![CDATA[What's New in Concord IntelliJ 0.22.0]]></title>
             <link>https://brig.github.io/concord-intellij-ng/blog/whats-new-0.22.0</link>
