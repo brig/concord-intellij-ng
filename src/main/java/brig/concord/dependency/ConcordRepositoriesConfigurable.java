@@ -62,6 +62,7 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
         var mvnJsonPath = ConcordRepositorySettings.getInstance().getEffectiveMvnJsonPath().toString();
         myMvnJsonErrorLabel = new JBLabel();
         myMvnJsonErrorLabel.setIcon(AllIcons.General.Error);
+        myMvnJsonErrorLabel.setForeground(UIUtil.getErrorForeground());
         myMvnJsonErrorLabel.setVisible(false);
 
         return FormBuilder.createFormBuilder()
@@ -178,6 +179,11 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
         }
         myMvnJsonErrorLabel.setText(message);
         myMvnJsonErrorLabel.setVisible(message != null);
+        var parent = myMvnJsonErrorLabel.getParent();
+        if (parent != null) {
+            parent.revalidate();
+            parent.repaint();
+        }
     }
 
     private static @Nullable String nullIfBlank(@Nullable String s) {
