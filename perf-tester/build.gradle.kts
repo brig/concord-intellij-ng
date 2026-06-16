@@ -1,11 +1,19 @@
+import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.FileSystemOperations
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 plugins {
     id("java")
     alias(libs.plugins.kotlin)
     alias(libs.plugins.intellijPlatform)
 }
+
+abstract class GradleServices @Inject constructor(
+    val fs: FileSystemOperations,
+    val archives: ArchiveOperations,
+)
 
 repositories {
     mavenCentral()
@@ -43,7 +51,7 @@ tasks {
         doFirst {
             reportFile.parentFile.mkdirs()
             // Fallback: filter out the hot-reload-agent if composeHotReload flag didn't prevent it
-            jvmArgs = jvmArgs?.filter { !it.contains("hot-reload-agent") }
+            jvmArgs = jvmArgs.orEmpty().filter { !it.contains("hot-reload-agent") }
         }
 
         jvmArgs = listOf(
@@ -55,14 +63,15 @@ tasks {
 
     named("prepareSandbox", org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask::class) {
         val buildPluginTask = rootProject.tasks.named<org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask>("buildPlugin")
+        val services = objects.newInstance<GradleServices>()
         dependsOn(buildPluginTask)
 
         doLast {
             // Install main plugin
             val sandboxPluginsDir = sandboxDirectory.get().asFile.resolve("plugins")
             val pluginZip = buildPluginTask.get().archiveFile.get().asFile
-            project.copy {
-                from(zipTree(pluginZip))
+            services.fs.copy {
+                from(services.archives.zipTree(pluginZip))
                 into(sandboxPluginsDir)
             }
 

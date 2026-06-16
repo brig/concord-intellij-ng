@@ -456,6 +456,54 @@ class StepsHighlightingTest extends HighlightingTestBase {
     }
 
     @Test
+    void testCommentedOutStepAfterNestedOutBlockNotHighlighted() {
+        configureFromText("""
+            flows:
+              datavantPortalTf:
+                - call: awsRdsGetEndpoint
+                  in:
+                    identifier: "${awsRdsClusterDefinition.clusterName}"
+                    engine: "${awsRdsClusterDefinition.engine}"
+                  out:
+                    awsRdsEndpoint: "${endpoint}"
+
+                #    - call: datavantPortalTfEventsV2
+
+                - parallel:
+                    - call: datavantPortalTfKubernetesTooling
+            """);
+
+        assertNoSemanticHighlightsInComments();
+        highlight(documentSubstring("call: datavantPortalTfEventsV2"))
+                .is(ConcordHighlightingColors.COMMENT);
+    }
+
+    @Test
+    void testCommentedOutNestedStepBlockNotHighlighted() {
+        configureFromText("""
+            flows:
+              datavantPortalTf:
+                #    - call: awsRdsGetEndpoint
+                #      in:
+                #        identifier: "${awsRdsClusterDefinition.clusterName}"
+                #        engine: "${awsRdsClusterDefinition.engine}"
+                #      out:
+                #        awsRdsEndpoint: "${endpoint}"
+
+                - parallel:
+                    - call: datavantPortalTfKubernetesTooling
+            """);
+
+        assertNoSemanticHighlightsInComments();
+        highlight(documentSubstring("call: awsRdsGetEndpoint"))
+                .is(ConcordHighlightingColors.COMMENT);
+        highlight(documentSubstring("in:"))
+                .is(ConcordHighlightingColors.COMMENT);
+        highlight(documentSubstring("out:"))
+                .is(ConcordHighlightingColors.COMMENT);
+    }
+
+    @Test
     void testCommentedOutStepNoBlankLine() {
         configureFromText("""
             flows:
@@ -505,4 +553,5 @@ class StepsHighlightingTest extends HighlightingTestBase {
             }
         }
     }
+
 }

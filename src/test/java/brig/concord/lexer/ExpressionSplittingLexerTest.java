@@ -370,4 +370,54 @@ class ExpressionSplittingLexerTest {
             }
         }
     }
+
+    @Test
+    void restartBeforeCommentedOutStepPreservesCommentToken() {
+        var yaml = """
+                flows:
+                  datavantPortalTf:
+                    - call: awsRdsGetEndpoint
+                      in:
+                        identifier: "${awsRdsClusterDefinition.clusterName}"
+                        engine: "${awsRdsClusterDefinition.engine}"
+                      out:
+                        awsRdsEndpoint: "${endpoint}"
+
+                    #    - call: datavantPortalTfEventsV2
+
+                    - parallel:
+                        - call: datavantPortalTfKubernetesTooling
+                """;
+
+        var result = assertTokensWithExprSplitting(yaml);
+        var tokens = result.getTokens();
+        var comment = tokens.stream()
+                .filter(t -> t.typeName().equals("comment"))
+                .filter(t -> t.text().equals("#    - call: datavantPortalTfEventsV2"))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Missing commented-out step token.\n" + result.formatTokens()));
+
+        var lexer = new ExpressionSplittingLexer(new ConcordYAMLFlexLexer());
+        for (int i = 0; i < tokens.size(); i++) {
+            var token = tokens.get(i);
+            if (token.start() > comment.start()) {
+                break;
+            }
+            if (!lexer.isRestartableState(token.state())) {
+                continue;
+            }
+
+            lexer.start(yaml, token.start(), yaml.length(), token.state());
+            while (lexer.getTokenType() != null && lexer.getTokenStart() < comment.start()) {
+                lexer.advance();
+            }
+
+            assertEquals("comment", lexer.getTokenType().toString(),
+                    () -> "Restart from token " + token + " did not preserve the commented-out step as a comment.\n"
+                            + result.formatTokens());
+            assertEquals(comment.text(), yaml.substring(lexer.getTokenStart(), lexer.getTokenEnd()),
+                    () -> "Restart from token " + token + " produced a different comment range.\n"
+                            + result.formatTokens());
+        }
+    }
 }

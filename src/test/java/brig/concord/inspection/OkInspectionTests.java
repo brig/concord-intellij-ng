@@ -29,6 +29,7 @@ class OkInspectionTests extends InspectionTestBase {
             "/ok/flowCallInputParams/000.concord.yml",
             "/ok/flowCallInputParams/001.concord.yml",
             "/ok/formCall/000.concord.yml",
+            "/ok/formCall/001.concord.yml",
             "/ok/forms/000.concord.yml",
             "/ok/group/000.concord.yml",
             "/ok/if/000.concord.yml",

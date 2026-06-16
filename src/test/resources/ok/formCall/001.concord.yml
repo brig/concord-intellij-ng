@@ -1,0 +1,8 @@
+flows:
+  main:
+    - form: "boo"
+      yield: true
+      saveSubmittedBy: true
+      runAs: "${ctx.runAs}"
+      values: "${ctx.values}"
+      fields: "${ctx.fields}"

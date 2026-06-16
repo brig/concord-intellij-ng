@@ -2,6 +2,7 @@
 package brig.concord.dependency;
 
 import brig.concord.ConcordBundle;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.options.Configurable;
@@ -9,6 +10,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.openapi.util.NlsContexts;
 import com.intellij.ui.ToolbarDecorator;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.table.JBTable;
 import com.intellij.util.ui.FormBuilder;
 import com.intellij.util.ui.UIUtil;
@@ -29,6 +31,7 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
     private static final Logger LOG = Logger.getInstance(ConcordRepositoriesConfigurable.class);
 
     private TextFieldWithBrowseButton myDepsCachePathField;
+    private JBLabel myMvnJsonErrorLabel;
     private JBTable myReposTable;
     private RepositoryTableModel myTableModel;
     private List<MvnJsonConfig.Repository> mySavedRepositories = List.of();
@@ -57,10 +60,15 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
                 .disableUpDownActions();
 
         var mvnJsonPath = ConcordRepositorySettings.getInstance().getEffectiveMvnJsonPath().toString();
+        myMvnJsonErrorLabel = new JBLabel();
+        myMvnJsonErrorLabel.setIcon(AllIcons.General.Error);
+        myMvnJsonErrorLabel.setForeground(UIUtil.getErrorForeground());
+        myMvnJsonErrorLabel.setVisible(false);
 
         return FormBuilder.createFormBuilder()
                 .addLabeledComponent(ConcordBundle.message("repositories.deps.cache.path.label"), myDepsCachePathField)
                 .addLabeledComponent(ConcordBundle.message("repositories.mvn.json.path.label"), new JLabel(mvnJsonPath), UIUtil.LARGE_VGAP)
+                .addComponent(myMvnJsonErrorLabel)
                 .addVerticalGap(UIUtil.LARGE_VGAP)
                 .addLabeledComponentFillVertically(ConcordBundle.message("repositories.table.label"), decorator.createPanel())
                 .getPanel();
@@ -144,19 +152,38 @@ public final class ConcordRepositoriesConfigurable implements Configurable {
             var config = MvnJsonParser.read(mvnJsonPath);
             mySavedRepositories = List.copyOf(config.getRepositories());
             myTableModel.setRepositories(config.getRepositories());
+            setMvnJsonError(null);
         } catch (Exception e) {
             LOG.warn("Failed to read mvn.json from " + mvnJsonPath, e);
             mySavedRepositories = List.of();
             myTableModel.setRepositories(List.of());
+            setMvnJsonError(ConcordBundle.message(
+                    "repositories.error.read",
+                    mvnJsonPath,
+                    e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
         }
     }
 
     @Override
     public void disposeUIResources() {
         myDepsCachePathField = null;
+        myMvnJsonErrorLabel = null;
         myReposTable = null;
         myTableModel = null;
         mySavedRepositories = List.of();
+    }
+
+    private void setMvnJsonError(@Nullable String message) {
+        if (myMvnJsonErrorLabel == null) {
+            return;
+        }
+        myMvnJsonErrorLabel.setText(message);
+        myMvnJsonErrorLabel.setVisible(message != null);
+        var parent = myMvnJsonErrorLabel.getParent();
+        if (parent != null) {
+            parent.revalidate();
+            parent.repaint();
+        }
     }
 
     private static @Nullable String nullIfBlank(@Nullable String s) {

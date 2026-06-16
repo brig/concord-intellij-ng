@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Locale;
 
 /**
  * Dialog for editing a single Maven repository entry.
@@ -118,14 +119,7 @@ final class RepositoryEditDialog extends DialogWrapper {
             return new ValidationInfo(
                     ConcordBundle.message("repositories.validation.url.empty"), myUrlField);
         }
-        try {
-            var uri = new URI(myUrlField.getText().trim());
-            var scheme = uri.getScheme();
-            if (!"http".equals(scheme) && !"https".equals(scheme)) {
-                return new ValidationInfo(
-                        ConcordBundle.message("repositories.validation.url.invalid"), myUrlField);
-            }
-        } catch (URISyntaxException e) {
+        if (!isSupportedRepositoryUrl(myUrlField.getText())) {
             return new ValidationInfo(
                     ConcordBundle.message("repositories.validation.url.invalid"), myUrlField);
         }
@@ -143,6 +137,19 @@ final class RepositoryEditDialog extends DialogWrapper {
             }
         }
         return null;
+    }
+
+    static boolean isSupportedRepositoryUrl(@NotNull String value) {
+        try {
+            var uri = new URI(value.trim());
+            var scheme = uri.getScheme();
+            return switch (scheme != null ? scheme.toLowerCase(Locale.ROOT) : "") {
+                case "http", "https", "file" -> true;
+                default -> false;
+            };
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 
     private void loadFrom(@NotNull MvnJsonConfig.Repository repo) {

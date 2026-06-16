@@ -63,6 +63,7 @@ When editing a Concord Run Configuration, you can customize the execution enviro
 *   **Working Directory:** The root directory for the execution (usually the folder containing `concord.yml`).
 *   **Parameters:** Process arguments passed to the execution (accessible via `${...}` in the flow).
 *   **Additional Arguments:** Any extra flags to pass directly to the CLI command (e.g., `--verbose`).
+*   **Save console output to log file:** Writes the Run console output to a file for long executions or post-run analysis.
 
 ## Execution Modes
 
@@ -109,3 +110,15 @@ If you notice duplicate results in searches from a previous CLI run, check that 
 The execution output is displayed in the **Run** tool window. The console supports:
 *   **ANSI Colors:** Full color support for logs.
 *   **Hyperlinks:** Error messages in the output (e.g., `(concord.yml): Error @ line 10`) are clickable and navigate directly to the source code location.
+
+### Saving Console Output
+
+For flows with large output, enable **Save console output to log file** in the run configuration. The plugin continues to show output in the **Run** tool window and also writes the same text to a UTF-8 log file.
+
+Use **Log file or directory** to choose where logs are written:
+
+*   Leave it empty to create timestamped logs under `.concord/run-logs` in the working directory.
+*   Select a directory to create timestamped logs inside that directory.
+*   Select a file to write directly to that file.
+
+When the process starts, the Run console prints the exact log path, so you can open the saved output even if the console buffer later drops older lines.

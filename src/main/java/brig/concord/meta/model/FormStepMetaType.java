@@ -29,8 +29,8 @@ public class FormStepMetaType extends IdentityMetaType {
             "form", new StringMetaType(descKey("doc.step.form.key.description").andRequired()),
             "yield", new BooleanMetaType(descKey("doc.step.feature.yield.description")),
             "saveSubmittedBy", new BooleanMetaType(descKey("doc.step.feature.saveSubmittedBy.description")),
-            "runAs", new AnyMapMetaType(descKey("doc.step.feature.runAs.description")),
-            "values", new AnyMapMetaType(descKey("doc.step.feature.values.description")),
+            "runAs", RunAsType.getInstance(),
+            "values", ValuesType.getInstance(),
             "fields", FieldsType.getInstance()
     );
 
@@ -78,6 +78,34 @@ public class FormStepMetaType extends IdentityMetaType {
         @Override
         public @NotNull List<Documented.DocumentedField> getDocumentationFields() {
             return FormFieldMetaType.getInstance().getAllDocumentationFields();
+        }
+    }
+
+    private static class RunAsType extends YamlAnyOfType {
+
+        private static final RunAsType INSTANCE = new RunAsType();
+
+        public static RunAsType getInstance() {
+            return INSTANCE;
+        }
+
+        private RunAsType() {
+            super(List.of(ExpressionMetaType.getInstance(), AnyMapMetaType.getInstance()),
+                    descKey("doc.step.feature.runAs.description"));
+        }
+    }
+
+    private static class ValuesType extends YamlAnyOfType {
+
+        private static final ValuesType INSTANCE = new ValuesType();
+
+        public static ValuesType getInstance() {
+            return INSTANCE;
+        }
+
+        private ValuesType() {
+            super(List.of(ExpressionMetaType.getInstance(), AnyMapMetaType.getInstance()),
+                    descKey("doc.step.feature.values.description"));
         }
     }
 }
