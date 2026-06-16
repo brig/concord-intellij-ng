@@ -1,0 +1,105 @@
+---
+sidebar_position: 1
+---
+
+import Link from '@docusaurus/Link';
+import Keystroke from '@site/src/components/Keystroke';
+import NavigationIcon from '@site/src/icons/navigation.svg';
+import AnalysisIcon from '@site/src/icons/git-branch.svg';
+import SafetyIcon from '@site/src/icons/shield-check.svg';
+
+export function CapabilityCard({ icon: Icon, title, to, tryHint, children }) {
+    return (
+        <Link to={to} className="capCard">
+            <div className="capHeader">
+                <Icon className="capIcon" />
+                <div className="capTitle">{title}</div>
+            </div>
+
+            <div className="capDesc">{children}</div>
+
+            {tryHint && (
+                <div className="capTry">
+                    Try: {tryHint}
+                </div>
+            )}
+        </Link>
+    );
+}
+
+# Introduction
+
+Writing complex workflows in plain YAML is hard. You lose context, make typos, and spend hours debugging issues that a compiler would catch instantly.
+
+**Concord IntelliJ Plugin** treats Concord YAML as a **first-class language**. It brings the full power of IntelliJ IDEA — navigation, refactoring, and static analysis — to your Concord flows.
+
+## From Text to Code
+
+The plugin transforms your editing experience from "guessing strings" to "writing code":
+
+*   **Don't guess flow names.** Auto-complete them with context-aware suggestions.
+*   **Don't search for definitions.** <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {label: "B"}]} win={[{label: "Ctrl"}, {label: "B"}]} /> jumps straight to the flow, even across files.
+*   **Don't break callers.** Rename flows safely with <Keystroke mac={[{icon: "⇧", label: "Shift"}, {label: "F6"}]} win={[{label: "Shift"}, {label: "F6"}]} />.
+*   **Don't push typos.** Catch schema errors right in the editor before they hit CI.
+
+## Key Capabilities
+
+> *Detailed features are described in the [Features Overview](./features/overview.mdx).*
+
+<div className="capGrid">
+
+    <CapabilityCard
+        icon={NavigationIcon}
+        title="Smart Navigation"
+        to="/docs/features/navigation"
+        tryHint={
+            <Keystroke
+                mac={[{ icon: "⌘", label: "Cmd" }, { label: "B" }]}
+                win={[{ label: "Ctrl" }, { label: "B" }]}
+            />
+        }
+    >
+        Jump through flows like code — not files.
+    </CapabilityCard>
+
+    <CapabilityCard
+        icon={AnalysisIcon}
+        title="Deep Analysis"
+        to="/docs/features/call-hierarchy"
+        tryHint={
+            <Keystroke
+                  mac={[{ icon: "⌘", label: "Cmd" }, { label: "Alt" }, { label: "H" }]}
+                  win={[{ label: "Ctrl" }, { label: "Alt" }, { label: "H" }]}
+            />
+        }
+    >
+        See caller–callee dependencies instantly.
+    </CapabilityCard>
+
+    <CapabilityCard
+        icon={SafetyIcon}
+        title="Safety Net"
+        to="/docs/features/validation"
+        tryHint="Validation"
+    >
+        Catch schema and type errors as you type.
+    </CapabilityCard>
+
+</div>
+
+## Philosophy
+
+Concord flows are **code**. They have variables, functions (flows), imports, and dependencies. They deserve the same tooling quality as Java, Kotlin, or TypeScript.
+
+Our goal is to cover the entire development lifecycle:
+1.  **Authoring:** Writing flows with total IDE assistance.
+2.  **Maintenance:** Refactoring and navigating large-scale projects.
+3.  **Execution:** Running and testing flows locally using integrated tools.
+
+:::tip Quick Start
+Open any `.concord.yaml` file, hold `Cmd` (on Mac) or `Ctrl` (on Windows), and hover over a flow name in a `call` step. If it turns into a link, you're ready to go!
+:::
+
+## Supported IDEs
+
+- **IntelliJ IDEA** (Community & Ultimate) — Recommended for the best experience.
