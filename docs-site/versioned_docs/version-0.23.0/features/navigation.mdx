@@ -1,0 +1,102 @@
+---
+title: Navigation
+description: Navigate your Concord project with ease
+---
+
+import Keystroke from '@site/src/components/Keystroke';
+
+# Navigation
+
+The Concord IntelliJ Plugin makes navigating large, multi-file projects effortless. It treats flow names and calls as first-class symbols, allowing you to jump between definitions and references instantly.
+
+## Go to Declaration
+
+The most common way to navigate is jumping from a <span className="tokenBadge" data-kind="step">call</span> step to the flow's definition.
+
+*   **Shortcut:** <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {label: "B"}]} win={[{label: "Ctrl"}, {label: "B"}]} />
+*   **Mouse:** <Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> + **Click** on the flow name.
+
+This works even if the flow is defined in a different file or module, as long as it's within the same [Scope](./scopes.md).
+
+### Expression Variables
+
+<Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> + **Click** on a variable name inside a `${...}` expression to jump to where it was declared. This works for all variable sources:
+
+*   **Arguments** — jumps to the key in `configuration.arguments`
+*   **Flow parameters** — jumps to the parameter in the flow's [Documentation Block](./flow-docs)
+*   **Set variables** — jumps to the key in the <span className="tokenBadge" data-kind="step">set</span> step
+*   **Step out variables** — jumps to the `out` field of <span className="tokenBadge" data-kind="step">task</span>, <span className="tokenBadge" data-kind="step">expr</span>, <span className="tokenBadge" data-kind="step">call</span>, <span className="tokenBadge" data-kind="step">script</span>, <span className="tokenBadge" data-kind="step">try</span>, <span className="tokenBadge" data-kind="step">block</span>, and <span className="tokenBadge" data-kind="step">parallel</span> steps
+
+```concord
+configuration:
+  arguments:
+    appName: "my-app"
+
+flows:
+  main:
+    - task: concord
+      out: result
+    - log: "${appName}            ${result}"
+    #         ^ Cmd+Click jumps    ^ Cmd+Click jumps
+    #         to arguments           to out: result
+```
+
+### Expression Properties
+
+<Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> + **Click** on a property name in a dot-access chain (e.g., `host` in `${config.db.host}`) to jump to the corresponding YAML key in the source mapping. The plugin walks the property chain from the base variable's declaration through each nested mapping to find the target key.
+
+This works for variables declared in <span className="tokenBadge" data-kind="step">set</span> steps and `configuration.arguments` -- any source where the variable's value is a YAML mapping with named keys.
+
+```concord
+flows:
+  main:
+    - set:
+        config:
+          db:
+            host: "localhost"
+            port: 5432
+    - log: "${config.db.host}"
+    #                   ^ Cmd+Click jumps to the
+    #                     "host" key in the set step
+```
+
+## Go to Symbol
+
+Quickly find and jump to any flow, form, or trigger by name across your entire project.
+
+*   **Shortcut:** <Keystroke mac={[{icon: "⌘", label: "Cmd"}, {icon: "⌥", label: "Opt"}, {label: "O"}]} win={[{label: "Ctrl"}, {label: "Alt"}, {label: "Shift"}, {label: "N"}]} />
+*   **Search Everywhere:** Press `Double Shift` and start typing the name of a flow.
+
+## Related Symbol
+
+Quickly navigate from any Concord file to its associated root `concord.yaml` file. This is especially useful in large projects where files are deeply nested.
+
+*   **Shortcut:** <Keystroke mac={[{icon: "⌃", label: "Ctrl"}, {icon: "⌘", label: "Cmd"}, {icon: "↑", label: "Up"}]} win={[{label: "Ctrl"}, {label: "Alt"}, {label: "Home"}]} />
+*   **Menu:** Go to **Navigate** > **Related Symbol**
+
+If a file belongs to multiple [Scopes](./scopes.md), a popup will allow you to choose which root to navigate to.
+
+## Breadcrumbs
+
+As you navigate through deep YAML structures, [breadcrumbs](./breadcrumbs.mdx) at the bottom of the editor help you stay oriented, showing you exactly which flow and step you are currently editing.
+
+## Example
+
+### Jumping to a Flow
+
+Instantly jump from a call site to the implementation, even across the project:
+
+:::tip Try it yourself
+Hold <Keystroke mac={[{icon: "⌘", label: "Cmd"}]} win={[{label: "Ctrl"}]} /> and hover over a flow name in a `call` step. Click the link to jump to its definition.
+:::
+
+<figure className="docFigure docFigure--lg">
+    <img src={require('@site/static/img/navigation.png').default} alt="Navigation Example" />
+    <figcaption>
+        Jumping from a <code>call</code> step to a flow definition in another file.
+    </figcaption>
+</figure>
+
+:::note Cross-File Support
+The plugin indexes all flow names in your project, so navigation is nearly instantaneous even in codebases with hundreds of files.
+:::
