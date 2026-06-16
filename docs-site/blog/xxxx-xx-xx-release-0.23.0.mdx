@@ -5,3 +5,25 @@ authors: [brig]
 tags: [release]
 ---
 
+The `0.23.0` release improves local Concord runs, repository configuration, and editor highlighting.
+Run configurations can now mirror console output to a log file, Maven repository settings accept local `file:` URLs,
+and repository configuration errors are easier to diagnose.
+
+<!--truncate-->
+
+## Run Output Log Files
+
+Run configurations now include an optional output file setting. When configured, the Concord Run console output is mirrored into that file while still appearing in the IDE console. This is useful for long local runs where the full output needs to be kept for later review or attached to an issue.
+
+## Repository Settings
+
+The repositories settings page now supports local Maven repositories declared with `file:` URLs in `~/.concord/mvn.json`.
+This makes it possible to point the IDE at artifacts already present on disk, including a local `~/.m2/repository`.
+
+The page also reports `mvn.json` read errors directly in the UI. Previously, a malformed or unreadable config file could make the Maven repositories table look empty with no visible explanation. The settings page now shows the failing path and parser or I/O error message, making invalid JSON and accidental markdown-formatted URLs much easier to spot.
+
+## Other Improvements
+
+*   **Forms Expressions:** Form step `runAs` and `values` fields now allow expression strings.
+*   **Comment Highlighting:** Concord semantic highlighting no longer overrides YAML comment highlighting.
+*   **Build Tooling:** The project Gradle version was updated.
